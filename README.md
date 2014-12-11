@@ -2,7 +2,7 @@
 
 Basic rate-limiting middleware for Express. Use to limit access to public endpoints such as account creation and password reset.
 
-Note: this module does not share state with other processes/servers, so if you need a more robust solution, I recommend checking out the excellent [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter)ent
+Note: this module does not share state with other processes/servers, so if you need a more robust solution, I recommend checking out the excellent [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter)
 
 
 ## Install
