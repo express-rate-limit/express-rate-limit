@@ -5,13 +5,13 @@
   "homepage": "https://github.com/nfriedly/express-rate-limit",
   "author": {
     "name": "Nathan Friedly",
-    "email": "",
     "url": "http://nfriedly.com/"
   },
   "repository": "nfriedly/express-rate-limit",
   "license": "MIT",
+  "main": "lib/express-rate-limit.js",
   "files": [
-    "index.js"
+    "lib/"
   ],
   "keywords": [
     "express-rate-limit",
@@ -19,7 +19,10 @@
     "rate",
     "limit",
     "middleware",
-    "ip"
+    "ip",
+    "auth",
+    "authorization",
+    "security",
   ],
   "dependencies": {
     "defaults": "^1.0.0"
