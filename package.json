@@ -22,7 +22,7 @@
     "ip",
     "auth",
     "authorization",
-    "security",
+    "security"
   ],
   "dependencies": {
     "defaults": "^1.0.0"
