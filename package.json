@@ -1,0 +1,42 @@
+{
+  "name": "express-rate-limit",
+  "version": "0.0.0",
+  "description": "Basic rate-limiting middleware for Express. Use to limit access to public endpoints such as account creation and password reset.",
+  "homepage": "https://github.com/nfriedly/express-rate-limit",
+  "author": {
+    "name": "Nathan Friedly",
+    "email": "",
+    "url": "http://nfriedly.com/"
+  },
+  "repository": "nfriedly/express-rate-limit",
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "express-rate-limit",
+    "express",
+    "rate",
+    "limit",
+    "middleware",
+    "ip"
+  ],
+  "dependencies": {
+    "defaults": "^1.0.0"
+  },
+  "devDependencies": {
+    "express": "^4.10.4",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-mocha-cli": "^1.11.0",
+    "jshint-stylish": "^1.0.0",
+    "load-grunt-tasks": "^1.0.0",
+    "supertest": "^0.15.0",
+    "time-grunt": "^1.0.0"
+  },
+  "scripts": {
+    "test": "grunt"
+  }
+}
