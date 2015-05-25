@@ -27,10 +27,11 @@ app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Blu
 // default options shown below
 var limiter = RateLimit({
         // window, delay, and max apply per-ip unless global is set to true
-        windowMs: 60 * 1000 // miliseconds - how long to keep records of requests in memory
+        windowMs: 60 * 1000, // miliseconds - how long to keep records of requests in memory
         delayMs: 1000, // milliseconds - base delay applied to the response - multiplied by number of recent hits from user's IP
         max: 5, // max number of recent connections during `window` miliseconds before (temporarily) bocking the user.
-        global: false // if true, IP address is ignored and setting is applied equally to all requests
+        global: false, // if true, IP address is ignored and setting is applied equally to all requests
+        message: 'You have been very naughty.. No API response for you!!' // if message is set, the provide message will be shown instead of `Too many requests, please try again later.`
 });
 
 // for an API-only web app, you can apply this globally
