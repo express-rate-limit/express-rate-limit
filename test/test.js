@@ -168,4 +168,25 @@ describe('express-rate-limit node module', function() {
             });
         }, 60);
     });
+
+    it("should block requests a second time after (eventually) accepting them from a blocked IP ", function(done) {
+        createAppWith(rateLimit({
+            delayMs: 100,
+            max: 1,
+            windowMs: 50
+        }));
+        goodRequest(done);
+        badRequest(done);
+        setTimeout(function() {
+            start = Date.now();
+            goodRequest(done);
+            badRequest(done, function( /* err, res */ ) {
+                if (delay > 150) {
+                    done(new Error("Second request took too long: " + delay + "ms"));
+                } else {
+                    done();
+                }
+            });
+        }, 60);
+    });
 });
