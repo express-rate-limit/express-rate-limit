@@ -148,6 +148,7 @@ describe('express-rate-limit node module', function() {
         badRequestWithMessage(done, done);
     });
 
+
     it("should (eventually) accept new connections from a blocked IP", function(done) {
         createAppWith(rateLimit({
             delayMs: 100,
@@ -167,5 +168,40 @@ describe('express-rate-limit node module', function() {
                 }
             });
         }, 60);
+    });
+
+    it("should work repeatedly (issues #2 & #3)", function(done) {
+        createAppWith(rateLimit({
+            delayMs: 100,
+            max: 2,
+            windowMs: 50
+        }));
+
+        goodRequest(done);
+        goodRequest(done);
+        badRequest(done);
+        setTimeout(function() {
+            start = Date.now();
+            goodRequest(done, function( /* err, res */ ) {
+                if (delay > 50) {
+                    done(new Error("Eventual request took too long: " + delay + "ms"));
+                } else {
+                    goodRequest(done);
+                    badRequest(done);
+                    setTimeout(function() {
+                        start = Date.now();
+                        goodRequest(done, function( /* err, res */ ) {
+                            if (delay > 50) {
+                                done(new Error("Eventual request took too long: " + delay + "ms"));
+                            } else {
+                                done();
+                            }
+                        });
+                    }, 60);
+                }
+            });
+        }, 60);
+
+
     });
 });
