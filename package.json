@@ -25,19 +25,19 @@
     "security"
   ],
   "dependencies": {
-    "defaults": "^1.0.0"
+    "defaults": "^1.0.2"
   },
   "devDependencies": {
-    "express": "^4.10.4",
+    "express": "^4.13.1",
     "grunt-cli": "^0.1.13",
-    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-jshint": "^0.11.2",
     "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-mocha-cli": "^1.11.0",
-    "jshint-stylish": "^1.0.0",
-    "load-grunt-tasks": "^1.0.0",
-    "supertest": "^0.15.0",
-    "time-grunt": "^1.0.0"
+    "grunt-mocha-cli": "^1.14.0",
+    "jshint-stylish": "^2.0.1",
+    "load-grunt-tasks": "^3.2.0",
+    "supertest": "^1.0.1",
+    "time-grunt": "^1.2.1"
   },
   "scripts": {
     "test": "grunt"
