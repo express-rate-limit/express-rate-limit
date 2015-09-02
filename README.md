@@ -5,9 +5,10 @@
 [![Dependency Status](https://david-dm.org/nfriedly/express-rate-limit.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit)
 [![Development Dependency Status](https://david-dm.org/nfriedly/express-rate-limit/dev-status.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit#info=devDependencies)
 
-Basic rate-limiting middleware for Express. Use to limit access to public endpoints such as account creation and password reset.
+Basic rate-limiting middleware for Express. Use to limit repeated requests to public endpoints such as account creation and password reset.
 
-Note: this module does not share state with other processes/servers, so if you need a more robust solution, I recommend checking out the excellent [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter)
+Note: this module does not share state with other processes/servers.
+If you need a more robust solution, I recommend checking out the excellent [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter)
 
 
 ## Install
@@ -16,6 +17,18 @@ Note: this module does not share state with other processes/servers, so if you n
 $ npm install --save express-rate-limit
 ```
 
+## Configuration
+
+* **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to 60,000 (1 minute).
+* **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to 1. Set to 0 to disable entirely.  
+* **delayMs**: milliseconds - how long to delay the response; is multiplied by number of recent hits - `delayAfter`.  Defaults to 1,000 (1 second). Set to 0 to disable entirely.
+* **max**: max number of recent connections during `windowMs` milliseconds before sending a 400 response. Defaults to 5. Set to 0 to disable entirely.
+* **global**: If true, IP address is ignored and a single global hit counter is used. Defaults to false.
+* **message**: Error message returned when `max` is exceeded. Defaults to 'Too many requests, please try again later.'
+
+
+The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms. 
+For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
 
 ## Usage
 
@@ -26,24 +39,26 @@ app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Blu
 
 // default options shown below
 var limiter = RateLimit({
-        // window, delay, and max apply per-ip unless global is set to true
-        windowMs: 60 * 1000, // miliseconds - how long to keep records of requests in memory
-        delayMs: 1000, // milliseconds - base delay applied to the response - multiplied by number of recent hits from user's IP
-        max: 5, // max number of recent connections during `window` miliseconds before (temporarily) bocking the user.
-        global: false, // if true, IP address is ignored and setting is applied equally to all requests
-        message: 'You have been very naughty.. No API response for you!!' // if message is set, the provide message will be shown instead of `Too many requests, please try again later.`
+        windowMs: 60 * 1000,
+        delayAfter: 1,
+        delayMs: 1000,
+        max: 5,
+        global: false,
+        message: 'Too many requests, please try again later.'
 });
 
 // for an API-only web app, you can apply this globally
 app.use(limiter);
 
 // for a "regular" website, apply this only to specific endpoints
+// (this includes Single Page Apps if you serve the assets with express.static())
 app.post('/create-account', limiter, function(req, res) {
    // ...
 }
 ```
 
-You **could** apply this globally on a regular website, but be aware that it would then trigger on images, css, etc. So I wouldn't recommend it.
+You **could** apply this globally (`app.use(limiter);`) on a regular website, but be aware that it would then trigger on images, css, etc. So I wouldn't recommend it.
+
 
 ## License
 

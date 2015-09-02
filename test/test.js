@@ -4,10 +4,11 @@ var express = require('express');
 var request = require('supertest');
 var rateLimit = require('../lib/express-rate-limit.js');
 
+// todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
+
 describe('express-rate-limit node module', function() {
 
-    var start, delay, message;
-    var app;
+    var start, delay, message, app;
 
     beforeEach(function() {
         start = Date.now();
@@ -127,6 +128,49 @@ describe('express-rate-limit node module', function() {
         });
     });
 
+    it("should allow delayAfter requests before delaying responses", function(done) {
+        createAppWith(rateLimit({
+            delayMs: 100,
+            delayAfter: 2
+        }));
+        goodRequest(done, function( /* err, res */ ) {
+            if (delay > 50) {
+                done(new Error("First request took too long: " + delay + "ms"));
+            }
+        });
+        goodRequest(done, function( /* err, res */ ) {
+            if (delay > 100) {
+                done(new Error("Second request took too long: " + delay + "ms"));
+            }
+        });
+        goodRequest(done, function( /* err, res */ ) {
+            if (delay < 100) {
+                return done(new Error("Second request was served too fast: " + delay + "ms"));
+            }
+            if (delay > 150) {
+                return done(new Error("Second request took too long: " + delay + "ms"));
+            }
+            done();
+        });
+    });
+
+    it("should allow delayAfter to be disabled entirely", function(done) {
+        createAppWith(rateLimit({
+            delayMs: 1000,
+            delayAfter: 0
+        }));
+        goodRequest(done);
+        goodRequest(done);
+        goodRequest(done);
+        goodRequest(done, function( /* err, res */ ) {
+            // should be about 300ms delay on 4th request - because the multiplier starts at 0
+            if (delay > 100) {
+                return done(new Error("Fourth request was served too fast: " + delay + "ms"));
+            }
+            done();
+        });
+    });
+
     it("should refuse additional connections once IP has reached the max", function(done) {
         createAppWith(rateLimit({
             delayMs: 0,
@@ -135,6 +179,16 @@ describe('express-rate-limit node module', function() {
         goodRequest(done);
         goodRequest(done);
         badRequest(done, done);
+    });
+
+    it("should allow max to be disabled entirely", function(done) {
+        createAppWith(rateLimit({
+            delayMs: 1,
+            max: 0
+        }));
+        goodRequest(done);
+        goodRequest(done);
+        goodRequest(done, done);
     });
 
     it("should show the provided message instead of the default message when max connections are reached", function(done) {
