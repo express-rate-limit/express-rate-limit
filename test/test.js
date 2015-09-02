@@ -255,7 +255,19 @@ describe('express-rate-limit node module', function() {
                 }
             });
         }, 60);
+    });
 
-
+    it("should allow the error statusCode to be customized", function(done) {
+        var errStatusCode = 123;
+        createAppWith(rateLimit({
+            delayMs: 0,
+            max: 1,
+            statusCode: errStatusCode
+        }));
+        goodRequest(done);
+        request(app)
+            .get('/')
+            .expect(errStatusCode)
+            .end(done);
     });
 });

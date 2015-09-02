@@ -19,13 +19,13 @@ $ npm install --save express-rate-limit
 
 ## Configuration
 
-* **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to 60,000 (1 minute).
-* **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to 1. Set to 0 to disable entirely.  
-* **delayMs**: milliseconds - how long to delay the response; is multiplied by number of recent hits - `delayAfter`.  Defaults to 1,000 (1 second). Set to 0 to disable entirely.
-* **max**: max number of recent connections during `windowMs` milliseconds before sending a 400 response. Defaults to 5. Set to 0 to disable entirely.
-* **global**: If true, IP address is ignored and a single global hit counter is used. Defaults to false.
-* **message**: Error message returned when `max` is exceeded. Defaults to 'Too many requests, please try again later.'
-
+* **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to `60000` (1 minute).
+* **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to `1`. Set to `0` to disable delaying.  
+* **delayMs**: milliseconds - how long to delay the response, multiplied by (number of recent hits - `delayAfter`).  Defaults to `1000` (1 second). Set to `0` to disable delaying.
+* **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
+* **global**: If `true`, IP address is ignored and a single global hit counter is used. Defaults to `false`.
+* **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
+* **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
 
 The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms. 
 For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
@@ -44,7 +44,8 @@ var limiter = RateLimit({
         delayMs: 1000,
         max: 5,
         global: false,
-        message: 'Too many requests, please try again later.'
+        message: 'Too many requests, please try again later.',
+        statusCode: 429
 });
 
 // for an API-only web app, you can apply this globally
