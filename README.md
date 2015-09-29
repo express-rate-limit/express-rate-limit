@@ -23,7 +23,6 @@ $ npm install --save express-rate-limit
 * **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to `1`. Set to `0` to disable delaying.  
 * **delayMs**: milliseconds - how long to delay the response, multiplied by (number of recent hits - `delayAfter`).  Defaults to `1000` (1 second). Set to `0` to disable delaying.
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
-* **global**: If `true`, IP address is ignored and a single global hit counter is used. Defaults to `false`.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
 
