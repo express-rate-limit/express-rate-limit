@@ -31,34 +31,53 @@ For public APIs, setting these to `0` (disabled) and relying on only `windowMs` 
 
 ## Usage
 
+For an API-only server where the rate-limiter should be applied to all requests:
+
 ```js
-var RateLimit = require('express-rate-limit');
+var rateLimit = require('express-rate-limit');
 
 app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 
 // default options shown below
-var limiter = RateLimit({
-        windowMs: 60 * 1000,
-        delayAfter: 1,
-        delayMs: 1000,
-        max: 5,
-        global: false,
-        message: 'Too many requests, please try again later.',
-        statusCode: 429
-});
+var limiter = rateLimit({/* config */});
 
-// for an API-only web app, you can apply this globally
+//  apply this globally
 app.use(limiter);
+```
 
-// for a "regular" website, apply this only to specific endpoints
-// (this includes Single Page Apps if you serve the assets with express.static())
+For a "regular" web server (e.g. anything that uses `express.static()`), where the rate-limiter should only apply to certain requests:
+
+```js
+var rateLimit = require('express-rate-limit');
+
+app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+
+var limiter = rateLimit({/* config */});
+
+// apply to all requests that begin with /api/
+app.use('/api/', limiter);
+
+// apply to an individual endpoint
 app.post('/create-account', limiter, function(req, res) {
    // ...
 }
+
+// optionally set up an endpoint to reset the rate limit for an IP
+var limiter2 = rateLimit({/* altConfig */);  // we can't use the same rateLimit instance on the reset endpoint, but we probably do want it limited.
+app.post('/reset-rate-limit', limiter2, function(req, res) {
+   // validate that requester has filled out a captcha properly or whatever and then...
+  limiter.resetIp(req.ip);
+  // ...
+} 
 ```
 
-You **could** apply this globally (`app.use(limiter);`) on a regular website, but be aware that it would then trigger on images, css, etc. So I wouldn't recommend it.
+## Instance API
 
+* **resetIp(ip)**: Resets the rate limiting for a given ip.
+
+## v2 changes
+
+v2 uses a less precise but less resource intensive method of tracking hits from a given IP. v2 also adds the `limiter.resetIp()` API and removes the `global: true` option.
 
 ## License
 

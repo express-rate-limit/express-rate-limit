@@ -21,9 +21,14 @@ describe('express-rate-limit node module', function() {
 
     function createAppWith(limit) {
         app = express();
-        app.use(limit);
-        app.all('/', function(req, res) {
+        app.all('/', limit, function(req, res) {
             res.send('response!');
+        });
+        // helper endpoint to know what ip test requests come from
+        // set in headers so that I don't have to deal with the body being a stream
+        app.get('/ip', function(req,res) {
+            res.setHeader('x-your-ip', req.ip);
+            res.status(204).send('');
         });
         return app;
     }
@@ -75,7 +80,6 @@ describe('express-rate-limit node module', function() {
                 }
             });
     }
-
 
     it("should allow the first request with minimal delay", function(done) {
         createAppWith(rateLimit());
@@ -270,4 +274,31 @@ describe('express-rate-limit node module', function() {
             .expect(errStatusCode)
             .end(done);
     });
+
+
+    it("should allow individual IP's to be reset", function(done) {
+
+        var limiter = rateLimit({
+            delayMs: 100,
+            max: 1,
+            windowMs: 50
+        });
+        createAppWith(limiter);
+
+        request(app).get('/ip').expect(204).end(function(err, res) {
+            var myIp = res.headers['x-your-ip'];
+            if (!myIp) {
+                return done(new Error("unable to determine local IP"));
+            }
+            goodRequest(done);
+            badRequest(done, function(err) {
+                if (err) {
+                    return done(err);
+                }
+                limiter.resetIp(myIp);
+                goodRequest(done, done);
+            });
+        });
+    });
+
 });
