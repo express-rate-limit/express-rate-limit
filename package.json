@@ -35,7 +35,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-mocha-cli": "^1.14.0",
     "jshint-stylish": "^2.0.1",
-    "load-grunt-tasks": "^3.3.0",
+    "load-grunt-tasks": "^3.4.0",
     "supertest": "^1.1.0",
     "time-grunt": "^1.2.1"
   },
