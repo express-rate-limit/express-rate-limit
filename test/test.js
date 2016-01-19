@@ -22,7 +22,16 @@ describe('express-rate-limit node module', function() {
     function createAppWith(limit) {
         app = express();
         app.all('/', limit, function(req, res) {
-            res.send('response!');
+          res.format({
+            html: function () {
+              res.send('response!');
+            },
+            json: function () {
+              res.json({
+                message: /response!/
+              });
+            }
+          });
         });
         // helper endpoint to know what ip test requests come from
         // set in headers so that I don't have to deal with the body being a stream
@@ -49,11 +58,47 @@ describe('express-rate-limit node module', function() {
             });
     }
 
+    function goodJsonRequest(errorHandler, successHandler) {
+        request(app)
+            .get('/')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200, {
+              message: /response!/
+            })
+            .end(function(err, res) {
+                if (err) {
+                    return errorHandler(err);
+                }
+                delay = Date.now() - start;
+                if (successHandler) {
+                    successHandler(null, res);
+                }
+            });
+    }
+
     function badRequest(errorHandler, successHandler) {
         request(app)
             .get('/')
             .expect(429)
             .expect(/Too many requests/)
+            .end(function(err, res) {
+                if (err) {
+                    return errorHandler(err);
+                }
+                delay = Date.now() - start;
+                if (successHandler) {
+                    successHandler(null, res);
+                }
+            });
+    }
+
+    function badJsonRequest(errorHandler, successHandler) {
+        request(app)
+            .get('/')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(429, { message: 'Too many requests, please try again later.' })
             .end(function(err, res) {
                 if (err) {
                     return errorHandler(err);
@@ -299,6 +344,61 @@ describe('express-rate-limit node module', function() {
                 goodRequest(done, done);
             });
         });
+    });
+
+
+    it ("should respond with the default JSON object", function (done) {
+      var limiter = rateLimit({
+          delayMs: 0,
+          max: 1
+      });
+      createAppWith(limiter);
+      goodJsonRequest(done);
+      badJsonRequest(done, done);
+    });
+
+
+    it ("should respond with text/html to browsers real Accept headers", function (done) {
+      var limiter = rateLimit({
+          delayMs: 0,
+          max: 1
+      });
+      createAppWith(limiter);
+      goodRequest(done);
+      request(app)
+      .get('/')
+      .set('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+      .expect(429, /Too many requests/)
+      .end(function (err) {
+        if (err) {
+          return done(err);
+        } else {
+          return done();
+        }
+      });
+    });
+
+
+    it ("should use the custom handler when specified", function (done) {
+      var limiter = rateLimit({
+          delayMs: 0,
+          max: 1,
+          handler: function (req, res) {
+            res.status(429).end('Custom handler executed!');
+          }
+      });
+      createAppWith(limiter);
+      goodRequest(done);
+      request(app)
+      .get('/')
+      .expect(429, 'Custom handler executed!')
+      .end(function (err) {
+        if (err) {
+          return done(err);
+        } else {
+          return done();
+        }
+      });
     });
 
 });

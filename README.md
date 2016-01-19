@@ -25,21 +25,15 @@ $ npm install --save express-rate-limit
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
-* **handler**: The function to execute once the max limit is exceeded. It receives the response object. Defaults:
+* **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
 ```js
-function (res) {
+function (req, res, /*next*/) {
   res.format({
-    'text/plain': function(){
-      res.status(options.statusCode).send(options.message);
+    html: function(){
+      res.status(options.statusCode).end(options.message);
     },
-    'text/html': function(){
-      res.status(options.statusCode).send('<p>' + options.message + '</p>');
-    },
-    'application/json': function(){
+    json: function(){
       res.status(options.statusCode).json({ message: options.message });
-    },
-    'default': function() {
-      res.status(options.statusCode).send(options.message);
     }
   });
 }
