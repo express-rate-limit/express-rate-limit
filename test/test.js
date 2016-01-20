@@ -143,7 +143,7 @@ describe('express-rate-limit node module', function() {
             delayMs: 100
         }));
         goodRequest(done, function( /* err, res */ ) {
-            if (delay > 50) {
+            if (delay > 99) {
                 done(new Error("First request took too long: " + delay + "ms"));
             }
         });
@@ -151,7 +151,7 @@ describe('express-rate-limit node module', function() {
             if (delay < 100) {
                 return done(new Error("Second request was served too fast: " + delay + "ms"));
             }
-            if (delay > 150) {
+            if (delay > 199) {
                 return done(new Error("Second request took too long: " + delay + "ms"));
             }
             done();
