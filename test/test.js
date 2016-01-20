@@ -130,7 +130,7 @@ describe('express-rate-limit node module', function() {
         createAppWith(rateLimit());
         goodRequest(done, function( /* err, res */ ) {
             delay = Date.now() - start;
-            if (delay > 50) {
+            if (delay > 99) {
                 done(new Error("First request took too long: " + delay + "ms"));
             } else {
                 done();
