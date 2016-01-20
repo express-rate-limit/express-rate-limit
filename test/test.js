@@ -28,7 +28,7 @@ describe('express-rate-limit node module', function() {
             },
             json: function () {
               res.json({
-                message: /response!/
+                message: 'response!'
               });
             }
           });
@@ -64,7 +64,7 @@ describe('express-rate-limit node module', function() {
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200, {
-              message: /response!/
+              message: 'response!'
             })
             .end(function(err, res) {
                 if (err) {
