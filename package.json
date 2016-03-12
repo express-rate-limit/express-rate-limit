@@ -33,7 +33,7 @@
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-nodeunit": "^1.0.0",
-    "grunt-contrib-watch": "^0.6.1",
+    "grunt-contrib-watch": "^1.0.0",
     "grunt-mocha-cli": "^2.0.0",
     "jshint-stylish": "^2.1.0",
     "load-grunt-tasks": "^3.4.0",
