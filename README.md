@@ -102,13 +102,13 @@ function (req, res, /*next*/) {
 }
 ```
 
+The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
+For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
+
+
 ## Instance API
 
 * **resetIp(ip)**: Resets the rate limiting for a given IP. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method with their IP.)
-
-
-The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
-For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
 
 ## v2 changes
 
