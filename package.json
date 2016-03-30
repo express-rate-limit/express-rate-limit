@@ -1,7 +1,7 @@
 {
   "name": "express-rate-limit",
   "version": "2.1.3",
-  "description": "Basic rate-limiting middleware for Express. Use to limit access to public endpoints such as account creation and password reset.",
+  "description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
   "homepage": "https://github.com/nfriedly/express-rate-limit",
   "author": {
     "name": "Nathan Friedly",

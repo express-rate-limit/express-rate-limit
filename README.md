@@ -5,7 +5,7 @@
 [![Dependency Status](https://david-dm.org/nfriedly/express-rate-limit.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit)
 [![Development Dependency Status](https://david-dm.org/nfriedly/express-rate-limit/dev-status.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit#info=devDependencies)
 
-Basic rate-limiting middleware for Express. Use to limit repeated requests to public endpoints such as account creation and password reset.
+Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
 
 Note: this module does not share state with other processes/servers.
 If you need a more robust solution, I recommend checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excelent pieces of software.
