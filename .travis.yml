@@ -1,6 +1,13 @@
 language: node_js
 node_js:
-  - stable
-  - 4.2
-  - '0.12'
-sudo: false
+- stable
+- 4
+- '0.12'
+deploy:
+  provider: npm
+  email: nathan@nfriedly.com
+  api_key:
+    secure: U9AUx13VpjpmkcjUaBJD6HyjqVFaXZTkpMTXnK82lVTMKoiVAgHNW8qluEQDLWK0ZbFZk+QwloTmJo5EkFP//0qGVhZw+LbyM2AiQj0AYhZLpj7Q6tmARgLPmB26KgJUhUYdydt1jA+CzniRla/e/3ancWIhZZoUxNcidIB0jOg=
+  on:
+    tags: true
+    repo: nfriedly/express-rate-limit
