@@ -30,7 +30,7 @@ app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Blu
 var limiter = new RateLimit({
   windowMs: 15*60*1000, // 15 minutes
   max: 100, 
-  delayAfter: 0 // disable delaying - full speed until the max limit is reached
+  delayMs: 0 // disable delaying - full speed until the max limit is reached
 });
 
 //  apply to all requests
@@ -47,7 +47,7 @@ app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Blu
 var apiLimiter = new RateLimit({
   windowMs: 15*60*1000, // 15 minutes
   max: 100,
-  delayAfter: 0 // disabled
+  delayMs: 0 // disabled
 });
 
 // only apply to requests that begin with /api/
@@ -65,7 +65,7 @@ app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Blu
 var apiLimiter = new RateLimit({
   windowMs: 15*60*1000, // 15 minutes
   max: 100,
-  delayAfter: 0 // disabled
+  delayMs: 0 // disabled
 });
 app.use('/api/', apiLimiter);
 
