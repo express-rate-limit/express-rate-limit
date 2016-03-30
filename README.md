@@ -47,41 +47,61 @@ For public APIs, setting these to `0` (disabled) and relying on only `windowMs` 
 For an API-only server where the rate-limiter should be applied to all requests:
 
 ```js
-var rateLimit = require('express-rate-limit');
+var RateLimit = require('express-rate-limit');
 
 app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 
 // default options shown below
-var limiter = rateLimit({/* config */});
+var limiter = new RateLimit({
+  windowMs: 15*60*1000, // 15 minutes
+  max: 100, 
+  delayAfter: 0 // disable delaying - full speed until the max limit is reached
+});
 
-//  apply this globally
+//  apply to all requests
 app.use(limiter);
 ```
 
 For a "regular" web server (e.g. anything that uses `express.static()`), where the rate-limiter should only apply to certain requests:
 
 ```js
-var rateLimit = require('express-rate-limit');
+var RateLimit = require('express-rate-limit');
 
 app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 
-var limiter = rateLimit({/* config */});
+var apiLimiter = new RateLimit({
+  windowMs: 15*60*1000, // 15 minutes
+  max: 100
+});
 
-// apply to all requests that begin with /api/
-app.use('/api/', limiter);
+// only apply to requests that begin with /api/
+app.use('/api/', apiLimiter);
 
-// apply to an individual endpoint
-app.post('/create-account', limiter, function(req, res) {
-   // ...
-}
+```
 
-// optionally set up an endpoint to reset the rate limit for an IP
-var limiter2 = rateLimit({/* altConfig */);  // we can't use the same rateLimit instance on the reset endpoint, but we probably do want it limited.
-app.post('/reset-rate-limit', limiter2, function(req, res) {
-   // validate that requester has filled out a captcha properly or whatever and then...
-  limiter.resetIp(req.ip);
-  // ...
-}
+Create multiple instances to apply different rules to different routes:
+
+```js
+var RateLimit = require('express-rate-limit');
+
+app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+
+var apiLimiter = new RateLimit({
+  windowMs: 15*60*1000, // 15 minutes
+  max: 100
+});
+app.use('/api/', apiLimiter);
+
+var createAccountLimiter = new RateLimit({
+  windowMs: 60*60*1000, // 1 hour window
+  delayAfter: 1, // begin slowing down responses after the first request
+  delayMs: 3*1000, // slow down subsequent responses by 3 seconds per request
+  max: 5, // start blocking after 5 requests
+  message: "Too many accounts created from this IP, please try again after an hour"
+});
+app.post('/create-account', createAccountLimiter, function(req, res) {
+ //...
+});
 ```
 
 ## Instance API
