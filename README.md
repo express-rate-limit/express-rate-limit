@@ -17,31 +17,6 @@ If you need a more robust solution, I recommend checking out [strict-rate-limite
 $ npm install --save express-rate-limit
 ```
 
-## Configuration
-
-* **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to `60000` (1 minute).
-* **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to `1`. Set to `0` to disable delaying.  
-* **delayMs**: milliseconds - how long to delay the response, multiplied by (number of recent hits - `delayAfter`).  Defaults to `1000` (1 second). Set to `0` to disable delaying.
-* **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
-* **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
-* **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
-* **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
-```js
-function (req, res, /*next*/) {
-  res.format({
-    html: function(){
-      res.status(options.statusCode).end(options.message);
-    },
-    json: function(){
-      res.status(options.statusCode).json({ message: options.message });
-    }
-  });
-}
-```
-
-The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
-For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
-
 ## Usage
 
 For an API-only server where the rate-limiter should be applied to all requests:
@@ -104,9 +79,35 @@ app.post('/create-account', createAccountLimiter, function(req, res) {
 });
 ```
 
+## Configuration
+
+* **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to `60000` (1 minute).
+* **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to `1`. Set to `0` to disable delaying.  
+* **delayMs**: milliseconds - how long to delay the response, multiplied by (number of recent hits - `delayAfter`).  Defaults to `1000` (1 second). Set to `0` to disable delaying.
+* **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
+* **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
+* **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
+* **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
+```js
+function (req, res, /*next*/) {
+  res.format({
+    html: function(){
+      res.status(options.statusCode).end(options.message);
+    },
+    json: function(){
+      res.status(options.statusCode).json({ message: options.message });
+    }
+  });
+}
+```
+
 ## Instance API
 
-* **resetIp(ip)**: Resets the rate limiting for a given ip.
+* **resetIp(ip)**: Resets the rate limiting for a given IP. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method with their IP.)
+
+
+The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
+For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
 
 ## v2 changes
 
