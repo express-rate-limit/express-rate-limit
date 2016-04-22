@@ -88,7 +88,12 @@ app.post('/create-account', createAccountLimiter, function(req, res) {
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
-* **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used.
+* **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
+```js
+function (req /*, res*/) {
+    return req.ip;
+}
+```
 * **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
 ```js
 function (req, res, /*next*/) {
