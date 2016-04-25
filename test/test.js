@@ -1,6 +1,7 @@
 /*global describe, it, beforeEach, afterEach */
 'use strict';
 var express = require('express');
+var assert = require('assert');
 var request = require('supertest');
 var rateLimit = require('../lib/express-rate-limit.js');
 
@@ -42,9 +43,15 @@ describe('express-rate-limit node module', function() {
         return app;
     }
 
-    function goodRequest(errorHandler, successHandler) {
-        request(app)
-            .get('/')
+    function goodRequest(errorHandler, successHandler, key) {
+        var req = request(app)
+            .get('/');
+        // add optional key parameter
+        if (key) {
+            req = req.query({key:key});
+        }
+
+        req
             .expect(200)
             .expect(/response!/)
             .end(function(err, res) {
@@ -77,9 +84,17 @@ describe('express-rate-limit node module', function() {
             });
     }
 
-    function badRequest(errorHandler, successHandler) {
-        request(app)
-            .get('/')
+    function badRequest(errorHandler, successHandler, key) {
+        var req = request(app)
+            .get('/');
+
+        // add optional key parameter
+        if (key) {
+            req = req
+                .query({key: key});
+        }
+
+        req
             .expect(429)
             .expect(/Too many requests/)
             .end(function(err, res) {
@@ -399,6 +414,34 @@ describe('express-rate-limit node module', function() {
           return done();
         }
       });
+    });
+
+    it ("should allow custom key generators", function (done) {
+        var limiter = rateLimit({
+            delayMs: 0,
+            max: 2,
+            keyGenerator: function (req, res) {
+                assert.ok(req);
+                assert.ok(res);
+
+                var key = req.query.key;
+                assert.ok(key);
+
+                return key;
+            }
+        });
+
+        createAppWith(limiter);
+        goodRequest(done, null, 1);
+        goodRequest(done, null, 1);
+        goodRequest(done, null, 2);
+        badRequest(done, function (err) {
+            if (err) {
+                return done(err);
+            }
+            goodRequest(done, null, 2);
+            badRequest(done, done, 2);
+        }, 1);
     });
 
 });

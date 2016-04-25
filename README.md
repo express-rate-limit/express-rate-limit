@@ -5,10 +5,10 @@
 [![Dependency Status](https://david-dm.org/nfriedly/express-rate-limit.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit)
 [![Development Dependency Status](https://david-dm.org/nfriedly/express-rate-limit/dev-status.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit#info=devDependencies)
 
-Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
+Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
 
 Note: this module does not share state with other processes/servers.
-If you need a more robust solution, I recommend checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excelent pieces of software.
+If you need a more robust solution, I recommend checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excellent pieces of software.
 
 
 ## Install
@@ -88,6 +88,12 @@ app.post('/create-account', createAccountLimiter, function(req, res) {
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
+* **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
+```js
+function (req /*, res*/) {
+    return req.ip;
+}
+```
 * **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
 ```js
 function (req, res, /*next*/) {
@@ -108,11 +114,11 @@ For public APIs, setting these to `0` (disabled) and relying on only `windowMs` 
 
 ## Instance API
 
-* **resetIp(ip)**: Resets the rate limiting for a given IP. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method with their IP.)
+* **resetKey(key)**: Resets the rate limiting for a given key. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method.)
 
 ## v2 changes
 
-v2 uses a less precise but less resource intensive method of tracking hits from a given IP. v2 also adds the `limiter.resetIp()` API and removes the `global: true` option.
+v2 uses a less precise but less resource intensive method of tracking hits from a given IP. v2 also adds the `limiter.resetKey()` API and removes the `global: true` option.
 
 ## License
 
