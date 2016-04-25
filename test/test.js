@@ -419,7 +419,7 @@ describe('express-rate-limit node module', function() {
     it ("should allow custom key generators", function (done) {
         var limiter = rateLimit({
             delayMs: 0,
-            max: 1,
+            max: 2,
             keyGenerator: function (req, res) {
                 assert.ok(req);
                 assert.ok(res);
@@ -433,11 +433,13 @@ describe('express-rate-limit node module', function() {
 
         createAppWith(limiter);
         goodRequest(done, null, 1);
+        goodRequest(done, null, 1);
         goodRequest(done, null, 2);
         badRequest(done, function (err) {
             if (err) {
                 return done(err);
             }
+            goodRequest(done, null, 2);
             badRequest(done, done, 2);
         }, 1);
     });
