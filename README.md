@@ -87,6 +87,8 @@ app.post('/create-account', createAccountLimiter, function(req, res) {
 * **delayMs**: milliseconds - how long to delay the response, multiplied by (number of recent hits - `delayAfter`).  Defaults to `1000` (1 second). Set to `0` to disable delaying.
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
+* **realIpHeader**: string - name of an HTTP header to extract real user ip from
+* **realIpParam** string - name of request child member (example: req.realIpHeader) to extract the real user ip from
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
 * **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
 ```js
