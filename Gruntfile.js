@@ -23,7 +23,7 @@ module.exports = function (grunt) {
         },
         mochacli: {
             options: {
-                reporter: 'nyan',
+                reporter: process.env.CI ? 'spec' : 'nyan', // (nyan output is gibberish on travis)
                 bail: true
             },
             all: ['test/*.js']
