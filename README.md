@@ -109,7 +109,7 @@ function (req, res, /*next*/) {
 ```
 * **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
 ```js
-var SomeStore = function() {
+function SomeStore() {
     /**
       * Increments the value in the underlying store for the given key.
       * @method function
