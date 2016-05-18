@@ -43,6 +43,24 @@ describe('express-rate-limit node module', function() {
         return app;
     }
 
+    function InvalidStore() {}
+
+    function MockStore() {
+      this.incr_was_called = false;
+      this.resetKey_was_called = false;
+
+      var self = this;
+      this.incr = function(key, cb) {
+        self.incr_was_called = true;
+
+        cb(null, 1);
+      };
+
+      this.resetKey = function() {
+        self.resetKey_was_called = true;
+      };
+    }
+
     function goodRequest(errorHandler, successHandler, key) {
         var req = request(app)
             .get('/');
@@ -140,6 +158,49 @@ describe('express-rate-limit node module', function() {
                 }
             });
     }
+
+    it("should not allow the use of a store that is not valid", function(done) {
+        try {
+            rateLimit({
+                store: new InvalidStore()
+            });
+        } catch(e) {
+            return done();
+        }
+
+        done(new Error("It allowed an invalid store"));
+    });
+
+    it("should call incr on the store", function(done) {
+      var store = new MockStore();
+
+      createAppWith(rateLimit({
+          store: store
+      }));
+
+      goodRequest(done, function() {
+          if (!store.incr_was_called) {
+            done(new Error("incr was not called on the store"));
+          } else {
+            done();
+          }
+      });
+    });
+
+    it("should call resetKey on the store", function(done) {
+      var store = new MockStore();
+      var limiter = rateLimit({
+          store: store
+      });
+
+      limiter.resetKey("key");
+
+      if (!store.resetKey_was_called) {
+          done(new Error("resetKey was not called on the store"));
+      } else {
+          done();
+      }
+    });
 
     it("should allow the first request with minimal delay", function(done) {
         createAppWith(rateLimit());
