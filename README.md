@@ -123,7 +123,7 @@ var SomeStore = function() {
     };
 
     /**
-     * This callback is called buy the underlying store when an answer to the
+     * This callback is called by the underlying store when an answer to the
      * increment is available.
      * @callback Store~incrCallback
      * @param {?object} err - The error from the underlying store, or null if no
