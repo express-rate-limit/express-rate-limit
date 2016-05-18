@@ -2,7 +2,7 @@
 var MemoryStore = require('../lib/memory-store.js');
 
 describe('MemoryStore store', function() {
-  it("sets the value to 0 on first incr", function(done) {
+  it("sets the value to 1 on first incr", function(done) {
     var store = new MemoryStore(-1);
     var key = "test-store";
 
