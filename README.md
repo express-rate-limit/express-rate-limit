@@ -7,7 +7,7 @@
 
 Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
 
-Note: this module does not share state with other processes/servers.
+Note: this module does not share state with other processes/servers by default.
 If you need a more robust solution, I recommend checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excellent pieces of software.
 
 
@@ -106,6 +106,40 @@ function (req, res, /*next*/) {
     }
   });
 }
+```
+* **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
+```js
+var SomeStore = function() {
+    /**
+      * Increments the value in the underlying store for the given key.
+      * @method function
+      * @param {string} key - The key to use as the unique identifier passed
+      *                     down from RateLimit.
+      * @param {Store~incrCallback} cb - The callback issued when the underlying
+      *                                store is finished.
+      */
+    this.incr = function(key, cb) {
+      // ...
+    };
+
+    /**
+     * This callback is called by the underlying store when an answer to the
+     * increment is available.
+     * @callback Store~incrCallback
+     * @param {?object} err - The error from the underlying store, or null if no
+     *                      error occurred.
+     * @param {number} value - The current value of the counter
+     */
+
+    /**
+     * Resets a value with the given key.
+     * @method function
+     * @param  {[type]} key - The key to reset
+     */
+    this.resetKey = function(key) {
+      // ...
+    };
+};
 ```
 
 The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
