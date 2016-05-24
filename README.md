@@ -8,7 +8,7 @@
 Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
 
 Note: this module does not share state with other processes/servers by default.
-If you need a more robust solution, I recommend checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excellent pieces of software.
+If you need a more robust solution, I recommend adding the [Redis Store](rate-limit-redis) or checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excellent pieces of software.
 
 
 ## Install
@@ -142,6 +142,10 @@ function SomeStore() {
 };
 ```
 
+  Avaliable data stores are:
+   * MemoryStore: (default)Simple in-memory option. Does not share state when app has multiple processes or servers.
+   * [rate-limit-redis]: [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
+
 The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
 For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
 
@@ -157,3 +161,5 @@ v2 uses a less precise but less resource intensive method of tracking hits from 
 ## License
 
 MIT © [Nathan Friedly](http://nfriedly.com/)
+
+[rate-limit-redis]: https://npmjs.org/package/rate-limit-redis
