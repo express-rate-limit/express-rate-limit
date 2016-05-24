@@ -8,7 +8,7 @@
 Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
 
 Note: this module does not share state with other processes/servers by default.
-If you need a more robust solution, I recommend adding the [Redis Store](rate-limit-redis) or checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excellent pieces of software.
+If you need a more robust solution, I recommend adding the [Redis Store][rate-limit-redis] or checking out [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter) or [express-brute](https://www.npmjs.com/package/express-brute), both are excellent pieces of software.
 
 
 ## Install
