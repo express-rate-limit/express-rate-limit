@@ -88,7 +88,7 @@ app.post('/create-account', createAccountLimiter, function(req, res) {
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
-* **enableRateLimitHeader**: Enable custom header to show request limit and current usage
+* **headers**: Enable header to show request limit and current usage
 * **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
 ```js
 function (req /*, res*/) {
@@ -106,13 +106,6 @@ function (req, res, /*next*/) {
       res.status(options.statusCode).json({ message: options.message });
     }
   });
-}
-```
-* **rateLimitHeader**: The function to execute in order to show request limit and remaining request available. Defaults:
-```js
-function (res,current) {
-    res.setHeader('X-RateLimit-Limit', options.max);
-    res.setHeader('X-RateLimit-Remaining', ((options.max-current) > 0)?(options.max-current):0);
 }
 ```
 * **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
