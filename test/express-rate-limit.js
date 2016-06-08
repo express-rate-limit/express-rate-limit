@@ -20,9 +20,19 @@ describe('express-rate-limit node module', function() {
         delay = null;
     });
 
-    function createAppWith(limit) {
+    function createAppWith(limit, checkVar, errorHandler, successHandler) {
         app = express();
         app.all('/', limit, function(req, res) {
+
+            if(checkVar && req.rateLimit.limit === 5 && req.rateLimit.remaining === 4){
+               app.end(function(err, res) {
+                    if (err) {
+                        return errorHandler(err);
+                    }
+                    return successHandler(null, res);
+                });
+            }
+
           res.format({
             html: function () {
               res.send('response!');
@@ -61,7 +71,7 @@ describe('express-rate-limit node module', function() {
       };
     }
 
-    function goodRequest(errorHandler, successHandler, key) {
+    function goodRequest(errorHandler, successHandler, key, headerCheck, limit, remaining) {
         var req = request(app)
             .get('/');
         // add optional key parameter
@@ -69,7 +79,24 @@ describe('express-rate-limit node module', function() {
             req = req.query({key:key});
         }
 
-        req
+        if(headerCheck){
+            req
+            .expect(function(res) {
+                res.header['x-ratelimit-limit'] = limit;
+                res.header['x-ratelimit-remaining'] = remaining;
+            })
+            .expect(200,/response!/)
+            .end(function(err, res) {
+                if (err) {
+                    return errorHandler(err);
+                }
+                delay = Date.now() - start;
+                if (successHandler) {
+                    successHandler(null, res);
+                }
+            });
+        }else{
+            req
             .expect(200)
             .expect(/response!/)
             .end(function(err, res) {
@@ -81,6 +108,7 @@ describe('express-rate-limit node module', function() {
                     successHandler(null, res);
                 }
             });
+        }
     }
 
     function goodJsonRequest(errorHandler, successHandler) {
@@ -200,6 +228,18 @@ describe('express-rate-limit node module', function() {
       } else {
           done();
       }
+    });
+
+    it("should send correct x-ratelimit-limit and x-ratelimit-remaining header", function(done) {
+        createAppWith(rateLimit());
+        goodRequest(done, function( /* err, res */ ) {
+            delay = Date.now() - start;
+            if (delay > 99) {
+                done(new Error("First request took too long: " + delay + "ms"));
+            } else {
+                done();
+            }
+        },true, 5, 4);
     });
 
     it("should allow the first request with minimal delay", function(done) {
@@ -503,6 +543,14 @@ describe('express-rate-limit node module', function() {
             goodRequest(done, null, 2);
             badRequest(done, done, 2);
         }, 1);
+    });
+
+    it ("should pass current hits and limit hits to the next function", function (done) {
+      var limiter = rateLimit({
+          headers: false
+      });
+      createAppWith(limiter,true, done, done);
+      done();
     });
 
 });
