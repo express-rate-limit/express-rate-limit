@@ -545,6 +545,24 @@ describe('express-rate-limit node module', function() {
         }, 1);
     });
 
+    it ("should allow custom skip function", function (done) {
+        var limiter = rateLimit({
+            delayMs: 0,
+            max: 2,
+            skip: function (req, res) {
+                assert.ok(req);
+                assert.ok(res);
+
+                return true;
+            }
+        });
+
+        createAppWith(limiter);
+        goodRequest(done, null, 1);
+        goodRequest(done, null, 1);
+        goodRequest(done, done, 1); // 3rd request would normally fail bur we're skipping it
+    });
+
     it ("should pass current hits and limit hits to the next function", function (done) {
       var limiter = rateLimit({
           headers: false

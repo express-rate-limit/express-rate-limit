@@ -95,6 +95,12 @@ function (req /*, res*/) {
     return req.ip;
 }
 ```
+* **skip**: Function used to skip requests. Returning true from the function will skip limiting for that request. Defaults:
+```js
+function (/*req, res*/) {
+    return false;
+}
+```
 * **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
 ```js
 function (req, res, /*next*/) {
