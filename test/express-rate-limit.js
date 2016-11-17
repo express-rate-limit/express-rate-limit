@@ -560,7 +560,7 @@ describe('express-rate-limit node module', function() {
         createAppWith(limiter);
         goodRequest(done, null, 1);
         goodRequest(done, null, 1);
-        goodRequest(done, done, 1); // 3rd request would normally fail bur we're skipping it
+        goodRequest(done, done, 1); // 3rd request would normally fail but we're skipping it
     });
 
     it ("should pass current hits and limit hits to the next function", function (done) {
