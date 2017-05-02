@@ -80,6 +80,8 @@ app.post('/create-account', createAccountLimiter, function(req, res) {
 });
 ```
 
+A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests for usage in your application code.
+
 ## Configuration
 
 * **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to `60000` (1 minute).
