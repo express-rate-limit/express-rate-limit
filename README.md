@@ -116,6 +116,12 @@ function (req, res, /*next*/) {
   });
 }
 ```
+* **onLimitReached**: Function to listen each time the limit is reached. You can use it to debug/log. Defaults:
+```js
+function (req, res, options) {
+  /* empty */
+}
+```
 * **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
 ```js
 function SomeStore() {
