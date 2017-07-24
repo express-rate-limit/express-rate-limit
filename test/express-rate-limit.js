@@ -81,10 +81,8 @@ describe('express-rate-limit node module', function() {
 
         if(headerCheck){
             req
-            .expect(function(res) {
-                res.header['x-ratelimit-limit'] = limit;
-                res.header['x-ratelimit-remaining'] = remaining;
-            })
+            .expect('x-ratelimit-limit', limit)
+            .expect('x-ratelimit-remaining', remaining)
             .expect(200,/response!/)
             .end(function(err, res) {
                 if (err) {
@@ -230,7 +228,7 @@ describe('express-rate-limit node module', function() {
       }
     });
 
-    it("should send correct x-ratelimit-limit and x-ratelimit-remaining header", function(done) {
+    it("should send correct x-ratelimit-limit and x-ratelimit-remaining and header", function(done) {
         createAppWith(rateLimit());
         goodRequest(done, function( /* err, res */ ) {
             delay = Date.now() - start;
@@ -239,7 +237,7 @@ describe('express-rate-limit node module', function() {
             } else {
                 done();
             }
-        },true, 5, 4);
+        }, undefined, true, '5', '4');
     });
 
     it("should allow the first request with minimal delay", function(done) {
