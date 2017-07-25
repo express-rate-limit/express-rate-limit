@@ -7,7 +7,7 @@ deploy:
   provider: npm
   email: nathan@nfriedly.com
   api_key:
-    secure: U9AUx13VpjpmkcjUaBJD6HyjqVFaXZTkpMTXnK82lVTMKoiVAgHNW8qluEQDLWK0ZbFZk+QwloTmJo5EkFP//0qGVhZw+LbyM2AiQj0AYhZLpj7Q6tmARgLPmB26KgJUhUYdydt1jA+CzniRla/e/3ancWIhZZoUxNcidIB0jOg=
+    secure: ZbWST7Hr9W0QRgHyBhP4gZhwuV1SguJeQvw2K6fUmlV6NJPzNqnrhTs27byF8WoXmaEubkT3FOCgg/ocauS83hyGMuU2TAMn4nR8pegmslFnxoiWaTPIPn/jGR9EswVxBK4nYuCMpgeJXkx62nrx9MtwmeHUdVeP3WkEC0uhfIo=
   on:
     tags: true
     repo: nfriedly/express-rate-limit
