@@ -118,4 +118,28 @@ describe('MemoryStore store', function() {
       });
     });
   });
+
+  it("can run in electron where setInterval does not return a Timeout object with an unset function", function(done) {
+    var originalSetInterval = setInterval;
+    var timeoutId = 1;
+    setInterval = function(callback, timeout) {
+      originalSetInterval(callback,timeout);
+      return timeoutId ++;
+    };
+
+    var store = new MemoryStore(-1);
+    var key = "test-store";
+
+    store.incr(key, function(err, value) {
+        if (err) {
+            done(err);
+        } else {
+            if (value === 1) {
+                done();
+            } else {
+                done(new Error("incr did not set the key on the store to 1"));
+            }
+        }
+    });
+  });
 });
