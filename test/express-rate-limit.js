@@ -71,7 +71,7 @@ describe('express-rate-limit node module', function() {
       };
     }
 
-    function goodRequest(errorHandler, successHandler, key, headerCheck, limit, remaining, retryAfter) {
+    function goodRequest(errorHandler, successHandler, key, headerCheck, limit, remaining) {
         var req = request(app)
             .get('/');
         // add optional key parameter
@@ -83,7 +83,11 @@ describe('express-rate-limit node module', function() {
             req
             .expect('x-ratelimit-limit', limit)
             .expect('x-ratelimit-remaining', remaining)
-            .expect('retry-after', retryAfter)
+            .expect(function(res) {
+                if ('retry-after' in res.headers) {
+                    throw new Error("Expected no retry-after header, got " + res.headers['retry-after']);
+                }
+            })
             .expect(200,/response!/)
             .end(function(err, res) {
                 if (err) {
@@ -129,7 +133,7 @@ describe('express-rate-limit node module', function() {
             });
     }
 
-    function badRequest(errorHandler, successHandler, key) {
+    function badRequest(errorHandler, successHandler, key, headerCheck, limit, remaining, retryAfter) {
         var req = request(app)
             .get('/');
 
@@ -139,18 +143,26 @@ describe('express-rate-limit node module', function() {
                 .query({key: key});
         }
 
-        req
+        req = req
             .expect(429)
-            .expect(/Too many requests/)
-            .end(function(err, res) {
-                if (err) {
-                    return errorHandler(err);
-                }
-                delay = Date.now() - start;
-                if (successHandler) {
-                    successHandler(null, res);
-                }
-            });
+            .expect(/Too many requests/);
+
+        if (headerCheck) {
+            req = req
+                .expect('retry-after', retryAfter)
+                .expect('x-ratelimit-limit', limit)
+                .expect('x-ratelimit-remaining', remaining);
+        }
+
+        req.end(function(err, res) {
+            if (err) {
+                return errorHandler(err);
+            }
+            delay = Date.now() - start;
+            if (successHandler) {
+                successHandler(null, res);
+            }
+        });
     }
 
     function badJsonRequest(errorHandler, successHandler) {
@@ -229,7 +241,7 @@ describe('express-rate-limit node module', function() {
       }
     });
 
-    it("should send correct x-ratelimit-limit and x-ratelimit-remaining and retry-after header", function(done) {
+    it("should send correct x-ratelimit-limit and x-ratelimit-remaining", function(done) {
         createAppWith(rateLimit({windowMs: 59100}));
         goodRequest(done, function( /* err, res */ ) {
             delay = Date.now() - start;
@@ -343,6 +355,15 @@ describe('express-rate-limit node module', function() {
         goodRequest(done);
         goodRequest(done);
         badRequest(done, done);
+    });
+
+    it("should return the Retry-After header once IP has reached the max", function(done) {
+        createAppWith(rateLimit({
+            delayMs: 0,
+            max: 1
+        }));
+        goodRequest(done);
+        badRequest(done, done, undefined, true, '1', '0', '60');
     });
 
     it("should allow max to be disabled entirely", function(done) {
