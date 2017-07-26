@@ -90,7 +90,7 @@ A `req.rateLimit` property is added to all requests with the `limit`, `current`,
 * **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
-* **headers**: Enable header to show request limit and current usage
+* **headers**: Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
 * **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
 ```js
 function (req /*, res*/) {
@@ -106,6 +106,9 @@ function (/*req, res*/) {
 * **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
 ```js
 function (req, res, /*next*/) {
+  if (options.headers) {
+    res.setHeader('Retry-After', Math.ceil(options.windowMs / 1000));
+  }
   res.format({
     html: function(){
       res.status(options.statusCode).end(options.message);
