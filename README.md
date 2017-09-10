@@ -103,9 +103,9 @@ function (/*req, res*/) {
     return false;
 }
 ```
-* **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
+* **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects, "next" function and options. The "next" param is available if you need to pass to the next middleware. Defaults:
 ```js
-function (req, res, /*next*/) {
+function (req, res, next, options) {
   if (options.headers) {
     res.setHeader('Retry-After', Math.ceil(options.windowMs / 1000));
   }
