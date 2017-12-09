@@ -142,4 +142,20 @@ describe('MemoryStore store', function() {
         }
     });
   });
+
+  it("decrements the key for the store each decrement", function(done) {
+    var store = new MemoryStore(-1);
+    var key = "test-store";
+
+    store.incr(key, function() {
+        store.decrement(key);
+        store.incr(key, function(error, value) {
+            if (value === 1) {
+                done();
+            } else {
+                done(new Error("decrease does not work"));
+            }
+        });
+    });
+  });
 });
