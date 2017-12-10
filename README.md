@@ -91,6 +91,7 @@ A `req.rateLimit` property is added to all requests with the `limit`, `current`,
 * **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 * **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
 * **headers**: Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
+* **skipFailedRequests**: when `true` failed requests (response status >= 400) won't be counted. Defaults to `false`.
 * **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
 ```js
 function (req /*, res*/) {
@@ -137,6 +138,16 @@ function SomeStore() {
       *                                store is finished.
       */
     this.incr = function(key, cb) {
+      // ...
+    };
+
+    /**
+      * Decrements the value in the underlying store for the given key. Used only when skipFailedRequests is true
+      * @method function
+      * @param {string} key - The key to use as the unique identifier passed
+      *                     down from RateLimit.
+      */
+    this.decrement = function(key) {
       // ...
     };
 
