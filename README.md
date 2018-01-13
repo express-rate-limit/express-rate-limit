@@ -140,6 +140,14 @@ function (req, res, options) {
   /* empty */
 }
 ```
+```
+* **onViolation**: Function to callback when request did a violation. Defaults:
+```js
+function (req, res, options) {
+  /* empty */
+}
+```
+```
 * **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
 ```js
 function SomeStore() {
@@ -147,7 +155,7 @@ function SomeStore() {
       * Increments the value in the underlying store for the given key.
       * @method function
       * @param {string} key - The key to use as the unique identifier passed
-      *                     down from RateLimit.
+      * @param {int} key.count - The Counter to increment or down from RateLimit.
       * @param {Store~incrCallback} cb - The callback issued when the underlying
       *                                store is finished.
       */
@@ -159,7 +167,7 @@ function SomeStore() {
       * Decrements the value in the underlying store for the given key. Used only when skipFailedRequests is true
       * @method function
       * @param {string} key - The key to use as the unique identifier passed
-      *                     down from RateLimit.
+      * @param {int} key.count - The Counter to increment or down from RateLimit.
       */
     this.decrement = function(key) {
       // ...
