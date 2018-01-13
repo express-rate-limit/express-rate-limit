@@ -140,7 +140,6 @@ function (req, res, options) {
   /* empty */
 }
 ```
-```
 * **onViolation**: Function to callback when request did a violation. Defaults:
 ```js
 function (req, res, options) {
