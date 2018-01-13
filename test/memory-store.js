@@ -10,7 +10,7 @@ describe('MemoryStore store', function() {
         if (err) {
             done(err);
         } else {
-            if (value === 1) {
+            if (value.count === 1) {
                 done();
             } else {
                 done(new Error("incr did not set the key on the store to 1"));
@@ -28,7 +28,7 @@ describe('MemoryStore store', function() {
             if (err) {
                 done(err);
             } else {
-                if (value === 2) {
+                if (value.count === 2) {
                     done();
                 } else {
                     done(new Error("incr did not increment the store"));
@@ -48,7 +48,7 @@ describe('MemoryStore store', function() {
         // value should be 0 now
         store.incr(key, function(err, value) {
             // value should be 1 now
-            if (value === 1) {
+            if (value.count === 1) {
                 done();
             } else {
                 done(new Error("resetKey did not reset the store for the key provided"));
@@ -71,10 +71,10 @@ describe('MemoryStore store', function() {
         // valueTwo should be 0 now
         store.incr(keyOne, function(err, valueOne) {
           // valueOne should be 1 now
-          if (valueOne === 1) {
+          if (valueOne.count === 1) {
               store.incr(keyTwo, function(err, valueTwo) {
                 // valueTwo should be 1 now
-                if (valueTwo === 1) {
+                if (valueTwo.count === 1) {
                   done();
                 } else {
                   done(new Error("resetAll did not reset all the keys in the store"));
@@ -101,10 +101,10 @@ describe('MemoryStore store', function() {
           // valueOne and valueTwo should be 0 now
           store.incr(keyOne, function(err, valueOne) {
             // valueOne should be 1 now
-            if (valueOne === 1) {
+            if (valueOne.count === 1) {
                 store.incr(keyTwo, function(err, valueTwo) {
                   // valueTwo should be 1 now
-                  if (valueTwo === 1) {
+                  if (valueTwo.count === 1) {
                     done();
                   } else {
                     done(new Error("reaching the timeout did not reset all the keys in the store"));
@@ -134,7 +134,7 @@ describe('MemoryStore store', function() {
         if (err) {
             done(err);
         } else {
-            if (value === 1) {
+            if (value.count === 1) {
                 done();
             } else {
                 done(new Error("incr did not set the key on the store to 1"));
@@ -150,7 +150,7 @@ describe('MemoryStore store', function() {
     store.incr(key, function() {
         store.decrement(key);
         store.incr(key, function(error, value) {
-            if (value === 1) {
+            if (value.count === 1) {
                 done();
             } else {
                 done(new Error("decrease does not work"));
