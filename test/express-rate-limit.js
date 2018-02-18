@@ -591,4 +591,17 @@ describe('express-rate-limit node module', function() {
       done();
     });
 
+    it("should modify the options with dynamicFn", function(done) {
+        createAppWith(rateLimit({
+            dynamicFn: function(req, res, key, options) {
+                options.max = 2;
+            },
+            max: 10,
+            message: message
+        }));
+        goodRequest(done);
+        goodRequest(done);
+        badRequestWithMessage(done, done);
+    });
+
 });
