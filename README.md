@@ -140,6 +140,22 @@ function (req, res, options) {
   /* empty */
 }
 ```
+* **dynamicFn**: (Optional) Function to modify options themselves. Model:
+```js
+function (req, res, key, options) {
+  /* empty */
+}
+```
+Example:
+```js
+function (req, res, key, options) {
+  if (req.user.isAdmin) {
+    options.max = 10;
+  } else {
+    options.max = 1;
+  }
+}
+```
 * **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
 ```js
 function SomeStore() {
