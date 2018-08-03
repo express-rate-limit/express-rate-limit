@@ -1,9 +1,11 @@
-var MemoryStore = require("../lib/memory-store.js");
+"use strict";
+
+const MemoryStore = require("../lib/memory-store.js");
 
 describe("MemoryStore store", function() {
   it("sets the value to 1 on first incr", function(done) {
-    var store = new MemoryStore(-1);
-    var key = "test-store";
+    const store = new MemoryStore(-1);
+    const key = "test-store";
 
     store.incr(key, function(err, value) {
       if (err) {
@@ -19,8 +21,8 @@ describe("MemoryStore store", function() {
   });
 
   it("increments the key for the store each incr", function(done) {
-    var store = new MemoryStore(-1);
-    var key = "test-store";
+    const store = new MemoryStore(-1);
+    const key = "test-store";
 
     store.incr(key, function() {
       store.incr(key, function(err, value) {
@@ -38,8 +40,8 @@ describe("MemoryStore store", function() {
   });
 
   it("resets the key for the store when used with resetKey", function(done) {
-    var store = new MemoryStore(-1);
-    var key = "test-store";
+    const store = new MemoryStore(-1);
+    const key = "test-store";
 
     store.incr(key, function() {
       // value should be 1 now
@@ -59,9 +61,9 @@ describe("MemoryStore store", function() {
   });
 
   it("resets all keys for the store when used with resetAll", function(done) {
-    var store = new MemoryStore(-1);
-    var keyOne = "test-store-one";
-    var keyTwo = "test-store-two";
+    const store = new MemoryStore(-1);
+    const keyOne = "test-store-one";
+    const keyTwo = "test-store-two";
 
     store.incr(keyOne, function() {
       // valueOne should be 1 now
@@ -92,9 +94,9 @@ describe("MemoryStore store", function() {
   });
 
   it("resets all keys for the store when the timeout is reached", function(done) {
-    var store = new MemoryStore(50);
-    var keyOne = "test-store-one";
-    var keyTwo = "test-store-two";
+    const store = new MemoryStore(50);
+    const keyOne = "test-store-one";
+    const keyTwo = "test-store-two";
 
     store.incr(keyOne, function() {
       // valueOne should be 1 now
@@ -131,9 +133,9 @@ describe("MemoryStore store", function() {
   });
 
   describe("timeout", function() {
-    var originalSetInterval = setInterval;
-    var timeoutId = 1;
-    var realTimeoutId;
+    const originalSetInterval = setInterval;
+    let timeoutId = 1;
+    let realTimeoutId;
 
     beforeEach(function() {
       timeoutId = 1;
@@ -145,8 +147,8 @@ describe("MemoryStore store", function() {
     });
 
     it("can run in electron where setInterval does not return a Timeout object with an unset function", function(done) {
-      var store = new MemoryStore(-1);
-      var key = "test-store";
+      const store = new MemoryStore(-1);
+      const key = "test-store";
 
       store.incr(key, function(err, value) {
         if (err) {
@@ -169,8 +171,8 @@ describe("MemoryStore store", function() {
   });
 
   it("decrements the key for the store each decrement", function(done) {
-    var store = new MemoryStore(-1);
-    var key = "test-store";
+    const store = new MemoryStore(-1);
+    const key = "test-store";
 
     store.incr(key, function() {
       store.decrement(key);

@@ -1,13 +1,13 @@
 "use strict";
-var express = require("express");
-var assert = require("assert");
-var request = require("supertest");
-var rateLimit = require("../lib/express-rate-limit.js");
+const express = require("express");
+const assert = require("assert");
+const request = require("supertest");
+const rateLimit = require("../lib/express-rate-limit.js");
 
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 
 describe("express-rate-limit node module", function() {
-  var start, delay, message, app;
+  let start, delay, message, app;
 
   beforeEach(function() {
     start = Date.now();
@@ -60,7 +60,7 @@ describe("express-rate-limit node module", function() {
     this.incr_was_called = false;
     this.resetKey_was_called = false;
 
-    var self = this;
+    const self = this;
     this.incr = function(key, cb) {
       self.incr_was_called = true;
 
@@ -80,7 +80,7 @@ describe("express-rate-limit node module", function() {
     limit,
     remaining
   ) {
-    var req = request(app).get("/");
+    let req = request(app).get("/");
     // add optional key parameter
     if (key) {
       req = req.query({ key: key });
@@ -152,7 +152,7 @@ describe("express-rate-limit node module", function() {
     remaining,
     retryAfter
   ) {
-    var req = request(app).get("/");
+    let req = request(app).get("/");
 
     // add optional key parameter
     if (key) {
@@ -225,7 +225,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should call incr on the store", function(done) {
-    var store = new MockStore();
+    const store = new MockStore();
 
     createAppWith(
       rateLimit({
@@ -243,8 +243,8 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should call resetKey on the store", function(done) {
-    var store = new MockStore();
-    var limiter = rateLimit({
+    const store = new MockStore();
+    const limiter = rateLimit({
       store: store
     });
 
@@ -497,7 +497,7 @@ describe("express-rate-limit node module", function() {
 
   it("should allow the error statusCode to be customized", function(done) {
     // note: node.js places some restrictions on what status codes are allowed
-    var errStatusCode = 456;
+    const errStatusCode = 456;
     createAppWith(
       rateLimit({
         delayMs: 0,
@@ -513,7 +513,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should allow individual IP's to be reset", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       delayMs: 100,
       max: 1,
       windowMs: 50
@@ -524,7 +524,7 @@ describe("express-rate-limit node module", function() {
       .get("/ip")
       .expect(204)
       .end(function(err, res) {
-        var myIp = res.headers["x-your-ip"];
+        const myIp = res.headers["x-your-ip"];
         if (!myIp) {
           return done(new Error("unable to determine local IP"));
         }
@@ -540,7 +540,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should respond with the default JSON object", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       delayMs: 0,
       max: 1
     });
@@ -550,7 +550,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should respond with text/html to browsers real Accept headers", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       delayMs: 0,
       max: 1
     });
@@ -573,7 +573,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should use the custom handler when specified", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       delayMs: 0,
       max: 1,
       handler: function(req, res) {
@@ -595,14 +595,14 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should allow custom key generators", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       delayMs: 0,
       max: 2,
       keyGenerator: function(req, res) {
         assert.ok(req);
         assert.ok(res);
 
-        var key = req.query.key;
+        const key = req.query.key;
         assert.ok(key);
 
         return key;
@@ -627,7 +627,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should allow custom skip function", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       delayMs: 0,
       max: 2,
       skip: function(req, res) {
@@ -645,7 +645,7 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should pass current hits and limit hits to the next function", function(done) {
-    var limiter = rateLimit({
+    const limiter = rateLimit({
       headers: false
     });
     createAppWith(limiter, true, done, done);

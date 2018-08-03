@@ -1,0 +1,10 @@
+# EditorConfig: automatically set indentation and such
+# http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*.{js,json}]
+charset = utf-8
+indent_style = space
+indent_size = 2
