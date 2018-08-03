@@ -1,20 +1,20 @@
-var MemoryStore = require('../lib/memory-store.js');
+var MemoryStore = require("../lib/memory-store.js");
 
-describe('MemoryStore store', function() {
+describe("MemoryStore store", function() {
   it("sets the value to 1 on first incr", function(done) {
     var store = new MemoryStore(-1);
     var key = "test-store";
 
     store.incr(key, function(err, value) {
-        if (err) {
-            done(err);
+      if (err) {
+        done(err);
+      } else {
+        if (value === 1) {
+          done();
         } else {
-            if (value === 1) {
-                done();
-            } else {
-                done(new Error("incr did not set the key on the store to 1"));
-            }
+          done(new Error("incr did not set the key on the store to 1"));
         }
+      }
     });
   });
 
@@ -23,17 +23,17 @@ describe('MemoryStore store', function() {
     var key = "test-store";
 
     store.incr(key, function() {
-        store.incr(key, function(err, value) {
-            if (err) {
-                done(err);
-            } else {
-                if (value === 2) {
-                    done();
-                } else {
-                    done(new Error("incr did not increment the store"));
-                }
-            }
-        });
+      store.incr(key, function(err, value) {
+        if (err) {
+          done(err);
+        } else {
+          if (value === 2) {
+            done();
+          } else {
+            done(new Error("incr did not increment the store"));
+          }
+        }
+      });
     });
   });
 
@@ -42,17 +42,19 @@ describe('MemoryStore store', function() {
     var key = "test-store";
 
     store.incr(key, function() {
+      // value should be 1 now
+      store.resetKey(key);
+      // value should be 0 now
+      store.incr(key, function(err, value) {
         // value should be 1 now
-        store.resetKey(key);
-        // value should be 0 now
-        store.incr(key, function(err, value) {
-            // value should be 1 now
-            if (value === 1) {
-                done();
-            } else {
-                done(new Error("resetKey did not reset the store for the key provided"));
-            }
-        });
+        if (value === 1) {
+          done();
+        } else {
+          done(
+            new Error("resetKey did not reset the store for the key provided")
+          );
+        }
+      });
     });
   });
 
@@ -71,16 +73,18 @@ describe('MemoryStore store', function() {
         store.incr(keyOne, function(err, valueOne) {
           // valueOne should be 1 now
           if (valueOne === 1) {
-              store.incr(keyTwo, function(err, valueTwo) {
-                // valueTwo should be 1 now
-                if (valueTwo === 1) {
-                  done();
-                } else {
-                  done(new Error("resetAll did not reset all the keys in the store"));
-                }
-              });
+            store.incr(keyTwo, function(err, valueTwo) {
+              // valueTwo should be 1 now
+              if (valueTwo === 1) {
+                done();
+              } else {
+                done(
+                  new Error("resetAll did not reset all the keys in the store")
+                );
+              }
+            });
           } else {
-              done(new Error("resetAll did not reset all the keys in the store"));
+            done(new Error("resetAll did not reset all the keys in the store"));
           }
         });
       });
@@ -101,16 +105,24 @@ describe('MemoryStore store', function() {
           store.incr(keyOne, function(err, valueOne) {
             // valueOne should be 1 now
             if (valueOne === 1) {
-                store.incr(keyTwo, function(err, valueTwo) {
-                  // valueTwo should be 1 now
-                  if (valueTwo === 1) {
-                    done();
-                  } else {
-                    done(new Error("reaching the timeout did not reset all the keys in the store"));
-                  }
-                });
+              store.incr(keyTwo, function(err, valueTwo) {
+                // valueTwo should be 1 now
+                if (valueTwo === 1) {
+                  done();
+                } else {
+                  done(
+                    new Error(
+                      "reaching the timeout did not reset all the keys in the store"
+                    )
+                  );
+                }
+              });
             } else {
-                done(new Error("reaching the timeout did not reset all the keys in the store"));
+              done(
+                new Error(
+                  "reaching the timeout did not reset all the keys in the store"
+                )
+              );
             }
           });
         }, 60);
@@ -118,59 +130,57 @@ describe('MemoryStore store', function() {
     });
   });
 
-  describe('timeout', function() {
-      var originalSetInterval = setInterval;
-      var timeoutId = 1;
-      var realTimeoutId;
+  describe("timeout", function() {
+    var originalSetInterval = setInterval;
+    var timeoutId = 1;
+    var realTimeoutId;
 
-      beforeEach(function() {
-          timeoutId = 1;
-          // eslint-disable-next-line  no-global-assign
-          setInterval = function(callback, timeout) {
-              realTimeoutId = originalSetInterval(callback, timeout);
-              return timeoutId++;
-          };
+    beforeEach(function() {
+      timeoutId = 1;
+      // eslint-disable-next-line  no-global-assign
+      setInterval = function(callback, timeout) {
+        realTimeoutId = originalSetInterval(callback, timeout);
+        return timeoutId++;
+      };
+    });
+
+    it("can run in electron where setInterval does not return a Timeout object with an unset function", function(done) {
+      var store = new MemoryStore(-1);
+      var key = "test-store";
+
+      store.incr(key, function(err, value) {
+        if (err) {
+          done(err);
+        } else {
+          if (value === 1) {
+            done();
+          } else {
+            done(new Error("incr did not set the key on the store to 1"));
+          }
+        }
       });
+    });
 
-      it("can run in electron where setInterval does not return a Timeout object with an unset function", function(done) {
-
-          var store = new MemoryStore(-1);
-          var key = "test-store";
-
-          store.incr(key, function(err, value) {
-              if (err) {
-                  done(err);
-              } else {
-                  if (value === 1) {
-                      done();
-                  } else {
-                      done(new Error("incr did not set the key on the store to 1"));
-                  }
-              }
-          });
-      });
-
-      afterEach(function() {
-          // eslint-disable-next-line  no-global-assign
-          setInterval = originalSetInterval;
-          clearTimeout(realTimeoutId);
-      })
+    afterEach(function() {
+      // eslint-disable-next-line  no-global-assign
+      setInterval = originalSetInterval;
+      clearTimeout(realTimeoutId);
+    });
   });
-
 
   it("decrements the key for the store each decrement", function(done) {
     var store = new MemoryStore(-1);
     var key = "test-store";
 
     store.incr(key, function() {
-        store.decrement(key);
-        store.incr(key, function(error, value) {
-            if (value === 1) {
-                done();
-            } else {
-                done(new Error("decrease does not work"));
-            }
-        });
+      store.decrement(key);
+      store.incr(key, function(error, value) {
+        if (value === 1) {
+          done();
+        } else {
+          done(new Error("decrease does not work"));
+        }
+      });
     });
   });
 });
