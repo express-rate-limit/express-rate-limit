@@ -1,4 +1,3 @@
-/*global describe, it, beforeEach, afterEach */
 'use strict';
 var express = require('express');
 var assert = require('assert');

@@ -1,4 +1,3 @@
-/*global describe, it */
 var MemoryStore = require('../lib/memory-store.js');
 
 describe('MemoryStore store', function() {
@@ -119,29 +118,45 @@ describe('MemoryStore store', function() {
     });
   });
 
-  it("can run in electron where setInterval does not return a Timeout object with an unset function", function(done) {
-    var originalSetInterval = setInterval;
-    var timeoutId = 1;
-    setInterval = function(callback, timeout) {
-      originalSetInterval(callback,timeout);
-      return timeoutId ++;
-    };
+  describe('timeout', function() {
+      var originalSetInterval = setInterval;
+      var timeoutId = 1;
+      var realTimeoutId;
 
-    var store = new MemoryStore(-1);
-    var key = "test-store";
+      beforeEach(function() {
+          timeoutId = 1;
+          // eslint-disable-next-line  no-global-assign
+          setInterval = function(callback, timeout) {
+              realTimeoutId = originalSetInterval(callback, timeout);
+              return timeoutId++;
+          };
+      });
 
-    store.incr(key, function(err, value) {
-        if (err) {
-            done(err);
-        } else {
-            if (value === 1) {
-                done();
-            } else {
-                done(new Error("incr did not set the key on the store to 1"));
-            }
-        }
-    });
+      it("can run in electron where setInterval does not return a Timeout object with an unset function", function(done) {
+
+          var store = new MemoryStore(-1);
+          var key = "test-store";
+
+          store.incr(key, function(err, value) {
+              if (err) {
+                  done(err);
+              } else {
+                  if (value === 1) {
+                      done();
+                  } else {
+                      done(new Error("incr did not set the key on the store to 1"));
+                  }
+              }
+          });
+      });
+
+      afterEach(function() {
+          // eslint-disable-next-line  no-global-assign
+          setInterval = originalSetInterval;
+          clearTimeout(realTimeoutId);
+      })
   });
+
 
   it("decrements the key for the store each decrement", function(done) {
     var store = new MemoryStore(-1);
