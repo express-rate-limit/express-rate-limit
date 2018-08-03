@@ -443,7 +443,8 @@ describe('express-rate-limit node module', function() {
     });
 
     it("should allow the error statusCode to be customized", function(done) {
-        var errStatusCode = 123;
+        // note: node.js places some restrictions on what status codes are allowed
+        var errStatusCode = 456;
         createAppWith(rateLimit({
             delayMs: 0,
             max: 1,
