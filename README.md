@@ -12,13 +12,13 @@ If you need a more robust solution, I recommend using an addon store or trying o
 
 ### Stores
 
-* Memory Store (default, built-in) - stores hits in-memory in the Node.js process. Does not share state with other servers or processes.
-* [Redis Store][rate-limit-redis]
+* Memory Store _(default, built-in)_ - stores hits in-memory in the Node.js process. Does not share state with other servers or processes.
+* [Redis Store](https://npmjs.com/package/rate-limit-redis)
 * [Memcached Store](https://npmjs.org/package/rate-limit-memcached)
 
 ### Alternate Rate-limiters
 
-This module was designed to only handle the basics and didn't even support external stores initially. Thes other options all are excellent pieces of software and may be more appropriate for some situations:
+This module was designed to only handle the basics and didn't even support external stores initially. These other options all are excellent pieces of software and may be more appropriate for some situations:
 
 * [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter)
 * [express-brute](https://www.npmjs.com/package/express-brute)
@@ -187,8 +187,10 @@ function SomeStore() {
 ```
 
   Avaliable data stores are:
-   * MemoryStore: (default)Simple in-memory option. Does not share state when app has multiple processes or servers.
-   * [rate-limit-redis]: [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
+   * MemoryStore: _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.
+   * [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
+   * [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached): A [Memcached](https://memcached.org/)-backed store.
+
 
 The `delayAfter` and `delayMs` options were written for human-facing pages such as login and password reset forms.
 For public APIs, setting these to `0` (disabled) and relying on only `windowMs` and `max` for rate-limiting usually makes the most sense.
@@ -205,5 +207,3 @@ v2 uses a less precise but less resource intensive method of tracking hits from 
 ## License
 
 MIT © [Nathan Friedly](http://nfriedly.com/)
-
-[rate-limit-redis]: https://npmjs.org/package/rate-limit-redis
