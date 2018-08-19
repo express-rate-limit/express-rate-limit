@@ -651,4 +651,36 @@ describe("express-rate-limit node module", function() {
     createAppWith(limiter, true, done, done);
     done();
   });
+
+  it("should call the custom onLimitReached only once before an IP resets", function(done) {
+    var onLimitReachedCounter = 0;
+    var noop = function() {};
+
+    var limiter = rateLimit({
+      delayMs: 0,
+      max: 1,
+      onLimitReached: function(req, res) {
+        assert.ok(req);
+        assert.ok(res);
+        // increment call count
+        ++onLimitReachedCounter;
+      }
+    });
+    createAppWith(limiter);
+    goodRequest(done);
+    request(app) // 2nd call will be blocked as expected
+      .get("/")
+      .end(noop);
+    request(app) // third call, should not trigger onLimitReached
+      .get("/")
+      .end(function(err) {
+        if (err) {
+          done(err);
+        } else if (onLimitReachedCounter > 1) {
+          done(new Error("onLimitReached called more than once."));
+        } else {
+          done();
+        }
+      });
+  });
 });
