@@ -277,116 +277,6 @@ describe("express-rate-limit node module", function() {
     );
   });
 
-  it("should allow the first request with minimal delay", function(done) {
-    createAppWith(rateLimit());
-    goodRequest(done, function(/* err, res */) {
-      delay = Date.now() - start;
-      if (delay > 99) {
-        done(new Error("First request took too long: " + delay + "ms"));
-      } else {
-        done();
-      }
-    });
-  });
-
-  it("should apply a small delay to the second request", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 100
-      })
-    );
-    goodRequest(done, function(/* err, res */) {
-      if (delay > 99) {
-        done(new Error("First request took too long: " + delay + "ms"));
-      }
-    });
-    goodRequest(done, function(/* err, res */) {
-      if (delay < 100) {
-        return done(
-          new Error("Second request was served too fast: " + delay + "ms")
-        );
-      }
-      if (delay > 199) {
-        return done(new Error("Second request took too long: " + delay + "ms"));
-      }
-      done();
-    });
-  });
-
-  it("should apply a larger delay to the subsequent request", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 100
-      })
-    );
-    goodRequest(done);
-    goodRequest(done);
-    goodRequest(done);
-    goodRequest(done, function(/* err, res */) {
-      // should be about 300ms delay on 4th request - because the multiplier starts at 0
-      if (delay < 300) {
-        return done(
-          new Error("Fourth request was served too fast: " + delay + "ms")
-        );
-      }
-      if (delay > 400) {
-        return done(new Error("Fourth request took too long: " + delay + "ms"));
-      }
-      done();
-    });
-  });
-
-  it("should allow delayAfter requests before delaying responses", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 100,
-        delayAfter: 2
-      })
-    );
-    goodRequest(done, function(/* err, res */) {
-      if (delay > 50) {
-        done(new Error("First request took too long: " + delay + "ms"));
-      }
-    });
-    goodRequest(done, function(/* err, res */) {
-      if (delay > 100) {
-        done(new Error("Second request took too long: " + delay + "ms"));
-      }
-    });
-    goodRequest(done, function(/* err, res */) {
-      if (delay < 100) {
-        return done(
-          new Error("Second request was served too fast: " + delay + "ms")
-        );
-      }
-      if (delay > 150) {
-        return done(new Error("Second request took too long: " + delay + "ms"));
-      }
-      done();
-    });
-  });
-
-  it("should allow delayAfter to be disabled entirely", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 1000,
-        delayAfter: 0
-      })
-    );
-    goodRequest(done);
-    goodRequest(done);
-    goodRequest(done);
-    goodRequest(done, function(/* err, res */) {
-      // should be about 300ms delay on 4th request - because the multiplier starts at 0
-      if (delay > 100) {
-        return done(
-          new Error("Fourth request was served too fast: " + delay + "ms")
-        );
-      }
-      done();
-    });
-  });
-
   it("should refuse additional connections once IP has reached the max", function(done) {
     createAppWith(
       rateLimit({
@@ -410,18 +300,6 @@ describe("express-rate-limit node module", function() {
     badRequest(done, done, undefined, true, "1", "0", "60");
   });
 
-  it("should allow max to be disabled entirely", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 1,
-        max: 0
-      })
-    );
-    goodRequest(done);
-    goodRequest(done);
-    goodRequest(done, done);
-  });
-
   it("should show the provided message instead of the default message when max connections are reached", function(done) {
     createAppWith(
       rateLimit({
@@ -438,7 +316,6 @@ describe("express-rate-limit node module", function() {
   it("should (eventually) accept new connections from a blocked IP", function(done) {
     createAppWith(
       rateLimit({
-        delayMs: 100,
         max: 2,
         windowMs: 50
       })
@@ -449,11 +326,7 @@ describe("express-rate-limit node module", function() {
     setTimeout(function() {
       start = Date.now();
       goodRequest(done, function(/* err, res */) {
-        if (delay > 50) {
-          done(new Error("Eventual request took too long: " + delay + "ms"));
-        } else {
-          done();
-        }
+        done();
       });
     }, 60);
   });
@@ -461,7 +334,6 @@ describe("express-rate-limit node module", function() {
   it("should work repeatedly (issues #2 & #3)", function(done) {
     createAppWith(
       rateLimit({
-        delayMs: 100,
         max: 2,
         windowMs: 50
       })
@@ -471,26 +343,14 @@ describe("express-rate-limit node module", function() {
     goodRequest(done);
     badRequest(done);
     setTimeout(function() {
-      start = Date.now();
       goodRequest(done, function(/* err, res */) {
-        if (delay > 50) {
-          done(new Error("Eventual request took too long: " + delay + "ms"));
-        } else {
-          goodRequest(done);
-          badRequest(done);
-          setTimeout(function() {
-            start = Date.now();
-            goodRequest(done, function(/* err, res */) {
-              if (delay > 50) {
-                done(
-                  new Error("Eventual request took too long: " + delay + "ms")
-                );
-              } else {
-                done();
-              }
-            });
-          }, 60);
-        }
+        goodRequest(done);
+        badRequest(done);
+        setTimeout(function() {
+          goodRequest(done, function(/* err, res */) {
+            done();
+          });
+        }, 60);
       });
     }, 60);
   });
@@ -514,7 +374,6 @@ describe("express-rate-limit node module", function() {
 
   it("should allow individual IP's to be reset", function(done) {
     const limiter = rateLimit({
-      delayMs: 100,
       max: 1,
       windowMs: 50
     });
@@ -539,37 +398,15 @@ describe("express-rate-limit node module", function() {
       });
   });
 
-  it("should respond with the default JSON object", function(done) {
+  it("should respond with JSON", function(done) {
     const limiter = rateLimit({
       delayMs: 0,
+      message: { message: "Too many requests, please try again later." },
       max: 1
     });
     createAppWith(limiter);
     goodJsonRequest(done);
     badJsonRequest(done, done);
-  });
-
-  it("should respond with text/html to browsers real Accept headers", function(done) {
-    const limiter = rateLimit({
-      delayMs: 0,
-      max: 1
-    });
-    createAppWith(limiter);
-    goodRequest(done);
-    request(app)
-      .get("/")
-      .set(
-        "Accept",
-        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-      )
-      .expect(429, /Too many requests/)
-      .end(function(err) {
-        if (err) {
-          return done(err);
-        } else {
-          return done();
-        }
-      });
   });
 
   it("should use the custom handler when specified", function(done) {
