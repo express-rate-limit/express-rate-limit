@@ -7,7 +7,7 @@
 
 Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
 
-Plays nice with [express-slow-down](https://npmjs.org/package/express-rate-limit).
+Plays nice with [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
 Note: this module does not share state with other processes/servers by default.
 If you need a more robust solution, I recommend using an external store:
