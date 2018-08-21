@@ -37,14 +37,13 @@ $ npm install --save express-rate-limit
 For an API-only server where the rate-limiter should be applied to all requests:
 
 ```js
-var RateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
 
-app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 
-var limiter = new RateLimit({
+const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  delayMs: 0 // disable delaying - full speed until the max limit is reached
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 
 //  apply to all requests
@@ -54,14 +53,13 @@ app.use(limiter);
 For a "regular" web server (e.g. anything that uses `express.static()`), where the rate-limiter should only apply to certain requests:
 
 ```js
-var RateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
 
-app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 
-var apiLimiter = new RateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  delayMs: 0 // disabled
+  max: 100
 });
 
 // only apply to requests that begin with /api/
@@ -71,21 +69,18 @@ app.use("/api/", apiLimiter);
 Create multiple instances to apply different rules to different routes:
 
 ```js
-var RateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
 
-app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 
-var apiLimiter = new RateLimit({
+const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  delayMs: 0 // disabled
+  max: 100
 });
 app.use("/api/", apiLimiter);
 
-var createAccountLimiter = new RateLimit({
+const createAccountLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour window
-  delayAfter: 1, // begin slowing down responses after the first request
-  delayMs: 3 * 1000, // slow down subsequent responses by 3 seconds per request
   max: 5, // start blocking after 5 requests
   message:
     "Too many accounts created from this IP, please try again after an hour"
@@ -100,8 +95,6 @@ A `req.rateLimit` property is added to all requests with the `limit`, `current`,
 ## Configuration
 
 - **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to `60000` (1 minute).
-- **delayAfter**: max number of connections during `windowMs` before starting to delay responses. Defaults to `1`. Set to `0` to disable delaying.
-- **delayMs**: milliseconds - how long to delay the response, multiplied by (number of recent hits - `delayAfter`). Defaults to `1000` (1 second). Set to `0` to disable delaying.
 - **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
 - **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
 - **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
@@ -151,6 +144,11 @@ function SomeStore() {
    *                     down from RateLimit.
    * @param {Store~incrCallback} cb - The callback issued when the underlying
    *                                store is finished.
+   *
+   * The callback should be triggered with three values:
+   *  - error (usually null)
+   *  - hitCount for this IP
+   *  - resetTime, in seconds from the epoch (optional, but necessary for X-RateLimit-Reset header)
    */
   this.incr = function(key, cb) {
     // ...
