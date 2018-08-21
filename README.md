@@ -198,6 +198,7 @@ Avaliable data stores are:
 
 - Removed `delayAfter` and `delayMs` options; they were moved to a new module: [express-slow-down](https://npmjs.org/package/express-rate-limit).
 - Simplified the default `handler` function so that it no longer changes the response format. Now uses [res.send](https://expressjs.com/en/4x/api.html#res.send).
+- `onLimitReached` now only triggers once for a given ip and window. only `handle` is called for every blocked request.
 
 ## v2 Changes
 
