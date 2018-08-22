@@ -11,3 +11,4 @@ deploy:
   on:
     tags: true
     repo: nfriedly/express-rate-limit
+  tag: v2 # so that backports don't take over the @latest tag - https://docs.travis-ci.com/user/deployment/npm/#tagging-releases
