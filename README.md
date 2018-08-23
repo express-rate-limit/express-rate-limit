@@ -90,7 +90,7 @@ app.post("/create-account", createAccountLimiter, function(req, res) {
 });
 ```
 
-A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests for usage in your application code.
+A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests for usage in your application code and, if the store provides it, a resetTime Date object.
 
 ## Configuration
 
@@ -148,7 +148,7 @@ function SomeStore() {
    * The callback should be triggered with three values:
    *  - error (usually null)
    *  - hitCount for this IP
-   *  - resetTime, in seconds from the epoch (optional, but necessary for X-RateLimit-Reset header)
+   *  - resetTime - JS Date object (optional, but necessary for X-RateLimit-Reset header)
    */
   this.incr = function(key, cb) {
     // ...
