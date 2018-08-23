@@ -184,7 +184,7 @@ function SomeStore() {
 }
 ```
 
-Avaliable data stores are:
+Available data stores are:
 
 - MemoryStore: _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.
 - [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
