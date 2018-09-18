@@ -92,16 +92,47 @@ app.post("/create-account", createAccountLimiter, function(req, res) {
 
 A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests for usage in your application code and, if the store provides it, a `resetTime` Date object.
 
-## Configuration
+## Configuration options
 
-- **windowMs**: milliseconds - how long to keep records of requests in memory. Defaults to `60000` (1 minute).
-- **max**: max number of connections during `windowMs` milliseconds before sending a 429 response. Defaults to `5`. Set to `0` to disable.
-- **message**: Error message returned when `max` is exceeded. Defaults to `'Too many requests, please try again later.'`
-- **statusCode**: HTTP status code returned when `max` is exceeded. Defaults to `429`.
-- **headers**: Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
-- **skipFailedRequests**: when `true` failed requests (response status >= 400) won't be counted. Defaults to `false`.
-- **skipSuccessfulRequests**: when `true` successful requests (response status < 400) won't be counted. Defaults to `false`.
-- **keyGenerator**: Function used to generate keys. By default user IP address (req.ip) is used. Defaults:
+### options.max
+
+Max number of connections during `windowMs` milliseconds before sending a 429 response.
+
+May be a number, or a function that returns a number or a promise.
+
+Defaults to `5`. Set to `0` to disable.
+
+### options.windowMs
+
+How long in milliseconds to keep records of requests in memory.
+
+Defaults to `60000` (1 minute).
+
+### options.message
+
+Error message sent to user when `max` is exceeded.
+
+May be a String, JSON object, or any other value that Express's [req.send](https://expressjs.com/en/4x/api.html#res.send) supports.
+
+Defaults to `'Too many requests, please try again later.'`
+
+### options.statusCode
+
+HTTP status code returned when `max` is exceeded.
+
+Defaults to `429`.
+
+### options.headers
+
+Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
+
+Defaults to `true`.
+
+### options.keyGenerator
+
+Function used to generate keys.
+
+Defaults to req.ip:
 
 ```js
 function (req /*, res*/) {
@@ -109,15 +140,13 @@ function (req /*, res*/) {
 }
 ```
 
-- **skip**: Function used to skip requests. Returning true from the function will skip limiting for that request. Defaults:
+### options.handler
 
-```js
-function (/*req, res*/) {
-    return false;
-}
-```
+The function to handle requests once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware.
 
-- **handler**: The function to execute once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Defaults:
+The`req.rateLimit` object has `limit`, `current`, and `remaining` number of requests and, if the store provides it, a `resetTime` Date object.
+
+Defaults to:
 
 ```js
 function (req, res, /*next*/) {
@@ -125,7 +154,13 @@ function (req, res, /*next*/) {
 }
 ```
 
-- **onLimitReached**: Function to listen each time the limit is reached. You can use it to debug/log. Defaults:
+## options.onLimitReached
+
+Function that is called the first time a user hits the rate limit within a given window.
+
+The`req.rateLimit` object has `limit`, `current`, and `remaining` number of requests and, if the store provides it, a `resetTime` Date object.
+
+Default is an empty function:
 
 ```js
 function (req, res, options) {
@@ -133,7 +168,45 @@ function (req, res, options) {
 }
 ```
 
-- **store**: The storage to use when persisting rate limit attempts. By default, the [MemoryStore](lib/memory-store.js) is used. It must implement the following in order to function:
+### options.skipFailedRequests
+
+When set to `true`, failed requests (response status >= 400) won't be counted.
+(Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
+
+Defaults to `false`.
+
+### options.skipSuccessfulRequests
+
+When set to `true` successful requests (response status < 400) won't be counted.
+(Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
+
+Defaults to `false`.
+
+### options.skip
+
+Function used to skip requests. Returning `true` from the function will skip limiting for that request.
+
+Defaults to always `false` (count all requests):
+
+```js
+function (/*req, res*/) {
+    return false;
+}
+```
+
+### options.store
+
+The storage to use when persisting rate limit attempts.
+
+By default, the [MemoryStore](lib/memory-store.js) is used.
+
+Available data stores are:
+
+- MemoryStore: _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.
+- [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
+- [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached): A [Memcached](https://memcached.org/)-backed store.
+
+You may also create your own store. It must implement the following in order to function:
 
 ```js
 function SomeStore() {
@@ -142,16 +215,17 @@ function SomeStore() {
    * @method function
    * @param {string} key - The key to use as the unique identifier passed
    *                     down from RateLimit.
-   * @param {Store~incrCallback} cb - The callback issued when the underlying
+   * @param {Function} cb - The callback issued when the underlying
    *                                store is finished.
    *
-   * The callback should be triggered with three values:
+   * The callback should be called with three values:
    *  - error (usually null)
    *  - hitCount for this IP
    *  - resetTime - JS Date object (optional, but necessary for X-RateLimit-Reset header)
    */
   this.incr = function(key, cb) {
-    // ...
+    // increment storage
+    cb(null, hits, resetTime);
   };
 
   /**
@@ -161,17 +235,8 @@ function SomeStore() {
    *                     down from RateLimit.
    */
   this.decrement = function(key) {
-    // ...
+    // decrement storage
   };
-
-  /**
-   * This callback is called by the underlying store when an answer to the
-   * increment is available.
-   * @callback Store~incrCallback
-   * @param {?object} err - The error from the underlying store, or null if no
-   *                      error occurred.
-   * @param {number} value - The current value of the counter
-   */
 
   /**
    * Resets a value with the given key.
@@ -179,20 +244,16 @@ function SomeStore() {
    * @param  {[type]} key - The key to reset
    */
   this.resetKey = function(key) {
-    // ...
+    // remove key from storage or reset it to 0
   };
 }
 ```
 
-Available data stores are:
-
-- MemoryStore: _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.
-- [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
-- [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached): A [Memcached](https://memcached.org/)-backed store.
-
 ## Instance API
 
-- **resetKey(key)**: Resets the rate limiting for a given key. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method.)
+### instance.resetKey(key)
+
+Resets the rate limiting for a given key. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method.)
 
 ## v3 Changes
 

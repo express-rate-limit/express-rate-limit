@@ -488,4 +488,28 @@ describe("express-rate-limit node module", function() {
     createAppWith(limiter, true, done, done);
     done();
   });
+
+  it("should allow max to be a function", done => {
+    createAppWith(
+      rateLimit({
+        delayMs: 0,
+        max: () => 2
+      })
+    );
+    goodRequest(done);
+    goodRequest(done);
+    badRequest(done, done);
+  });
+
+  it("should allow max to be a function that returns a promise", done => {
+    createAppWith(
+      rateLimit({
+        delayMs: 0,
+        max: () => Promise.resolve(2)
+      })
+    );
+    goodRequest(done);
+    goodRequest(done);
+    badRequest(done, done);
+  });
 });
