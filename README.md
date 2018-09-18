@@ -94,7 +94,7 @@ A `req.rateLimit` property is added to all requests with the `limit`, `current`,
 
 ## Configuration options
 
-### options.max
+### max
 
 Max number of connections during `windowMs` milliseconds before sending a 429 response.
 
@@ -102,13 +102,13 @@ May be a number, or a function that returns a number or a promise.
 
 Defaults to `5`. Set to `0` to disable.
 
-### options.windowMs
+### windowMs
 
 How long in milliseconds to keep records of requests in memory.
 
 Defaults to `60000` (1 minute).
 
-### options.message
+### message
 
 Error message sent to user when `max` is exceeded.
 
@@ -116,19 +116,19 @@ May be a String, JSON object, or any other value that Express's [req.send](https
 
 Defaults to `'Too many requests, please try again later.'`
 
-### options.statusCode
+### statusCode
 
 HTTP status code returned when `max` is exceeded.
 
 Defaults to `429`.
 
-### options.headers
+### headers
 
 Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
 
 Defaults to `true`.
 
-### options.keyGenerator
+### keyGenerator
 
 Function used to generate keys.
 
@@ -140,7 +140,7 @@ function (req /*, res*/) {
 }
 ```
 
-### options.handler
+### handler
 
 The function to handle requests once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware.
 
@@ -154,7 +154,7 @@ function (req, res, /*next*/) {
 }
 ```
 
-## options.onLimitReached
+### onLimitReached
 
 Function that is called the first time a user hits the rate limit within a given window.
 
@@ -168,21 +168,21 @@ function (req, res, options) {
 }
 ```
 
-### options.skipFailedRequests
+### skipFailedRequests
 
 When set to `true`, failed requests (response status >= 400) won't be counted.
 (Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
 
 Defaults to `false`.
 
-### options.skipSuccessfulRequests
+### skipSuccessfulRequests
 
 When set to `true` successful requests (response status < 400) won't be counted.
 (Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
 
 Defaults to `false`.
 
-### options.skip
+### skip
 
 Function used to skip requests. Returning `true` from the function will skip limiting for that request.
 
@@ -194,7 +194,7 @@ function (/*req, res*/) {
 }
 ```
 
-### options.store
+### store
 
 The storage to use when persisting rate limit attempts.
 
