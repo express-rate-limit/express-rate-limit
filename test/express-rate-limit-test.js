@@ -88,8 +88,8 @@ describe("express-rate-limit node module", function() {
 
     if (headerCheck) {
       req
-        .expect("x-ratelimit-limit", limit)
-        .expect("x-ratelimit-remaining", remaining)
+        .expect("x-ratelimit-limit", limit && limit.toString())
+        .expect("x-ratelimit-remaining", remaining && remaining.toString())
         .expect(function(res) {
           if ("retry-after" in res.headers) {
             throw new Error(
@@ -511,5 +511,18 @@ describe("express-rate-limit node module", function() {
     goodRequest(done);
     goodRequest(done);
     badRequest(done, done);
+  });
+
+  // https://github.com/nfriedly/express-rate-limit/pull/102
+  it("should calculate the remaining hits", done => {
+    const expectedLimit = 2;
+    createAppWith(
+      rateLimit({
+        delayMs: 0,
+        max: () => Promise.resolve(expectedLimit)
+      })
+    );
+    const expectedRemaining = 1;
+    goodRequest(done, done, null, true, expectedLimit, expectedRemaining);
   });
 });
