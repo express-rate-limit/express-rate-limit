@@ -17,6 +17,7 @@ If you need a more robust solution, I recommend using an external store:
 - Memory Store _(default, built-in)_ - stores hits in-memory in the Node.js process. Does not share state with other servers or processes.
 - [Redis Store](https://npmjs.com/package/rate-limit-redis)
 - [Memcached Store](https://npmjs.org/package/rate-limit-memcached)
+- [Mongo Store](https://www.npmjs.com/package/rate-limit-mongo)
 
 ### Alternate Rate-limiters
 
