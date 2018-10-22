@@ -23,7 +23,7 @@ If you need a more robust solution, I recommend using an external store:
 
 This module was designed to only handle the basics and didn't even support external stores initially. These other options all are excellent pieces of software and may be more appropriate for some situations:
 
-- [strict-rate-limiter](https://www.npmjs.com/package/strict-rate-limiter)
+- [rate-limiter-flexible](https://www.npmjs.com/package/rate-limiter-flexible)
 - [express-brute](https://www.npmjs.com/package/express-brute)
 - [rate-limiter](https://www.npmjs.com/package/express-limiter)
 
