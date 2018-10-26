@@ -171,7 +171,12 @@ function (req, res, options) {
 
 ### skipFailedRequests
 
-When set to `true`, failed requests (response status >= 400) won't be counted.
+When set to `true`, failed requests won't be counted. Request considered failed when:
+
+- response status >= 400
+- requests that were cancelled before last chunk of data was sent (response `close` event triggered)
+- response `error` event was triggrered by response
+
 (Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
 
 Defaults to `false`.
