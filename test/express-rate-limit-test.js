@@ -7,7 +7,7 @@ const rateLimit = require("../lib/express-rate-limit.js");
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 
 describe("express-rate-limit node module", function() {
-  let start, delay, message, app;
+  let start, delay, message, app, longResponseClosed;
 
   beforeEach(function() {
     start = Date.now();
@@ -45,12 +45,34 @@ describe("express-rate-limit node module", function() {
         }
       });
     });
+
+    app.all("/bad_response_status", limit, function(req, res) {
+      res.status(403).send();
+    });
+
+    app.all("/long_response", limit, function(req, res) {
+      const timerId = setTimeout(() => res.send("response!"), 100);
+      res.on("close", () => {
+        longResponseClosed = true;
+        clearTimeout(timerId);
+      });
+    });
+
+    app.all("/response_emit_error", limit, function(req, res) {
+      res.on("error", () => {
+        res.end();
+      });
+
+      res.emit("error", new Error());
+    });
+
     // helper endpoint to know what ip test requests come from
     // set in headers so that I don't have to deal with the body being a stream
     app.get("/ip", function(req, res) {
       res.setHeader("x-your-ip", req.ip);
       res.status(204).send("");
     });
+
     return app;
   }
 
@@ -59,12 +81,17 @@ describe("express-rate-limit node module", function() {
   function MockStore() {
     this.incr_was_called = false;
     this.resetKey_was_called = false;
+    this.decrement_was_called = false;
 
     const self = this;
     this.incr = function(key, cb) {
       self.incr_was_called = true;
 
       cb(null, 1);
+    };
+
+    this.decrement = function() {
+      self.decrement_was_called = true;
     };
 
     this.resetKey = function() {
@@ -524,5 +551,93 @@ describe("express-rate-limit node module", function() {
     );
     const expectedRemaining = 1;
     goodRequest(done, done, null, true, expectedLimit, expectedRemaining);
+  });
+
+  it("should decrement hits with success response and skipSuccessfulRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: true,
+        store: store
+      })
+    );
+
+    goodRequest(done, function() {
+      if (!store.decrement_was_called) {
+        done(new Error("decrement was not called on the store"));
+      } else {
+        done();
+      }
+    });
+  });
+
+  it("should decrement hits with failed response and skipFailedRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipFailedRequests: true,
+        store: store
+      })
+    );
+
+    request(app)
+      .get("/bad_response_status")
+      .expect(403)
+      .end(() => {
+        if (!store.decrement_was_called) {
+          done(new Error("decrement was not called on the store"));
+        } else {
+          done();
+        }
+      });
+  });
+
+  it("should decrement hits with closed response and skipFailedRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipFailedRequests: true,
+        store: store
+      })
+    );
+
+    const checkStoreDecremented = () => {
+      if (longResponseClosed) {
+        if (!store.decrement_was_called) {
+          done(new Error("decrement was not called on the store"));
+        } else {
+          done();
+        }
+      } else {
+        setImmediate(checkStoreDecremented);
+      }
+    };
+
+    request(app)
+      .get("/long_response")
+      .timeout({
+        response: 10
+      })
+      .end(checkStoreDecremented);
+  });
+
+  it("should decrement hits with response emitting error and skipFailedRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipFailedRequests: true,
+        store: store
+      })
+    );
+
+    request(app)
+      .get("/response_emit_error")
+      .end(() => {
+        if (!store.decrement_was_called) {
+          done(new Error("decrement was not called on the store"));
+        } else {
+          done();
+        }
+      });
   });
 });
