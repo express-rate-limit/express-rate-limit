@@ -571,6 +571,27 @@ describe("express-rate-limit node module", function() {
     });
   });
 
+  it("should not decrement hits with failed response and skipSuccessfulRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: true,
+        store: store
+      })
+    );
+
+    request(app)
+      .get("/bad_response_status")
+      .expect(403)
+      .end(() => {
+        if (store.decrement_was_called) {
+          done(new Error("decrement was called on the store"));
+        } else {
+          done();
+        }
+      });
+  });
+
   it("should decrement hits with failed response and skipFailedRequests", done => {
     const store = new MockStore();
     createAppWith(
@@ -639,5 +660,23 @@ describe("express-rate-limit node module", function() {
           done();
         }
       });
+  });
+
+  it("should not decrement hits with success response and skipFailedRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipFailedRequests: true,
+        store: store
+      })
+    );
+
+    goodRequest(done, function() {
+      if (store.decrement_was_called) {
+        done(new Error("decrement was called on the store"));
+      } else {
+        done();
+      }
+    });
   });
 });
