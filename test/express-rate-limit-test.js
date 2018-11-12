@@ -82,20 +82,23 @@ describe("express-rate-limit node module", function() {
     this.incr_was_called = false;
     this.resetKey_was_called = false;
     this.decrement_was_called = false;
+    this.counter = 0;
 
-    const self = this;
-    this.incr = function(key, cb) {
-      self.incr_was_called = true;
+    this.incr = (key, cb) => {
+      this.counter++;
+      this.incr_was_called = true;
 
-      cb(null, 1);
+      cb(null, this.counter);
     };
 
-    this.decrement = function() {
-      self.decrement_was_called = true;
+    this.decrement = () => {
+      this.counter--;
+      this.decrement_was_called = true;
     };
 
-    this.resetKey = function() {
-      self.resetKey_was_called = true;
+    this.resetKey = () => {
+      this.resetKey_was_called = true;
+      this.counter = 0;
     };
   }
 
@@ -674,6 +677,27 @@ describe("express-rate-limit node module", function() {
     goodRequest(done, function() {
       if (store.decrement_was_called) {
         done(new Error("decrement was called on the store"));
+      } else {
+        done();
+      }
+    });
+  });
+
+  it("should decrement hits with IP hits reached max and skipFailedRequests", done => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        delayMs: 0,
+        max: 2,
+        store: store,
+        skipFailedRequests: true
+      })
+    );
+    goodRequest(done);
+    goodRequest(done);
+    badRequest(done, () => {
+      if (!store.decrement_was_called) {
+        done(new Error("decrement was not called on the store"));
       } else {
         done();
       }
