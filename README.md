@@ -26,6 +26,7 @@ This module was designed to only handle the basics and didn't even support exter
 - [rate-limiter-flexible](https://www.npmjs.com/package/rate-limiter-flexible)
 - [express-brute](https://www.npmjs.com/package/express-brute)
 - [rate-limiter](https://www.npmjs.com/package/express-limiter)
+- [limitrr](https://www.npmjs.com/package/limitrr)
 
 ## Install
 
