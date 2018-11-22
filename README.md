@@ -1,8 +1,8 @@
 # Express Rate Limit
 
-[![Build Status](https://secure.travis-ci.org/nfriedly/express-rate-limit.png?branch=master)](http://travis-ci.org/nfriedly/express-rate-limit)
-[![NPM version](http://badge.fury.io/js/express-rate-limit.png)](https://npmjs.org/package/express-rate-limit "View this project on NPM")
-[![Dependency Status](https://david-dm.org/nfriedly/express-rate-limit.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit)
+[![Build Status](https://secure.travis-ci.org/nfriedly/express-rate-limit.png?branch=master)](http://travis-ci.org/nfriedly/express-rate-limit)
+[![NPM version](http://badge.fury.io/js/express-rate-limit.png)](https://npmjs.org/package/express-rate-limit "View this project on NPM")
+[![Dependency Status](https://david-dm.org/nfriedly/express-rate-limit.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit)
 [![Development Dependency Status](https://david-dm.org/nfriedly/express-rate-limit/dev-status.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit#info=devDependencies)
 
 Basic rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.
@@ -38,7 +38,10 @@ $ npm install --save express-rate-limit
 For an API-only server where the rate-limiter should be applied to all requests:
 
 ```js
+const express = require("express");
 const rateLimit = require("express-rate-limit");
+
+const app = express();
 
 app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 
@@ -49,6 +52,13 @@ const limiter = rateLimit({
 
 //  apply to all requests
 app.use(limiter);
+
+app.listen(3000, err => {
+  if (err) {
+    console.log(`Error while starting`);
+  }
+  console.log(`Server is started at 3000`);
+});
 ```
 
 For a "regular" web server (e.g. anything that uses `express.static()`), where the rate-limiter should only apply to certain requests:
