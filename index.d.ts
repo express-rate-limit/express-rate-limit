@@ -5,6 +5,7 @@ export interface Options {
     message?: string;
     headers?: boolean;
     windowMs?: number;
+    store: Store | any;
     statusCode?: number;
     skipFailedRequests?: boolean;
     skipSuccessfulRequests?: boolean;
