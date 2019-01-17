@@ -11,6 +11,9 @@ module.exports = {
     "prefer-const": "error",
     strict: "error"
   },
+  parserOptions: {
+    ecmaVersion: 8
+  },
   overrides: [
     {
       files: ["*-test.js"],
