@@ -35,7 +35,7 @@
     "defaults": "^1.0.3"
   },
   "devDependencies": {
-    "eslint": "^5.2.0",
+    "eslint": "^5.15.3",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.2",
     "express": "^4.16.3",
