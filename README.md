@@ -113,7 +113,7 @@ Defaults to `60000` (1 minute).
 
 Error message sent to user when `max` is exceeded.
 
-May be a String, JSON object, or any other value that Express's [req.send](https://expressjs.com/en/4x/api.html#res.send) supports.
+May be a String, JSON object, or any other value that Express's [res.send](https://expressjs.com/en/4x/api.html#res.send) supports.
 
 Defaults to `'Too many requests, please try again later.'`
 
