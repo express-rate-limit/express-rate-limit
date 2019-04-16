@@ -91,7 +91,11 @@ app.post("/create-account", createAccountLimiter, function(req, res) {
 });
 ```
 
-A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests for usage in your application code and, if the store provides it, a `resetTime` Date object.
+**Note:** most stores will require additional configuration, such as custom prefixes, when using multiple instances. The default built-in memory store is an exception to this rule.
+
+## Request API
+
+A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests and, if the store provides it, a `resetTime` Date object. These may be used in your application code to take additional actions or inform the user of their status.
 
 ## Configuration options
 
