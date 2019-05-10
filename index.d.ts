@@ -2,7 +2,7 @@ import { RequestHandler, Request, Response, NextFunction } from 'express';
 
 export interface Options {
     max?: number;
-    message?: string;
+    message?: any;
     headers?: boolean;
     windowMs?: number;
     store: Store | any;
