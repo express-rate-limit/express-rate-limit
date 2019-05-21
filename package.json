@@ -12,7 +12,8 @@
   "main": "lib/express-rate-limit.js",
   "types": "index.d.ts",
   "files": [
-    "lib/"
+    "lib/",
+    "index.d.ts"
   ],
   "keywords": [
     "express-rate-limit",
