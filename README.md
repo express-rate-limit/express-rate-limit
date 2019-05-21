@@ -271,13 +271,19 @@ function SomeStore() {
 
 Resets the rate limiting for a given key. (Allow users to complete a captcha or whatever to reset their rate limit, then call this method.)
 
-## v3 Changes
+## Summary of breaking changes:
+
+### v4 Changes
+
+- Express Rate Limit no longer modifies the passed-in options object, it instead makes a clone of it.
+
+### v3 Changes
 
 - Removed `delayAfter` and `delayMs` options; they were moved to a new module: [express-slow-down](https://npmjs.org/package/express-slow-down).
 - Simplified the default `handler` function so that it no longer changes the response format. Now uses [res.send](https://expressjs.com/en/4x/api.html#res.send).
 - `onLimitReached` now only triggers once for a given ip and window. only `handle` is called for every blocked request.
 
-## v2 Changes
+### v2 Changes
 
 v2 uses a less precise but less resource intensive method of tracking hits from a given IP. v2 also adds the `limiter.resetKey()` API and removes the `global: true` option.
 
