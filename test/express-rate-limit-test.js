@@ -703,4 +703,10 @@ describe("express-rate-limit node module", function() {
       }
     });
   });
+
+  it("should not modify the passed in options object", () => {
+    const opts = {};
+    rateLimit(opts);
+    assert.deepEqual(opts, {});
+  });
 });

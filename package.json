@@ -33,9 +33,7 @@
     "brute-force",
     "attack"
   ],
-  "dependencies": {
-    "defaults": "^1.0.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^5.15.3",
     "eslint-config-prettier": "^4.2.0",
