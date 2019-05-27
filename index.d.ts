@@ -16,7 +16,6 @@ export interface Options {
 }
 
 export interface Store {
-    constructor(windowMs: number);
     hits: {
         [key: string]: number;
     };
