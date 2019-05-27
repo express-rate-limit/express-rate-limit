@@ -4,6 +4,11 @@ node_js:
   - lts/* # latest LTS Node.js release
   - 8
 
+os:
+  - linux
+  - osx
+  - windows
+
 # wait until after all node.js versions pass before deploying
 # https://docs.travis-ci.com/user/build-stages/deploy-npm/
 
