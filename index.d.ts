@@ -28,10 +28,6 @@ export interface Store {
     incr(key: string | any, cb: (err?: Error, hits?: number) => void): void;
 }
 
-export interface ExpressLimiterInterface {
-    (options: Options): (req: Request, res: Response, next: NextFunction) => void;
-}
+declare function RateLimit(options?: Options): (req: Request, res: Response, next: NextFunction) => void;
 
-declare const ExpressRateLimiter: ExpressLimiterInterface;
-
-export default ExpressRateLimiter;
+export = RateLimit;
