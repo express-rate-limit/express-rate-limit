@@ -511,6 +511,30 @@ describe("express-rate-limit node module", function() {
     goodRequest(done, done, 1); // 3rd request would normally fail but we're skipping it
   });
 
+  it("should allow custom skip function that returns a promise", function(done) {
+    const limiter = rateLimit({
+      delayMs: 0,
+      max: 1,
+      skip: () => Promise.resolve(true)
+    });
+
+    createAppWith(limiter);
+    goodRequest(done, null, 1);
+    goodRequest(done, done, 1); // 2nd request would normally fail but we're skipping it
+  });
+
+  it("should honor custom skip function that returns a promise that resolves false", function(done) {
+    const limiter = rateLimit({
+      delayMs: 0,
+      max: 1,
+      skip: () => Promise.resolve(false)
+    });
+
+    createAppWith(limiter);
+    goodRequest(done, null, 1);
+    badRequest(done, done, 1); // 2nd request should fail because we didn't skip it
+  });
+
   it("should pass current hits and limit hits to the next function", function(done) {
     const limiter = rateLimit({
       headers: false
