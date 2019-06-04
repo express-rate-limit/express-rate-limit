@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1638258381962" clover="3.2.0">
+  <project timestamp="1638258381962" name="All files">
+    <metrics statements="98" coveredstatements="94" conditionals="70" coveredconditionals="63" methods="24" coveredmethods="23" elements="192" coveredelements="180" complexity="0" loc="98" ncloc="98" packages="1" files="4" classes="4"/>
+    <file name="index.js" path="/data/code/contrib/express-rate-limit/dist/index.js">
+      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+    </file>
+    <file name="lib.js" path="/data/code/contrib/express-rate-limit/dist/lib.js">
+      <metrics statements="78" coveredstatements="74" conditionals="62" coveredconditionals="57" methods="17" coveredmethods="16"/>
+      <line num="11" count="3" type="stmt"/>
+      <line num="16" count="42" type="cond" truecount="1" falsecount="0"/>
+      <line num="18" count="42" type="stmt"/>
+      <line num="29" count="8" type="stmt"/>
+      <line num="31" count="55" type="cond" truecount="2" falsecount="0"/>
+      <line num="32" count="1" type="stmt"/>
+      <line num="34" count="55" type="stmt"/>
+      <line num="36" count="74" type="stmt"/>
+      <line num="37" count="13" type="stmt"/>
+      <line num="42" count="42" type="cond" truecount="6" falsecount="0"/>
+      <line num="46" count="2" type="stmt"/>
+      <line num="49" count="40" type="stmt"/>
+      <line num="50" count="40" type="stmt"/>
+      <line num="53" count="117" type="cond" truecount="2" falsecount="0"/>
+      <line num="54" count="3" type="stmt"/>
+      <line num="58" count="37" type="stmt"/>
+      <line num="70" count="37" type="stmt"/>
+      <line num="71" count="81" type="stmt"/>
+      <line num="73" count="81" type="stmt"/>
+      <line num="76" count="0" type="stmt"/>
+      <line num="89" count="3" type="stmt"/>
+      <line num="91" count="42" type="cond" truecount="4" falsecount="0"/>
+      <line num="93" count="37" type="stmt"/>
+      <line num="95" count="81" type="stmt"/>
+      <line num="96" count="80" type="cond" truecount="2" falsecount="0"/>
+      <line num="97" count="6" type="stmt"/>
+      <line num="98" count="6" type="stmt"/>
+      <line num="101" count="74" type="stmt"/>
+      <line num="103" count="74" type="stmt"/>
+      <line num="105" count="74" type="stmt"/>
+      <line num="106" count="74" type="stmt"/>
+      <line num="107" count="74" type="cond" truecount="1" falsecount="1"/>
+      <line num="108" count="0" type="stmt"/>
+      <line num="109" count="74" type="stmt"/>
+      <line num="113" count="74" type="cond" truecount="2" falsecount="0"/>
+      <line num="116" count="74" type="stmt"/>
+      <line num="118" count="74" type="stmt"/>
+      <line num="125" count="74" type="cond" truecount="4" falsecount="0"/>
+      <line num="126" count="70" type="stmt"/>
+      <line num="127" count="69" type="stmt"/>
+      <line num="129" count="69" type="cond" truecount="2" falsecount="0"/>
+      <line num="130" count="54" type="stmt"/>
+      <line num="131" count="54" type="stmt"/>
+      <line num="136" count="73" type="cond" truecount="4" falsecount="0"/>
+      <line num="137" count="1" type="stmt"/>
+      <line num="138" count="1" type="stmt"/>
+      <line num="139" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="140" count="1" type="stmt"/>
+      <line num="141" count="1" type="stmt"/>
+      <line num="146" count="73" type="cond" truecount="4" falsecount="0"/>
+      <line num="147" count="12" type="stmt"/>
+      <line num="148" count="12" type="stmt"/>
+      <line num="149" count="6" type="cond" truecount="1" falsecount="1"/>
+      <line num="150" count="6" type="stmt"/>
+      <line num="151" count="6" type="stmt"/>
+      <line num="154" count="12" type="cond" truecount="2" falsecount="0"/>
+      <line num="155" count="6" type="stmt"/>
+      <line num="156" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="157" count="3" type="stmt"/>
+      <line num="159" count="6" type="stmt"/>
+      <line num="160" count="6" type="cond" truecount="1" falsecount="1"/>
+      <line num="161" count="0" type="stmt"/>
+      <line num="163" count="6" type="stmt"/>
+      <line num="164" count="0" type="stmt"/>
+      <line num="167" count="12" type="cond" truecount="2" falsecount="0"/>
+      <line num="168" count="6" type="stmt"/>
+      <line num="169" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="170" count="3" type="stmt"/>
+      <line num="176" count="73" type="cond" truecount="4" falsecount="0"/>
+      <line num="177" count="17" type="stmt"/>
+      <line num="181" count="73" type="cond" truecount="4" falsecount="0"/>
+      <line num="182" count="17" type="cond" truecount="3" falsecount="1"/>
+      <line num="183" count="17" type="stmt"/>
+      <line num="185" count="17" type="stmt"/>
+      <line num="186" count="16" type="stmt"/>
+      <line num="188" count="56" type="stmt"/>
+      <line num="190" count="37" type="stmt"/>
+      <line num="192" count="37" type="stmt"/>
+    </file>
+    <file name="memory-store.js" path="/data/code/contrib/express-rate-limit/dist/memory-store.js">
+      <metrics statements="20" coveredstatements="20" conditionals="8" coveredconditionals="6" methods="7" coveredmethods="7"/>
+      <line num="12" count="4" type="stmt"/>
+      <line num="13" count="218" type="stmt"/>
+      <line num="14" count="218" type="stmt"/>
+      <line num="15" count="218" type="stmt"/>
+      <line num="30" count="33" type="stmt"/>
+      <line num="31" count="33" type="stmt"/>
+      <line num="32" count="33" type="stmt"/>
+      <line num="34" count="33" type="stmt"/>
+      <line num="35" count="184" type="stmt"/>
+      <line num="37" count="33" type="cond" truecount="1" falsecount="1"/>
+      <line num="38" count="33" type="stmt"/>
+      <line num="51" count="75" type="cond" truecount="4" falsecount="0"/>
+      <line num="52" count="75" type="stmt"/>
+      <line num="53" count="75" type="stmt"/>
+      <line num="63" count="1" type="stmt"/>
+      <line num="64" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="65" count="1" type="stmt"/>
+      <line num="76" count="1" type="stmt"/>
+      <line num="84" count="185" type="stmt"/>
+      <line num="85" count="185" type="stmt"/>
+    </file>
+    <file name="types.js" path="/data/code/contrib/express-rate-limit/dist/types.js">
+      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+    </file>
+  </project>
+</coverage>

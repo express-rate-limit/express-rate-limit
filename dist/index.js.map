@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../source/index.ts"],"names":[],"mappings":"AAAA,mBAAmB;AACnB,eAAe;AAEf,cAAc,YAAY,CAAA;AAC1B,OAAO,EAAE,OAAO,EAAE,MAAM,UAAU,CAAA","sourcesContent":["// /source/index.ts\n// Export away!\n\nexport * from './types.js'\nexport { default } from './lib.js'\n"]}
