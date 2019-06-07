@@ -10,10 +10,8 @@
   "repository": "nfriedly/express-rate-limit",
   "license": "MIT",
   "main": "lib/express-rate-limit.js",
-  "types": "index.d.ts",
   "files": [
-    "lib/",
-    "index.d.ts"
+    "lib/"
   ],
   "keywords": [
     "express-rate-limit",
