@@ -1,4 +1,4 @@
-import {RequestHandler, Request, Response, NextFunction} from 'express';
+import { RequestHandler, Request, Response, NextFunction } from "express";
 
 export interface Options {
   max?: number;
@@ -16,7 +16,7 @@ export interface Options {
 
   handler?(req: Request, res: Response, next?: NextFunction): void;
 
-  keyGenerator?(req: Request, res?: Response): string | Request['ip'];
+  keyGenerator?(req: Request, res?: Response): string | Request["ip"];
 }
 
 export interface Store {
@@ -36,4 +36,8 @@ export interface Store {
   incr(key: string | any, cb: (err?: Error, hits?: number) => void): void;
 }
 
-export default function RateLimit(options?: Options): (req: Request, res: Response, next: NextFunction) => void;
+export interface RateLimitReturnType {
+  (req: Request, res: Response, next: NextFunction): void;
+}
+
+declare function RateLimit(options?: Options): RateLimitReturnType;
