@@ -1,6 +1,8 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 
-export interface Options {
+declare namespace RateLimit {}
+
+interface Options {
   max?: number;
   message?: any;
   headers?: boolean;
@@ -19,7 +21,7 @@ export interface Options {
   keyGenerator?(req: Request, res?: Response): string | Request["ip"];
 }
 
-export interface Store {
+interface Store {
   hits: {
     [key: string]: number;
   };
@@ -36,8 +38,10 @@ export interface Store {
   incr(key: string | any, cb: (err?: Error, hits?: number) => void): void;
 }
 
-export interface RateLimitReturnType {
+interface RateLimitReturnType {
   (req: Request, res: Response, next: NextFunction): void;
 }
 
 declare function RateLimit(options?: Options): RateLimitReturnType;
+
+export = RateLimit;
