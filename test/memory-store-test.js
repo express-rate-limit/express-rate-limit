@@ -1,6 +1,6 @@
 "use strict";
 
-const MemoryStore = require("../lib/memory-store.js");
+const MemoryStore = require("../dist/memory-store.js");
 
 describe("MemoryStore store", () => {
   it("sets the value to 1 on first incr", (done) => {

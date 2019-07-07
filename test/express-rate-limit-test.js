@@ -2,10 +2,7 @@
 const express = require("express");
 const assert = require("assert");
 const request = require("supertest");
-const sinon = require("sinon");
-const sandbox = sinon.createSandbox();
-const rateLimit = require("../lib/express-rate-limit.js");
-const { promisify } = require("util");
+const rateLimit = require("../dist/express-rate-limit.js");
 
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 

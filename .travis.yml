@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - 6
+  - 8
+  - 10
+  - stable
+
+# wait until after all node.js versions pass before deploying
+# https://docs.travis-ci.com/user/build-stages/deploy-npm/
+
+stages:
+  - test
+  - name: deploy
+    if: tag IS present AND repo = 'nfriedly/express-rate-limit'
+
+jobs:
+  include:
+    - stage: deploy
+      node_js: stable
+      script: npm run build
+      deploy:
+        provider: npm
+        email: nathan@nfriedly.com
+        api_key:
+          secure: KYoYXfYT3h4qZznrxV2DRmbmkBImdhe5Vz9uExSb6O6enKVWwO/3FVI+NUkAyMRyENgXAieix0ybPrbkHfbmPRpY3OBL/LBIQtK2uWHGwi0JxW7fwOP+Z2mGSwEMK3EAOfQuYx9OhOmT4F+Nvsjf3a6Bt0223Ua1LoHhZicd56M=
+        on:
+          tags: true
+        skip_cleanup: true

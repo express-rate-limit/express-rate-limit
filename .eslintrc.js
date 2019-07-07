@@ -2,6 +2,7 @@
 
 module.exports = {
   extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  parser: "@typescript-eslint/parser",
   env: {
     node: true,
     es6: true,
@@ -9,7 +10,11 @@ module.exports = {
   rules: {
     "no-var": "error",
     "prefer-const": "error",
-    strict: "error",
+    // no-unused-vars and no-redeclare are turned off,
+    // because they do not work well with valid typescript code
+    // the typescript compiler will catch these errors
+    "no-unused-vars": "off",
+    "no-redeclare": "off"
   },
   overrides: [
     {
