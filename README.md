@@ -273,6 +273,10 @@ Resets the rate limiting for a given key. (Allow users to complete a captcha or 
 
 ## Summary of breaking changes:
 
+### v5 changes
+
+- Removed index.d.ts. (See [#138](https://github.com/nfriedly/express-rate-limit/issues/138))
+
 ### v4 Changes
 
 - Express Rate Limit no longer modifies the passed-in options object, it instead makes a clone of it.
