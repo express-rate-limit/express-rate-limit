@@ -17,7 +17,7 @@ jobs:
   include:
     - stage: deploy
       node_js: stable
-      script: npm run build
+      script: skip
       deploy:
         provider: npm
         email: nathan@nfriedly.com

@@ -51,6 +51,7 @@
     "build": "tsc",
     "pretest": "npm run build",
     "test": "eslint lib/* test/* && mocha",
-    "precommit": "pretty-quick --staged"
+    "precommit": "pretty-quick --staged",
+    "prepublish": "npm run build"
   }
 }
