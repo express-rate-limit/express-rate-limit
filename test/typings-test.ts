@@ -1,5 +1,4 @@
-require("ts-node/register");
-const rateLimit = require("../lib/express-rate-limit.ts");
+import * as rateLimit from "../dist/express-rate-limit";
 
 describe("express-rate-limit typescript typings", function() {
   it("should work with non-string messages", () => {

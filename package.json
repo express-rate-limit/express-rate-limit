@@ -32,12 +32,10 @@
     "brute-force",
     "attack"
   ],
-  "dependencies": {
-    "@types/mocha": "^5.2.7",
-    "ts-node": "^8.3.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/express": "^4.17.0",
+    "@types/mocha": "^5.2.7",
     "@types/node": "^12.0.12",
     "@typescript-eslint/parser": "^1.11.0",
     "eslint": "^6.0.1",
@@ -49,12 +47,13 @@
     "prettier": "^1.17.0",
     "pretty-quick": "^1.6.0",
     "supertest": "^4.0.2",
+    "ts-node": "^8.3.0",
     "typescript": "^3.5.2"
   },
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
-    "test": "eslint . && mocha test/*-test.*",
+    "test": "eslint . && mocha --require ts-node/register test/*-test.*",
     "precommit": "pretty-quick --staged",
     "prepublish": "npm run build"
   }
