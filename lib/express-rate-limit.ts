@@ -36,7 +36,7 @@ namespace RateLimit {
       limit: number;
       current: number;
       remaining: number;
-      resetTime: Date;
+      resetTime?: Date;
     };
   }
 }
