@@ -14,7 +14,7 @@ namespace RateLimit {
   export interface Options {
     windowMs: number; // milliseconds - how long to keep records of requests in memory
     max: number | ((req: express.Request, res: express.Response) => number); // max number of recent connections during `window` milliseconds before sending a 429 response
-    message: any;
+    message: string;
     statusCode: number; // 429 status = Too Many Requests (RFC 6585)
     headers: boolean; // Send custom rate limit header with limit and remaining
     skipFailedRequests: boolean; // Do not count failed requests (status >= 400)
