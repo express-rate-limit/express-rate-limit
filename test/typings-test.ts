@@ -1,4 +1,4 @@
-import * as rateLimit from "../dist/express-rate-limit";
+import rateLimit = require("../dist/express-rate-limit");
 
 describe("express-rate-limit typescript typings", function() {
   it("should work with non-string messages", () => {
