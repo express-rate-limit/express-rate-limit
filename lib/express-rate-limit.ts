@@ -2,7 +2,11 @@ import MemoryStore = require("./memory-store");
 import express = require("express");
 
 namespace RateLimit {
-  export type IncrCallback = (error: any, hit: number, resetTime: Date) => void;
+  export type IncrCallback = (
+    error: any,
+    hit: number,
+    resetTime: Date | undefined
+  ) => void;
 
   export interface Store {
     incr(key: string, cb: IncrCallback): void;
@@ -36,7 +40,7 @@ namespace RateLimit {
       limit: number;
       current: number;
       remaining: number;
-      resetTime?: Date;
+      resetTime: Date | undefined;
     };
   }
 }
