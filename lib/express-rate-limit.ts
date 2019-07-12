@@ -41,18 +41,23 @@ namespace RateLimit {
   }
 
   export interface AugmentedRequest extends express.Request {
-    rateLimit: {
-      readonly limit: number;
-      readonly current: number;
-      readonly remaining: number;
-      readonly resetTime: Date | undefined;
-    };
+    rateLimit: RateLimitInfo;
+  }
+
+  export interface RateLimitInfo {
+    readonly limit: number;
+    readonly current: number;
+    readonly remaining: number;
+    readonly resetTime: Date | undefined;
   }
 }
 
 type RateLimit = express.RequestHandler & {
   readonly resetKey: RateLimit.Store["resetKey"];
   readonly resetIp: RateLimit.Store["resetKey"];
+  readonly getRateLimit: (
+    req: express.Request
+  ) => RateLimit.RateLimitInfo | undefined;
 };
 
 function handleOptions(
@@ -210,7 +215,27 @@ function RateLimit(incomingOptions: Partial<RateLimit.Options>): RateLimit {
   // Backward compatibility function
   rateLimit.resetIp = rateLimit.resetKey;
 
+  rateLimit.getRateLimit = function getRateLimit(
+    req: express.Request
+  ): RateLimit.RateLimitInfo | undefined {
+    return isAugmentedRequest(req) ? req.rateLimit : undefined;
+  };
+
   return rateLimit;
+}
+
+function isAugmentedRequest(
+  input: express.Request
+): input is RateLimit.AugmentedRequest {
+  const asAny = input as any;
+  return (
+    "rateLimit" in asAny &&
+    typeof asAny.rateLimit.limit === "number" &&
+    typeof asAny.rateLimit.current === "number" &&
+    typeof asAny.rateLimit.remaining === "number" &&
+    (asAny.rateLimit.resetTime === undefined ||
+      asAny.rateLimit.resetTime instanceof Date)
+  );
 }
 
 export = RateLimit;
