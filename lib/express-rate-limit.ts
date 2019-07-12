@@ -16,38 +16,43 @@ namespace RateLimit {
   }
 
   export interface Options {
-    windowMs: number; // milliseconds - how long to keep records of requests in memory
-    max: number | ((req: express.Request, res: express.Response) => number); // max number of recent connections during `window` milliseconds before sending a 429 response
-    message: any;
-    statusCode: number; // 429 status = Too Many Requests (RFC 6585)
-    headers: boolean; // Send custom rate limit header with limit and remaining
-    skipFailedRequests: boolean; // Do not count failed requests (status >= 400)
-    skipSuccessfulRequests: boolean; // Do not count successful requests (status < 400)
+    readonly windowMs: number; // milliseconds - how long to keep records of requests in memory
+    readonly max:
+      | number
+      | ((req: express.Request, res: express.Response) => number); // max number of recent connections during `window` milliseconds before sending a 429 response
+    readonly message: any;
+    readonly statusCode: number; // 429 status = Too Many Requests (RFC 6585)
+    readonly headers: boolean; // Send custom rate limit header with limit and remaining
+    readonly skipFailedRequests: boolean; // Do not count failed requests (status >= 400)
+    readonly skipSuccessfulRequests: boolean; // Do not count successful requests (status < 400)
     // allows to create custom keys (by default user IP is used)
-    keyGenerator: (req: express.Request, res: express.Response) => string;
-    skip: (req: express.Request, res: express.Response) => boolean;
-    handler: express.RequestHandler;
-    onLimitReached: (
+    readonly keyGenerator: (
+      req: express.Request,
+      res: express.Response
+    ) => string;
+    readonly skip: (req: express.Request, res: express.Response) => boolean;
+    readonly handler: express.RequestHandler;
+    readonly onLimitReached: (
       req: express.Request,
       res: express.Response,
       optionsUsed: Options
     ) => void;
-    store: Store;
+    readonly store: Store;
   }
 
   export interface AugmentedRequest extends express.Request {
     rateLimit: {
-      limit: number;
-      current: number;
-      remaining: number;
-      resetTime: Date | undefined;
+      readonly limit: number;
+      readonly current: number;
+      readonly remaining: number;
+      readonly resetTime: Date | undefined;
     };
   }
 }
 
 type RateLimit = express.RequestHandler & {
-  resetKey: RateLimit.Store["resetKey"];
-  resetIp: RateLimit.Store["resetKey"];
+  readonly resetKey: RateLimit.Store["resetKey"];
+  readonly resetIp: RateLimit.Store["resetKey"];
 };
 
 function handleOptions(
