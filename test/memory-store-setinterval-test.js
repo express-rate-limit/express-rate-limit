@@ -1,7 +1,7 @@
 const MemoryStore = require("../dist/memory-store.js");
 
 // this test is JS instead of TS, because I can't figure out how to mock setInterval in TS.
-describe("timeout", function() {
+describe("MemoryStore interval", function() {
   const originalSetInterval = setInterval;
   let timeoutId = 1;
   let realTimeoutId;
