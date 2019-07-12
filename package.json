@@ -37,6 +37,7 @@
     "@types/express": "^4.17.0",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.0.12",
+    "@types/supertest": "^2.0.8",
     "@typescript-eslint/parser": "^1.11.0",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
@@ -53,7 +54,7 @@
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
-    "test": "eslint . && mocha --require ts-node/register test/*-test.*",
+    "test": "eslint . && TS_NODE_PROJECT=test/tsconfig.json mocha --require ts-node/register test/*-test.*",
     "precommit": "pretty-quick --staged",
     "prepublish": "npm run build"
   }
