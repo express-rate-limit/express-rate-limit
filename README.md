@@ -99,11 +99,21 @@ app.post("/create-account", createAccountLimiter, function(req, res) {
 
 **Note:** most stores will require additional configuration, such as custom prefixes, when using multiple instances. The default built-in memory store is an exception to this rule.
 
+### Typescript
+
+Import the module like this:
+
+```ts
+import RateLimit = require("express-rate-limit");
+```
+
+Notice the mixture of `import` and `require`. This is typescript's way of importing modules that use the older commonjs default export style.
+
 ## Request API
 
 A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests and, if the store provides it, a `resetTime` Date object. These may be used in your application code to take additional actions or inform the user of their status.
 
-The property name can be configured with the configuration option `requestPropertyName`
+There is also a helper function `getRateLimit` on the default export, that safely returns the current rateLimit property from a request if it is availble. This is meant for typescript users mostly, since the express request type is not able to tell whether the rate limit is actually available.
 
 ## Configuration options
 
