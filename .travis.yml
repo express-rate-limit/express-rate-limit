@@ -15,7 +15,7 @@ stages:
 jobs:
   include:
     - stage: deploy
-      node_js: stable
+      node_js: node
       script: skip
       deploy:
         provider: npm
