@@ -139,6 +139,10 @@ Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-Rat
 
 Defaults to `true`.
 
+### draft_polli_ratelimit_headers
+
+This plugin is to support (eg. eventually via configuration) the new (ratelimit standardization proposal)[https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html].
+
 ### keyGenerator
 
 Function used to generate keys.
@@ -222,7 +226,6 @@ Available data stores are:
 - [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
 - [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached): A [Memcached](https://memcached.org/)-backed store.
 - [rate-limit-mongo](https://www.npmjs.com/package/rate-limit-mongo): A [MongoDB](https://www.mongodb.com/)-backed store.
-
 
 You may also create your own store. It must implement the following in order to function:
 
