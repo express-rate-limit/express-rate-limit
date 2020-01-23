@@ -141,7 +141,9 @@ Defaults to `true`.
 
 ### draft_polli_ratelimit_headers
 
-This plugin is to support (eg. eventually via configuration) the new (ratelimit standardization proposal)[https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html].
+Enable headers conforming to the [ratelimit standardization proposal](https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html): `RateLimit-Limit`, `RateLimit-Remaining`, and, if the store supports it, `RateLimit-Reset`. May be used in conjunction with, or instead of the `headers` option.
+
+Defaults to `false`, but will likely be changed in the next major release.
 
 ### keyGenerator
 
