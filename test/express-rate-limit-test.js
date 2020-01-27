@@ -307,6 +307,28 @@ describe("express-rate-limit node module", function() {
     );
   });
 
+  it("should send correct ratelimit-limit and ratelimit-remaining", function(done) {
+    createAppWith(
+      rateLimit({ windowMs: 59100, draft_polli_ratelimit_headers: true })
+    );
+    goodRequest(
+      done,
+      function(/* err, res */) {
+        delay = Date.now() - start;
+        if (delay > 99) {
+          done(new Error("First request took too long: " + delay + "ms"));
+        } else {
+          done();
+        }
+      },
+      undefined,
+      true,
+      "5",
+      "4",
+      "60"
+    );
+  });
+
   it("should refuse additional connections once IP has reached the max", function(done) {
     createAppWith(
       rateLimit({
