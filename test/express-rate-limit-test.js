@@ -308,25 +308,24 @@ describe("express-rate-limit node module", function() {
   });
 
   it("should send correct ratelimit-limit and ratelimit-remaining", function(done) {
-    createAppWith(
-      rateLimit({ windowMs: 59100, draft_polli_ratelimit_headers: true })
+    const limit = 5;
+    const windowMs = 60 * 1000; // 60 * 1000 = 1 minute
+    const app = createAppWith(
+      rateLimit({
+        windowMs: windowMs,
+        limit: limit,
+        draft_polli_ratelimit_headers: true
+      })
     );
-    goodRequest(
-      done,
-      function(/* err, res */) {
-        delay = Date.now() - start;
-        if (delay > 99) {
-          done(new Error("First request took too long: " + delay + "ms"));
-        } else {
-          done();
-        }
-      },
-      undefined,
-      true,
-      "5",
-      "4",
-      "60"
-    );
+    const expectedRemaining = 4;
+    const expectedResetSeconds = 60;
+    request(app)
+      .get("/")
+      .expect("ratelimit-limit", limit.toString())
+      .expect("ratelimit-remaining", expectedRemaining.toString())
+      .expect("ratelimit-reset", expectedResetSeconds.toString())
+      .expect(200, /response!/)
+      .end(done);
   });
 
   it("should refuse additional connections once IP has reached the max", function(done) {
