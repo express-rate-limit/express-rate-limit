@@ -115,7 +115,9 @@ Defaults to `5`. Set to `0` to disable.
 
 ### windowMs
 
-How long in milliseconds to keep records of requests in memory.
+Timeframe for which requests are checked/remebered. Also used in the Retry-After header when the limit is reached.
+
+Note: with non-default stores, you may need to configure this value twice, once here and once on the store. In some cases the units also differ (e.g. seconds vs miliseconds)
 
 Defaults to `60000` (1 minute).
 
