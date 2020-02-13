@@ -139,13 +139,13 @@ Defaults to `429`.
 
 Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
 
-Defaults to `true`.
+Defaults to `true`. Behavior may change in the next major release.
 
 ### draft_polli_ratelimit_headers
 
 Enable headers conforming to the [ratelimit standardization proposal](https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html): `RateLimit-Limit`, `RateLimit-Remaining`, and, if the store supports it, `RateLimit-Reset`. May be used in conjunction with, or instead of the `headers` option.
 
-Defaults to `false`, but will likely be changed in the next major release.
+Defaults to `false`. Behavior and name will likely change in future releases.
 
 ### keyGenerator
 
