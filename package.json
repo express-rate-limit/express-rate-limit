@@ -33,14 +33,14 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^5.15.3",
-    "eslint-config-prettier": "^4.2.0",
-    "eslint-plugin-prettier": "^3.0.1",
-    "express": "^4.16.3",
-    "husky": "^2.2.0",
-    "mocha": "^6.1.4",
-    "prettier": "^1.17.0",
-    "pretty-quick": "^1.6.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "express": "^4.17.1",
+    "husky": "^4.2.3",
+    "mocha": "^7.0.1",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
     "supertest": "^4.0.2"
   },
   "scripts": {
