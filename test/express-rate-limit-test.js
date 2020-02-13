@@ -307,6 +307,27 @@ describe("express-rate-limit node module", function() {
     );
   });
 
+  it("should send correct ratelimit-limit and ratelimit-remaining", function(done) {
+    const limit = 5;
+    const windowMs = 60 * 1000; // 60 * 1000 = 1 minute
+    const app = createAppWith(
+      rateLimit({
+        windowMs: windowMs,
+        limit: limit,
+        draft_polli_ratelimit_headers: true
+      })
+    );
+    const expectedRemaining = 4;
+    const expectedResetSeconds = 60;
+    request(app)
+      .get("/")
+      .expect("ratelimit-limit", limit.toString())
+      .expect("ratelimit-remaining", expectedRemaining.toString())
+      .expect("ratelimit-reset", expectedResetSeconds.toString())
+      .expect(200, /response!/)
+      .end(done);
+  });
+
   it("should refuse additional connections once IP has reached the max", function(done) {
     createAppWith(
       rateLimit({
