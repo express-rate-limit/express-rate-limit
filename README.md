@@ -115,7 +115,7 @@ Defaults to `5`. Set to `0` to disable.
 
 ### windowMs
 
-Timeframe for which requests are checked/remebered. Also used in the Retry-After header when the limit is reached.
+Timeframe for which requests are checked/remembered. Also used in the Retry-After header when the limit is reached.
 
 Note: with non-default stores, you may need to configure this value twice, once here and once on the store. In some cases the units also differ (e.g. seconds vs miliseconds)
 
