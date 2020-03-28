@@ -151,11 +151,11 @@ Defaults to `false`. Behavior and name will likely change in future releases.
 
 Function used to generate keys.
 
-Defaults to req.ip:
+Defaults to `req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip`:
 
 ```js
 function (req /*, res*/) {
-    return req.ip;
+  return req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
 }
 ```
 
