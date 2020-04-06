@@ -44,7 +44,9 @@
     "supertest": "^4.0.2"
   },
   "scripts": {
-    "test": "eslint . && mocha",
+    "lint": "eslint .",
+    "autofix": "npm run lint -- --fix",
+    "test": "npm run lint && mocha",
     "precommit": "pretty-quick --staged"
   }
 }
