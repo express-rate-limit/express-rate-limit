@@ -3,7 +3,7 @@
 const MemoryStore = require("../lib/memory-store.js");
 
 describe("MemoryStore store", () => {
-  it("sets the value to 1 on first incr", done => {
+  it("sets the value to 1 on first incr", (done) => {
     const store = new MemoryStore(-1);
     const key = "test-store";
 
@@ -20,7 +20,7 @@ describe("MemoryStore store", () => {
     });
   });
 
-  it("increments the key for the store each incr", done => {
+  it("increments the key for the store each incr", (done) => {
     const store = new MemoryStore(-1);
     const key = "test-store";
 
@@ -39,7 +39,7 @@ describe("MemoryStore store", () => {
     });
   });
 
-  it("resets the key for the store when used with resetKey", done => {
+  it("resets the key for the store when used with resetKey", (done) => {
     const store = new MemoryStore(-1);
     const key = "test-store";
 
@@ -60,7 +60,7 @@ describe("MemoryStore store", () => {
     });
   });
 
-  it("resets all keys for the store when used with resetAll", done => {
+  it("resets all keys for the store when used with resetAll", (done) => {
     const store = new MemoryStore(-1);
     const keyOne = "test-store-one";
     const keyTwo = "test-store-two";
@@ -93,7 +93,7 @@ describe("MemoryStore store", () => {
     });
   });
 
-  it("resets all keys for the store when the timeout is reached", done => {
+  it("resets all keys for the store when the timeout is reached", (done) => {
     const store = new MemoryStore(50);
     const keyOne = "test-store-one";
     const keyTwo = "test-store-two";
@@ -140,13 +140,13 @@ describe("MemoryStore store", () => {
     beforeEach(() => {
       timeoutId = 1;
       // eslint-disable-next-line  no-global-assign
-      setInterval = function(callback, timeout) {
+      setInterval = function (callback, timeout) {
         realTimeoutId = originalSetInterval(callback, timeout);
         return timeoutId++;
       };
     });
 
-    it("can run in electron where setInterval does not return a Timeout object with an unset function", done => {
+    it("can run in electron where setInterval does not return a Timeout object with an unset function", (done) => {
       const store = new MemoryStore(-1);
       const key = "test-store";
 
@@ -170,7 +170,7 @@ describe("MemoryStore store", () => {
     });
   });
 
-  it("decrements the key for the store each decrement", done => {
+  it("decrements the key for the store each decrement", (done) => {
     const store = new MemoryStore(-1);
     const key = "test-store";
 

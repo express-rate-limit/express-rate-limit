@@ -19,7 +19,7 @@ describe("headers", () => {
       rateLimit({
         windowMs: windowMs,
         limit: limit,
-        headers: true
+        headers: true,
       })
     );
     const expectedRemaining = 4;
@@ -48,7 +48,7 @@ describe("headers", () => {
       rateLimit({
         windowMs: windowMs,
         limit: limit,
-        draft_polli_ratelimit_headers: true
+        draft_polli_ratelimit_headers: true,
       })
     );
     const expectedRemaining = 4;
@@ -68,12 +68,10 @@ describe("headers", () => {
       rateLimit({
         windowMs: windowSeconds * 1000,
         delayMs: 0,
-        max: 1
+        max: 1,
       })
     );
-    await request(app)
-      .get("/")
-      .expect(200);
+    await request(app).get("/").expect(200);
 
     await request(app)
       .get("/")
