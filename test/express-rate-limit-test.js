@@ -675,7 +675,7 @@ describe("express-rate-limit node module", () => {
     );
     app.use((err, req, res, next) => {
       res.status(err.code).send(err.message);
-      next;
+      next; // ignore lint errors?
     });
     goodRequest(done);
     badRequest(done, () => {
