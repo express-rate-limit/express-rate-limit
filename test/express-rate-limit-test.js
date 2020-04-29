@@ -660,6 +660,7 @@ describe("express-rate-limit node module", () => {
   });
 
   it("should handle exceptions", (done) => {
+    let errorCaught = false;
     const store = new MockStore();
     const app = createAppWith(
       rateLimit({
@@ -675,10 +676,12 @@ describe("express-rate-limit node module", () => {
     );
     // eslint-disable-next-line no-unused-vars
     app.use((err, req, res, next) => {
+      errorCaught = true;
       res.status(err.code).send(err.message);
     });
     goodRequest(done);
     badRequest(done, () => {
+      assert(errorCaught);
       done();
     });
   });
