@@ -673,9 +673,9 @@ describe("express-rate-limit node module", () => {
         },
       })
     );
+    // eslint-disable-next-line no-unused-vars
     app.use((err, req, res, next) => {
       res.status(err.code).send(err.message);
-      next; // ignore lint errors?
     });
     goodRequest(done);
     badRequest(done, () => {
