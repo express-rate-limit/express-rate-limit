@@ -658,4 +658,28 @@ describe("express-rate-limit node module", () => {
     rateLimit(opts);
     assert.deepEqual(opts, {});
   });
+
+  it("should handle exceptions", (done) => {
+    const store = new MockStore();
+    const app = createAppWith(
+      rateLimit({
+        max: 1,
+        store: store,
+        handler: () => {
+          const exception = new Error();
+          exception.code = 429;
+          exception.message = "Too many requests";
+          throw exception;
+        },
+      })
+    );
+    app.use((err, req, res, next) => {
+      res.status(err.code).send(err.message);
+      next; // ignore lint errors?
+    });
+    goodRequest(done);
+    badRequest(done, () => {
+      done();
+    });
+  });
 });
