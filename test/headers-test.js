@@ -1,7 +1,7 @@
 "use strict";
 const express = require("express");
 const request = require("supertest");
-const rateLimit = require("../lib/express-rate-limit.js");
+const rateLimit = require("../dist/express-rate-limit.js");
 
 describe("headers", () => {
   function createAppWith(limit) {
