@@ -21,6 +21,10 @@ module.exports = {
       files: ["*-test.js"],
       env: {
         mocha: true
+      },
+      parserOptions: { ecmaVersion: 2018 },
+      rules: {
+        "prefer-arrow-callback": "error"
       }
     }
   ]
