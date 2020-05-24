@@ -20,12 +20,12 @@ module.exports = {
     {
       files: ["*-test.js"],
       env: {
-        mocha: true,
+        mocha: true
       },
       parserOptions: { ecmaVersion: 2018 },
       rules: {
-        "prefer-arrow-callback": "error",
-      },
-    },
-  ],
+        "prefer-arrow-callback": "error"
+      }
+    }
+  ]
 };
