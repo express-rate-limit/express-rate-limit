@@ -23,6 +23,7 @@ namespace RateLimit {
     readonly message: any;
     readonly statusCode: number; // 429 status = Too Many Requests (RFC 6585)
     readonly headers: boolean; // Send custom rate limit header with limit and remaining
+    readonly draft_polli_ratelimit_headers: boolean; // Support for the new RateLimit standardization headers
     readonly skipFailedRequests: boolean; // Do not count failed requests (status >= 400)
     readonly skipSuccessfulRequests: boolean; // Do not count successful requests (status < 400)
     // allows to create custom keys (by default user IP is used)
@@ -75,6 +76,7 @@ function handleOptions(
     message: "Too many requests, please try again later.",
     statusCode: 429,
     headers: true,
+    draft_polli_ratelimit_headers: false,
     skipFailedRequests: false,
     skipSuccessfulRequests: false,
     keyGenerator: function(req) {
@@ -136,77 +138,93 @@ function RateLimit(incomingOptions: Partial<RateLimit.Options>): RateLimit {
       const maxResult =
         typeof options.max === "function" ? options.max(req, res) : options.max;
 
-      Promise.resolve(maxResult).then(max => {
-        augmentedReq.rateLimit = {
-          limit: max,
-          current: current,
-          remaining: Math.max(max - current, 0),
-          resetTime: resetTime
-        };
-
-        if (options.headers) {
-          res.setHeader("X-RateLimit-Limit", max);
-          res.setHeader(
-            "X-RateLimit-Remaining",
-            augmentedReq.rateLimit.remaining
-          );
-          if (resetTime instanceof Date) {
-            // if we have a resetTime, also provide the current date to help avoid issues with incorrect clocks
-            res.setHeader("Date", new Date().toUTCString());
-            res.setHeader(
-              "X-RateLimit-Reset",
-              Math.ceil(resetTime.getTime() / 1000)
-            );
-          }
-        }
-
-        if (options.skipFailedRequests || options.skipSuccessfulRequests) {
-          let decremented = false;
-          const decrementKey = () => {
-            if (!decremented) {
-              options.store.decrement(key);
-              decremented = true;
-            }
+      Promise.resolve(maxResult)
+        .then(max => {
+          augmentedReq.rateLimit = {
+            limit: max,
+            current: current,
+            remaining: Math.max(max - current, 0),
+            resetTime: resetTime
           };
 
-          if (options.skipFailedRequests) {
-            res.on("finish", function() {
-              if (res.statusCode >= 400) {
-                decrementKey();
-              }
-            });
-
-            res.on("close", () => {
-              if (!res.finished) {
-                decrementKey();
-              }
-            });
-
-            res.on("error", () => decrementKey());
+          if (options.headers && !res.headersSent) {
+            res.setHeader("X-RateLimit-Limit", max);
+            res.setHeader(
+              "X-RateLimit-Remaining",
+              augmentedReq.rateLimit.remaining
+            );
+            if (resetTime instanceof Date) {
+              // if we have a resetTime, also provide the current date to help avoid issues with incorrect clocks
+              res.setHeader("Date", new Date().toUTCString());
+              res.setHeader(
+                "X-RateLimit-Reset",
+                Math.ceil(resetTime.getTime() / 1000)
+              );
+            }
           }
 
-          if (options.skipSuccessfulRequests) {
-            res.on("finish", function() {
-              if (res.statusCode < 400) {
+          if (options.draft_polli_ratelimit_headers && !res.headersSent) {
+            res.setHeader("RateLimit-Limit", max);
+            res.setHeader(
+              "RateLimit-Remaining",
+              augmentedReq.rateLimit.remaining
+            );
+            if (resetTime) {
+              const deltaSeconds = Math.ceil(
+                (resetTime.getTime() - Date.now()) / 1000
+              );
+              res.setHeader("RateLimit-Reset", Math.max(0, deltaSeconds));
+            }
+          }
+
+          if (options.skipFailedRequests || options.skipSuccessfulRequests) {
+            let decremented = false;
+            const decrementKey = () => {
+              if (!decremented) {
                 options.store.decrement(key);
+                decremented = true;
               }
-            });
+            };
+
+            if (options.skipFailedRequests) {
+              res.on("finish", function() {
+                if (res.statusCode >= 400) {
+                  decrementKey();
+                }
+              });
+
+              res.on("close", () => {
+                if (!res.finished) {
+                  decrementKey();
+                }
+              });
+
+              res.on("error", () => decrementKey());
+            }
+
+            if (options.skipSuccessfulRequests) {
+              res.on("finish", function() {
+                if (res.statusCode < 400) {
+                  options.store.decrement(key);
+                }
+              });
+            }
           }
-        }
 
-        if (max && current === max + 1) {
-          options.onLimitReached(req, res, options);
-        }
-
-        if (max && current > max) {
-          if (options.headers) {
-            res.setHeader("Retry-After", Math.ceil(options.windowMs / 1000));
+          if (max && current === max + 1) {
+            options.onLimitReached(req, res, options);
           }
-          return options.handler(req, res, next);
-        }
 
-        next();
-      });
+          if (max && current > max) {
+            if (options.headers && !res.headersSent) {
+              res.setHeader("Retry-After", Math.ceil(options.windowMs / 1000));
+            }
+            return options.handler(req, res, next);
+          }
+
+          next();
+        })
+        .catch(next);
     });
   }
 
