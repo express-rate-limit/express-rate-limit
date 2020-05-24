@@ -127,7 +127,9 @@ Defaults to `5`. Set to `0` to disable.
 
 ### windowMs
 
-How long in milliseconds to keep records of requests in memory.
+Timeframe for which requests are checked/remembered. Also used in the Retry-After header when the limit is reached.
+
+Note: with non-default stores, you may need to configure this value twice, once here and once on the store. In some cases the units also differ (e.g. seconds vs miliseconds)
 
 Defaults to `60000` (1 minute).
 
@@ -149,7 +151,13 @@ Defaults to `429`.
 
 Enable headers for request limit (`X-RateLimit-Limit`) and current usage (`X-RateLimit-Remaining`) on all responses and time to wait before retrying (`Retry-After`) when `max` is exceeded.
 
-Defaults to `true`.
+Defaults to `true`. Behavior may change in the next major release.
+
+### draft_polli_ratelimit_headers
+
+Enable headers conforming to the [ratelimit standardization proposal](https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html): `RateLimit-Limit`, `RateLimit-Remaining`, and, if the store supports it, `RateLimit-Reset`. May be used in conjunction with, or instead of the `headers` option.
+
+Defaults to `false`. Behavior and name will likely change in future releases.
 
 ### keyGenerator
 
@@ -233,6 +241,7 @@ Available data stores are:
 - MemoryStore: _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.
 - [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.
 - [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached): A [Memcached](https://memcached.org/)-backed store.
+- [rate-limit-mongo](https://www.npmjs.com/package/rate-limit-mongo): A [MongoDB](https://www.mongodb.com/)-backed store.
 
 You may also create your own store. It must implement the following in order to function:
 
