@@ -208,7 +208,7 @@ Defaults to `false`.
 
 ### skip
 
-Function used to skip (whitelist) requests. Returning `true` from the function will skip limiting for that request.
+Function used to skip (whitelist) requests. Returning `true`, or a promise that resolves with `true`, from the function will skip limiting for that request.
 
 Defaults to always `false` (count all requests):
 
