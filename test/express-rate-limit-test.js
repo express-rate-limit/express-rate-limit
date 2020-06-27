@@ -468,6 +468,24 @@ describe("express-rate-limit node module", () => {
     await request(app).get("/").query({ key: 1 }).expect(200);
   });
 
+  it("should allow custom skip function that returns a promise", done => {
+    const limiter = rateLimit({
+      delayMs: 0,
+      max: 2,
+      skip: function(req, res) {
+        assert.ok(req);
+        assert.ok(res);
+
+        return Promise.resolve(true);
+      }
+    });
+
+    createAppWith(limiter);
+    goodRequest(done, null, 1);
+    goodRequest(done, null, 1);
+    goodRequest(done, done, 1); // 3rd request would normally fail but we're skipping it
+  });
+
   it("should pass current hits and limit hits to the next function", done => {
     const limiter = rateLimit({
       delayMs: 0,
@@ -975,6 +993,32 @@ describe("express-rate-limit node module", () => {
       res.status(err.code).send(err.message);
     });
     goodRequest(done);
+    badRequest(done, () => {
+      assert(errorCaught);
+      done();
+    });
+  });
+
+  it("should handle exceptions thrown in skip function", done => {
+    let errorCaught = false;
+    const store = new MockStore();
+    const app = createAppWith(
+      rateLimit({
+        max: 1,
+        store: store,
+        skip: () => {
+          const exception = new Error();
+          exception.code = 429;
+          exception.message = "Too many requests";
+          return Promise.reject(exception);
+        }
+      })
+    );
+    // eslint-disable-next-line no-unused-vars
+    app.use((err, req, res, next) => {
+      errorCaught = true;
+      res.status(err.code).send(err.message);
+    });
     badRequest(done, () => {
       assert(errorCaught);
       done();
