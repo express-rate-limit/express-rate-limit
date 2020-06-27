@@ -121,7 +121,7 @@ There is also a helper function `getRateLimit` on the default export, that safel
 
 Max number of connections during `windowMs` milliseconds before sending a 429 response.
 
-May be a number, or a function that returns a number or a promise.
+May be a number, or a function that returns a number or a promise. If `max` is a function, it will be called with `req` and `res` params.
 
 Defaults to `5`. Set to `0` to disable.
 
@@ -220,7 +220,7 @@ Defaults to `false`.
 
 ### skip
 
-Function used to skip requests. Returning `true` from the function will skip limiting for that request.
+Function used to skip (whitelist) requests. Returning `true`, or a promise that resolves with `true`, from the function will skip limiting for that request.
 
 Defaults to always `false` (count all requests):
 
