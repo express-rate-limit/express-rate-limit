@@ -5,7 +5,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   env: {
     node: true,
-    es6: true
+    es6: true,
   },
   rules: {
     "no-var": "error",
@@ -14,18 +14,18 @@ module.exports = {
     // because they do not work well with valid typescript code
     // the typescript compiler will catch these errors
     "no-unused-vars": "off",
-    "no-redeclare": "off"
+    "no-redeclare": "off",
   },
   overrides: [
     {
       files: ["*-test.js"],
       env: {
-        mocha: true
+        mocha: true,
       },
       parserOptions: { ecmaVersion: 2018 },
       rules: {
-        "prefer-arrow-callback": "error"
-      }
-    }
-  ]
+        "prefer-arrow-callback": "error",
+      },
+    },
+  ],
 };

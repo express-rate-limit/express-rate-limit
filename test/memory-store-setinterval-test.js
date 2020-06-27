@@ -16,7 +16,7 @@ describe("MemoryStore interval", () => {
   });
 
   // see #48 & https://nodejs.org/api/timers.html#timers_timeout_unref &
-  it("can run in electron where setInterval does not return a Timeout object with an unref function", done => {
+  it("can run in electron where setInterval does not return a Timeout object with an unref function", (done) => {
     const store = new MemoryStore(-1);
     const key = "test-store";
 
