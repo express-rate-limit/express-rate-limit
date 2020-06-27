@@ -122,110 +122,121 @@ function RateLimit(incomingOptions: Partial<RateLimit.Options>): RateLimit {
     res: express.Response,
     next: express.NextFunction
   ) {
-    if (options.skip(req, res)) {
-      return next();
-    }
+    Promise.resolve(options.skip(req, res))
+      .then(skip => {
+        if (skip) {
+          return next();
+        }
 
-    const augmentedReq = req as RateLimit.AugmentedRequest;
+        const augmentedReq = req as RateLimit.AugmentedRequest;
 
-    const key = options.keyGenerator(req, res);
+        const key = options.keyGenerator(req, res);
 
-    options.store.incr(key, function(err, current, resetTime) {
-      if (err) {
-        return next(err);
-      }
-
-      const maxResult =
-        typeof options.max === "function" ? options.max(req, res) : options.max;
-
-      Promise.resolve(maxResult)
-        .then(max => {
-          augmentedReq.rateLimit = {
-            limit: max,
-            current: current,
-            remaining: Math.max(max - current, 0),
-            resetTime: resetTime
-          };
-
-          if (options.headers && !res.headersSent) {
-            res.setHeader("X-RateLimit-Limit", max);
-            res.setHeader(
-              "X-RateLimit-Remaining",
-              augmentedReq.rateLimit.remaining
-            );
-            if (resetTime instanceof Date) {
-              // if we have a resetTime, also provide the current date to help avoid issues with incorrect clocks
-              res.setHeader("Date", new Date().toUTCString());
-              res.setHeader(
-                "X-RateLimit-Reset",
-                Math.ceil(resetTime.getTime() / 1000)
-              );
-            }
+        options.store.incr(key, function(err, current, resetTime) {
+          if (err) {
+            return next(err);
           }
 
-          if (options.draft_polli_ratelimit_headers && !res.headersSent) {
-            res.setHeader("RateLimit-Limit", max);
-            res.setHeader(
-              "RateLimit-Remaining",
-              augmentedReq.rateLimit.remaining
-            );
-            if (resetTime) {
-              const deltaSeconds = Math.ceil(
-                (resetTime.getTime() - Date.now()) / 1000
-              );
-              res.setHeader("RateLimit-Reset", Math.max(0, deltaSeconds));
-            }
-          }
+          const maxResult =
+            typeof options.max === "function"
+              ? options.max(req, res)
+              : options.max;
 
-          if (options.skipFailedRequests || options.skipSuccessfulRequests) {
-            let decremented = false;
-            const decrementKey = () => {
-              if (!decremented) {
-                options.store.decrement(key);
-                decremented = true;
+          Promise.resolve(maxResult)
+            .then(max => {
+              augmentedReq.rateLimit = {
+                limit: max,
+                current: current,
+                remaining: Math.max(max - current, 0),
+                resetTime: resetTime
+              };
+
+              if (options.headers && !res.headersSent) {
+                res.setHeader("X-RateLimit-Limit", max);
+                res.setHeader(
+                  "X-RateLimit-Remaining",
+                  augmentedReq.rateLimit.remaining
+                );
+                if (resetTime instanceof Date) {
+                  // if we have a resetTime, also provide the current date to help avoid issues with incorrect clocks
+                  res.setHeader("Date", new Date().toUTCString());
+                  res.setHeader(
+                    "X-RateLimit-Reset",
+                    Math.ceil(resetTime.getTime() / 1000)
+                  );
+                }
               }
-            };
-
-            if (options.skipFailedRequests) {
-              res.on("finish", function() {
-                if (res.statusCode >= 400) {
-                  decrementKey();
+              if (options.draft_polli_ratelimit_headers && !res.headersSent) {
+                res.setHeader("RateLimit-Limit", max);
+                res.setHeader(
+                  "RateLimit-Remaining",
+                  augmentedReq.rateLimit.remaining
+                );
+                if (resetTime) {
+                  const deltaSeconds = Math.ceil(
+                    (resetTime.getTime() - Date.now()) / 1000
+                  );
+                  res.setHeader("RateLimit-Reset", Math.max(0, deltaSeconds));
                 }
-              });
+              }
 
-              res.on("close", () => {
-                if (!res.finished) {
-                  decrementKey();
+              if (
+                options.skipFailedRequests ||
+                options.skipSuccessfulRequests
+              ) {
+                let decremented = false;
+                const decrementKey = () => {
+                  if (!decremented) {
+                    options.store.decrement(key);
+                    decremented = true;
+                  }
+                };
+
+                if (options.skipFailedRequests) {
+                  res.on("finish", function() {
+                    if (res.statusCode >= 400) {
+                      decrementKey();
+                    }
+                  });
+
+                  res.on("close", () => {
+                    if (!res.finished) {
+                      decrementKey();
+                    }
+                  });
+
+                  res.on("error", () => decrementKey());
                 }
-              });
 
-              res.on("error", () => decrementKey());
-            }
-
-            if (options.skipSuccessfulRequests) {
-              res.on("finish", function() {
-                if (res.statusCode < 400) {
-                  options.store.decrement(key);
+                if (options.skipSuccessfulRequests) {
+                  res.on("finish", function() {
+                    if (res.statusCode < 400) {
+                      options.store.decrement(key);
+                    }
+                  });
                 }
-              });
-            }
-          }
+              }
 
-          if (max && current === max + 1) {
-            options.onLimitReached(req, res, options);
-          }
+              if (max && current === max + 1) {
+                options.onLimitReached(req, res, options);
+              }
 
-          if (max && current > max) {
-            if (options.headers && !res.headersSent) {
-              res.setHeader("Retry-After", Math.ceil(options.windowMs / 1000));
-            }
-            return options.handler(req, res, next);
-          }
+              if (max && current > max) {
+                if (options.headers && !res.headersSent) {
+                  res.setHeader(
+                    "Retry-After",
+                    Math.ceil(options.windowMs / 1000)
+                  );
+                }
+                return options.handler(req, res, next);
+              }
 
-          next();
-        })
-        .catch(next);
-    });
+              next();
+            })
+            .catch(next);
+        });
+      })
+      .catch(next);
   }
 
   rateLimit.resetKey = options.store.resetKey.bind(options.store);
