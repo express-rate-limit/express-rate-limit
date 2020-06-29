@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - node # latest stable Node.js release
   - lts/* # latest LTS Node.js release
-  - 8
+  - 10
 
 os:
   - linux
