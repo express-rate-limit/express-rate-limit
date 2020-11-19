@@ -3,12 +3,7 @@
 
 name: Node.js CI
 
-# This isn't quite what I want, but it seems like the closest I can get
-on: 
-  push:    
-    tags-ignore:
-      - 'v*.*.*'
-  pull_request: 
+on: [push, pull_request]
 
 jobs:
   build:
