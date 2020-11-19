@@ -4,8 +4,9 @@
 name: Node.js Package
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -32,16 +33,3 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-          registry-url: https://npm.pkg.github.com/
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GH_TOKEN}}
