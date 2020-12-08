@@ -9,12 +9,11 @@ Basic rate-limiting middleware for Express. Use to limit repeated requests to pu
 
 Plays nice with [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
-Note: this module does not share state with other processes/servers by default.
-If you need a more robust solution, I recommend using an external store:
+Note: this module does not share state with other processes/servers by default. It also buckets all requests to an internal clock rather than starting a new timer for each end-user. It's fine for abuse-prevention but might not produce the desired effect when attempting to strictly enforce API rate-limits or similar. If you need a more robust solution, I recommend using an external store:
 
 ### Stores
 
-- Memory Store _(default, built-in)_ - stores hits in-memory in the Node.js process. Does not share state with other servers or processes.
+- Memory Store _(default, built-in)_ - stores hits in-memory in the Node.js process. Does not share state with other servers or processes, and does not start a separate timer for each end user.
 - [Redis Store](https://npmjs.com/package/rate-limit-redis)
 - [Memcached Store](https://npmjs.org/package/rate-limit-memcached)
 - [Mongo Store](https://www.npmjs.com/package/rate-limit-mongo)
