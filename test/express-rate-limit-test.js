@@ -6,27 +6,18 @@ const rateLimit = require("../lib/express-rate-limit.js");
 
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 
-describe("express-rate-limit node module", function() {
-  let start, delay, message, app, longResponseClosed;
-
-  beforeEach(function() {
-    start = Date.now();
-    message = "You have been very naughty.. No API response for you!!";
-  });
-
-  afterEach(function() {
-    delay = null;
-  });
+describe("express-rate-limit node module", () => {
+  let app, longResponseClosed;
 
   function createAppWith(limit, checkVar, errorHandler, successHandler) {
     app = express();
-    app.all("/", limit, function(req, res) {
+    app.all("/", limit, (req, res) => {
       if (
         checkVar &&
         req.rateLimit.limit === 5 &&
         req.rateLimit.remaining === 4
       ) {
-        app.end(function(err, res) {
+        app.end((err, res) => {
           if (err) {
             return errorHandler(err);
           }
@@ -35,22 +26,22 @@ describe("express-rate-limit node module", function() {
       }
 
       res.format({
-        html: function() {
+        html: function () {
           res.send("response!");
         },
-        json: function() {
+        json: function () {
           res.json({
-            message: "response!"
+            message: "response!",
           });
-        }
+        },
       });
     });
 
-    app.all("/bad_response_status", limit, function(req, res) {
+    app.all("/bad_response_status", limit, (req, res) => {
       res.status(403).send();
     });
 
-    app.all("/long_response", limit, function(req, res) {
+    app.all("/long_response", limit, (req, res) => {
       const timerId = setTimeout(() => res.send("response!"), 100);
       res.on("close", () => {
         longResponseClosed = true;
@@ -58,7 +49,7 @@ describe("express-rate-limit node module", function() {
       });
     });
 
-    app.all("/response_emit_error", limit, function(req, res) {
+    app.all("/response_emit_error", limit, (req, res) => {
       res.on("error", () => {
         res.end();
       });
@@ -66,17 +57,8 @@ describe("express-rate-limit node module", function() {
       res.emit("error", new Error());
     });
 
-    // helper endpoint to know what ip test requests come from
-    // set in headers so that I don't have to deal with the body being a stream
-    app.get("/ip", function(req, res) {
-      res.setHeader("x-your-ip", req.ip);
-      res.status(204).send("");
-    });
-
     return app;
   }
-
-  function InvalidStore() {}
 
   function MockStore() {
     this.incr_was_called = false;
@@ -120,7 +102,7 @@ describe("express-rate-limit node module", function() {
       req
         .expect("x-ratelimit-limit", limit && limit.toString())
         .expect("x-ratelimit-remaining", remaining && remaining.toString())
-        .expect(function(res) {
+        .expect((res) => {
           if ("retry-after" in res.headers) {
             throw new Error(
               "Expected no retry-after header, got " +
@@ -129,11 +111,10 @@ describe("express-rate-limit node module", function() {
           }
         })
         .expect(200, /response!/)
-        .end(function(err, res) {
+        .end((err, res) => {
           if (err) {
             return errorHandler(err);
           }
-          delay = Date.now() - start;
           if (successHandler) {
             successHandler(null, res);
           }
@@ -142,11 +123,10 @@ describe("express-rate-limit node module", function() {
       req
         .expect(200)
         .expect(/response!/)
-        .end(function(err, res) {
+        .end((err, res) => {
           if (err) {
             return errorHandler(err);
           }
-          delay = Date.now() - start;
           if (successHandler) {
             successHandler(null, res);
           }
@@ -160,13 +140,12 @@ describe("express-rate-limit node module", function() {
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200, {
-        message: "response!"
+        message: "response!",
       })
-      .end(function(err, res) {
+      .end((err, res) => {
         if (err) {
           return errorHandler(err);
         }
-        delay = Date.now() - start;
         if (successHandler) {
           successHandler(null, res);
         }
@@ -198,11 +177,10 @@ describe("express-rate-limit node module", function() {
         .expect("x-ratelimit-remaining", remaining);
     }
 
-    req.end(function(err, res) {
+    req.end((err, res) => {
       if (err) {
         return errorHandler(err);
       }
-      delay = Date.now() - start;
       if (successHandler) {
         successHandler(null, res);
       }
@@ -215,37 +193,22 @@ describe("express-rate-limit node module", function() {
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(429, { message: "Too many requests, please try again later." })
-      .end(function(err, res) {
+      .end((err, res) => {
         if (err) {
           return errorHandler(err);
         }
-        delay = Date.now() - start;
         if (successHandler) {
           successHandler(null, res);
         }
       });
   }
 
-  function badRequestWithMessage(errorHandler, successHandler) {
-    request(app)
-      .get("/")
-      .expect(429)
-      .expect(message)
-      .end(function(err, res) {
-        if (err) {
-          return errorHandler(err);
-        }
-        delay = Date.now() - start;
-        if (successHandler) {
-          successHandler(null, res);
-        }
-      });
-  }
+  it("should not allow the use of a store that is not valid", (done) => {
+    function InvalidStore() {}
 
-  it("should not allow the use of a store that is not valid", function(done) {
     try {
       rateLimit({
-        store: new InvalidStore()
+        store: new InvalidStore(),
       });
     } catch (e) {
       return done();
@@ -254,28 +217,42 @@ describe("express-rate-limit node module", function() {
     done(new Error("It allowed an invalid store"));
   });
 
-  it("should call incr on the store", function(done) {
+  it("should let the first request through", (done) => {
+    const app = createAppWith(rateLimit({ max: 1 }));
+    request(app)
+      .get("/")
+      .expect(200)
+      .expect(/response!/)
+      .end(done);
+  });
+
+  it("should call incr on the store", (done) => {
     const store = new MockStore();
 
-    createAppWith(
+    const app = createAppWith(
       rateLimit({
-        store: store
+        store: store,
       })
     );
 
-    goodRequest(done, function() {
-      if (!store.incr_was_called) {
-        done(new Error("incr was not called on the store"));
-      } else {
-        done();
-      }
-    });
+    request(app)
+      .get("/")
+      .end((err /*, res*/) => {
+        if (err) {
+          return done(err);
+        }
+        if (!store.incr_was_called) {
+          done(new Error("incr was not called on the store"));
+        } else {
+          done();
+        }
+      });
   });
 
-  it("should call resetKey on the store", function(done) {
+  it("should call resetKey on the store", (done) => {
     const store = new MockStore();
     const limiter = rateLimit({
-      store: store
+      store: store,
     });
 
     limiter.resetKey("key");
@@ -287,97 +264,66 @@ describe("express-rate-limit node module", function() {
     }
   });
 
-  it("should send correct x-ratelimit-limit and x-ratelimit-remaining", function(done) {
-    createAppWith(rateLimit({ windowMs: 59100 }));
-    goodRequest(
-      done,
-      function(/* err, res */) {
-        delay = Date.now() - start;
-        if (delay > 99) {
-          done(new Error("First request took too long: " + delay + "ms"));
-        } else {
-          done();
-        }
-      },
-      undefined,
-      true,
-      "5",
-      "4",
-      "60"
-    );
-  });
-
-  it("should refuse additional connections once IP has reached the max", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 0,
-        max: 2
-      })
-    );
-    goodRequest(done);
-    goodRequest(done);
-    badRequest(done, done);
-  });
-
-  it("should return the Retry-After header once IP has reached the max", function(done) {
-    createAppWith(
-      rateLimit({
-        delayMs: 0,
-        max: 1
-      })
-    );
-    goodRequest(done);
-    badRequest(done, done, undefined, true, "1", "0", "60");
-  });
-
-  it("should show the provided message instead of the default message when max connections are reached", function(done) {
-    createAppWith(
+  it("should refuse additional connections once IP has reached the max", async () => {
+    const app = createAppWith(
       rateLimit({
         delayMs: 0,
         max: 2,
-        message: message
       })
     );
-    goodRequest(done);
-    goodRequest(done);
-    badRequestWithMessage(done, done);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
   });
 
-  it("should (eventually) accept new connections from a blocked IP", function(done) {
+  it("should show the provided message instead of the default message when max connections are reached", async () => {
+    const message = "Test ratelimit message";
+    const app = createAppWith(
+      rateLimit({
+        delayMs: 0,
+        max: 2,
+        message,
+      })
+    );
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429).expect(message);
+  });
+
+  it("should (eventually) accept new connections from a blocked IP", (done) => {
     createAppWith(
       rateLimit({
         max: 2,
-        windowMs: 50
+        windowMs: 50,
       })
     );
     goodRequest(done);
     goodRequest(done);
     badRequest(done);
-    setTimeout(function() {
-      start = Date.now();
-      goodRequest(done, function(/* err, res */) {
+    setTimeout(() => {
+      goodRequest(done, (/* err, res */) => {
         done();
       });
     }, 60);
   });
 
-  it("should work repeatedly (issues #2 & #3)", function(done) {
+  it("should work repeatedly (issues #2 & #3)", (done) => {
     createAppWith(
       rateLimit({
         max: 2,
-        windowMs: 50
+        windowMs: 50,
       })
     );
 
     goodRequest(done);
     goodRequest(done);
     badRequest(done);
-    setTimeout(function() {
-      goodRequest(done, function(/* err, res */) {
+    setTimeout(() => {
+      goodRequest(done, (/* err, res */) => {
         goodRequest(done);
         badRequest(done);
-        setTimeout(function() {
-          goodRequest(done, function(/* err, res */) {
+        setTimeout(() => {
+          goodRequest(done, (/* err, res */) => {
             done();
           });
         }, 60);
@@ -385,40 +331,43 @@ describe("express-rate-limit node module", function() {
     }, 60);
   });
 
-  it("should allow the error statusCode to be customized", function(done) {
+  it("should allow the error statusCode to be customized", (done) => {
     // note: node.js places some restrictions on what status codes are allowed
     const errStatusCode = 456;
     createAppWith(
       rateLimit({
         delayMs: 0,
         max: 1,
-        statusCode: errStatusCode
+        statusCode: errStatusCode,
       })
     );
     goodRequest(done);
-    request(app)
-      .get("/")
-      .expect(errStatusCode)
-      .end(done);
+    request(app).get("/").expect(errStatusCode).end(done);
   });
 
-  it("should allow individual IP's to be reset", function(done) {
+  it("should allow individual IP's to be reset", (done) => {
     const limiter = rateLimit({
       max: 1,
-      windowMs: 50
+      windowMs: 50,
     });
     createAppWith(limiter);
+
+    // set in headers so that I don't have to deal with the body being a stream
+    app.get("/ip", (req, res) => {
+      res.setHeader("x-your-ip", req.ip);
+      res.status(204).send("");
+    });
 
     request(app)
       .get("/ip")
       .expect(204)
-      .end(function(err, res) {
+      .end((err, res) => {
         const myIp = res.headers["x-your-ip"];
         if (!myIp) {
           return done(new Error("unable to determine local IP"));
         }
         goodRequest(done);
-        badRequest(done, function(err) {
+        badRequest(done, (err) => {
           if (err) {
             return done(err);
           }
@@ -428,31 +377,31 @@ describe("express-rate-limit node module", function() {
       });
   });
 
-  it("should respond with JSON", function(done) {
+  it("should respond with JSON", (done) => {
     const limiter = rateLimit({
       delayMs: 0,
       message: { message: "Too many requests, please try again later." },
-      max: 1
+      max: 1,
     });
     createAppWith(limiter);
     goodJsonRequest(done);
     badJsonRequest(done, done);
   });
 
-  it("should use the custom handler when specified", function(done) {
+  it("should use the custom handler when specified", (done) => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 1,
-      handler: function(req, res) {
+      handler: function (req, res) {
         res.status(429).end("Custom handler executed!");
-      }
+      },
     });
     createAppWith(limiter);
     goodRequest(done);
     request(app)
       .get("/")
       .expect(429, "Custom handler executed!")
-      .end(function(err) {
+      .end((err) => {
         if (err) {
           return done(err);
         } else {
@@ -461,11 +410,11 @@ describe("express-rate-limit node module", function() {
       });
   });
 
-  it("should allow custom key generators", function(done) {
+  it("should allow custom key generators", (done) => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 2,
-      keyGenerator: function(req, res) {
+      keyGenerator: function (req, res) {
         assert.ok(req);
         assert.ok(res);
 
@@ -473,7 +422,7 @@ describe("express-rate-limit node module", function() {
         assert.ok(key);
 
         return key;
-      }
+      },
     });
 
     createAppWith(limiter);
@@ -482,7 +431,7 @@ describe("express-rate-limit node module", function() {
     goodRequest(done, null, 2);
     badRequest(
       done,
-      function(err) {
+      (err) => {
         if (err) {
           return done(err);
         }
@@ -493,16 +442,16 @@ describe("express-rate-limit node module", function() {
     );
   });
 
-  it("should allow custom skip function", function(done) {
+  it("should allow custom skip function", (done) => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 2,
-      skip: function(req, res) {
+      skip: function (req, res) {
         assert.ok(req);
         assert.ok(res);
 
         return true;
-      }
+      },
     });
 
     createAppWith(limiter);
@@ -511,19 +460,19 @@ describe("express-rate-limit node module", function() {
     goodRequest(done, done, 1); // 3rd request would normally fail but we're skipping it
   });
 
-  it("should pass current hits and limit hits to the next function", function(done) {
+  it("should pass current hits and limit hits to the next function", (done) => {
     const limiter = rateLimit({
-      headers: false
+      headers: false,
     });
     createAppWith(limiter, true, done, done);
     done();
   });
 
-  it("should allow max to be a function", done => {
+  it("should allow max to be a function", (done) => {
     createAppWith(
       rateLimit({
         delayMs: 0,
-        max: () => 2
+        max: () => 2,
       })
     );
     goodRequest(done);
@@ -531,11 +480,11 @@ describe("express-rate-limit node module", function() {
     badRequest(done, done);
   });
 
-  it("should allow max to be a function that returns a promise", done => {
+  it("should allow max to be a function that returns a promise", (done) => {
     createAppWith(
       rateLimit({
         delayMs: 0,
-        max: () => Promise.resolve(2)
+        max: () => Promise.resolve(2),
       })
     );
     goodRequest(done);
@@ -544,28 +493,28 @@ describe("express-rate-limit node module", function() {
   });
 
   // https://github.com/nfriedly/express-rate-limit/pull/102
-  it("should calculate the remaining hits", done => {
+  it("should calculate the remaining hits", (done) => {
     const expectedLimit = 2;
     createAppWith(
       rateLimit({
         delayMs: 0,
-        max: () => Promise.resolve(expectedLimit)
+        max: () => Promise.resolve(expectedLimit),
       })
     );
     const expectedRemaining = 1;
     goodRequest(done, done, null, true, expectedLimit, expectedRemaining);
   });
 
-  it("should decrement hits with success response and skipSuccessfulRequests", done => {
+  it("should decrement hits with success response and skipSuccessfulRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         skipSuccessfulRequests: true,
-        store: store
+        store: store,
       })
     );
 
-    goodRequest(done, function() {
+    goodRequest(done, () => {
       if (!store.decrement_was_called) {
         done(new Error("decrement was not called on the store"));
       } else {
@@ -574,12 +523,12 @@ describe("express-rate-limit node module", function() {
     });
   });
 
-  it("should not decrement hits with failed response and skipSuccessfulRequests", done => {
+  it("should not decrement hits with failed response and skipSuccessfulRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         skipSuccessfulRequests: true,
-        store: store
+        store: store,
       })
     );
 
@@ -595,12 +544,12 @@ describe("express-rate-limit node module", function() {
       });
   });
 
-  it("should decrement hits with failed response and skipFailedRequests", done => {
+  it("should decrement hits with failed response and skipFailedRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         skipFailedRequests: true,
-        store: store
+        store: store,
       })
     );
 
@@ -616,12 +565,12 @@ describe("express-rate-limit node module", function() {
       });
   });
 
-  it("should decrement hits with closed response and skipFailedRequests", done => {
+  it("should decrement hits with closed response and skipFailedRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         skipFailedRequests: true,
-        store: store
+        store: store,
       })
     );
 
@@ -640,17 +589,17 @@ describe("express-rate-limit node module", function() {
     request(app)
       .get("/long_response")
       .timeout({
-        response: 10
+        response: 10,
       })
       .end(checkStoreDecremented);
   });
 
-  it("should decrement hits with response emitting error and skipFailedRequests", done => {
+  it("should decrement hits with response emitting error and skipFailedRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         skipFailedRequests: true,
-        store: store
+        store: store,
       })
     );
 
@@ -665,16 +614,16 @@ describe("express-rate-limit node module", function() {
       });
   });
 
-  it("should not decrement hits with success response and skipFailedRequests", done => {
+  it("should not decrement hits with success response and skipFailedRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         skipFailedRequests: true,
-        store: store
+        store: store,
       })
     );
 
-    goodRequest(done, function() {
+    goodRequest(done, () => {
       if (store.decrement_was_called) {
         done(new Error("decrement was called on the store"));
       } else {
@@ -683,14 +632,14 @@ describe("express-rate-limit node module", function() {
     });
   });
 
-  it("should decrement hits with IP hits reached max and skipFailedRequests", done => {
+  it("should decrement hits with IP hits reached max and skipFailedRequests", (done) => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
         delayMs: 0,
         max: 2,
         store: store,
-        skipFailedRequests: true
+        skipFailedRequests: true,
       })
     );
     goodRequest(done);
@@ -701,6 +650,39 @@ describe("express-rate-limit node module", function() {
       } else {
         done();
       }
+    });
+  });
+
+  it("should not modify the passed in options object", () => {
+    const opts = {};
+    rateLimit(opts);
+    assert.deepEqual(opts, {});
+  });
+
+  it("should handle exceptions", (done) => {
+    let errorCaught = false;
+    const store = new MockStore();
+    const app = createAppWith(
+      rateLimit({
+        max: 1,
+        store: store,
+        handler: () => {
+          const exception = new Error();
+          exception.code = 429;
+          exception.message = "Too many requests";
+          throw exception;
+        },
+      })
+    );
+    // eslint-disable-next-line no-unused-vars
+    app.use((err, req, res, next) => {
+      errorCaught = true;
+      res.status(err.code).send(err.message);
+    });
+    goodRequest(done);
+    badRequest(done, () => {
+      assert(errorCaught);
+      done();
     });
   });
 });
