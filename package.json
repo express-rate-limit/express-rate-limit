@@ -1,6 +1,6 @@
 {
   "name": "express-rate-limit",
-  "version": "5.2.3",
+  "version": "5.2.4",
   "description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
   "homepage": "https://github.com/nfriedly/express-rate-limit",
   "author": {
@@ -31,16 +31,16 @@
     "brute-force",
     "attack"
   ],
-  "dependencies": {},
   "devDependencies": {
+    "bluebird": "^3.7.2",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
-    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "express": "^4.17.1",
-    "husky": "^4.2.3",
-    "mocha": "^7.1.1",
-    "prettier": "^2.0.4",
-    "pretty-quick": "^2.0.1",
+    "husky": "^4.3.8",
+    "mocha": "^7.2.0",
+    "prettier": "^2.2.1",
+    "pretty-quick": "^2.0.2",
     "supertest": "^4.0.2"
   },
   "scripts": {
