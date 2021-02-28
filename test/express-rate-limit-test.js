@@ -2,12 +2,22 @@
 const express = require("express");
 const assert = require("assert");
 const request = require("supertest");
+const sinon = require("sinon");
 const rateLimit = require("../lib/express-rate-limit.js");
 
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 
 describe("express-rate-limit node module", () => {
   let app, longResponseClosed;
+
+  let clock;
+  beforeEach(() => {
+    clock = sinon.useFakeTimers();
+  });
+
+  afterEach(() => {
+    clock.restore();
+  });
 
   function createAppWith(limit, checkVar, errorHandler, successHandler) {
     app = express();
@@ -84,125 +94,6 @@ describe("express-rate-limit node module", () => {
     };
   }
 
-  function goodRequest(
-    errorHandler,
-    successHandler,
-    key,
-    headerCheck,
-    limit,
-    remaining
-  ) {
-    let req = request(app).get("/");
-    // add optional key parameter
-    if (key) {
-      req = req.query({ key: key });
-    }
-
-    if (headerCheck) {
-      req
-        .expect("x-ratelimit-limit", limit && limit.toString())
-        .expect("x-ratelimit-remaining", remaining && remaining.toString())
-        .expect((res) => {
-          if ("retry-after" in res.headers) {
-            throw new Error(
-              "Expected no retry-after header, got " +
-                res.headers["retry-after"]
-            );
-          }
-        })
-        .expect(200, /response!/)
-        .end((err, res) => {
-          if (err) {
-            return errorHandler(err);
-          }
-          if (successHandler) {
-            successHandler(null, res);
-          }
-        });
-    } else {
-      req
-        .expect(200)
-        .expect(/response!/)
-        .end((err, res) => {
-          if (err) {
-            return errorHandler(err);
-          }
-          if (successHandler) {
-            successHandler(null, res);
-          }
-        });
-    }
-  }
-
-  function goodJsonRequest(errorHandler, successHandler) {
-    request(app)
-      .get("/")
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200, {
-        message: "response!",
-      })
-      .end((err, res) => {
-        if (err) {
-          return errorHandler(err);
-        }
-        if (successHandler) {
-          successHandler(null, res);
-        }
-      });
-  }
-
-  function badRequest(
-    errorHandler,
-    successHandler,
-    key,
-    headerCheck,
-    limit,
-    remaining,
-    retryAfter
-  ) {
-    let req = request(app).get("/");
-
-    // add optional key parameter
-    if (key) {
-      req = req.query({ key: key });
-    }
-
-    req = req.expect(429).expect(/Too many requests/);
-
-    if (headerCheck) {
-      req = req
-        .expect("retry-after", retryAfter)
-        .expect("x-ratelimit-limit", limit)
-        .expect("x-ratelimit-remaining", remaining);
-    }
-
-    req.end((err, res) => {
-      if (err) {
-        return errorHandler(err);
-      }
-      if (successHandler) {
-        successHandler(null, res);
-      }
-    });
-  }
-
-  function badJsonRequest(errorHandler, successHandler) {
-    request(app)
-      .get("/")
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(429, { message: "Too many requests, please try again later." })
-      .end((err, res) => {
-        if (err) {
-          return errorHandler(err);
-        }
-        if (successHandler) {
-          successHandler(null, res);
-        }
-      });
-  }
-
   it("should not allow the use of a store that is not valid", (done) => {
     function InvalidStore() {}
 
@@ -217,16 +108,15 @@ describe("express-rate-limit node module", () => {
     done(new Error("It allowed an invalid store"));
   });
 
-  it("should let the first request through", (done) => {
+  it("should let the first request through", async () => {
     const app = createAppWith(rateLimit({ max: 1 }));
-    request(app)
+    await request(app)
       .get("/")
       .expect(200)
-      .expect(/response!/)
-      .end(done);
+      .expect(/response!/);
   });
 
-  it("should call incr on the store", (done) => {
+  it("should call incr on the store", async () => {
     const store = new MockStore();
 
     const app = createAppWith(
@@ -235,21 +125,12 @@ describe("express-rate-limit node module", () => {
       })
     );
 
-    request(app)
-      .get("/")
-      .end((err /*, res*/) => {
-        if (err) {
-          return done(err);
-        }
-        if (!store.incr_was_called) {
-          done(new Error("incr was not called on the store"));
-        } else {
-          done();
-        }
-      });
+    await request(app).get("/");
+
+    assert(store.incr_was_called, "incr was not called on the store");
   });
 
-  it("should call resetKey on the store", (done) => {
+  it("should call resetKey on the store", async () => {
     const store = new MockStore();
     const limiter = rateLimit({
       store: store,
@@ -257,11 +138,7 @@ describe("express-rate-limit node module", () => {
 
     limiter.resetKey("key");
 
-    if (!store.resetKey_was_called) {
-      done(new Error("resetKey was not called on the store"));
-    } else {
-      done();
-    }
+    assert(store.resetKey_was_called, "resetKey was not called on the store");
   });
 
   it("should refuse additional connections once IP has reached the max", async () => {
@@ -283,6 +160,7 @@ describe("express-rate-limit node module", () => {
         delayMs: 0,
         max: 2,
         message,
+        windowMs: 1000,
       })
     );
     await request(app).get("/").expect(200);
@@ -290,24 +168,21 @@ describe("express-rate-limit node module", () => {
     await request(app).get("/").expect(429).expect(message);
   });
 
-  it("should (eventually) accept new connections from a blocked IP", (done) => {
+  it("should (eventually) accept new connections from a blocked IP", async () => {
     createAppWith(
       rateLimit({
         max: 2,
         windowMs: 50,
       })
     );
-    goodRequest(done);
-    goodRequest(done);
-    badRequest(done);
-    setTimeout(() => {
-      goodRequest(done, (/* err, res */) => {
-        done();
-      });
-    }, 60);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
+    clock.tick(60);
+    await request(app).get("/").expect(200);
   });
 
-  it("should work repeatedly (issues #2 & #3)", (done) => {
+  it("should work repeatedly (issues #2 & #3)", async () => {
     createAppWith(
       rateLimit({
         max: 2,
@@ -315,23 +190,18 @@ describe("express-rate-limit node module", () => {
       })
     );
 
-    goodRequest(done);
-    goodRequest(done);
-    badRequest(done);
-    setTimeout(() => {
-      goodRequest(done, (/* err, res */) => {
-        goodRequest(done);
-        badRequest(done);
-        setTimeout(() => {
-          goodRequest(done, (/* err, res */) => {
-            done();
-          });
-        }, 60);
-      });
-    }, 60);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
+    clock.tick(60);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
+    clock.tick(60);
+    await request(app).get("/").expect(200);
   });
 
-  it("should allow the error statusCode to be customized", (done) => {
+  it("should allow the error statusCode to be customized", async () => {
     // note: node.js places some restrictions on what status codes are allowed
     const errStatusCode = 456;
     createAppWith(
@@ -341,11 +211,11 @@ describe("express-rate-limit node module", () => {
         statusCode: errStatusCode,
       })
     );
-    goodRequest(done);
-    request(app).get("/").expect(errStatusCode).end(done);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(errStatusCode);
   });
 
-  it("should allow individual IP's to be reset", (done) => {
+  it("should allow individual IP's to be reset", async () => {
     const limiter = rateLimit({
       max: 1,
       windowMs: 50,
@@ -358,37 +228,43 @@ describe("express-rate-limit node module", () => {
       res.status(204).send("");
     });
 
-    request(app)
+    let myIp = null;
+
+    await request(app)
       .get("/ip")
       .expect(204)
-      .end((err, res) => {
-        const myIp = res.headers["x-your-ip"];
-        if (!myIp) {
-          return done(new Error("unable to determine local IP"));
-        }
-        goodRequest(done);
-        badRequest(done, (err) => {
-          if (err) {
-            return done(err);
-          }
-          limiter.resetIp(myIp);
-          goodRequest(done, done);
-        });
+      .expect((res) => {
+        myIp = res.headers["x-your-ip"];
+        assert(myIp, "unable to determine local IP");
       });
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
+    limiter.resetIp(myIp);
+    await request(app).get("/").expect(200);
   });
 
-  it("should respond with JSON", (done) => {
+  it("should respond with JSON", async () => {
     const limiter = rateLimit({
       delayMs: 0,
       message: { message: "Too many requests, please try again later." },
       max: 1,
     });
     createAppWith(limiter);
-    goodJsonRequest(done);
-    badJsonRequest(done, done);
+    await request(app)
+      .get("/")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200, {
+        message: "response!",
+      });
+    await request(app)
+      .get("/")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(429, { message: "Too many requests, please try again later." });
   });
 
-  it("should use the custom handler when specified", (done) => {
+  it("should use the custom handler when specified", async () => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 1,
@@ -397,20 +273,11 @@ describe("express-rate-limit node module", () => {
       },
     });
     createAppWith(limiter);
-    goodRequest(done);
-    request(app)
-      .get("/")
-      .expect(429, "Custom handler executed!")
-      .end((err) => {
-        if (err) {
-          return done(err);
-        } else {
-          return done();
-        }
-      });
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429, "Custom handler executed!");
   });
 
-  it("should allow custom key generators", (done) => {
+  it("should allow custom key generators", async () => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 2,
@@ -426,23 +293,19 @@ describe("express-rate-limit node module", () => {
     });
 
     createAppWith(limiter);
-    goodRequest(done, null, 1);
-    goodRequest(done, null, 1);
-    goodRequest(done, null, 2);
-    badRequest(
-      done,
-      (err) => {
-        if (err) {
-          return done(err);
-        }
-        goodRequest(done, null, 2);
-        badRequest(done, done, 2);
-      },
-      1
-    );
+    await request(app).get("/").query({ key: 1 }).expect(200);
+    await request(app).get("/").query({ key: 1 }).expect(200);
+
+    await request(app).get("/").query({ key: 2 }).expect(200); // key 2
+
+    await request(app).get("/").query({ key: 1 }).expect(429); // error for key 1
+
+    await request(app).get("/").query({ key: 2 }).expect(200);
+
+    await request(app).get("/").query({ key: 2 }).expect(429); // error for key 2
   });
 
-  it("should allow custom skip function", (done) => {
+  it("should allow custom skip function", async () => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 2,
@@ -455,12 +318,13 @@ describe("express-rate-limit node module", () => {
     });
 
     createAppWith(limiter);
-    goodRequest(done, null, 1);
-    goodRequest(done, null, 1);
-    goodRequest(done, done, 1); // 3rd request would normally fail but we're skipping it
+    await request(app).get("/").query({ key: 1 }).expect(200);
+    await request(app).get("/").query({ key: 1 }).expect(200);
+    // 3rd request would normally fail but we're skipping it
+    await request(app).get("/").query({ key: 1 }).expect(200);
   });
 
-  it("should allow custom skip function that returns a promise", (done) => {
+  it("should allow custom skip function that returns a promise", async () => {
     const limiter = rateLimit({
       delayMs: 0,
       max: 2,
@@ -473,9 +337,10 @@ describe("express-rate-limit node module", () => {
     });
 
     createAppWith(limiter);
-    goodRequest(done, null, 1);
-    goodRequest(done, null, 1);
-    goodRequest(done, done, 1); // 3rd request would normally fail but we're skipping it
+    await request(app).get("/").query({ key: 1 }).expect(200);
+    await request(app).get("/").query({ key: 1 }).expect(200);
+    // 3rd request would normally fail but we're skipping it
+    await request(app).get("/").query({ key: 1 }).expect(200);
   });
 
   it("should pass current hits and limit hits to the next function", (done) => {
@@ -486,83 +351,81 @@ describe("express-rate-limit node module", () => {
     done();
   });
 
-  it("should allow max to be a function", (done) => {
+  it("should allow max to be a function", async () => {
     createAppWith(
       rateLimit({
         delayMs: 0,
         max: () => 2,
       })
     );
-    goodRequest(done);
-    goodRequest(done);
-    badRequest(done, done);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
   });
 
-  it("should allow max to be a function that returns a promise", (done) => {
+  it("should allow max to be a function that returns a promise", async () => {
     createAppWith(
       rateLimit({
         delayMs: 0,
         max: () => Promise.resolve(2),
       })
     );
-    goodRequest(done);
-    goodRequest(done);
-    badRequest(done, done);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
   });
 
   // https://github.com/nfriedly/express-rate-limit/pull/102
-  it("should calculate the remaining hits", (done) => {
-    const expectedLimit = 2;
+  it("should calculate the remaining hits", async () => {
     createAppWith(
       rateLimit({
         delayMs: 0,
-        max: () => Promise.resolve(expectedLimit),
+        max: () => Promise.resolve(2),
       })
     );
-    const expectedRemaining = 1;
-    goodRequest(done, done, null, true, expectedLimit, expectedRemaining);
-  });
-
-  it("should decrement hits with success response and skipSuccessfulRequests", (done) => {
-    const store = new MockStore();
-    createAppWith(
-      rateLimit({
-        skipSuccessfulRequests: true,
-        store: store,
-      })
-    );
-
-    goodRequest(done, () => {
-      if (!store.decrement_was_called) {
-        done(new Error("decrement was not called on the store"));
-      } else {
-        done();
-      }
-    });
-  });
-
-  it("should not decrement hits with failed response and skipSuccessfulRequests", (done) => {
-    const store = new MockStore();
-    createAppWith(
-      rateLimit({
-        skipSuccessfulRequests: true,
-        store: store,
-      })
-    );
-
-    request(app)
-      .get("/bad_response_status")
-      .expect(403)
-      .end(() => {
-        if (store.decrement_was_called) {
-          done(new Error("decrement was called on the store"));
-        } else {
-          done();
+    await request(app)
+      .get("/")
+      .expect(200)
+      .expect("x-ratelimit-limit", "2") // todo: does this have to be a string?
+      .expect("x-ratelimit-remaining", "1")
+      .expect((res) => {
+        if ("retry-after" in res.headers) {
+          throw new Error(
+            "Expected no retry-after header, got " + res.headers["retry-after"]
+          );
         }
-      });
+      })
+      .expect(200, /response!/);
   });
 
-  it("should decrement hits with failed response and skipFailedRequests", (done) => {
+  it("should decrement hits with success response and skipSuccessfulRequests", async () => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: true,
+        store: store,
+      })
+    );
+
+    await request(app).get("/").expect(200);
+    assert(store.decrement_was_called, "decrement was not called on the store");
+  });
+
+  it("should not decrement hits with failed response and skipSuccessfulRequests", async () => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: true,
+        store: store,
+      })
+    );
+
+    await request(app).get("/bad_response_status").expect(403);
+
+    assert(!store.decrement_was_called, "decrement was called on the store");
+  });
+
+  it("should decrement hits with failed response and skipFailedRequests", async () => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
@@ -571,19 +434,14 @@ describe("express-rate-limit node module", () => {
       })
     );
 
-    request(app)
-      .get("/bad_response_status")
-      .expect(403)
-      .end(() => {
-        if (!store.decrement_was_called) {
-          done(new Error("decrement was not called on the store"));
-        } else {
-          done();
-        }
-      });
+    await request(app).get("/bad_response_status").expect(403);
+    assert(store.decrement_was_called, "decrement was not called on the store");
   });
 
   it("should decrement hits with closed response and skipFailedRequests", (done) => {
+    // todo: rework this test to not need real time
+    clock.restore();
+
     const store = new MockStore();
     createAppWith(
       rateLimit({
@@ -612,7 +470,7 @@ describe("express-rate-limit node module", () => {
       .end(checkStoreDecremented);
   });
 
-  it("should decrement hits with response emitting error and skipFailedRequests", (done) => {
+  it("should decrement hits with response emitting error and skipFailedRequests", async () => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
@@ -621,18 +479,12 @@ describe("express-rate-limit node module", () => {
       })
     );
 
-    request(app)
-      .get("/response_emit_error")
-      .end(() => {
-        if (!store.decrement_was_called) {
-          done(new Error("decrement was not called on the store"));
-        } else {
-          done();
-        }
-      });
+    await request(app).get("/response_emit_error");
+
+    assert(store.decrement_was_called, "decrement was not called on the store");
   });
 
-  it("should not decrement hits with success response and skipFailedRequests", (done) => {
+  it("should not decrement hits with success response and skipFailedRequests", async () => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
@@ -641,16 +493,12 @@ describe("express-rate-limit node module", () => {
       })
     );
 
-    goodRequest(done, () => {
-      if (store.decrement_was_called) {
-        done(new Error("decrement was called on the store"));
-      } else {
-        done();
-      }
-    });
+    await request(app).get("/").expect(200);
+
+    assert(!store.decrement_was_called, "decrement was called on the store");
   });
 
-  it("should decrement hits with IP hits reached max and skipFailedRequests", (done) => {
+  it("should decrement hits with IP hits reached max and skipFailedRequests", async () => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
@@ -660,24 +508,19 @@ describe("express-rate-limit node module", () => {
         skipFailedRequests: true,
       })
     );
-    goodRequest(done);
-    goodRequest(done);
-    badRequest(done, () => {
-      if (!store.decrement_was_called) {
-        done(new Error("decrement was not called on the store"));
-      } else {
-        done();
-      }
-    });
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
+    assert(store.decrement_was_called, "decrement was not called on the store");
   });
 
   it("should not modify the passed in options object", () => {
     const opts = {};
     rateLimit(opts);
-    assert.deepEqual(opts, {});
+    assert.deepStrictEqual(opts, {});
   });
 
-  it("should handle exceptions", (done) => {
+  it("should handle exceptions", async () => {
     let errorCaught = false;
     const store = new MockStore();
     const app = createAppWith(
@@ -697,14 +540,12 @@ describe("express-rate-limit node module", () => {
       errorCaught = true;
       res.status(err.code).send(err.message);
     });
-    goodRequest(done);
-    badRequest(done, () => {
-      assert(errorCaught);
-      done();
-    });
+    await request(app).get("/").expect(200);
+    await request(app).get("/").expect(429);
+    assert(errorCaught, "error should have been caught");
   });
 
-  it("should handle exceptions thrown in skip function", (done) => {
+  it("should handle exceptions thrown in skip function", async () => {
     let errorCaught = false;
     const store = new MockStore();
     const app = createAppWith(
@@ -724,9 +565,7 @@ describe("express-rate-limit node module", () => {
       errorCaught = true;
       res.status(err.code).send(err.message);
     });
-    badRequest(done, () => {
-      assert(errorCaught);
-      done();
-    });
+    await request(app).get("/").expect(429);
+    assert(errorCaught, "error should have been caught");
   });
 });
