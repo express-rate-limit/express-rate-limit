@@ -23,21 +23,13 @@ describe("headers", () => {
       })
     );
     const expectedRemaining = 4;
-
-    // build a regex that matches the expected timestamp except for the last two digits
-    const expectedResetTimestamp = Math.ceil(
-      (Date.now() + windowMs) / 1000
-    ).toString();
-    const resetRegexp = new RegExp(
-      expectedResetTimestamp.substr(0, expectedResetTimestamp.length - 2) +
-        "\\d\\d"
-    );
+    const expectedResetTimeInSeconds = windowMs / 1000;
 
     await request(app)
       .get("/")
       .expect("x-ratelimit-limit", limit.toString())
       .expect("x-ratelimit-remaining", expectedRemaining.toString())
-      .expect("x-ratelimit-reset", resetRegexp)
+      .expect("x-ratelimit-reset", expectedResetTimeInSeconds.toString())
       .expect(200, /response!/);
   });
 
