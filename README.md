@@ -201,6 +201,9 @@ Defaults to `false`.
 ### skipSuccessfulRequests
 
 When set to `true` successful requests (response status < 400) won't be counted.
+
+Could be set to `skipSuccessfulRequests: function (req, res): boolean`. Used to manually decide if request was successful and therefore should not be counted.
+
 (Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
 
 Defaults to `false`.

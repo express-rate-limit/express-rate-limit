@@ -425,6 +425,37 @@ describe("express-rate-limit node module", () => {
     assert(!store.decrement_was_called, "decrement was called on the store");
   });
 
+  it("should decrement hits with success response and skipSuccessfulRequests: statusCode < 400", async () => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: function (req, res) {
+          return res.statusCode < 400;
+        },
+        store: store,
+      })
+    );
+
+    await request(app).get("/").expect(200);
+    assert(store.decrement_was_called, "decrement was not called on the store");
+  });
+
+  it("should not decrement hits with failed response and skipSuccessfulRequests: statusCode < 400", async () => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: function (req, res) {
+          return res.statusCode < 400;
+        },
+        store: store,
+      })
+    );
+
+    await request(app).get("/bad_response_status").expect(403);
+
+    assert(!store.decrement_was_called, "decrement was called on the store");
+  });
+
   it("should decrement hits with failed response and skipFailedRequests", async () => {
     const store = new MockStore();
     createAppWith(
