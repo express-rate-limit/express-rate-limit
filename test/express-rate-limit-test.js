@@ -425,12 +425,13 @@ describe("express-rate-limit node module", () => {
     assert(!store.decrement_was_called, "decrement was called on the store");
   });
 
-  it("should decrement hits with success response and skipSuccessfulRequests: statusCode < 400", async () => {
+  it("should decrement hits with success response with custom 'requestWasSuccessful' option", async () => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
-        skipSuccessfulRequests: function (req, res) {
-          return res.statusCode < 400;
+        skipSuccessfulRequests: true,
+        requestWasSuccessful: function (req, res) {
+          return res.statusCode === 200;
         },
         store: store,
       })
@@ -440,12 +441,13 @@ describe("express-rate-limit node module", () => {
     assert(store.decrement_was_called, "decrement was not called on the store");
   });
 
-  it("should not decrement hits with failed response and skipSuccessfulRequests: statusCode < 400", async () => {
+  it("should not decrement hits with success response with custom 'requestWasSuccessful' option", async () => {
     const store = new MockStore();
     createAppWith(
       rateLimit({
-        skipSuccessfulRequests: function (req, res) {
-          return res.statusCode < 400;
+        skipSuccessfulRequests: true,
+        requestWasSuccessful: function (req, res) {
+          return res.statusCode === 200;
         },
         store: store,
       })

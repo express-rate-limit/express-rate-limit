@@ -186,6 +186,19 @@ function (req, res, options) {
 }
 ```
 
+### requestWasSuccessful
+
+Function that is called when `skipFailedRequests` and/or `skipSuccessfulRequests` are set to `true`.
+Could be useful for manual decision if request was successful based on request/response.
+
+Defaults to
+
+```js
+function (req, res) {
+    return res.statusCode < 400;
+}
+```
+
 ### skipFailedRequests
 
 When set to `true`, failed requests won't be counted. Request considered failed when:
@@ -201,9 +214,6 @@ Defaults to `false`.
 ### skipSuccessfulRequests
 
 When set to `true` successful requests (response status < 400) won't be counted.
-
-Could be set to `skipSuccessfulRequests: function (req, res): boolean`. Used to manually decide if request was successful and therefore should not be counted.
-
 (Technically they are counted and then un-counted, so a large number of slow requests all at once could still trigger a rate-limit. This may be fixed in a future release.)
 
 Defaults to `false`.
