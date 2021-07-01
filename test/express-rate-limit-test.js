@@ -455,7 +455,10 @@ describe("express-rate-limit node module", () => {
 
     await request(app).get("/bad_response_status").expect(403);
 
-    assert(!store.decrement_was_called, "decrement was not called on the store");
+    assert(
+      !store.decrement_was_called,
+      "decrement was not called on the store"
+    );
   });
 
   it("should decrement hits with success response with custom 'requestWasSuccessful' option based on query parameter", async () => {
@@ -489,7 +492,10 @@ describe("express-rate-limit node module", () => {
 
     await request(app).get("/?success=0");
 
-    assert(!store.decrement_was_called, "decrement was not called on the store");
+    assert(
+      !store.decrement_was_called,
+      "decrement was not called on the store"
+    );
   });
 
   it("should decrement hits with failed response and skipFailedRequests", async () => {
