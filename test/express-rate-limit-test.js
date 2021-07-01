@@ -458,6 +458,40 @@ describe("express-rate-limit node module", () => {
     assert(!store.decrement_was_called, "decrement was not called on the store");
   });
 
+  it("should decrement hits with success response with custom 'requestWasSuccessful' option based on query parameter", async () => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: true,
+        requestWasSuccessful: function (req) {
+          return req.query.success === "1";
+        },
+        store: store,
+      })
+    );
+
+    await request(app).get("/?success=1");
+
+    assert(store.decrement_was_called, "decrement was called on the store");
+  });
+
+  it("should not decrement hits with failed response with custom 'requestWasSuccessful' option based on query parameter", async () => {
+    const store = new MockStore();
+    createAppWith(
+      rateLimit({
+        skipSuccessfulRequests: true,
+        requestWasSuccessful: function (req) {
+          return req.query.success === "1";
+        },
+        store: store,
+      })
+    );
+
+    await request(app).get("/?success=0");
+
+    assert(!store.decrement_was_called, "decrement was not called on the store");
+  });
+
   it("should decrement hits with failed response and skipFailedRequests", async () => {
     const store = new MockStore();
     createAppWith(
