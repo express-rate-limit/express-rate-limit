@@ -189,7 +189,7 @@ function (req, res, options) {
 ### requestWasSuccessful
 
 Function that is called when `skipFailedRequests` and/or `skipSuccessfulRequests` are set to `true`.
-Could be useful for manual decision if request was successful based on request/response.
+May be overridden if, for example, a service sends out a 200 status code on errors.
 
 Defaults to
 
