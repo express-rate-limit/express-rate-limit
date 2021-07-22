@@ -102,6 +102,8 @@ app.post("/create-account", createAccountLimiter, function(req, res) {
 
 A `req.rateLimit` property is added to all requests with the `limit`, `current`, and `remaining` number of requests and, if the store provides it, a `resetTime` Date object. These may be used in your application code to take additional actions or inform the user of their status.
 
+The property name can be configured with the configuration option `reqRateLimitParam`
+
 ## Configuration options
 
 ### max
@@ -229,6 +231,11 @@ function (/*req, res*/) {
     return false;
 }
 ```
+
+### reqRateLimitParam
+Parameter to add to `req`-Object. 
+
+Defaults to `rateLimit`.
 
 ### store
 
