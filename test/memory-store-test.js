@@ -4,7 +4,7 @@ const MemoryStore = require("../lib/memory-store.js");
 
 describe("MemoryStore store", () => {
   it("sets the value to 1 on first incr", (done) => {
-    const store = new MemoryStore(-1);
+    const store = new MemoryStore(-1, 4);
     const key = "test-store";
 
     store.incr(key, (err, value) => {
@@ -21,7 +21,7 @@ describe("MemoryStore store", () => {
   });
 
   it("increments the key for the store each incr", (done) => {
-    const store = new MemoryStore(-1);
+    const store = new MemoryStore(-1, 4);
     const key = "test-store";
 
     store.incr(key, () => {
@@ -40,7 +40,7 @@ describe("MemoryStore store", () => {
   });
 
   it("resets the key for the store when used with resetKey", (done) => {
-    const store = new MemoryStore(-1);
+    const store = new MemoryStore(-1, 4);
     const key = "test-store";
 
     store.incr(key, () => {
@@ -61,7 +61,7 @@ describe("MemoryStore store", () => {
   });
 
   it("resets all keys for the store when used with resetAll", (done) => {
-    const store = new MemoryStore(-1);
+    const store = new MemoryStore(-1, 4);
     const keyOne = "test-store-one";
     const keyTwo = "test-store-two";
 
@@ -94,7 +94,7 @@ describe("MemoryStore store", () => {
   });
 
   it("resets all keys for the store when the timeout is reached", (done) => {
-    const store = new MemoryStore(50);
+    const store = new MemoryStore(50, 4);
     const keyOne = "test-store-one";
     const keyTwo = "test-store-two";
 
@@ -147,7 +147,7 @@ describe("MemoryStore store", () => {
     });
 
     it("can run in electron where setInterval does not return a Timeout object with an unset function", (done) => {
-      const store = new MemoryStore(-1);
+      const store = new MemoryStore(-1, 4);
       const key = "test-store";
 
       store.incr(key, (err, value) => {
@@ -171,7 +171,7 @@ describe("MemoryStore store", () => {
   });
 
   it("decrements the key for the store each decrement", (done) => {
-    const store = new MemoryStore(-1);
+    const store = new MemoryStore(-1, 4);
     const key = "test-store";
 
     store.incr(key, () => {

@@ -120,6 +120,14 @@ Note: with non-default stores, you may need to configure this value twice, once 
 
 Defaults to `60000` (1 minute).
 
+### precision
+
+Number of request buckets inside time window. Buckets group requests based on timestamp for efficient cleanup.
+
+With precision set to `1` all remembered requests are reset, when time window expires. Increasing this value too much will result in decreased performance.
+
+Defaults to `4`.
+
 ### message
 
 Error message sent to user when `max` is exceeded.
