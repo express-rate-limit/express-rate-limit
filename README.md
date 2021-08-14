@@ -124,9 +124,9 @@ Defaults to `60000` (1 minute).
 
 Number of request buckets inside time window. Buckets group requests based on timestamp for efficient cleanup.
 
-With precision set to `1` all remembered requests are reset, when time window expires. Increasing this value too much will result in decreased performance.
+This option is currently utilized only by `memory-store`, other stores rely on databases with "infinite" per request precision. With precision set to `1` all remembered requests are reset, when time window expires. Increasing this value too much will result in decreased performance.
 
-Defaults to `4`.
+Defaults to `1`.
 
 ### message
 
