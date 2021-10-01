@@ -19,22 +19,12 @@ describe("express-rate-limit node module", () => {
     clock.restore();
   });
 
-  function createAppWith(limit, checkVar, errorHandler, successHandler) {
+  function createAppWith(limit) {
     app = express();
-    app.all("/", limit, (req, res) => {
-      if (
-        checkVar &&
-        req.rateLimit.limit === 5 &&
-        req.rateLimit.remaining === 4
-      ) {
-        app.end((err, res) => {
-          if (err) {
-            return errorHandler(err);
-          }
-          return successHandler(null, res);
-        });
-      }
 
+    app.use(limit);
+
+    app.all("/", (req, res) => {
       res.format({
         html: function () {
           res.send("response!");
@@ -47,11 +37,11 @@ describe("express-rate-limit node module", () => {
       });
     });
 
-    app.all("/bad_response_status", limit, (req, res) => {
+    app.all("/bad_response_status", (req, res) => {
       res.status(403).send();
     });
 
-    app.all("/long_response", limit, (req, res) => {
+    app.all("/long_response", (req, res) => {
       const timerId = setTimeout(() => res.send("response!"), 100);
       res.on("close", () => {
         longResponseClosed = true;
@@ -59,7 +49,7 @@ describe("express-rate-limit node module", () => {
       });
     });
 
-    app.all("/response_emit_error", limit, (req, res) => {
+    app.all("/response_emit_error", (req, res) => {
       res.on("error", () => {
         res.end();
       });
@@ -216,27 +206,18 @@ describe("express-rate-limit node module", () => {
   });
 
   it("should allow individual IP's to be reset", async () => {
+    let myIp = null;
+    const saveIp = (req, res, next) => {
+      myIp = req.ip;
+      next();
+    };
+
     const limiter = rateLimit({
       max: 1,
       windowMs: 50,
     });
-    createAppWith(limiter);
+    createAppWith([saveIp, limiter]);
 
-    // set in headers so that I don't have to deal with the body being a stream
-    app.get("/ip", (req, res) => {
-      res.setHeader("x-your-ip", req.ip);
-      res.status(204).send("");
-    });
-
-    let myIp = null;
-
-    await request(app)
-      .get("/ip")
-      .expect(204)
-      .expect((res) => {
-        myIp = res.headers["x-your-ip"];
-        assert(myIp, "unable to determine local IP");
-      });
     await request(app).get("/").expect(200);
     await request(app).get("/").expect(429);
     limiter.resetIp(myIp);
@@ -341,14 +322,6 @@ describe("express-rate-limit node module", () => {
     await request(app).get("/").query({ key: 1 }).expect(200);
     // 3rd request would normally fail but we're skipping it
     await request(app).get("/").query({ key: 1 }).expect(200);
-  });
-
-  it("should pass current hits and limit hits to the next function", (done) => {
-    const limiter = rateLimit({
-      headers: false,
-    });
-    createAppWith(limiter, true, done, done);
-    done();
   });
 
   it("should allow max to be a function", async () => {
@@ -642,7 +615,33 @@ describe("express-rate-limit node module", () => {
     assert(errorCaught, "error should have been caught");
   });
 
-  it("should handle two rate-limiters independently", async () => {
+  it("should pass current hits and limit hits to the next function in the req.rateLimit property", async () => {
+    let lastReq = null;
+    const saveReqObj = (req, res, next) => {
+      lastReq = req;
+      next();
+    };
+
+    createAppWith([
+      saveReqObj,
+      rateLimit({
+        headers: false,
+      }),
+    ]);
+
+    await request(app).get("/").expect(200);
+    assert(lastReq);
+    assert(lastReq.rateLimit);
+    assert.equal(lastReq.rateLimit.limit, 5);
+    assert.equal(lastReq.rateLimit.remaining, 4);
+
+    lastReq = null;
+    await request(app).get("/").expect(200);
+    assert.equal(lastReq.rateLimit.limit, 5); // no change
+    assert.equal(lastReq.rateLimit.remaining, 3); // decrement
+  });
+
+  it("should handle two rate-limiters with different requestPropertyNames operating independently", async () => {
     const keyLimiter = rateLimit({
       max: 2,
       keyGenerator: function (req, res) {
@@ -671,19 +670,65 @@ describe("express-rate-limit node module", () => {
       },
     });
 
-    createAppWith([keyLimiter, globalLimiter]);
+    let lastReq = null;
+    const saveReqObj = (req, res, next) => {
+      lastReq = req;
+      next();
+    };
+    createAppWith([saveReqObj, keyLimiter, globalLimiter]);
+
     await request(app).get("/").query({ key: 1 }).expect(200); // keyLimiter[1]: 1, keyLimiter[2]: 0, keyLimiter[3]: 0, global: 1
+    assert(lastReq);
+
+    assert(
+      lastReq.rateLimitKey,
+      "there should be a rateLimitKey property on the req object"
+    );
+    assert.equal(lastReq.rateLimitKey.limit, 2);
+    assert.equal(lastReq.rateLimitKey.remaining, 1);
+
+    assert(
+      lastReq.rateLimitGlobal,
+      "there should be a rateLimitGlobal property on the req object"
+    );
+    assert.equal(
+      lastReq.rateLimit,
+      undefined,
+      "there shouldn't be a rateLimit property on the req object (because it was renamed in both instances)"
+    );
+    assert.equal(lastReq.rateLimitGlobal.limit, 5);
+    assert.equal(lastReq.rateLimitGlobal.remaining, 4);
+
+    lastReq = null;
     await request(app).get("/").query({ key: 2 }).expect(200); // keyLimiter[1]: 1, keyLimiter[2]: 1, keyLimiter[3]: 0, global: 2
+    assert.equal(lastReq.rateLimitKey.remaining, 1);
+    assert.equal(lastReq.rateLimitGlobal.remaining, 3);
+
+    lastReq = null;
     await request(app).get("/").query({ key: 1 }).expect(200); // keyLimiter[1]: 2, keyLimiter[2]: 1, keyLimiter[3]: 0, global: 3
+    assert.equal(lastReq.rateLimitKey.remaining, 0);
+    assert.equal(lastReq.rateLimitGlobal.remaining, 2);
+
+    lastReq = null;
     await request(app).get("/").query({ key: 2 }).expect(200); // keyLimiter[1]: 2, keyLimiter[2]: 2, keyLimiter[3]: 0, global: 4
+    assert.equal(lastReq.rateLimitKey.remaining, 0);
+    assert.equal(lastReq.rateLimitGlobal.remaining, 1);
+
+    lastReq = null;
     await request(app)
       .get("/")
       .query({ key: 1 })
       .expect(429, "keyLimiter handler executed!"); // keyLimiter[1]: 3 > 2!
+    assert.equal(lastReq.rateLimitKey.remaining, 0);
+    // because keyLimiter handled the request, global limiter did not execute
+
+    lastReq = null;
     await request(app).get("/").query({ key: 3 }).expect(200); // keyLimiter[1]: 2, keyLimiter[2]: 2, keyLimiter[3]: 1, global: 5
     await request(app)
       .get("/")
       .query({ key: 3 })
       .expect(429, "globalLimiter handler executed!"); // keyLimiter[1]: 2, keyLimiter[2]: 2, keyLimiter[3]: 2, global: 6 > 5!
+    assert.equal(lastReq.rateLimitKey.remaining, 0);
+    assert.equal(lastReq.rateLimitGlobal.remaining, 0);
   });
 });
