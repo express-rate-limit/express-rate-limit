@@ -8,9 +8,8 @@ const rateLimit = require("../lib/express-rate-limit.js");
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 
 describe("express-rate-limit node module", () => {
-  let app, longResponseClosed;
+  let app, clock;
 
-  let clock;
   beforeEach(() => {
     clock = sinon.useFakeTimers();
   });
@@ -39,14 +38,6 @@ describe("express-rate-limit node module", () => {
 
     app.all("/bad_response_status", (req, res) => {
       res.status(403).send();
-    });
-
-    app.all("/long_response", (req, res) => {
-      const timerId = setTimeout(() => res.send("response!"), 100);
-      res.on("close", () => {
-        longResponseClosed = true;
-        clearTimeout(timerId);
-      });
     });
 
     app.all("/response_emit_error", (req, res) => {
@@ -481,11 +472,11 @@ describe("express-rate-limit node module", () => {
     );
 
     await request(app).get("/bad_response_status").expect(403);
+    await store.decrementPromise;
     assert(store.decrement_was_called, "decrement was not called on the store");
   });
 
-  it("should decrement hits with closed response and skipFailedRequests", (done) => {
-    // todo: rework this test to not need real time
+  it.only("should decrement hits with closed response and skipFailedRequests", async () => {
     clock.restore();
 
     const store = new MockStore();
@@ -496,24 +487,26 @@ describe("express-rate-limit node module", () => {
       })
     );
 
-    const checkStoreDecremented = () => {
-      if (longResponseClosed) {
-        if (!store.decrement_was_called) {
-          done(new Error("decrement was not called on the store"));
-        } else {
-          done();
-        }
-      } else {
-        setImmediate(checkStoreDecremented);
-      }
-    };
+    let _resolve;
+    const connectionClosed = new Promise((resolve) => {
+      _resolve = resolve;
+    });
+    app.get("/server_hang", (req, res) => {
+      // don't send any response - it will eventually time out and close
+      res.on("close", _resolve);
+    });
 
-    request(app)
-      .get("/long_response")
-      .timeout({
-        response: 10,
-      })
-      .end(checkStoreDecremented);
+    const req = request(app).get("/server_hang").timeout({
+      response: 10,
+    });
+
+    await assert.rejects(req); // we're expecting a timeout
+    await connectionClosed;
+
+    assert(
+      store.decrement_was_called,
+      "decrement should have been called on the store"
+    );
   });
 
   it("should decrement hits with response emitting error and skipFailedRequests", async () => {
