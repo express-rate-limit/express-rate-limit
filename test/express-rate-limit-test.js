@@ -642,8 +642,8 @@ describe("express-rate-limit node module", () => {
     assert(errorCaught, "error should have been caught");
   });
 
-  it("should handle two rate-limiters independtly", async () => {
-    const limiter = rateLimit({
+  it("should handle two rate-limiters independently", async () => {
+    const keyLimiter = rateLimit({
       max: 2,
       keyGenerator: function (req, res) {
         assert.ok(req);
@@ -654,7 +654,7 @@ describe("express-rate-limit node module", () => {
 
         return key;
       },
-      requestPropertyName: "rateLimitIp",
+      requestPropertyName: "rateLimitKey",
       handler: function (req, res) {
         res.status(429).end("keyLimiter handler executed!");
       },
@@ -671,7 +671,7 @@ describe("express-rate-limit node module", () => {
       },
     });
 
-    createAppWith([limiter, globalLimiter]);
+    createAppWith([keyLimiter, globalLimiter]);
     await request(app).get("/").query({ key: 1 }).expect(200); // keyLimiter[1]: 1, keyLimiter[2]: 0, keyLimiter[3]: 0, global: 1
     await request(app).get("/").query({ key: 2 }).expect(200); // keyLimiter[1]: 1, keyLimiter[2]: 1, keyLimiter[3]: 0, global: 2
     await request(app).get("/").query({ key: 1 }).expect(200); // keyLimiter[1]: 2, keyLimiter[2]: 1, keyLimiter[3]: 0, global: 3
