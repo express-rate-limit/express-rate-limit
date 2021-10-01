@@ -112,6 +112,31 @@ May be a number, or a function that returns a number or a promise. If `max` is a
 
 Defaults to `5`. Set to `0` to disable.
 
+Example of using a function:
+
+```js
+const rateLimit = require("express-rate-limit");
+
+function isPremium(req) {
+  //...
+}
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  
+  // max could also be an async function or return a promise
+  max: function(req, res) {
+    if (isPremium(req)) {
+      return 10;
+    }
+    return 5;
+  }
+});
+
+//  apply to all requests
+app.use(limiter);
+```
+
 ### windowMs
 
 Timeframe for which requests are checked/remembered. Also used in the Retry-After header when the limit is reached.
