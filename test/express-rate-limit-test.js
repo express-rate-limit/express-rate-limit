@@ -4,6 +4,7 @@ const assert = require("assert");
 const request = require("supertest");
 const sinon = require("sinon");
 const rateLimit = require("../lib/express-rate-limit.js");
+const { promisify } = require("util");
 
 // todo: look into using http://sinonjs.org/docs/#clock instead of actually letting the tests wait on setTimeouts
 
@@ -75,18 +76,24 @@ describe("express-rate-limit node module", () => {
     };
   }
 
-  it("should not allow the use of a store that is not valid", (done) => {
+  it("should not allow the use of a store that is not valid", async () => {
     function InvalidStore() {}
 
-    try {
+    assert.throws(() => {
       rateLimit({
         store: new InvalidStore(),
       });
-    } catch (e) {
-      return done();
-    }
+    }, /store/);
+  });
 
-    done(new Error("It allowed an invalid store"));
+  it("should error when req.ip is undefined", async () => {
+    const limiter = rateLimit({});
+    const { IncomingMessage, OutgoingMessage } = require("http");
+    await assert.rejects(
+      promisify(limiter)(new IncomingMessage(), new OutgoingMessage()),
+      /express/,
+      "Should error with a message about express"
+    );
   });
 
   it("should let the first request through", async () => {
@@ -476,7 +483,7 @@ describe("express-rate-limit node module", () => {
     assert(store.decrement_was_called, "decrement was not called on the store");
   });
 
-  it.only("should decrement hits with closed response and skipFailedRequests", async () => {
+  it("should decrement hits with closed response and skipFailedRequests", async () => {
     clock.restore();
 
     const store = new MockStore();

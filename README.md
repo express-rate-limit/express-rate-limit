@@ -177,7 +177,7 @@ Defaults to `false`. Behavior and name will likely change in future releases.
 
 Function used to generate keys.
 
-Defaults to req.ip:
+Defaults to req.ip, similar to this:
 
 ```js
 function (req /*, res*/) {
