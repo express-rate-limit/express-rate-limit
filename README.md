@@ -187,14 +187,14 @@ function (req /*, res*/) {
 
 ### handler
 
-The function to handle requests once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware.
+The function to handle requests once the max limit is exceeded. It receives the request and the response objects. The "next" param is available if you need to pass to the next middleware. Finally, the options param has all of the options that originally passed in when creating the current limiter and the default values for other options.
 
 The`req.rateLimit` object has `limit`, `current`, and `remaining` number of requests and, if the store provides it, a `resetTime` Date object.
 
 Defaults to:
 
 ```js
-function (req, res, /*next*/) {
+function (req, res, next, options) {
     res.status(options.statusCode).send(options.message);
 }
 ```
