@@ -17,6 +17,7 @@ Note: this module does not share state with other processes/servers by default. 
 - [Redis Store](https://npmjs.com/package/rate-limit-redis)
 - [Memcached Store](https://npmjs.org/package/rate-limit-memcached)
 - [Mongo Store](https://www.npmjs.com/package/rate-limit-mongo)
+- [Precise Memory Store](https://www.npmjs.com/package/precise-memory-rate-limit) - similar to the built-in memory store except that it stores a distinct timestamp for each IP rather than bucketing them together.
 
 ### Alternate Rate-limiters
 
