@@ -3,6 +3,7 @@ const express = require("express");
 const assert = require("assert");
 const request = require("supertest");
 const sinon = require("sinon");
+const sandbox = sinon.createSandbox();
 const rateLimit = require("../lib/express-rate-limit.js");
 const { promisify } = require("util");
 
@@ -17,6 +18,7 @@ describe("express-rate-limit node module", () => {
 
   afterEach(() => {
     clock.restore();
+    sandbox.restore();
   });
 
   function createAppWith(limit) {
@@ -89,11 +91,9 @@ describe("express-rate-limit node module", () => {
   it("should error when req.ip is undefined", async () => {
     const limiter = rateLimit({});
     const { IncomingMessage, OutgoingMessage } = require("http");
-    await assert.rejects(
-      promisify(limiter)(new IncomingMessage(), new OutgoingMessage()),
-      /express/,
-      "Should error with a message about express"
-    );
+    sandbox.stub(console, "error");
+    await promisify(limiter)(new IncomingMessage(), new OutgoingMessage());
+    sandbox.assert.calledOnce(console.error);
   });
 
   it("should let the first request through", async () => {
