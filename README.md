@@ -40,7 +40,7 @@ For an API-only server where the rate-limiter should be applied to all requests:
 ```js
 const rateLimit = require("express-rate-limit");
 
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB or API Gateway, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
 // app.set('trust proxy', 1);
 
@@ -58,7 +58,7 @@ For a "regular" web server (e.g. anything that uses `express.static()`), where t
 ```js
 const rateLimit = require("express-rate-limit");
 
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB or API Gateway, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
 // app.set('trust proxy', 1);
 
