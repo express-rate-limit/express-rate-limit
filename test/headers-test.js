@@ -1,81 +1,81 @@
-"use strict";
-const express = require("express");
-const request = require("supertest");
-const rateLimit = require("../dist/express-rate-limit.js");
+'use strict'
+const express = require('express')
+const request = require('supertest')
+const rateLimit = require('../dist/index.js')
 
-describe("headers", () => {
-  function createAppWith(limit) {
-    const app = express();
-    app.all("/", limit, (req, res) => {
-      res.send("response!");
-    });
-    return app;
-  }
+describe('headers', () => {
+	function createAppWith(limit) {
+		const app = express()
+		app.all('/', limit, (request, response) => {
+			response.send('response!')
+		})
+		return app
+	}
 
-  it("should send correct x-ratelimit-limit, x-ratelimit-remaining, and x-ratelimit-reset headers", async () => {
-    const limit = 5;
-    const windowMs = 60 * 1000; // 60 * 1000 = 1 minute
-    const app = createAppWith(
-      rateLimit({
-        windowMs: windowMs,
-        limit: limit,
-        headers: true,
-      })
-    );
-    const expectedRemaining = 4;
+	it('should send correct x-ratelimit-limit, x-ratelimit-remaining, and x-ratelimit-reset headers', async () => {
+		const limit = 5
+		const windowMs = 60 * 1000 // 60 * 1000 = 1 minute
+		const app = createAppWith(
+			rateLimit({
+				windowMs: windowMs,
+				limit: limit,
+				headers: true,
+			}),
+		)
+		const expectedRemaining = 4
 
-    // build a regex that matches the expected timestamp except for the last two digits
-    const expectedResetTimestamp = Math.ceil(
-      (Date.now() + windowMs) / 1000
-    ).toString();
-    const resetRegexp = new RegExp(
-      expectedResetTimestamp.substr(0, expectedResetTimestamp.length - 2) +
-        "\\d\\d"
-    );
+		// build a regex that matches the expected timestamp except for the last two digits
+		const expectedResetTimestamp = Math.ceil(
+			(Date.now() + windowMs) / 1000,
+		).toString()
+		const resetRegexp = new RegExp(
+			expectedResetTimestamp.substr(0, expectedResetTimestamp.length - 2) +
+				'\\d\\d',
+		)
 
-    await request(app)
-      .get("/")
-      .expect("x-ratelimit-limit", limit.toString())
-      .expect("x-ratelimit-remaining", expectedRemaining.toString())
-      .expect("x-ratelimit-reset", resetRegexp)
-      .expect(200, /response!/);
-  });
+		await request(app)
+			.get('/')
+			.expect('x-ratelimit-limit', limit.toString())
+			.expect('x-ratelimit-remaining', expectedRemaining.toString())
+			.expect('x-ratelimit-reset', resetRegexp)
+			.expect(200, /response!/)
+	})
 
-  it("should send correct ratelimit-limit, ratelimit-remaining, and ratelimit-reset headers", async () => {
-    const limit = 5;
-    const windowMs = 60 * 1000; // 60 * 1000 = 1 minute
-    const app = createAppWith(
-      rateLimit({
-        windowMs: windowMs,
-        limit: limit,
-        draft_polli_ratelimit_headers: true,
-      })
-    );
-    const expectedRemaining = 4;
-    const expectedResetSeconds = 60;
-    await request(app)
-      .get("/")
-      .expect("ratelimit-limit", limit.toString())
-      .expect("ratelimit-remaining", expectedRemaining.toString())
-      .expect("ratelimit-reset", expectedResetSeconds.toString())
-      .expect(200, /response!/);
-  });
+	it('should send correct ratelimit-limit, ratelimit-remaining, and ratelimit-reset headers', async () => {
+		const limit = 5
+		const windowMs = 60 * 1000 // 60 * 1000 = 1 minute
+		const app = createAppWith(
+			rateLimit({
+				windowMs: windowMs,
+				limit: limit,
+				draft_polli_ratelimit_headers: true,
+			}),
+		)
+		const expectedRemaining = 4
+		const expectedResetSeconds = 60
+		await request(app)
+			.get('/')
+			.expect('ratelimit-limit', limit.toString())
+			.expect('ratelimit-remaining', expectedRemaining.toString())
+			.expect('ratelimit-reset', expectedResetSeconds.toString())
+			.expect(200, /response!/)
+	})
 
-  it("should return the Retry-After header once IP has reached the max", async () => {
-    const windowSeconds = 60; // 60 * 1000 = 1 minute
+	it('should return the Retry-After header once IP has reached the max', async () => {
+		const windowSeconds = 60 // 60 * 1000 = 1 minute
 
-    const app = createAppWith(
-      rateLimit({
-        windowMs: windowSeconds * 1000,
-        delayMs: 0,
-        max: 1,
-      })
-    );
-    await request(app).get("/").expect(200);
+		const app = createAppWith(
+			rateLimit({
+				windowMs: windowSeconds * 1000,
+				delayMs: 0,
+				max: 1,
+			}),
+		)
+		await request(app).get('/').expect(200)
 
-    await request(app)
-      .get("/")
-      .expect(429)
-      .expect("retry-after", windowSeconds.toString());
-  });
-});
+		await request(app)
+			.get('/')
+			.expect(429)
+			.expect('retry-after', windowSeconds.toString())
+	})
+})
