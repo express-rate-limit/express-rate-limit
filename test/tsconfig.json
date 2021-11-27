@@ -1,7 +1,10 @@
+// /test/tsconfig.json
+// Typescript compiler configuration for testing
+
 {
 	"extends": "../tsconfig.json",
-	"include": ["./**/*"],
 	"compilerOptions": {
 		"noEmit": true
-	}
+	},
+	"include": ["./**/*.ts"]
 }

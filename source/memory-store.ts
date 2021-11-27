@@ -1,7 +1,7 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import RateLimit = require('.')
+import { Store, IncrementCallback } from '.'
 
 /**
  * Calculates the time when all hit counters will be reset.
@@ -19,12 +19,12 @@ const calculateNextResetTime = (windowMs: number): Date => {
 }
 
 /**
- * A {@link RateLimit.Store} that stores the hit count for each client in
+ * A {@link Store} that stores the hit count for each client in
  * memory.
  *
  * @public
  */
-class MemoryStore implements RateLimit.Store {
+export default class MemoryStore implements Store {
 	/**
 	 * The duration of time before which all hit counts are reset (in milliseconds).
 	 */
@@ -33,7 +33,7 @@ class MemoryStore implements RateLimit.Store {
 	/**
 	 * The map that stores the number of hits for each client in memory.
 	 */
-	hits: Record<string, number | undefined>
+	hits: { [key: string]: number | undefined }
 
 	/**
 	 * The time at which all hit counts will be reset.
@@ -51,7 +51,9 @@ class MemoryStore implements RateLimit.Store {
 		this.resetTime = calculateNextResetTime(windowMs)
 
 		// Reset hit counts for ALL clients every windowMs
-		const interval = setInterval(() => this.resetAll(), windowMs)
+		const interval = setInterval(() => {
+			this.resetAll()
+		}, windowMs)
 		if (interval.unref) {
 			interval.unref()
 		}
@@ -61,12 +63,12 @@ class MemoryStore implements RateLimit.Store {
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
-	 * @param callback {RateLimit.IncrementCallback} - The callback to call once the counter is incremented
+	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented
 	 *
 	 * @public
 	 */
-	increment(key: string, callback: RateLimit.IncrementCallback) {
-		const current = (this.hits[key] || 0) + 1
+	increment(key: string, callback: IncrementCallback) {
+		const current = (this.hits[key] ?? 0) + 1
 		this.hits[key] = current
 
 		callback(undefined, current, this.resetTime)
@@ -107,5 +109,3 @@ class MemoryStore implements RateLimit.Store {
 		this.resetTime = calculateNextResetTime(this.windowMs)
 	}
 }
-
-export = MemoryStore

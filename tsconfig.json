@@ -4,8 +4,8 @@
 {
 	"compilerOptions": {
 		// Compilation options
-		"target": "es5",
-		"module": "commonjs",
+		"target": "esnext",
+		"module": "esnext",
 		"declaration": true,
 		"sourceMap": true,
 		"outDir": "./dist",
@@ -18,11 +18,11 @@
 
 		// Module resolution options
 		"moduleResolution": "node",
-		"esModuleInterop": false,
+		"esModuleInterop": true,
 
 		// Source map options
 		"inlineSources": true
 	},
-	"include": ["source/*"],
+	"include": ["source/**/*.ts"],
 	"exclude": ["node_modules"]
 }

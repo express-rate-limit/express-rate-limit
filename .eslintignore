@@ -1,4 +1,0 @@
-# include the eslintconfig file
-# (eslint ignores it by default for some reason)
-!.eslintrc.js
-dist/

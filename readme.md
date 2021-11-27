@@ -1,9 +1,8 @@
 # Express Rate Limit
 
-[![Build Status](https://secure.travis-ci.org/nfriedly/express-rate-limit.png?branch=master)](http://travis-ci.org/nfriedly/express-rate-limit)
-[![NPM version](http://badge.fury.io/js/express-rate-limit.png)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
-[![Dependency Status](https://david-dm.org/nfriedly/express-rate-limit.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit)
-[![Development Dependency Status](https://david-dm.org/nfriedly/express-rate-limit/dev-status.png?theme=shields.io)](https://david-dm.org/nfriedly/express-rate-limit#info=devDependencies)
+[![Tests](https://github.com/nfriedly/express-rate-limit/workflows/Test/badge.svg)](https://github.com/nfriedly/express-rate-limit/actions)
+[![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
+[![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
 
 Basic rate-limiting middleware for Express. Use to limit repeated requests to
 public APIs and/or endpoints such as password reset.
@@ -36,7 +35,7 @@ $ npm install --save express-rate-limit
 For an API-only server where the rate-limiter should be applied to all requests:
 
 ```js
-const rateLimit = require('express-rate-limit')
+import rateLimit from 'express-rate-limit'
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
@@ -55,7 +54,7 @@ For a "regular" web server (e.g. anything that uses `express.static()`), where
 the rate-limiter should only apply to certain requests:
 
 ```js
-const rateLimit = require('express-rate-limit')
+import rateLimit from 'express-rate-limit'
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
@@ -73,7 +72,7 @@ app.use('/api', apiLimiter)
 Create multiple instances to apply different rules to different routes:
 
 ```js
-const rateLimit = require('express-rate-limit')
+import rateLimit from 'express-rate-limit'
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html
@@ -105,11 +104,8 @@ app.post('/create-account', createAccountLimiter, function (request, response) {
 Import the module like this:
 
 ```ts
-import RateLimit = require('express-rate-limit')
+import rateLimit from 'express-rate-limit'
 ```
-
-Notice the mixture of `import` and `require`. This is typescript's way of
-importing modules that use the older commonjs default export style.
 
 ## Request API
 
@@ -136,7 +132,7 @@ Defaults to `5`. Set to `0` to disable.
 Example of using a function:
 
 ```js
-const rateLimit = require('express-rate-limit')
+const rateLimit from 'express-rate-limit'
 
 const isPremium = (request) => {
 	// ...
@@ -318,12 +314,15 @@ Available data stores are:
   [Memcached](https://memcached.org/)-backed store.
 - [rate-limit-mongo](https://www.npmjs.com/package/rate-limit-mongo): A
   [MongoDB](https://www.mongodb.com/)-backed store.
+- [precise-memory-rate-limit](https://www.npmjs.com/package/precise-memory-rate-limit) -
+  A memory store similar to the built-in one, except that it stores a distinct
+  timestamp for each IP rather than bucketing them together.
 
 You may also create your own store. It must implement the following in order to
 function:
 
 ```js
-const RateLimit = require('express-rate-limit')
+const RateLimit from 'express-rate-limit'
 
 /**
  * A {@link RateLimit.Store} that stores the hit count for each client.
