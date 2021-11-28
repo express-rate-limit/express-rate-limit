@@ -249,7 +249,7 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 		keyGenerator: (request) => {
 			if (!request.ip) {
 				console.error(
-					'WARN | `express-rate-limit` | The `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
+					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
 				)
 			}
 

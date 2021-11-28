@@ -1,6 +1,7 @@
 // /test/middleware-test.ts
 // Tests the rate limiting middleware
 
+import { jest } from '@jest/globals'
 import Express from 'express'
 import Sinon, { SinonFakeTimers } from 'sinon'
 import request from 'supertest'
@@ -11,7 +12,7 @@ import { createServer } from './helpers/create-server.js'
 
 const sandbox = Sinon.createSandbox()
 
-describe('integration test', () => {
+describe('middleware test', () => {
 	let clock: SinonFakeTimers
 	beforeEach(() => {
 		clock = Sinon.useFakeTimers()
@@ -58,14 +59,29 @@ describe('integration test', () => {
 		}).toThrowError(/store/)
 	})
 
+	it('should print an error if `request.ip` is undefined', async () => {
+		jest.spyOn(global.console, 'error').mockImplementation(() => {})
+
+		await Promise.resolve(
+			// eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
+			rateLimit()(
+				{ ip: undefined } as any as Express.Request,
+				{} as any as Express.Response,
+				(() => {}) as Express.NextFunction,
+			),
+		)
+
+		expect(console.error).toBeCalled()
+	})
+
 	it('should let the first request through', async () => {
 		const app = createServer(rateLimit({ max: 1 }))
+
 		await request(app).get('/').expect(200).expect('Hi there!')
 	})
 
 	it('should call `increment` on the store', async () => {
 		const store = new MockStore()
-
 		const app = createServer(
 			rateLimit({
 				store,
@@ -82,6 +98,7 @@ describe('integration test', () => {
 				max: 2,
 			}),
 		)
+
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429)
@@ -96,6 +113,7 @@ describe('integration test', () => {
 				message,
 			}),
 		)
+
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429).expect(message)
