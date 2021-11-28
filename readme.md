@@ -183,7 +183,7 @@ Enable headers for request limit (`X-RateLimit-Limit`) and current usage
 
 Defaults to `true`. Behavior may change in the next major release.
 
-### `draft_polli_ratelimit_headers`
+### `useStandardizedHeaders`
 
 Enable headers conforming to the
 [ratelimit standardization proposal](https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html):
