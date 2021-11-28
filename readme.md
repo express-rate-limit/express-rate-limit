@@ -30,9 +30,10 @@ software and may be more appropriate for some situations:
 $ npm install express-rate-limit
 ```
 
-Your project must be
-[pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
-to be able to use this package.
+This project is pure ESM. You might need to convert your project to ESM to use
+this package too. Take a look at this
+[article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
+for more details.
 
 ## Usage
 
