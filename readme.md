@@ -27,8 +27,12 @@ software and may be more appropriate for some situations:
 ## Install
 
 ```sh
-$ npm install --save express-rate-limit
+$ npm install express-rate-limit
 ```
+
+Your project must be
+[pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
+to be able to use this package.
 
 ## Usage
 
@@ -98,14 +102,6 @@ app.post('/create-account', createAccountLimiter, function (request, response) {
 > **Note:** most stores will require additional configuration, such as custom
 > prefixes, when using multiple instances. The default built-in memory store is
 > an exception to this rule.
-
-### Typescript
-
-Import the module like this:
-
-```ts
-import rateLimit from 'express-rate-limit'
-```
 
 ## Request API
 
@@ -322,7 +318,7 @@ You may also create your own store. It must implement the following in order to
 function:
 
 ```js
-const RateLimit from 'express-rate-limit'
+import RateLimit from 'express-rate-limit'
 
 /**
  * A {@link RateLimit.Store} that stores the hit count for each client.
@@ -390,7 +386,7 @@ class SomeStore implements RateLimit.Store {
 	}
 }
 
-module.exports = MemoryStore
+export default MemoryStore
 ```
 
 ## Instance API
