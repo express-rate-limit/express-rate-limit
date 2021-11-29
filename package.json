@@ -39,10 +39,11 @@
 		"compile": "run-s clean build",
 		"lint": "xo",
 		"autofix": "xo --fix",
-		"test-lib": "cross-env TS_NODE_PROJECT=test/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest --coverage --detectOpenHandles",
+		"test-lib": "cross-env TS_NODE_PROJECT=test/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest",
 		"test": "run-s compile lint test-lib",
+		"view-coverage": "npx serve coverage/lcov-report",
 		"precommit": "lint-staged",
-		"prepare": "npm run build"
+		"prepare": "npm run build && husky install"
 	},
 	"devDependencies": {
 		"@jest/globals": "^27.3.1",
@@ -93,6 +94,10 @@
 				"useESM": true
 			}
 		},
+		"collectCoverage": true,
+		"collectCoverageFrom": [
+			"dist/**/*.js"
+		],
 		"testTimeout": 30000,
 		"testMatch": [
 			"**/test/**/*-test.[jt]s?(x)"
