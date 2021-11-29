@@ -215,7 +215,7 @@ to pass to the next middleware/route. Finally, the options param has all of the
 options that originally passed in when creating the current limiter and the
 default values for other options.
 
-The`request.rateLimit` object has `limit`, `current`, and `remaining` number of
+The `request.rateLimit` object has `limit`, `current`, and `remaining` number of
 requests and, if the store provides it, a `resetTime` Date object.
 
 Defaults to:
@@ -231,7 +231,7 @@ const handler = (request, response, options) => {
 Function that is called the first time a user hits the rate limit within a given
 window.
 
-The`request.rateLimit` object has the rate limit `limit`, number of requests
+The `request.rateLimit` object has the rate limit `limit`, number of requests
 made so far `current`, the remaining number of requests `remaining` and, if the
 store provides it, a Date object for when the hit count for all clients will be
 reset `resetTime`.
@@ -318,18 +318,18 @@ Available data stores are:
   A memory store similar to the built-in one, except that it stores a distinct
   timestamp for each IP rather than bucketing them together.
 
-You may also create your own store. It must implement the following in order to
-function:
+You may also create your own store. It must implement the `Store` interface as
+follows:
 
 ```js
-import RateLimit from 'express-rate-limit'
+import rateLimit, { Store, IncrementCallback } from 'express-rate-limit'
 
 /**
- * A {@link RateLimit.Store} that stores the hit count for each client.
+ * A {@link Store} that stores the hit count for each client.
  *
  * @public
  */
-class SomeStore implements RateLimit.Store {
+class SomeStore implements Store {
 	/**
 	 * The duration of time before which all hit counts are reset (in milliseconds).
 	 */
@@ -348,11 +348,11 @@ class SomeStore implements RateLimit.Store {
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
-	 * @param callback {RateLimit.IncrementCallback} - The callback to call once the counter is incremented
+	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented
 	 *
 	 * @public
 	 */
-	increment(key: string, callback: RateLimit.IncrementCallback) {
+	increment(key: string, callback: IncrementCallback) {
 		// ...
 
 		callback(undefined, total, resetTime)
@@ -390,7 +390,7 @@ class SomeStore implements RateLimit.Store {
 	}
 }
 
-export default MemoryStore
+export default SomeStore
 ```
 
 ## Instance API
