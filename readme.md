@@ -32,7 +32,7 @@ $ npm install express-rate-limit
 
 **This library (v6.0.0 or greater) is now pure ESM**. CommonJS packages will not
 be able to synchronously import this package. It is now recommended to use this
-library with NodeJS 14 or greater. Take a look at this
+library with Node 12 or greater. Take a look at this
 [article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
 for more details.
 

@@ -16,7 +16,7 @@ and this project adheres to
 
 - **This library is now pure ESM**. CommonJS packages will not be able to
   synchronously import this package. It is now recommended to use this library
-  with NodeJS 14 or greater.
+  with Node 12 or greater.
 - Remove the deprecated `limiter.resetIp` method.
 - Rename the `draft_polli_ratelimit_headers` option to `useStandardizedHeaders`.
 
