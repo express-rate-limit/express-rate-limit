@@ -30,8 +30,9 @@ software and may be more appropriate for some situations:
 $ npm install express-rate-limit
 ```
 
-This project is pure ESM. You might need to convert your project to ESM to use
-this package too. Take a look at this
+**This library (v6.0.0 or greater) is now pure ESM**. CommonJS packages will not
+be able to synchronously import this package. It is now recommended to use this
+library with NodeJS 14 or greater. Take a look at this
 [article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
 for more details.
 
@@ -87,6 +88,7 @@ const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 })
+
 app.use('/api/', apiLimiter)
 
 const createAccountLimiter = rateLimit({
@@ -95,7 +97,8 @@ const createAccountLimiter = rateLimit({
 	message:
 		'Too many accounts created from this IP, please try again after an hour',
 })
-app.post('/create-account', createAccountLimiter, function (request, response) {
+
+app.post('/create-account', createAccountLimiter, (request, response) => {
 	//...
 })
 ```
@@ -116,6 +119,17 @@ The property name can be configured with the configuration option
 
 ## Configuration options
 
+### `windowMs`
+
+Time frame for which requests are checked/remembered. Also used in the
+`Retry-After` header when the limit is reached.
+
+Note: with non-default stores, you may need to configure this value twice, once
+here and once on the store. In some cases the units also differ (e.g. seconds vs
+miliseconds)
+
+Defaults to `60000` ms (= 1 minute).
+
 ### `max`
 
 Max number of connections during `windowMs` milliseconds before sending a 429
@@ -129,7 +143,7 @@ Defaults to `5`. Set to `0` to disable.
 Example of using a function:
 
 ```js
-const rateLimit from 'express-rate-limit'
+import rateLimit from 'express-rate-limit'
 
 const isPremium = (request) => {
 	// ...
@@ -148,17 +162,6 @@ const limiter = rateLimit({
 // Apply the rate limiting middleware to all requests
 app.use(limiter)
 ```
-
-### `windowMs`
-
-Timeframe for which requests are checked/remembered. Also used in the
-Retry-After header when the limit is reached.
-
-Note: with non-default stores, you may need to configure this value twice, once
-here and once on the store. In some cases the units also differ (e.g. seconds vs
-miliseconds)
-
-Defaults to `60000` ms (= 1 minute).
 
 ### `message`
 
@@ -397,42 +400,6 @@ export default MemoryStore
 Resets the rate limiting for a given key. An example use case is to allow users
 to complete a captcha or whatever to reset their rate limit, then call this
 method.
-
-## Summary of breaking changes:
-
-### 5.x
-
-This version:
-
-- Removes index.d.ts. (See
-  [#138](https://github.com/nfriedly/express-rate-limit/issues/138))
-
-### 4.x
-
-This version:
-
-- no longer modifies the passed-in options object, it instead makes a clone of
-  it.
-
-### 3.x
-
-This version:
-
-- Removes the `delayAfter` and `delayMs` options; they were moved to the
-  [express-slow-down](https://npmjs.org/package/express-slow-down) package.
-- Simplifies the default `handler` function so that it no longer changes the
-  response format. The default handler also uses
-  [response.send](https://expressjs.com/en/4x/api.html#response.send).
-- `onLimitReached` now only triggers once for a given ip and window. However,
-  the `handle` method is called for every blocked request.
-
-### 2.x
-
-This version:
-
-- uses a less precise but less resource intensive method of tracking hits from a
-  given IP.
-- adds the `limiter.resetKey()` method and removes the `global: true` option.
 
 ## License
 
