@@ -92,6 +92,17 @@ describe('middleware test', () => {
 		expect(store.incrementWasCalled).toEqual(true)
 	})
 
+	it('should call `resetKey` on the store', async () => {
+		const store = new MockStore()
+		const limiter = rateLimit({
+			store,
+		})
+
+		limiter.resetKey('key')
+
+		expect(store.resetKeyWasCalled).toEqual(true)
+	})
+
 	it('should refuse additional connections once IP has reached the max', async () => {
 		const app = createServer(
 			rateLimit({

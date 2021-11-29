@@ -55,7 +55,14 @@ export type ShouldSkipMiddleware = (
 /**
  * A modified Express request handler with the rate limit functions.
  */
-export type RateLimitRequestHandler = Express.RequestHandler
+export type RateLimitRequestHandler = Express.RequestHandler & {
+	/**
+	 * Method to reset a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client
+	 */
+	resetKey: (key: string) => void
+}
 
 /**
  * An interface that all hit counter stores must implement.
@@ -331,7 +338,7 @@ const rateLimit = (
 	const options = parseOptions(passedOptions ?? {})
 
 	// Then return the actual middleware
-	return handleAsyncErrors(
+	const middleware = handleAsyncErrors(
 		async (
 			request: Express.Request,
 			response: Express.Response,
@@ -467,6 +474,13 @@ const rateLimit = (
 			next()
 		},
 	)
+
+	// Export the store's function to reset the hit counter for a particular
+	// client based on their identifier
+	;(middleware as RateLimitRequestHandler).resetKey =
+		options.store.resetKey.bind(options.store)
+
+	return middleware as RateLimitRequestHandler
 }
 
 // Export it to the world!
