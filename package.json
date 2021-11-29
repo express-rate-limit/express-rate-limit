@@ -42,8 +42,8 @@
 		"test-lib": "cross-env TS_NODE_PROJECT=test/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest",
 		"test": "run-s compile lint test-lib",
 		"view-coverage": "npx serve coverage/lcov-report",
-		"precommit": "lint-staged",
-		"prepare": "npm run build && husky install"
+		"pre-commit": "lint-staged",
+		"prepare": "npm run build && husky install config/husky"
 	},
 	"devDependencies": {
 		"@jest/globals": "^27.3.1",
