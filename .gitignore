@@ -1,3 +1,6 @@
+# /.gitignore
+# Tells Git to ignore these files
+
 /node_modules/
 dist/
 coverage/
