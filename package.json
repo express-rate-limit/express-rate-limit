@@ -31,7 +31,13 @@
 	"types": "dist/index.d.ts",
 	"type": "module",
 	"files": [
-		"dist/"
+		"dist/",
+		"tsconfig.json",
+		"package.json",
+		"package-lock.json",
+		"readme.md",
+		"license.md",
+		"changelog.md"
 	],
 	"scripts": {
 		"clean": "del-cli dist coverage",
