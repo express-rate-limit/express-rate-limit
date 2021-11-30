@@ -202,6 +202,29 @@ export interface Options {
 	 * The {@link Store} to use to store the hit count for each client.
 	 */
 	readonly store: Store
+
+	/**
+	 * The number of requests after which responses should be delayed.
+	 *
+	 * @deprecated 3.x - This functionality was moved to the [`express-slow-down` package](https://www.npmjs.com/package/express-slow-down).
+	 */
+	delayAfter?: number
+
+	/**
+	 * The time requests should by delayed by, when the client exceeds a certain
+	 * number of requests.
+	 *
+	 * @deprecated 3.x - This functionality was moved to the [`express-slow-down` package](https://www.npmjs.com/package/express-slow-down).
+	 */
+	delayMs?: number
+
+	/**
+	 * Whether the rate limiter should limit each client individually or all
+	 * requests made to the server.
+	 *
+	 * @deprecated 2.x
+	 */
+	global?: boolean
 }
 
 /**

@@ -63,12 +63,15 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 	}
 
 	// Throw an error if any deprecated options are passed
-	for (const option of ['global', 'delayMs', 'delayAfter']) {
+	const deprecatedOptions = ['global', 'delayMs', 'delayAfter'] as Array<
+		keyof Options
+	>
+	for (const option of deprecatedOptions) {
 		// This doesn't trigger if any value is set to a falsy value (e.g., 0),
 		// because that essentially disables them
-		if ((passedOptions as any)[option]) {
+		if (passedOptions[option]) {
 			throw new Error(
-				`The \`${option}\` option was removed from \`express-rate-limit\` v3.`,
+				`The \`${option}\` option is deprecated and will likely be removed from the \`express-rate-limit\` package in the future.`,
 			)
 		}
 	}
