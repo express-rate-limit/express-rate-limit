@@ -26,13 +26,24 @@ software and may be more appropriate for some situations:
 
 ## Install
 
+From NPM:
+
 ```sh
 $ npm install express-rate-limit
 ```
 
+From Github Releases:
+
+```sh
+$ npm install https://github.com/nfriedly/express-rate-limit/releases/download/v{version}/express-rate-limit.tgz
+```
+
+> Replace {version} with the version of the package that you want to your, e.g.:
+> 6.0.0.
+
 **This library (v6.0.0 or greater) is now pure ESM**. CommonJS packages will not
-be able to synchronously import this package. It is now recommended to use this
-library with Node 12 or greater. Take a look at this
+be able to synchronously import this package, and it is recommended to use the
+package with NodeJS version 12 or greater. Take a look at this
 [article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
 for more details.
 
