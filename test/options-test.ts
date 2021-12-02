@@ -36,4 +36,24 @@ describe('options test', () => {
 			})
 		}).toThrowError(/deprecated/)
 	})
+
+	it('should not throw if deprecated options are used but disabled by setting them to falsy values', async () => {
+		expect(() => {
+			rateLimit({
+				global: false,
+			})
+		}).toBeTruthy()
+
+		expect(() => {
+			rateLimit({
+				delayAfter: 0,
+			})
+		}).toBeTruthy()
+
+		expect(() => {
+			rateLimit({
+				delayMs: 0,
+			})
+		}).toBeTruthy()
+	})
 })
