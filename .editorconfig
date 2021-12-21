@@ -1,0 +1,14 @@
+# /.editorconfig
+# Tells most editors what our style preferences are
+
+root = true
+
+[*.{ts,json,md}]
+charset = utf-8
+indent_style = tab
+indent_size = 2
+
+[*.yaml]
+charset = utf-8
+indent_style = spaces
+indent_size = 2
