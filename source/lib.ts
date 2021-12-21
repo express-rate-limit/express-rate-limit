@@ -14,17 +14,10 @@ import MemoryStore from './memory-store.js'
  * @returns {Options} - A complete configuration object
  */
 const parseOptions = (passedOptions: Partial<Options>): Options => {
-	const {
-		// Default window of time is 1 minute
-		windowMs = 60 * 1000,
-		// The default storage provider used is a {@link MemoryStore}
-		store = new MemoryStore(windowMs),
-	} = passedOptions
-
 	// Now add the defaults for the other options
 	const options: Options = {
-		windowMs,
-		store,
+		windowMs: 60 * 1000,
+		store: new MemoryStore(passedOptions.windowMs ?? 60 * 1000),
 		max: 5,
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
