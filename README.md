@@ -10,9 +10,9 @@ public APIs and/or endpoints such as password reset.
 Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
-Note: this module does not share state with other processes/servers by default.
-If you need a more robust solution, I recommend using an external store. See the
-[`stores` section](#store) below for a list of external stores.
+> Note: this module does not share state with other processes/servers by
+> default. If you need a more robust solution, I recommend using an external
+> store. See the [`stores` section](#store) below for a list of external stores.
 
 ### Alternate Rate-limiters
 
@@ -38,14 +38,14 @@ From Github Releases:
 $ npm install https://github.com/nfriedly/express-rate-limit/releases/download/v{version}/express-rate-limit.tgz
 ```
 
-> Replace {version} with the version of the package that you want to your, e.g.:
-> 6.0.0.
+Replace {version} with the version of the package that you want to your, e.g.:
+6.0.0.
 
-**This library (v6.0.0 or greater) is now pure ESM**. CommonJS packages will not
-be able to synchronously import this package, and it is recommended to use the
-package with NodeJS version 12 or greater. Take a look at this
-[article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
-for more details.
+> **This library (v6.0.0 or greater) is now pure ESM**. CommonJS packages will
+> not be able to synchronously import this package, and it is recommended to use
+> the package with NodeJS version 12 or greater. Take a look at this
+> [article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
+> for more details.
 
 ## Usage
 
@@ -67,7 +67,7 @@ const limiter = rateLimit({
 app.use(limiter)
 ```
 
-For a "regular" web server (e.g. anything that uses `express.static()`), where
+For a 'regular' web server (e.g. anything that uses `express.static()`), where
 the rate-limiter should only apply to certain requests:
 
 ```js
