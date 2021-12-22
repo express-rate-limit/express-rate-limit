@@ -19,7 +19,8 @@ and this project adheres to
 
 - Rename the `draft_polli_ratelimit_headers` option to `standardHeaders`.
 - Rename the `headers` option to `legacyHeaders`.
-- `Retry-After` header is now sent if either `legacyHeaders` or `standardHeaders` is set.
+- `Retry-After` header is now sent if either `legacyHeaders` or
+  `standardHeaders` is set.
 - Change the way custom stores are defined.
   - Add the `init` method for stores to set themselves up using options passed
     to the middleware.
@@ -27,6 +28,7 @@ and this project adheres to
   - Allow the `increment`, `decrement`, `resetKey` and `resetAll` methods to
     return a promise.
   - Old stores will automatically be promisified and used.
+- The package can now only be used with NodeJS version 12.9.0 or greater.
 
 ### Removed
 
