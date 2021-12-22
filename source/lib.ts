@@ -288,7 +288,10 @@ const rateLimit = (
 			// If the client has exceeded their rate limit, set the Retry-After
 			// header and call the {@link Options.handler} function
 			if (maxHits && totalHits > maxHits) {
-				if ((options.legacyHeaders || options.standardHeaders) && !response.headersSent) {
+				if (
+					(options.legacyHeaders || options.standardHeaders) &&
+					!response.headersSent
+				) {
 					response.setHeader('Retry-After', Math.ceil(options.windowMs / 1000))
 				}
 
