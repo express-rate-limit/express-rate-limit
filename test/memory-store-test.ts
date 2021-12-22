@@ -3,11 +3,13 @@
 
 import { jest } from '@jest/globals'
 
+import { Options } from '../dist/index.js'
 import MemoryStore from '../dist/memory-store.js'
 
 describe('memory store test', () => {
 	it('sets the value to 1 on first call to `increment`', async () => {
-		const store = new MemoryStore(-1)
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
 		const { totalHits } = store.increment(key)
@@ -15,7 +17,8 @@ describe('memory store test', () => {
 	})
 
 	it('increments the key for the store when `increment` is called', async () => {
-		const store = new MemoryStore(-1)
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
 		store.increment(key)
@@ -25,7 +28,8 @@ describe('memory store test', () => {
 	})
 
 	it('resets the count for a key in the store when `resetKey` is called', async () => {
-		const store = new MemoryStore(-1)
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
 		store.increment(key)
@@ -36,7 +40,8 @@ describe('memory store test', () => {
 	})
 
 	it('resets the count for all keys in the store when `resetAll` is called', async () => {
-		const store = new MemoryStore(-1)
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
 		const keyOne = 'test-store-one'
 		const keyTwo = 'test-store-two'
 
@@ -51,7 +56,8 @@ describe('memory store test', () => {
 	})
 
 	it('resets the count for all the keys in the store when the timeout is reached', async () => {
-		const store = new MemoryStore(50)
+		const store = new MemoryStore()
+		store.init({ windowMs: 50 } as Options)
 		const keyOne = 'test-store-one'
 		const keyTwo = 'test-store-two'
 
@@ -77,7 +83,8 @@ describe('memory store test', () => {
 			return timeoutId++
 		})
 
-		const store = new MemoryStore(-1)
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
 		try {
@@ -90,7 +97,8 @@ describe('memory store test', () => {
 	})
 
 	it('decrements the key for the store when `decrement` is called', async () => {
-		const store = new MemoryStore(-1)
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
 		store.increment(key)

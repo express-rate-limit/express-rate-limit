@@ -106,6 +106,14 @@ export interface LegacyStore {
  */
 export interface Store {
 	/**
+	 * Method that initializes the store, and has access to the options passed to
+	 * the middleware too.
+	 *
+	 * @param options {Options} - The options used to setup the middleware
+	 */
+	init?: (options: Options) => void
+
+	/**
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client

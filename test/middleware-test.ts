@@ -6,7 +6,7 @@ import Express from 'express'
 import Sinon, { SinonFakeTimers } from 'sinon'
 import request from 'supertest'
 
-import rateLimit, { Store, IncrementResponse } from '../dist/index.js'
+import rateLimit, { Store, Options, IncrementResponse } from '../dist/index.js'
 
 import { createServer } from './helpers/create-server.js'
 
@@ -23,11 +23,16 @@ describe('middleware test', () => {
 	})
 
 	class MockStore implements Store {
+		initWasCalled = false
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
 
 		counter = 0
+
+		init(_options: Options): void {
+			this.initWasCalled = true
+		}
 
 		increment(_key: string): IncrementResponse {
 			this.counter += 1
@@ -57,6 +62,26 @@ describe('middleware test', () => {
 				store: new InvalidStore(),
 			})
 		}).toThrowError(/store/)
+	})
+
+	it('should call `init` even if no requests have come in', async () => {
+		const store = new MockStore()
+		rateLimit({
+			store,
+		})
+
+		expect(store.initWasCalled).toEqual(true)
+	})
+
+	it('should not call `init` if it is not a function', async () => {
+		const store = new MockStore()
+		// @ts-expect-error Check if the library can detect invalid `init` functions without TSC's help
+		store.init = 'not-a-function'
+		rateLimit({
+			store,
+		})
+
+		expect(store.initWasCalled).toEqual(false)
 	})
 
 	it('should print an error if `request.ip` is undefined', async () => {

@@ -343,7 +343,7 @@ You may also create your own store. It must implement the `Store` interface as
 follows:
 
 ```js
-import rateLimit, { Store, IncrementResponse } from 'express-rate-limit'
+import rateLimit, { Store, Options, IncrementResponse } from 'express-rate-limit'
 
 /**
  * A {@link Store} that stores the hit count for each client.
@@ -352,17 +352,36 @@ import rateLimit, { Store, IncrementResponse } from 'express-rate-limit'
  */
 class SomeStore implements Store {
 	/**
+	 * Some store-specific parameter.
+	 */
+	customParam!: string
+	/**
 	 * The duration of time before which all hit counts are reset (in milliseconds).
 	 */
-	windowMs: number
+	windowMs!: number
 
 	/**
-	 * @constructor for {@link SomeStore}
+	 * @constructor for {@link SomeStore}. Only required if the user needs to pass
+	 * some store specific parameters. For example, in a Mongo Store, the user will
+	 * need to pass the URI, username and password for the Mongo database.
 	 *
-	 * @param windowMs {number} - The duration of a window (in milliseconds)
+	 * @param customParam {string} - Some store-specific parameter.
 	 */
-	constructor(windowMs: number) {
-		this.windowMs = windowMs
+	constructor(customParam: string) {
+		this.customParam = customParam
+	}
+
+	/**
+	 * Method that actually initializes the store. Must be synchronous.
+	 *
+	 * @param options {Options} - The options used to setup the middleware.
+	 *
+	 * @public
+	 */
+	init(options: Options): void {
+		this.windowMs = options.windowMs
+
+		// ...
 	}
 
 	/**

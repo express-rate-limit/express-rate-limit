@@ -1,7 +1,7 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import { Store, IncrementResponse } from './types.js'
+import { Store, Options, IncrementResponse } from './types.js'
 
 /**
  * Calculates the time when all hit counters will be reset.
@@ -28,32 +28,32 @@ export default class MemoryStore implements Store {
 	/**
 	 * The duration of time before which all hit counts are reset (in milliseconds).
 	 */
-	windowMs: number
+	windowMs!: number
 
 	/**
 	 * The map that stores the number of hits for each client in memory.
 	 */
-	hits: { [key: string]: number | undefined }
+	hits!: { [key: string]: number | undefined }
 
 	/**
 	 * The time at which all hit counts will be reset.
 	 */
-	resetTime: Date
+	resetTime!: Date
 
 	/**
-	 * @constructor for {@link MemoryStore}
+	 * Method that initializes the store.
 	 *
-	 * @param windowMs {number} - The duration of a window (in milliseconds)
+	 * @param options {Options} - The options used to setup the middleware
 	 */
-	constructor(windowMs: number) {
-		this.windowMs = windowMs
+	init(options: Options): void {
+		this.windowMs = options.windowMs
 		this.hits = {}
-		this.resetTime = calculateNextResetTime(windowMs)
+		this.resetTime = calculateNextResetTime(this.windowMs)
 
-		// Reset hit counts for ALL clients every windowMs
+		// Reset hit counts for ALL clients every `windowMs`
 		const interval = setInterval(() => {
 			this.resetAll()
-		}, windowMs)
+		}, this.windowMs)
 		if (interval.unref) {
 			interval.unref()
 		}

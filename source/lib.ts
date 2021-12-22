@@ -14,19 +14,19 @@ import {
 import MemoryStore from './memory-store.js'
 
 /**
- * Type guard to check if a store is callbacky store.
+ * Type guard to check if a store is legacy store.
  *
  * @param store {LegacyStore | Store} - The store to check
  *
- * @return {boolean} - Whether the store is a callbacky store
+ * @return {boolean} - Whether the store is a legacy store
  */
 const isLegacyStore = (store: LegacyStore | Store): store is LegacyStore =>
 	typeof (store as LegacyStore).incr === 'function'
 
 /**
- * Converts a callbacky store to the promisified version.
+ * Converts a legacy store to the promisified version.
  *
- * @param store {LegacyStore | Store} - The callbacky store or even a modern store
+ * @param store {LegacyStore | Store} - The legacy store or even a modern store
  *
  * @returns {Store} - The promisified version of the store
  */
@@ -84,7 +84,7 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 	// Now add the defaults for the other options
 	const options: Options = {
 		windowMs: 60 * 1000,
-		store: new MemoryStore(passedOptions.windowMs ?? 60 * 1000),
+		store: new MemoryStore(),
 		max: 5,
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
@@ -185,6 +185,8 @@ const rateLimit = (
 ): RateLimitRequestHandler => {
 	// Parse the options and add the default values for unspecified options
 	const options = parseOptions(passedOptions ?? {})
+	// Call the `init` method on the store, if it exists
+	if (typeof options.store.init === 'function') options.store.init(options)
 
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
