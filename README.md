@@ -196,15 +196,15 @@ HTTP status code returned when `max` is exceeded.
 
 Defaults to `429`.
 
-### `headers`
+### `legacyHeaders`
 
 Enable headers for request limit (`X-RateLimit-Limit`) and current usage
 (`X-RateLimit-Remaining`) on all responses and time to wait before retrying
 (`Retry-After`) when `max` is exceeded.
 
-Defaults to `true`. Behavior may change in the next major release.
+Defaults to `true`.
 
-### `useStandardizedHeaders`
+### `standardHeaders`
 
 Enable headers conforming to the
 [ratelimit standardization proposal](https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html):
@@ -212,7 +212,7 @@ Enable headers conforming to the
 `RateLimit-Reset`. May be used in conjunction with, or instead of the `headers`
 option.
 
-Defaults to `false`. Behavior and name will likely change in future releases.
+Defaults to `false` (for backward compatibility), but recommended to use.
 
 ### `keyGenerator`
 
