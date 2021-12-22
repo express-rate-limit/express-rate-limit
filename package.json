@@ -46,6 +46,9 @@
 		"license.md",
 		"changelog.md"
 	],
+	"engines": {
+		"node": ">= 12.9.0"
+	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/",
 		"build:cjs": "tsc --project config/typescript/cjs.json",
