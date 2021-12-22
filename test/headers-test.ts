@@ -13,7 +13,7 @@ describe('headers test', () => {
 			rateLimit({
 				windowMs: 60 * 1000,
 				max: 5,
-				headers: true,
+				legacyHeaders: true,
 			}),
 		)
 		const expectedResetTimestamp = Math.ceil(
@@ -34,7 +34,7 @@ describe('headers test', () => {
 			rateLimit({
 				windowMs: 60 * 1000,
 				max: 5,
-				useStandardizedHeaders: true,
+				standardHeaders: true,
 			}),
 		)
 

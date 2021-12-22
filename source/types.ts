@@ -170,15 +170,15 @@ export interface Options {
 	readonly statusCode: number
 
 	/**
-	 * Whether to send custom headers with the rate limit and the number of
-	 * requests.
+	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
+	 * of requests.
 	 */
-	readonly headers: boolean
+	readonly legacyHeaders: boolean
 
 	/**
-	 * Whether to enable support for the rate limit standardization headers.
+	 * Whether to enable support for the rate limit standardization headers (`RateLimit-*`).
 	 */
-	readonly useStandardizedHeaders: boolean
+	readonly standardHeaders: boolean
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.
@@ -242,6 +242,22 @@ export interface Options {
 	 * The {@link Store} to use to store the hit count for each client.
 	 */
 	store: Store
+
+	/**
+	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
+	 * of requests.
+	 *
+	 * @deprecated 6.x - This option was renamed to `legacyHeaders`.
+	 */
+	headers?: boolean
+
+	/**
+	 * Whether to send `RateLimit-*` headers with the rate limit and the number
+	 * of requests.
+	 *
+	 * @deprecated 6.x - This option was renamed to `standardHeaders`.
+	 */
+	draft_polli_ratelimit_headers?: boolean
 
 	/**
 	 * The number of requests after which responses should be delayed.

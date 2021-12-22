@@ -35,25 +35,49 @@ describe('options test', () => {
 				delayMs: 2 * 1000,
 			})
 		}).toThrowError(/deprecated/)
+
+		expect(() => {
+			rateLimit({
+				headers: true,
+			})
+		}).toThrowError(/deprecated/)
+
+		expect(() => {
+			rateLimit({
+				draft_polli_ratelimit_headers: true, // eslint-disable-line @typescript-eslint/naming-convention
+			})
+		}).toThrowError(/deprecated/)
 	})
 
-	it('should not throw if deprecated options are used but disabled by setting them to falsy values', async () => {
+	it('should throw if deprecated options are used but disabled by setting them to falsy values', async () => {
 		expect(() => {
 			rateLimit({
 				global: false,
 			})
-		}).toBeTruthy()
+		}).toThrowError(/deprecated/)
 
 		expect(() => {
 			rateLimit({
 				delayAfter: 0,
 			})
-		}).toBeTruthy()
+		}).toThrowError(/deprecated/)
 
 		expect(() => {
 			rateLimit({
 				delayMs: 0,
 			})
-		}).toBeTruthy()
+		}).toThrowError(/deprecated/)
+
+		expect(() => {
+			rateLimit({
+				headers: false,
+			})
+		}).toThrowError(/deprecated/)
+
+		expect(() => {
+			rateLimit({
+				draft_polli_ratelimit_headers: false, // eslint-disable-line @typescript-eslint/naming-convention
+			})
+		}).toThrowError(/deprecated/)
 	})
 })

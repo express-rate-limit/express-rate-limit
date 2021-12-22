@@ -570,7 +570,7 @@ describe('middleware test', () => {
 		const app = createServer([
 			saveRequestObject,
 			rateLimit({
-				headers: false,
+				legacyHeaders: false,
 			}),
 		])
 
@@ -601,7 +601,7 @@ describe('middleware test', () => {
 		const app = createServer([
 			saveRequestObject,
 			rateLimit({
-				headers: false,
+				legacyHeaders: false,
 				requestPropertyName: 'rateLimitInfo',
 			}),
 		])

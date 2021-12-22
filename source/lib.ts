@@ -88,8 +88,8 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 		max: 5,
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
-		headers: true,
-		useStandardizedHeaders: false,
+		legacyHeaders: true,
+		standardHeaders: false,
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
@@ -127,15 +127,17 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 	}
 
 	// Throw an error if any deprecated options are passed
-	const deprecatedOptions = ['global', 'delayMs', 'delayAfter'] as Array<
-		keyof Options
-	>
+	const deprecatedOptions = [
+		'global',
+		'delayMs',
+		'delayAfter',
+		'headers',
+		'draft_polli_ratelimit_headers',
+	] as Array<keyof Options>
 	for (const option of deprecatedOptions) {
-		// This doesn't trigger if any value is set to a falsy value (e.g., 0),
-		// because that essentially disables them
-		if (passedOptions[option]) {
-			throw new Error(
-				`The \`${option}\` option is deprecated and will likely be removed from the \`express-rate-limit\` package in the future.`,
+		if (typeof passedOptions[option] !== 'undefined') {
+			throw new TypeError(
+				`The \`${option}\` option is deprecated/renamed and will likely be removed from the \`express-rate-limit\` package in the future.`,
 			)
 		}
 	}
@@ -222,7 +224,7 @@ const rateLimit = (
 			}
 
 			// Set the X-RateLimit headers on the response object if enabled
-			if (options.headers && !response.headersSent) {
+			if (options.legacyHeaders && !response.headersSent) {
 				response.setHeader('X-RateLimit-Limit', maxHits)
 				response.setHeader(
 					'X-RateLimit-Remaining',
@@ -241,7 +243,7 @@ const rateLimit = (
 
 			// Set the standardized RateLimit headers on the response object
 			// if enabled
-			if (options.useStandardizedHeaders && !response.headersSent) {
+			if (options.standardHeaders && !response.headersSent) {
 				response.setHeader('RateLimit-Limit', maxHits)
 				response.setHeader(
 					'RateLimit-Remaining',
@@ -297,7 +299,7 @@ const rateLimit = (
 			// If the client has exceeded their rate limit, set the Retry-After
 			// header and call the {@link Options.handler} function
 			if (maxHits && totalHits > maxHits) {
-				if (options.headers && !response.headersSent) {
+				if (options.legacyHeaders && !response.headersSent) {
 					response.setHeader('Retry-After', Math.ceil(options.windowMs / 1000))
 				}
 
