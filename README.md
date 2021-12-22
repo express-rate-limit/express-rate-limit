@@ -253,6 +253,8 @@ adopted by the IETF: `RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
 supports it, `RateLimit-Reset`. May be used in conjunction with, or instead of
 the `legacyHeaders` option.
 
+This setting also enables the `Retry-After` header when `max` is exceeded.
+
 Defaults to `false` (for backward compatibility), but recommended to use.
 
 > Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
