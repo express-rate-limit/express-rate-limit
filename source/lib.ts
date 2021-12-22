@@ -279,8 +279,8 @@ const rateLimit = (
 				}
 			}
 
-			// Call the {@link Options.onLimitReached} callback if
-			// the client has reached their rate limit.
+			// Call the {@link Options.onLimitReached} callback on
+			// the first request where client exceeds their rate limit.
 			if (maxHits && totalHits === maxHits + 1) {
 				options.onLimitReached(request, response, options)
 			}

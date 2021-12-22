@@ -47,8 +47,9 @@ export type RateLimitExceededEventHandler = (
 ) => void
 
 /**
- * Express request handler that sends back a response when a client has reached
- * their rate limit, and will be rate limited on their next request.
+ * Event callback that is triggered on a client's first request that exceeds the limit
+ * but not for subsequent requests. May be used for logging, etc. Should *not*
+ * send a response.
  *
  * @param request {Express.Request} - The Express request object
  * @param response {Express.Response} - The Express response object

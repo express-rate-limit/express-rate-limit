@@ -19,7 +19,7 @@ describe('headers test', () => {
 		const expectedResetTimestamp = Math.ceil(
 			(Date.now() + 60 * 1000) / 1000,
 		).toString()
-		const resetRegexp = new RegExp(`^\\d+${expectedResetTimestamp.slice(-2)}$`)
+		const resetRegexp = new RegExp(`^${expectedResetTimestamp.substr(0, expectedResetTimestamp.length - 2)}\\d\\d$`)
 
 		await request(app)
 			.get('/')
