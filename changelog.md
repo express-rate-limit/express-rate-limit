@@ -11,16 +11,26 @@ and this project adheres to
 ### Added
 
 - Better Typescript support (the library was rewritten in Typescript).
+- Export the package as both ESM and CJS.
+- Publish the built package (`.tgz` file) on GitHub releases as well as the npm
+  registry.
 
 ### Changed
 
-- **This library is now pure ESM**. CommonJS packages will not be able to
-  synchronously import this package. It is now recommended to use this library
-  with Node 12 or greater.
-- Remove the deprecated `limiter.resetIp` method.
-- Rename the `draft_polli_ratelimit_headers` option to `useStandardizedHeaders`.
+- Rename the `draft_polli_ratelimit_headers` option to `standardHeaders`.
+- Rename the `headers` option to `legacyHeaders`.
+- Change the way custom stores are defined.
+  - Add the `init` method for stores to set themselves up using options passed
+    to the middleware.
+  - Rename the `incr` method to `increment`.
+  - Allow the `increment`, `decrement`, `resetKey` and `resetAll` methods to
+    return a promise.
+  - Old stores will automatically promisified and used.
 
-### Changes
+### Removed
+
+- Remove the deprecated `limiter.resetIp` method.
+- Remove the deprecated options `delayMs`, `delayAfter` and `global`.
 
 ## [5.x](https://github.com/nfriedly/express-rate-limit/releases/tag/5.5.1)
 
