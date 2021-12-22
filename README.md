@@ -208,15 +208,19 @@ Enable headers for request limit (`X-RateLimit-Limit`) and current usage
 
 Defaults to `true`.
 
+> Renamed in `6.x` from `headers` to `legacyHeaders`.
+
 ### `standardHeaders`
 
 Enable headers conforming to the
-[ratelimit standardization proposal](https://tools.ietf.org/id/draft-polli-ratelimit-headers-01.html):
-`RateLimit-Limit`, `RateLimit-Remaining`, and, if the store supports it,
-`RateLimit-Reset`. May be used in conjunction with, or instead of the `headers`
-option.
+[ratelimit standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/main/draft-ietf-httpapi-ratelimit-headers.md)
+adopted by the IETF: `RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
+supports it, `RateLimit-Reset`. May be used in conjunction with, or instead of
+the `legacyHeaders` option.
 
 Defaults to `false` (for backward compatibility), but recommended to use.
+
+> Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
 
 ### `keyGenerator`
 

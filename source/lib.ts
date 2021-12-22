@@ -88,8 +88,8 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 		max: 5,
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
-		legacyHeaders: true,
-		standardHeaders: false,
+		legacyHeaders: passedOptions.headers ?? true,
+		standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
@@ -124,23 +124,6 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 	} else {
 		// Promisify the store, if it is not already
 		options.store = promisifyStore(options.store)
-	}
-
-	// Throw an error if any deprecated options are passed
-	const deprecatedOptions = {
-		headers: 'The `header` option was renamed to `legacyHeaders` in v6.x',
-		// eslint-disable-next-line @typescript-eslint/naming-convention
-		draft_polli_ratelimit_headers:
-			'The `draft_polli_ratelimit_headers` option was renamed to `standardHeaders` in v6.x',
-	}
-	for (const [option, deprecationMessage] of Object.entries(
-		deprecatedOptions,
-	)) {
-		if (typeof (passedOptions as any)[option] !== 'undefined') {
-			throw new TypeError(
-				`ERROR | \`express-rate-limit\` | ${deprecationMessage}`,
-			)
-		}
 	}
 
 	// Return the 'clean' options

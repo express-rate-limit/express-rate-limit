@@ -55,19 +55,6 @@ describe('middleware test', () => {
 		}
 	}
 
-	it('should not allow the use of an invalid store', async () => {
-		class InvalidStore {
-			invalid = true
-		}
-
-		expect(() => {
-			rateLimit({
-				// @ts-expect-error Check if the library can detect invalid stores without TSC's help
-				store: new InvalidStore(),
-			})
-		}).toThrowError(/store/)
-	})
-
 	it('should call `init` even if no requests have come in', async () => {
 		const store = new MockStore()
 		rateLimit({

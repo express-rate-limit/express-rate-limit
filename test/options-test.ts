@@ -1,7 +1,11 @@
 // /test/options-test.ts
 // Tests parsing/handling of options passed in by the user
 
-import rateLimit from '../dist/esm/index.js'
+import rateLimit, {
+	Store,
+	Options,
+	IncrementResponse,
+} from '../dist/esm/index.js'
 
 describe('options test', () => {
 	it('should not allow the use of an invalid store', async () => {
@@ -17,31 +21,31 @@ describe('options test', () => {
 		}).toThrowError(/store/)
 	})
 
-	it('should not allow the use of deprecated options', async () => {
-		expect(() => {
-			rateLimit({
-				headers: true,
-			})
-		}).toThrowError(/renamed/)
+	it('should allow the use of pre-6.x headers options', async () => {
+		class MockStore implements Store {
+			options!: Options
 
-		expect(() => {
-			rateLimit({
-				draft_polli_ratelimit_headers: true, // eslint-disable-line @typescript-eslint/naming-convention
-			})
-		}).toThrowError(/renamed/)
-	})
+			init(options: Options): void {
+				this.options = options
+			}
 
-	it('should throw if deprecated options are used but disabled by setting them to falsy values', async () => {
-		expect(() => {
-			rateLimit({
-				headers: false,
-			})
-		}).toThrowError(/renamed/)
+			increment(_key: string): IncrementResponse {
+				return { totalHits: 1, resetTime: undefined }
+			}
 
-		expect(() => {
-			rateLimit({
-				draft_polli_ratelimit_headers: false, // eslint-disable-line @typescript-eslint/naming-convention
-			})
-		}).toThrowError(/renamed/)
+			decrement(_key: string): void {}
+
+			resetKey(_key: string): void {}
+		}
+
+		const store = new MockStore()
+		rateLimit({
+			store,
+			headers: false,
+			draft_polli_ratelimit_headers: true, // eslint-disable-line @typescript-eslint/naming-convention
+		})
+
+		expect(store.options.headers).toEqual(false)
+		expect(store.options.draft_polli_ratelimit_headers).toEqual(true)
 	})
 })
