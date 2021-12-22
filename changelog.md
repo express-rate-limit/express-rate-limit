@@ -25,7 +25,7 @@ and this project adheres to
   - Rename the `incr` method to `increment`.
   - Allow the `increment`, `decrement`, `resetKey` and `resetAll` methods to
     return a promise.
-  - Old stores will automatically promisified and used.
+  - Old stores will automatically be promisified and used.
 
 ### Removed
 
