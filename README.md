@@ -343,7 +343,7 @@ You may also create your own store. It must implement the `Store` interface as
 follows:
 
 ```js
-import rateLimit, { Store, IncrementCallback } from 'express-rate-limit'
+import rateLimit, { Store, IncrementResponse } from 'express-rate-limit'
 
 /**
  * A {@link Store} that stores the hit count for each client.
@@ -369,14 +369,18 @@ class SomeStore implements Store {
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
-	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented
+	 *
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client
 	 *
 	 * @public
 	 */
-	increment(key: string, callback: IncrementCallback) {
+	async increment(key: string): Promise<IncrementResponse> {
 		// ...
 
-		callback(undefined, total, resetTime)
+		return {
+			totalHits,
+			resetTime,
+		}
 	}
 
 	/**
@@ -386,7 +390,7 @@ class SomeStore implements Store {
 	 *
 	 * @public
 	 */
-	decrement(key: string) {
+	async decrement(key: string): Promise<void> {
 		// ...
 	}
 
@@ -397,7 +401,7 @@ class SomeStore implements Store {
 	 *
 	 * @public
 	 */
-	resetKey(key: string) {
+	async resetKey(key: string): Promise<void> {
 		// ...
 	}
 
@@ -406,7 +410,7 @@ class SomeStore implements Store {
 	 *
 	 * @public
 	 */
-	resetAll() {
+	async resetAll(): Promise<void> {
 		// ...
 	}
 }
