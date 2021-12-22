@@ -271,9 +271,9 @@ const keyGenerator = (request /*, response*/) => request.ip
 
 The function to handle requests once the max limit is exceeded. It receives the
 `request` and the `response` objects. The `next` param is available if you need
-to pass to the next middleware/route. Finally, the options param has all of the
-options that originally passed in when creating the current limiter and the
-default values for other options.
+to pass to the next middleware/route. Finally, the `optionsUsed` param has all
+of the options that originally passed in when creating the current limiter and
+the default values for other options.
 
 The `request.rateLimit` object has `limit`, `current`, and `remaining` number of
 requests and, if the store provides it, a `resetTime` Date object.
@@ -281,7 +281,7 @@ requests and, if the store provides it, a `resetTime` Date object.
 Defaults to:
 
 ```js
-const handler = (request, response, options) => {
+const handler = (request, response, next, optionsUsed) => {
 	response.status(options.statusCode).send(options.message)
 }
 ```
@@ -299,7 +299,7 @@ reset `resetTime`.
 Default is an empty function:
 
 ```js
-const onLimitReached = (request, response, options) => {}
+const onLimitReached = (request, response, optionsUsed) => {}
 ```
 
 ### `requestWasSuccessful`

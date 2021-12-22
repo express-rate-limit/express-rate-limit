@@ -31,13 +31,30 @@ export type ValueDeterminingMiddleware<T> = (
 ) => T | Promise<T>
 
 /**
- * Callback that is fired when a rate-limit related event occurs
+ * Express request handler that sends back a response when a client is
+ * rate-limited.
+ *
+ * @param request {Express.Request} - The Express request object
+ * @param response {Express.Response} - The Express response object
+ * @param next {Express.NextFunction} - The Express `next` function, can be called to skip responding
+ * @param optionsUsed {Options} - The options used to set up the middleware
+ */
+export type RateLimitExceededEventHandler = (
+	request: Express.Request,
+	response: Express.Response,
+	next: Express.NextFunction,
+	optionsUsed: Options,
+) => void
+
+/**
+ * Express request handler that sends back a response when a client has reached
+ * their rate limit, and will be rate limited on their next request.
  *
  * @param request {Express.Request} - The Express request object
  * @param response {Express.Response} - The Express response object
  * @param optionsUsed {Options} - The options used to set up the middleware
  */
-export type RateLimitEventCallback = (
+export type RateLimitReachedEventHandler = (
 	request: Express.Request,
 	response: Express.Response,
 	optionsUsed: Options,
@@ -224,13 +241,13 @@ export interface Options {
 	 * Express request handler that sends back a response when a client is
 	 * rate-limited.
 	 */
-	readonly handler: RateLimitEventCallback
+	readonly handler: RateLimitExceededEventHandler
 
 	/**
 	 * Express request handler that sends back a response when a client has
 	 * reached their rate limit, and will be rate limited on their next request.
 	 */
-	readonly onLimitReached: RateLimitEventCallback
+	readonly onLimitReached: RateLimitReachedEventHandler
 
 	/**
 	 * The {@link Store} to use to store the hit count for each client.

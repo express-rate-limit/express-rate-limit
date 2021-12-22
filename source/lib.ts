@@ -97,7 +97,7 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
 		requestWasSuccessful: (_request, response) => response.statusCode < 400,
-		keyGenerator: (request) => {
+		keyGenerator: (request, _response) => {
 			if (!request.ip) {
 				console.error(
 					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
@@ -106,10 +106,10 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 
 			return request.ip
 		},
-		skip: () => false,
-		handler: (_request, response, _optionsUsed: Options) =>
+		skip: (_request, _response) => false,
+		handler: (_request, response, _next, _optionsUsed) =>
 			response.status(options.statusCode).send(options.message),
-		onLimitReached: () => {},
+		onLimitReached: (_request, _response, _optionsUsed) => {},
 		...passedOptions,
 	}
 
@@ -292,7 +292,7 @@ const rateLimit = (
 					response.setHeader('Retry-After', Math.ceil(options.windowMs / 1000))
 				}
 
-				options.handler(request, response, options)
+				options.handler(request, response, next, options)
 				return
 			}
 
