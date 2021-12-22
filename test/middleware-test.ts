@@ -6,7 +6,7 @@ import Express from 'express'
 import Sinon, { SinonFakeTimers } from 'sinon'
 import request from 'supertest'
 
-import rateLimit, { IncrementCallback, Store } from '../dist/index.js'
+import rateLimit, { Store, IncrementResponse } from '../dist/index.js'
 
 import { createServer } from './helpers/create-server.js'
 
@@ -29,11 +29,11 @@ describe('middleware test', () => {
 
 		counter = 0
 
-		increment(_key: string, callback: IncrementCallback): void {
+		increment(_key: string): IncrementResponse {
 			this.counter += 1
 			this.incrementWasCalled = true
 
-			callback(undefined, this.counter, undefined)
+			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		decrement(_key: string): void {
@@ -63,7 +63,6 @@ describe('middleware test', () => {
 		jest.spyOn(global.console, 'error').mockImplementation(() => {})
 
 		await Promise.resolve(
-			// eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
 			rateLimit()(
 				{ ip: undefined } as any as Express.Request,
 				{} as any as Express.Response,

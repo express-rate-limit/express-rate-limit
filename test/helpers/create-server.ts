@@ -18,20 +18,24 @@ export const createServer = (
 
 	// Use the middleware
 	app.use(middleware)
-	// Register test routes
-	app.all('/', (_request, response) => {
-		response.send('Hi there!')
-	})
-	app.get('/error', (_request, response) => {
-		response.sendStatus(400)
-	})
-	app.post('/crash', (_request, response) => {
-		response.on('error', () => {
-			response.end()
-		})
 
-		response.emit('error', new Error('Oops!'))
-	})
+	// Register test routes
+	app.all('/', (_request: Express.Request, response: Express.Response) =>
+		response.send('Hi there!'),
+	)
+	app.get('/error', (_request: Express.Request, response: Express.Response) =>
+		response.sendStatus(400),
+	)
+	app.post(
+		'/crash',
+		(_request: Express.Request, response: Express.Response) => {
+			response.on('error', () => {
+				response.end()
+			})
+
+			response.emit('error', new Error('Oops!'))
+		},
+	)
 
 	// Return the application instance
 	return app

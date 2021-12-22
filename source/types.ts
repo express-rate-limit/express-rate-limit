@@ -7,14 +7,12 @@ import Express from 'express'
  * Callback that fires when a client's hit counter is incremented.
  *
  * @param error {Error | undefined} - The error that occurred, if any
- * @param hit {number} - The number of hits for that client so far
+ * @param totalHits {number} - The number of hits for that client so far
  * @param resetTime {Date | undefined} - The time when the counter resets
- *
- * @public
  */
 export type IncrementCallback = (
 	error: Error | undefined,
-	hit: number,
+	totalHits: number,
 	resetTime: Date | undefined,
 ) => void
 
@@ -26,8 +24,6 @@ export type IncrementCallback = (
  * @param response {Express.Response} - The Express response object
  *
  * @returns {string} - The string used to identify the client
- *
- * @public
  */
 export type KeyGeneratingMiddleware = (
 	request: Express.Request,
@@ -42,13 +38,22 @@ export type KeyGeneratingMiddleware = (
  * @param response {Express.Response} - The Express response object
  *
  * @returns {boolean} - Whether or not this request counts towards the quota
- *
- * @public
  */
 export type ShouldSkipMiddleware = (
 	request: Express.Request,
 	response: Express.Response,
 ) => boolean | Promise<boolean>
+
+/**
+ * Data returned from the `Store` when a client's hit counter is incremented.
+ *
+ * @property totalHits {number} - The number of hits for that client so far
+ * @property resetTime {Date | undefined} - The time when the counter resets
+ */
+export type IncrementResponse = {
+	totalHits: number
+	resetTime: Date | undefined
+}
 
 /**
  * A modified Express request handler with the rate limit functions.
@@ -64,15 +69,17 @@ export type RateLimitRequestHandler = Express.RequestHandler & {
 
 /**
  * An interface that all hit counter stores must implement.
+ *
+ * @deprecated 6.x - Implement the `Store` interface instead.
  */
-export interface Store {
+export interface LegacyStore {
 	/**
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
 	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented
 	 */
-	increment: (key: string, callback: IncrementCallback) => void
+	incr: (key: string, callback: IncrementCallback) => void
 
 	/**
 	 * Method to decrement a client's hit counter.
@@ -95,11 +102,44 @@ export interface Store {
 }
 
 /**
+ * An interface that all hit counter stores must implement.
+ */
+export interface Store {
+	/**
+	 * Method to increment a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client
+	 *
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client
+	 */
+	increment: (key: string) => Promise<IncrementResponse> | IncrementResponse
+
+	/**
+	 * Method to decrement a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client
+	 */
+	decrement: (key: string) => Promise<void> | void
+
+	/**
+	 * Method to reset a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client
+	 */
+	resetKey: (key: string) => Promise<void> | void
+
+	/**
+	 * Method to reset everyone's hit counter.
+	 */
+	resetAll?: () => Promise<void> | void
+}
+
+/**
  * The configuration options for the rate limiter.
  */
 export interface Options {
 	/**
-	 * How long we should remember the requests
+	 * How long we should remember the requests.
 	 */
 	readonly windowMs: number
 
@@ -201,7 +241,7 @@ export interface Options {
 	/**
 	 * The {@link Store} to use to store the hit count for each client.
 	 */
-	readonly store: Store
+	store: Store
 
 	/**
 	 * The number of requests after which responses should be delayed.

@@ -3,8 +3,75 @@
 
 import Express from 'express'
 
-import { Options, AugmentedRequest, RateLimitRequestHandler } from './types.js'
+import {
+	Options,
+	AugmentedRequest,
+	RateLimitRequestHandler,
+	LegacyStore,
+	Store,
+	IncrementResponse,
+} from './types.js'
 import MemoryStore from './memory-store.js'
+
+/**
+ * Type guard to check if a store is callbacky store.
+ *
+ * @param store {LegacyStore | Store} - The store to check
+ *
+ * @return {boolean} - Whether the store is a callbacky store
+ */
+const isLegacyStore = (store: LegacyStore | Store): store is LegacyStore =>
+	typeof (store as LegacyStore).incr === 'function'
+
+/**
+ * Converts a callbacky store to the promisified version.
+ *
+ * @param store {LegacyStore | Store} - The callbacky store or even a modern store
+ *
+ * @returns {Store} - The promisified version of the store
+ */
+const promisifyStore = (passedStore: LegacyStore | Store): Store => {
+	if (!isLegacyStore(passedStore)) {
+		// It's not an old store, return as is
+		return passedStore
+	}
+
+	// Why can't Typescript understand this?
+	const legacyStore = passedStore
+
+	class PromisifiedStore implements Store {
+		async increment(key: string): Promise<IncrementResponse> {
+			return new Promise((resolve, reject) => {
+				legacyStore.incr(
+					key,
+					(
+						error: Error | undefined,
+						totalHits: number,
+						resetTime: Date | undefined,
+					) => {
+						if (error) reject(error)
+						resolve({ totalHits, resetTime })
+					},
+				)
+			})
+		}
+
+		async decrement(key: string): Promise<void> {
+			return Promise.resolve(legacyStore.decrement(key))
+		}
+
+		async resetKey(key: string): Promise<void> {
+			return Promise.resolve(legacyStore.resetKey(key))
+		}
+
+		async resetAll(): Promise<void> {
+			if (typeof legacyStore.resetAll === 'function')
+				return Promise.resolve(legacyStore.resetAll())
+		}
+	}
+
+	return new PromisifiedStore()
+}
 
 /**
  * Adds the defaults for options the user has not specified.
@@ -43,7 +110,8 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 		...passedOptions,
 	}
 
-	// Ensure that the store passed implements the {@link Store} interface
+	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
+	// interface
 	if (
 		typeof options.store.increment !== 'function' ||
 		typeof options.store.resetKey !== 'function' ||
@@ -53,6 +121,9 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 		throw new Error(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
 		)
+	} else {
+		// Promisify the store, if it is not already
+		options.store = promisifyStore(options.store)
 	}
 
 	// Throw an error if any deprecated options are passed
@@ -91,7 +162,6 @@ const handleAsyncErrors =
 		next: Express.NextFunction,
 	) => {
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
 			await Promise.resolve(fn(request, response, next)).catch(next)
 		} catch (error: unknown) {
 			next(error)
@@ -134,22 +204,7 @@ const rateLimit = (
 			// Get a unique key for the client
 			const key = await Promise.resolve(options.keyGenerator(request, response))
 			// Increment the client's hit counter by one
-			const { totalHits, resetTime } = await new Promise<{
-				totalHits: number
-				resetTime: Date | undefined
-			}>((resolve, reject) => {
-				options.store.increment(
-					key,
-					(
-						error: Error | undefined,
-						totalHits: number,
-						resetTime: Date | undefined,
-					) => {
-						if (error) reject(error)
-						resolve({ totalHits, resetTime })
-					},
-				)
-			})
+			const { totalHits, resetTime } = await options.store.increment(key)
 
 			// Get the quota (max number of hits) for each client
 			const retrieveQuota =
@@ -205,28 +260,30 @@ const rateLimit = (
 			// counter accordingly once we know the status code of the request
 			if (options.skipFailedRequests || options.skipSuccessfulRequests) {
 				let decremented = false
-				const decrementKey = () => {
+				const decrementKey = async () => {
 					if (!decremented) {
-						options.store.decrement(key)
+						await options.store.decrement(key)
 						decremented = true
 					}
 				}
 
 				if (options.skipFailedRequests) {
-					response.on('finish', () => {
-						if (!options.requestWasSuccessful(request, response)) decrementKey()
+					response.on('finish', async () => {
+						if (!options.requestWasSuccessful(request, response))
+							await decrementKey()
 					})
-					response.on('close', () => {
-						if (!response.writableEnded) decrementKey()
+					response.on('close', async () => {
+						if (!response.writableEnded) await decrementKey()
 					})
-					response.on('error', () => {
-						decrementKey()
+					response.on('error', async () => {
+						await decrementKey()
 					})
 				}
 
 				if (options.skipSuccessfulRequests) {
-					response.on('finish', () => {
-						if (options.requestWasSuccessful(request, response)) decrementKey()
+					response.on('finish', async () => {
+						if (options.requestWasSuccessful(request, response))
+							await decrementKey()
 					})
 				}
 			}

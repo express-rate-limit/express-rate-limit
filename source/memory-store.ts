@@ -1,7 +1,7 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import { Store, IncrementCallback } from '.'
+import { Store, IncrementResponse } from './types.js'
 
 /**
  * Calculates the time when all hit counters will be reset.
@@ -63,15 +63,19 @@ export default class MemoryStore implements Store {
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
-	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented
+	 *
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client
 	 *
 	 * @public
 	 */
-	increment(key: string, callback: IncrementCallback) {
-		const current = (this.hits[key] ?? 0) + 1
-		this.hits[key] = current
+	increment(key: string): IncrementResponse {
+		const totalHits = (this.hits[key] ?? 0) + 1
+		this.hits[key] = totalHits
 
-		callback(undefined, current, this.resetTime)
+		return {
+			totalHits,
+			resetTime: this.resetTime,
+		}
 	}
 
 	/**
@@ -81,7 +85,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	decrement(key: string) {
+	decrement(key: string): void {
 		const current = this.hits[key]
 		if (current) {
 			this.hits[key] = current - 1
@@ -95,7 +99,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	resetKey(key: string) {
+	resetKey(key: string): void {
 		delete this.hits[key]
 	}
 
@@ -104,7 +108,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	resetAll() {
+	resetAll(): void {
 		this.hits = {}
 		this.resetTime = calculateNextResetTime(this.windowMs)
 	}
