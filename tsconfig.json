@@ -1,25 +1,18 @@
-// /tsconfig.json
-// Base Typescript compiler configuration
-
 {
 	"compilerOptions": {
-		// Compilation options
 		"declaration": true,
 		"sourceMap": true,
 
-		// Type checking options
 		"strict": true,
 		"noUnusedLocals": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 
-		// Module resolution options
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 
-		// Source map options
 		"inlineSources": true
 	},
-	"include": ["source/**/*.ts"],
-	"exclude": ["node_modules"]
+	"include": ["./source/**/*.ts"],
+	"exclude": ["./node_modules"]
 }
