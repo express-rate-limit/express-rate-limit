@@ -183,7 +183,7 @@ const rateLimit = (
 			next: Express.NextFunction,
 		) => {
 			// First check if we should skip the request
-			const skip = await Promise.resolve(options.skip(request, response))
+			const skip = await options.skip(request, response)
 			if (skip) {
 				next()
 				return
@@ -193,7 +193,7 @@ const rateLimit = (
 			const augmentedRequest = request as AugmentedRequest
 
 			// Get a unique key for the client
-			const key = await Promise.resolve(options.keyGenerator(request, response))
+			const key = await options.keyGenerator(request, response)
 			// Increment the client's hit counter by one
 			const { totalHits, resetTime } = await options.store.increment(key)
 
@@ -203,7 +203,7 @@ const rateLimit = (
 					? options.max(request, response)
 					: options.max
 
-			const maxHits = await Promise.resolve(retrieveQuota)
+			const maxHits = await retrieveQuota
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[options.requestPropertyName] = {
 				limit: maxHits,
