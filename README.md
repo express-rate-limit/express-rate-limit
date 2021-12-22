@@ -47,15 +47,25 @@ From Github Releases:
 Replace `{version}` with the version of the package that you want to your, e.g.:
 `6.0.0`.
 
-> **This library (v6.0.0 or greater) is now pure ESM**. CommonJS packages will
-> not be able to synchronously import this package, and it is recommended to use
-> the package with NodeJS version 12 or greater. Take a look at this
-> [article](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
-> for more details.
-
 ## Usage
 
-For an API-only server where the rate-limiter should be applied to all requests:
+This library is provided in ESM as well as CJS forms. To import it in a CJS
+project:
+
+```
+const rateLimit = require('express-rate-limit')
+```
+
+To import it in a Typescript/ESM project:
+
+```
+import rateLimit from 'express-rate-limit'
+```
+
+### Examples
+
+To use it in an API-only server where the rate-limiter should be applied to all
+requests:
 
 ```js
 import rateLimit from 'express-rate-limit'
@@ -75,8 +85,9 @@ const limiter = rateLimit({
 app.use(limiter)
 ```
 
-For a 'regular' web server (e.g. anything that uses `express.static()`), where
-the rate-limiter should only apply to certain requests:
+To use it in a 'regular' web server (e.g. anything that uses
+`express.static()`), where the rate-limiter should only apply to certain
+requests:
 
 ```js
 import rateLimit from 'express-rate-limit'
@@ -96,7 +107,7 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter)
 ```
 
-Create multiple instances to apply different rules to different routes:
+To create multiple instances to apply different rules to different endpoints:
 
 ```js
 import rateLimit from 'express-rate-limit'
@@ -126,6 +137,27 @@ const createAccountLimiter = rateLimit({
 app.post('/create-account', createAccountLimiter, (request, response) => {
 	//...
 })
+```
+
+To use a custom store:
+
+```js
+import rateLimit from 'express-rate-limit'
+import MemoryStore from 'express-rate-limit/memory-store.js'
+
+// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+// see https://expressjs.com/en/guide/behind-proxies.html
+// app.set('trust proxy', 1);
+
+const apiLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	store: new MemoryStore(),
+})
+
+// Apply the rate limiting middleware to API calls only
+app.use('/api', apiLimiter)
 ```
 
 > **Note:** most stores will require additional configuration, such as custom
