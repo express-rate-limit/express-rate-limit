@@ -20,64 +20,28 @@ describe('options test', () => {
 	it('should not allow the use of deprecated options', async () => {
 		expect(() => {
 			rateLimit({
-				global: true,
-			})
-		}).toThrowError(/deprecated/)
-
-		expect(() => {
-			rateLimit({
-				delayAfter: 2,
-			})
-		}).toThrowError(/deprecated/)
-
-		expect(() => {
-			rateLimit({
-				delayMs: 2 * 1000,
-			})
-		}).toThrowError(/deprecated/)
-
-		expect(() => {
-			rateLimit({
 				headers: true,
 			})
-		}).toThrowError(/deprecated/)
+		}).toThrowError(/renamed/)
 
 		expect(() => {
 			rateLimit({
 				draft_polli_ratelimit_headers: true, // eslint-disable-line @typescript-eslint/naming-convention
 			})
-		}).toThrowError(/deprecated/)
+		}).toThrowError(/renamed/)
 	})
 
 	it('should throw if deprecated options are used but disabled by setting them to falsy values', async () => {
 		expect(() => {
 			rateLimit({
-				global: false,
-			})
-		}).toThrowError(/deprecated/)
-
-		expect(() => {
-			rateLimit({
-				delayAfter: 0,
-			})
-		}).toThrowError(/deprecated/)
-
-		expect(() => {
-			rateLimit({
-				delayMs: 0,
-			})
-		}).toThrowError(/deprecated/)
-
-		expect(() => {
-			rateLimit({
 				headers: false,
 			})
-		}).toThrowError(/deprecated/)
+		}).toThrowError(/renamed/)
 
 		expect(() => {
 			rateLimit({
 				draft_polli_ratelimit_headers: false, // eslint-disable-line @typescript-eslint/naming-convention
 			})
-		}).toThrowError(/deprecated/)
+		}).toThrowError(/renamed/)
 	})
 })

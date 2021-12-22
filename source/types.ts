@@ -17,32 +17,31 @@ export type IncrementCallback = (
 ) => void
 
 /**
- * Method (in the form of middleware) to generate custom identifiers for
- * clients.
+ * Method (in the form of middleware) to generate/retrieve a value based on the
+ * incoming request
  *
  * @param request {Express.Request} - The Express request object
  * @param response {Express.Response} - The Express response object
  *
- * @returns {string} - The string used to identify the client
+ * @returns {T} - The value needed
  */
-export type KeyGeneratingMiddleware = (
+export type ValueDeterminingMiddleware<T> = (
 	request: Express.Request,
 	response: Express.Response,
-) => string | Promise<string>
+) => T | Promise<T>
 
 /**
- * Method (in the form of middleware) to determine whether or not this request
- * counts towards a client's quota.
+ * Callback that is fired when a rate-limit related event occurs
  *
  * @param request {Express.Request} - The Express request object
  * @param response {Express.Response} - The Express response object
- *
- * @returns {boolean} - Whether or not this request counts towards the quota
+ * @param optionsUsed {Options} - The options used to set up the middleware
  */
-export type ShouldSkipMiddleware = (
+export type RateLimitEventCallback = (
 	request: Express.Request,
 	response: Express.Response,
-) => boolean | Promise<boolean>
+	optionsUsed: Options,
+) => void
 
 /**
  * Data returned from the `Store` when a client's hit counter is incremented.
@@ -158,12 +157,7 @@ export interface Options {
 	 * Can be the limit itself as a number or express middleware that parses
 	 * the request and then figures out the limit.
 	 */
-	readonly max:
-		| number
-		| ((
-				request: Express.Request,
-				response: Express.Response,
-		  ) => number | Promise<number>)
+	readonly max: number | ValueDeterminingMiddleware<number>
 
 	/**
 	 * The response body to send back when a client is rate limited.
@@ -211,40 +205,32 @@ export interface Options {
 	 * Method to determine whether or not the request counts as 'succesful'. Used
 	 * when either `skipSuccessfulRequests` or `skipFailedRequests` is set to true.
 	 */
-	readonly requestWasSuccessful: ShouldSkipMiddleware
+	readonly requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 
 	/**
 	 * Method to generate custom identifiers for clients.
 	 *
 	 * By default, the client's IP address is used.
 	 */
-	readonly keyGenerator: KeyGeneratingMiddleware
+	readonly keyGenerator: ValueDeterminingMiddleware<string>
 
 	/**
 	 * Method (in the form of middleware) to determine whether or not this request
 	 * counts towards a client's quota.
 	 */
-	readonly skip: ShouldSkipMiddleware
+	readonly skip: ValueDeterminingMiddleware<boolean>
 
 	/**
 	 * Express request handler that sends back a response when a client is
 	 * rate-limited.
 	 */
-	readonly handler: (
-		request: Express.Request,
-		response: Express.Response,
-		optionsUsed: Options,
-	) => void
+	readonly handler: RateLimitEventCallback
 
 	/**
 	 * Express request handler that sends back a response when a client has
-	 * reached their rate limit.
+	 * reached their rate limit, and will be rate limited on their next request.
 	 */
-	readonly onLimitReached: (
-		request: Express.Request,
-		response: Express.Response,
-		optionsUsed: Options,
-	) => void
+	readonly onLimitReached: RateLimitEventCallback
 
 	/**
 	 * The {@link Store} to use to store the hit count for each client.
@@ -266,29 +252,6 @@ export interface Options {
 	 * @deprecated 6.x - This option was renamed to `standardHeaders`.
 	 */
 	draft_polli_ratelimit_headers?: boolean
-
-	/**
-	 * The number of requests after which responses should be delayed.
-	 *
-	 * @deprecated 3.x - This functionality was moved to the [`express-slow-down` package](https://www.npmjs.com/package/express-slow-down).
-	 */
-	delayAfter?: number
-
-	/**
-	 * The time requests should by delayed by, when the client exceeds a certain
-	 * number of requests.
-	 *
-	 * @deprecated 3.x - This functionality was moved to the [`express-slow-down` package](https://www.npmjs.com/package/express-slow-down).
-	 */
-	delayMs?: number
-
-	/**
-	 * Whether the rate limiter should limit each client individually or all
-	 * requests made to the server.
-	 *
-	 * @deprecated 2.x
-	 */
-	global?: boolean
 }
 
 /**

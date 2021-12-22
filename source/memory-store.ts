@@ -33,7 +33,9 @@ export default class MemoryStore implements Store {
 	/**
 	 * The map that stores the number of hits for each client in memory.
 	 */
-	hits!: { [key: string]: number | undefined }
+	hits!: {
+		[key: string]: number | undefined
+	}
 
 	/**
 	 * The time at which all hit counts will be reset.

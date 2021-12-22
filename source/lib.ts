@@ -127,17 +127,18 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 	}
 
 	// Throw an error if any deprecated options are passed
-	const deprecatedOptions = [
-		'global',
-		'delayMs',
-		'delayAfter',
-		'headers',
-		'draft_polli_ratelimit_headers',
-	] as Array<keyof Options>
-	for (const option of deprecatedOptions) {
-		if (typeof passedOptions[option] !== 'undefined') {
+	const deprecatedOptions = {
+		headers: 'The `header` option was renamed to `legacyHeaders` in v6.x',
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+		draft_polli_ratelimit_headers:
+			'The `draft_polli_ratelimit_headers` option was renamed to `standardHeaders` in v6.x',
+	}
+	for (const [option, deprecationMessage] of Object.entries(
+		deprecatedOptions,
+	)) {
+		if (typeof (passedOptions as any)[option] !== 'undefined') {
 			throw new TypeError(
-				`The \`${option}\` option is deprecated/renamed and will likely be removed from the \`express-rate-limit\` package in the future.`,
+				`ERROR | \`express-rate-limit\` | ${deprecationMessage}`,
 			)
 		}
 	}
