@@ -21,7 +21,10 @@ import MemoryStore from './memory-store.js'
  * @return {boolean} - Whether the store is a legacy store
  */
 const isLegacyStore = (store: LegacyStore | Store): store is LegacyStore =>
-	typeof (store as LegacyStore).incr === 'function'
+	// Check that `incr` exists but `increment` does not - store authors might want
+	// to keep both around for backwards compatibility.
+	typeof (store as any).incr === 'function' &&
+	typeof (store as any).increment !== 'function'
 
 /**
  * Converts a legacy store to the promisified version.
