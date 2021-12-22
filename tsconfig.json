@@ -1,14 +1,11 @@
 // /tsconfig.json
-// Typescript compiler configuration
+// Base Typescript compiler configuration
 
 {
 	"compilerOptions": {
 		// Compilation options
-		"target": "es2019",
-		"module": "esnext",
 		"declaration": true,
 		"sourceMap": true,
-		"outDir": "./dist",
 
 		// Type checking options
 		"strict": true,

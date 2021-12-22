@@ -1,6 +1,6 @@
 {
 	"name": "express-rate-limit",
-	"version": "v6.0.0-alpha.0",
+	"version": "6.0.0",
 	"description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
 	"author": {
 		"name": "Nathan Friedly",
@@ -27,7 +27,14 @@
 		"brute-force",
 		"attack"
 	],
-	"main": "dist/index.js",
+	"module": "dist/esm/index.js",
+	"main": "dist/cjs/index.js",
+	"exports": {
+		".": {
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
+		}
+	},
 	"types": "dist/index.d.ts",
 	"type": "module",
 	"files": [
@@ -41,15 +48,17 @@
 	],
 	"scripts": {
 		"clean": "del-cli dist/ coverage/",
-		"build": "tsc",
+		"build:cjs": "tsc --project config/tsconfig/cjs.json",
+		"build:esm": "tsc --project config/tsconfig/esm.json",
+		"build": "run-p build:*",
 		"compile": "run-s clean build",
 		"lint": "xo",
 		"autofix": "xo --fix",
-		"test-lib": "cross-env TS_NODE_PROJECT=test/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-lib": "cross-env TS_NODE_PROJECT=config/tsconfig/test.json NODE_OPTIONS=--experimental-vm-modules jest",
 		"test": "run-s compile lint test-lib",
 		"view-coverage": "npx serve coverage/lcov-report",
 		"pre-commit": "lint-staged",
-		"prepare": "npm run build && husky install config/husky"
+		"prepare": "npm run compile && husky install config/husky"
 	},
 	"peerDependencies": {
 		"express": "^4"
@@ -106,7 +115,7 @@
 		},
 		"collectCoverage": true,
 		"collectCoverageFrom": [
-			"dist/**/*.js"
+			"dist/esm/*.js"
 		],
 		"testTimeout": 30000,
 		"testMatch": [
@@ -124,6 +133,7 @@
 		}
 	},
 	"lint-staged": {
-		"{source,test}/**/*.ts": "xo --fix"
+		"{source,test}/**/*.ts": "xo --fix",
+		"**/*.{json,yaml,md}": "prettier --write"
 	}
 }

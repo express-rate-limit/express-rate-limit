@@ -1,0 +1,10 @@
+// /config/tsconfig/cjs.json
+// Typescript compiler configuration for building a CommonJS module
+
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"module": "commonjs",
+		"outDir": "../../dist/cjs"
+	}
+}

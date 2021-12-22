@@ -1,0 +1,10 @@
+// /config/tsconfig/test.json
+// Typescript compiler configuration for testing the library
+
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"include": ["../../test/**/*.ts"]
+}

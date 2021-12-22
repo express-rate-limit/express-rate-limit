@@ -1,0 +1,10 @@
+// /config/tsconfig/esm.json
+// Typescript compiler configuration for building an ESM module
+
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"module": "esnext",
+		"outDir": "../../dist/esm"
+	}
+}

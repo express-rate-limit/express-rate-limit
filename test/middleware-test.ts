@@ -6,7 +6,11 @@ import Express from 'express'
 import Sinon, { SinonFakeTimers } from 'sinon'
 import request from 'supertest'
 
-import rateLimit, { Store, Options, IncrementResponse } from '../dist/index.js'
+import rateLimit, {
+	Store,
+	Options,
+	IncrementResponse,
+} from '../dist/esm/index.js'
 
 import { createServer } from './helpers/create-server.js'
 

@@ -3,7 +3,7 @@
 
 import request from 'supertest'
 
-import rateLimit from '../dist/index.js'
+import rateLimit from '../dist/esm/index.js'
 
 import { createServer } from './helpers/create-server.js'
 

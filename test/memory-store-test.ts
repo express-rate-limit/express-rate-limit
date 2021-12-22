@@ -3,8 +3,8 @@
 
 import { jest } from '@jest/globals'
 
-import { Options } from '../dist/index.js'
-import MemoryStore from '../dist/memory-store.js'
+import { Options } from '../dist/esm/index.js'
+import MemoryStore from '../dist/esm/memory-store.js'
 
 describe('memory store test', () => {
 	it('sets the value to 1 on first call to `increment`', async () => {

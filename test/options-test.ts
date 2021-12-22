@@ -1,7 +1,7 @@
 // /test/options-test.ts
 // Tests parsing/handling of options passed in by the user
 
-import rateLimit from '../dist/index.js'
+import rateLimit from '../dist/esm/index.js'
 
 describe('options test', () => {
 	it('should not allow the use of an invalid store', async () => {
