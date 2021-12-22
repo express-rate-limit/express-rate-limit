@@ -1,5 +1,6 @@
 # /.editorconfig
 # Tells most editors what our style preferences are
+# https://editorconfig.org
 
 root = true
 
