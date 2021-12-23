@@ -7,7 +7,11 @@ import { Options } from '../source/index.js'
 import MemoryStore from '../source/memory-store.js'
 
 describe('memory store test', () => {
+	beforeEach(() => {
+		jest.useFakeTimers('modern')
+	})
 	afterEach(() => {
+		jest.useRealTimers()
 		jest.restoreAllMocks()
 	})
 
