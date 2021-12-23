@@ -3,7 +3,6 @@
 
 import { jest } from '@jest/globals'
 import Express from 'express'
-import Sinon, { SinonFakeTimers } from 'sinon'
 import request from 'supertest'
 
 import rateLimit, {
@@ -14,18 +13,7 @@ import rateLimit, {
 
 import { createServer } from './helpers/create-server.js'
 
-const sandbox = Sinon.createSandbox()
-
 describe('middleware test', () => {
-	let clock: SinonFakeTimers
-	beforeEach(() => {
-		clock = Sinon.useFakeTimers()
-	})
-	afterEach(() => {
-		clock.restore()
-		sandbox.restore()
-	})
-
 	class MockStore implements Store {
 		initWasCalled = false
 		incrementWasCalled = false
@@ -118,16 +106,59 @@ describe('middleware test', () => {
 		expect(store.resetKeyWasCalled).toEqual(true)
 	})
 
-	it('should refuse additional connections once IP has reached the max', async () => {
-		const app = createServer(
-			rateLimit({
-				max: 2,
-			}),
-		)
+	describe('timer tests', () => {
+		beforeEach(() => {
+			jest.useFakeTimers('modern')
+		})
+		afterEach(() => {
+			jest.useRealTimers()
+		})
 
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(429)
+		it('should refuse additional connections once IP has reached the max', async () => {
+			const app = createServer(
+				rateLimit({
+					max: 2,
+				}),
+			)
+
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(429)
+		})
+
+		it('should (eventually) accept new connections from a blocked IP', async () => {
+			const app = createServer(
+				rateLimit({
+					max: 2,
+					windowMs: 50,
+				}),
+			)
+
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(429)
+			jest.advanceTimersByTime(60)
+			await request(app).get('/').expect(200)
+		})
+
+		it('should work repeatedly', async () => {
+			const app = createServer(
+				rateLimit({
+					max: 2,
+					windowMs: 50,
+				}),
+			)
+
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(429)
+			jest.advanceTimersByTime(60)
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(429)
+			jest.advanceTimersByTime(60)
+			await request(app).get('/').expect(200)
+		})
 	})
 
 	it('should show the provided message instead of the default message when max connections are reached', async () => {
@@ -143,40 +174,6 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429).expect(message)
-	})
-
-	it('should (eventually) accept new connections from a blocked IP', async () => {
-		const app = createServer(
-			rateLimit({
-				max: 2,
-				windowMs: 50,
-			}),
-		)
-
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(429)
-		clock.tick(60)
-		await request(app).get('/').expect(200)
-	})
-
-	it('should work repeatedly', async () => {
-		const app = createServer(
-			rateLimit({
-				max: 2,
-				windowMs: 50,
-			}),
-		)
-
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(429)
-		clock.tick(60)
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(429)
-		clock.tick(60)
-		await request(app).get('/').expect(200)
 	})
 
 	it('should allow the error status code to be customized', async () => {
