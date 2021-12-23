@@ -4,12 +4,17 @@
 
 root = true
 
-[*.{ts,json,md}]
+[*]
 charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 80
+indent_size = tab
+tab_width = 2
+
+[*.{ts,json,md}]
 indent_style = tab
-indent_size = 2
 
 [*.yaml]
-charset = utf-8
 indent_style = spaces
-indent_size = 2
