@@ -63,7 +63,7 @@
 		"node": ">= 12.9.0"
 	},
 	"scripts": {
-		"clean": "del-cli dist/ coverage/",
+		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
 		"build:cjs": "tsc --project config/typescript/cjs.json",
 		"build:esm": "tsc --project config/typescript/esm.json",
 		"build": "run-p build:*",
