@@ -52,13 +52,13 @@ Replace `{version}` with the version of the package that you want to your, e.g.:
 This library is provided in ESM as well as CJS forms. To import it in a CJS
 project:
 
-```
+```ts
 const rateLimit = require('express-rate-limit')
 ```
 
 To import it in a Typescript/ESM project:
 
-```
+```ts
 import rateLimit from 'express-rate-limit'
 ```
 
@@ -67,7 +67,7 @@ import rateLimit from 'express-rate-limit'
 To use it in an API-only server where the rate-limiter should be applied to all
 requests:
 
-```js
+```ts
 import rateLimit from 'express-rate-limit'
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -89,7 +89,7 @@ To use it in a 'regular' web server (e.g. anything that uses
 `express.static()`), where the rate-limiter should only apply to certain
 requests:
 
-```js
+```ts
 import rateLimit from 'express-rate-limit'
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -109,7 +109,7 @@ app.use('/api', apiLimiter)
 
 To create multiple instances to apply different rules to different endpoints:
 
-```js
+```ts
 import rateLimit from 'express-rate-limit'
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
@@ -141,7 +141,7 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 
 To use a custom store:
 
-```js
+```ts
 import rateLimit from 'express-rate-limit'
 import MemoryStore from 'express-rate-limit/memory-store.js'
 
@@ -199,7 +199,7 @@ Defaults to `5`. Set to `0` to disable.
 
 Example of using a function:
 
-```js
+```ts
 import rateLimit from 'express-rate-limit'
 
 const isPremium = (request) => {
@@ -265,7 +265,7 @@ Function used to generate keys.
 
 Defaults to `request.ip`, similar to this:
 
-```js
+```ts
 const keyGenerator = (request /*, response*/) => request.ip
 ```
 
@@ -282,7 +282,7 @@ requests and, if the store provides it, a `resetTime` Date object.
 
 Defaults to:
 
-```js
+```ts
 const handler = (request, response, next, optionsUsed) => {
 	response.status(options.statusCode).send(options.message)
 }
@@ -300,7 +300,7 @@ reset `resetTime`.
 
 Default is an empty function:
 
-```js
+```ts
 const onLimitReached = (request, response, optionsUsed) => {}
 ```
 
@@ -312,7 +312,7 @@ service sends out a 200 status code on errors.
 
 Defaults to
 
-```js
+```ts
 const requestWasSuccessful = (request, response) => response.statusCode < 400
 ```
 
@@ -348,7 +348,7 @@ resolves with `true`, from the function will skip limiting for that request.
 
 Defaults to always `false` (count all requests):
 
-```js
+```ts
 const skip = (/*request, response*/) => false
 ```
 
@@ -383,8 +383,12 @@ Available data stores are:
 You may also create your own store. It must implement the `Store` interface as
 follows:
 
-```js
-import rateLimit, { Store, Options, IncrementResponse } from 'express-rate-limit'
+```ts
+import rateLimit, {
+	Store,
+	Options,
+	IncrementResponse,
+} from 'express-rate-limit'
 
 /**
  * A {@link Store} that stores the hit count for each client.
