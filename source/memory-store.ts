@@ -48,13 +48,18 @@ export default class MemoryStore implements Store {
 	 * @param options {Options} - The options used to setup the middleware
 	 */
 	init(options: Options): void {
+		// Get the duration of a window from the options
 		this.windowMs = options.windowMs
-		this.hits = {}
+		// Then calculate the reset time using that
 		this.resetTime = calculateNextResetTime(this.windowMs)
 
-		// Reset hit counts for ALL clients every `windowMs`
-		const interval = setInterval(() => {
-			this.resetAll()
+		// Initialise the hit counter map
+		this.hits = {}
+
+		// Reset hit counts for ALL clients every `windowMs` - this will also
+		// re-calculate the `resetTime`
+		const interval = setInterval(async () => {
+			await this.resetAll()
 		}, this.windowMs)
 		if (interval.unref) {
 			interval.unref()
@@ -70,7 +75,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	increment(key: string): IncrementResponse {
+	async increment(key: string): Promise<IncrementResponse> {
 		const totalHits = (this.hits[key] ?? 0) + 1
 		this.hits[key] = totalHits
 
@@ -87,7 +92,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	decrement(key: string): void {
+	async decrement(key: string): Promise<void> {
 		const current = this.hits[key]
 		if (current) {
 			this.hits[key] = current - 1
@@ -101,7 +106,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	resetKey(key: string): void {
+	async resetKey(key: string): Promise<void> {
 		delete this.hits[key]
 	}
 
@@ -110,7 +115,7 @@ export default class MemoryStore implements Store {
 	 *
 	 * @public
 	 */
-	resetAll(): void {
+	async resetAll(): Promise<void> {
 		this.hits = {}
 		this.resetTime = calculateNextResetTime(this.windowMs)
 	}

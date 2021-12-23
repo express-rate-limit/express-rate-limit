@@ -42,6 +42,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	// Why can't Typescript understand this?
 	const legacyStore = passedStore
 
+	// A promisified version of the store
 	class PromisifiedStore implements Store {
 		async increment(key: string): Promise<IncrementResponse> {
 			return new Promise((resolve, reject) => {

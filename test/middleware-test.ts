@@ -38,19 +38,19 @@ describe('middleware test', () => {
 			this.initWasCalled = true
 		}
 
-		increment(_key: string): IncrementResponse {
+		async increment(_key: string): Promise<IncrementResponse> {
 			this.counter += 1
 			this.incrementWasCalled = true
 
 			return { totalHits: this.counter, resetTime: undefined }
 		}
 
-		decrement(_key: string): void {
+		async decrement(_key: string): Promise<void> {
 			this.counter -= 1
 			this.decrementWasCalled = true
 		}
 
-		resetKey(_key: string): void {
+		async resetKey(_key: string): Promise<void> {
 			this.resetKeyWasCalled = true
 		}
 	}

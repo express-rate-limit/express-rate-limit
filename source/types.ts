@@ -137,26 +137,26 @@ export interface Store {
 	 *
 	 * @returns {IncrementResponse} - The number of hits and reset time for that client
 	 */
-	increment: (key: string) => Promise<IncrementResponse> | IncrementResponse
+	increment: (key: string) => Promise<IncrementResponse>
 
 	/**
 	 * Method to decrement a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
 	 */
-	decrement: (key: string) => Promise<void> | void
+	decrement: (key: string) => Promise<void>
 
 	/**
 	 * Method to reset a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client
 	 */
-	resetKey: (key: string) => Promise<void> | void
+	resetKey: (key: string) => Promise<void>
 
 	/**
 	 * Method to reset everyone's hit counter.
 	 */
-	resetAll?: () => Promise<void> | void
+	resetAll?: () => Promise<void>
 }
 
 /**

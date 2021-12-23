@@ -29,13 +29,13 @@ describe('options test', () => {
 				this.options = options
 			}
 
-			increment(_key: string): IncrementResponse {
+			async increment(_key: string): Promise<IncrementResponse> {
 				return { totalHits: 1, resetTime: undefined }
 			}
 
-			decrement(_key: string): void {}
+			async decrement(_key: string): Promise<void> {}
 
-			resetKey(_key: string): void {}
+			async resetKey(_key: string): Promise<void> {}
 		}
 
 		const store = new MockStore()

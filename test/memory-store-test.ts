@@ -12,7 +12,7 @@ describe('memory store test', () => {
 		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
-		const { totalHits } = store.increment(key)
+		const { totalHits } = await store.increment(key)
 		expect(totalHits).toEqual(1)
 	})
 
@@ -21,9 +21,9 @@ describe('memory store test', () => {
 		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
-		store.increment(key)
+		await store.increment(key)
 
-		const { totalHits } = store.increment(key)
+		const { totalHits } = await store.increment(key)
 		expect(totalHits).toEqual(2)
 	})
 
@@ -32,10 +32,10 @@ describe('memory store test', () => {
 		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
-		store.increment(key)
-		store.resetKey(key)
+		await store.increment(key)
+		await store.resetKey(key)
 
-		const { totalHits } = store.increment(key)
+		const { totalHits } = await store.increment(key)
 		expect(totalHits).toEqual(1)
 	})
 
@@ -45,12 +45,12 @@ describe('memory store test', () => {
 		const keyOne = 'test-store-one'
 		const keyTwo = 'test-store-two'
 
-		store.increment(keyOne)
-		store.increment(keyTwo)
-		store.resetAll()
+		await store.increment(keyOne)
+		await store.increment(keyTwo)
+		await store.resetAll()
 
-		const { totalHits: totalHitsOne } = store.increment(keyOne)
-		const { totalHits: totalHitsTwo } = store.increment(keyTwo)
+		const { totalHits: totalHitsOne } = await store.increment(keyOne)
+		const { totalHits: totalHitsTwo } = await store.increment(keyTwo)
 		expect(totalHitsOne).toEqual(1)
 		expect(totalHitsTwo).toEqual(1)
 	})
@@ -61,12 +61,12 @@ describe('memory store test', () => {
 		const keyOne = 'test-store-one'
 		const keyTwo = 'test-store-two'
 
-		store.increment(keyOne)
-		store.increment(keyTwo)
+		await store.increment(keyOne)
+		await store.increment(keyTwo)
 
-		setTimeout(() => {
-			const { totalHits: totalHitsOne } = store.increment(keyOne)
-			const { totalHits: totalHitsTwo } = store.increment(keyTwo)
+		setTimeout(async () => {
+			const { totalHits: totalHitsOne } = await store.increment(keyOne)
+			const { totalHits: totalHitsTwo } = await store.increment(keyTwo)
 
 			expect(totalHitsOne).toEqual(1)
 			expect(totalHitsTwo).toEqual(1)
@@ -88,7 +88,7 @@ describe('memory store test', () => {
 		const key = 'test-store'
 
 		try {
-			const { totalHits } = store.increment(key)
+			const { totalHits } = await store.increment(key)
 			expect(totalHits).toEqual(1)
 		} finally {
 			// @ts-expect-error `realTimeoutId` is already set in the `spyOn` call
@@ -101,11 +101,11 @@ describe('memory store test', () => {
 		store.init({ windowMs: -1 } as Options)
 		const key = 'test-store'
 
-		store.increment(key)
-		store.increment(key)
-		store.decrement(key)
+		await store.increment(key)
+		await store.increment(key)
+		await store.decrement(key)
 
-		const { totalHits } = store.increment(key)
+		const { totalHits } = await store.increment(key)
 		expect(totalHits).toEqual(2)
 	})
 })
