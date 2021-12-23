@@ -8,7 +8,7 @@
 	},
 	"license": "MIT",
 	"homepage": "https://github.com/nfriedly/express-rate-limit",
-	"repository": "nfriedly/express-rate-limit",
+	"repository": "https://github.com/nfriedly/express-rate-limit",
 	"keywords": [
 		"express-rate-limit",
 		"express",
@@ -27,16 +27,29 @@
 		"brute-force",
 		"attack"
 	],
+	"type": "module",
 	"module": "dist/esm/index.js",
 	"main": "dist/cjs/index.js",
 	"exports": {
-		".": {
+		"./": {
 			"import": "./dist/esm/index.js",
 			"require": "./dist/cjs/index.js"
+		},
+		"./memory-store": {
+			"import": "./dist/esm/memory-store.js",
+			"require": "./dist/cjs/memory-store.js"
 		}
 	},
-	"types": "dist/index.d.ts",
-	"type": "module",
+	"typesVersions": {
+		"*": {
+			"./": [
+				"./dist/esm/index.d.ts"
+			],
+			"./memory-store": [
+				"./dist/esm/memory-store.d.ts"
+			]
+		}
+	},
 	"files": [
 		"dist/",
 		"tsconfig.json",
