@@ -56,17 +56,6 @@ describe('middleware test', () => {
 		expect(store.initWasCalled).toEqual(true)
 	})
 
-	it('should not call `init` if it is not a function', async () => {
-		const store = new MockStore()
-		// @ts-expect-error Check if the library can detect invalid `init` functions without TSC's help
-		store.init = 'not-a-function'
-		rateLimit({
-			store,
-		})
-
-		expect(store.initWasCalled).toEqual(false)
-	})
-
 	it('should print an error if `request.ip` is undefined', async () => {
 		jest.spyOn(global.console, 'error').mockImplementation(() => {})
 

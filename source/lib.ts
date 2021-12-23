@@ -144,15 +144,17 @@ const parseOptions = (
 		typeof options.store.decrement !== 'function' ||
 		typeof options.store.resetKey !== 'function' ||
 		(typeof options.store.resetAll !== 'undefined' &&
-			typeof options.store.resetAll !== 'function')
+			typeof options.store.resetAll !== 'function') ||
+		(typeof (options.store as Store).init !== 'undefined' &&
+			typeof (options.store as Store).init !== 'function')
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
 		)
-	} else {
-		// Promisify the store, if it is not already
-		options.store = promisifyStore(options.store)
 	}
+
+	// Promisify the store, if it is not already
+	options.store = promisifyStore(options.store)
 
 	// Return the 'clean' options
 	return options as Options
