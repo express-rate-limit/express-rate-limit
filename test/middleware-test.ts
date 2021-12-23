@@ -14,6 +14,10 @@ import rateLimit, {
 import { createServer } from './helpers/create-server.js'
 
 describe('middleware test', () => {
+	afterEach(() => {
+		jest.restoreAllMocks()
+	})
+
 	class MockStore implements Store {
 		initWasCalled = false
 		incrementWasCalled = false

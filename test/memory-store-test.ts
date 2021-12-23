@@ -7,6 +7,10 @@ import { Options } from '../dist/esm/index.js'
 import MemoryStore from '../dist/esm/memory-store.js'
 
 describe('memory store test', () => {
+	afterEach(() => {
+		jest.restoreAllMocks()
+	})
+
 	it('sets the value to 1 on first call to `increment`', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: -1 } as Options)
