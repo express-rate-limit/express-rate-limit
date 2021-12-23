@@ -9,7 +9,7 @@ import rateLimit, {
 	Store,
 	Options,
 	IncrementResponse,
-} from '../dist/esm/index.js'
+} from '../source/index.js'
 
 import { createServer } from './helpers/create-server.js'
 

@@ -117,7 +117,7 @@
 		"verbose": true,
 		"collectCoverage": true,
 		"collectCoverageFrom": [
-			"dist/esm/*.js"
+			"source/**/*.ts"
 		],
 		"testTimeout": 30000,
 		"testMatch": [

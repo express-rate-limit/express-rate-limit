@@ -5,7 +5,7 @@ import rateLimit, {
 	Store,
 	Options,
 	IncrementResponse,
-} from '../dist/esm/index.js'
+} from '../source/index.js'
 
 describe('options test', () => {
 	it('should not allow the use of an invalid store', async () => {

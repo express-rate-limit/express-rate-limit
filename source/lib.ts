@@ -90,7 +90,7 @@ const parseOptions = (
 	},
 ): Options => {
 	// Now add the defaults for the other options
-	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+
 	const options = {
 		windowMs: 60 * 1000,
 		store: new MemoryStore(),
@@ -102,8 +102,16 @@ const parseOptions = (
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
-		requestWasSuccessful: (_request, response) => response.statusCode < 400,
-		keyGenerator: (request, _response) => {
+		requestWasSuccessful: (
+			_request: Express.Request,
+			response: Express.Response,
+		): boolean => response.statusCode < 400,
+		skip: (_request: Express.Request, _response: Express.Response): boolean =>
+			false,
+		keyGenerator: (
+			request: Express.Request,
+			_response: Express.Response,
+		): string => {
 			if (!request.ip) {
 				console.error(
 					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
@@ -112,22 +120,33 @@ const parseOptions = (
 
 			return request.ip
 		},
-		skip: (_request, _response) => false,
-		handler: (_request, response, _next, _optionsUsed) =>
-			response.status(options.statusCode).send(options.message),
-		onLimitReached: (_request, _response, _optionsUsed) => {},
+		handler: (
+			_request: Express.Request,
+			response: Express.Response,
+			_next: Express.NextFunction,
+			_optionsUsed: Options,
+		): void => {
+			response.status(options.statusCode).send(options.message)
+		},
+		onLimitReached: (
+			_request: Express.Request,
+			_response: Express.Response,
+			_optionsUsed: Options,
+		): void => {},
 		...passedOptions,
-	} as Options
+	}
 
 	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
 	// interface
 	if (
-		typeof options.store.increment !== 'function' ||
+		(typeof (options.store as LegacyStore).incr !== 'function' &&
+			typeof (options.store as Store).increment !== 'function') ||
+		typeof options.store.decrement !== 'function' ||
 		typeof options.store.resetKey !== 'function' ||
-		(options.skipFailedRequests &&
-			typeof options.store.decrement !== 'function')
+		(typeof options.store.resetAll !== 'undefined' &&
+			typeof options.store.resetAll !== 'function')
 	) {
-		throw new Error(
+		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
 		)
 	} else {
@@ -136,7 +155,7 @@ const parseOptions = (
 	}
 
 	// Return the 'clean' options
-	return options
+	return options as Options
 }
 
 /**

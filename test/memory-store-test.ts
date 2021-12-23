@@ -3,8 +3,8 @@
 
 import { jest } from '@jest/globals'
 
-import { Options } from '../dist/esm/index.js'
-import MemoryStore from '../dist/esm/memory-store.js'
+import { Options } from '../source/index.js'
+import MemoryStore from '../source/memory-store.js'
 
 describe('memory store test', () => {
 	afterEach(() => {
