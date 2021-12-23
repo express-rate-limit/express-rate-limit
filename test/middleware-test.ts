@@ -315,7 +315,7 @@ describe('middleware test', () => {
 			.expect(200, 'Hi there!')
 	})
 
-	it('should decrement hits when `skipSuccessfulRequests` is set to true', async () => {
+	it('should decrement hits when requests succeed and `skipSuccessfulRequests` is set to true', async () => {
 		const store = new MockStore()
 		const app = createServer(
 			rateLimit({
@@ -419,6 +419,20 @@ describe('middleware test', () => {
 		await request(app).get('/error').expect(400)
 
 		expect(store.decrementWasCalled).toEqual(true)
+	})
+
+	it('should not decrement hits when requests succeed and `skipFailedRequests` is set to true', async () => {
+		const store = new MockStore()
+		const app = createServer(
+			rateLimit({
+				skipFailedRequests: true,
+				store,
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+
+		expect(store.decrementWasCalled).toEqual(false)
 	})
 
 	it('should decrement hits when response closes and `skipFailedRequests` is set to true', async () => {
