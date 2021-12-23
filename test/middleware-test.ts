@@ -47,6 +47,12 @@ describe('middleware test', () => {
 		}
 	}
 
+	it('should not modify the options object passed', () => {
+		const options = {}
+		rateLimit(options)
+		expect(options).toStrictEqual({})
+	})
+
 	it('should call `init` even if no requests have come in', async () => {
 		const store = new MockStore()
 		rateLimit({
@@ -181,7 +187,7 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(statusCode)
 	})
 
-	it('should allow responseponding with a JSON message', async () => {
+	it('should allow responding with a JSON message', async () => {
 		const message = {
 			error: {
 				code: 'too-many-requests',
@@ -337,7 +343,7 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(false)
 	})
 
-	it('should decrement hits when requests succeed with a custom `requestWasSuccessful` method', async () => {
+	it('should decrement hits when requests succeed, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used', async () => {
 		const store = new MockStore()
 		const app = createServer(
 			rateLimit({
@@ -352,7 +358,7 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	it('should not decrement hits when requests fail with a custom `requestWasSuccessful` method', async () => {
+	it('should not decrement hits when requests fail, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used', async () => {
 		const store = new MockStore()
 		const app = createServer(
 			rateLimit({
@@ -369,7 +375,7 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(false)
 	})
 
-	it('should decrement hits when requests succeed with a custom `requestWasSuccessful` method based on a request query parameter', async () => {
+	it('should decrement hits when requests succeed, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used', async () => {
 		const store = new MockStore()
 		const app = createServer(
 			rateLimit({
@@ -385,7 +391,7 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	it('should not decrement hits when requests fail with a custom `requestWasSuccessful` method', async () => {
+	it('should not decrement hits when requests fail, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used', async () => {
 		const store = new MockStore()
 		const app = createServer(
 			rateLimit({
@@ -415,9 +421,6 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	// FIXME: This test hangs forever, the supertest `request.timeout` function
-	// does not seem to work
-	/*
 	it('should decrement hits when response closes and `skipFailedRequests` is set to true', async () => {
 		const store = new MockStore()
 		const app = createServer(
@@ -443,7 +446,6 @@ describe('middleware test', () => {
 
 		expect(store.decrementWasCalled).toEqual(true)
 	})
-	*/
 
 	it('should decrement hits when response emits an error and `skipFailedRequests` is set to true', async () => {
 		const store = new MockStore()
@@ -457,20 +459,6 @@ describe('middleware test', () => {
 		await request(app).get('/crash')
 
 		expect(store.decrementWasCalled).toEqual(true)
-	})
-
-	it('should not decrement hits when requests fail and `skipFailedRequests` is set to true', async () => {
-		const store = new MockStore()
-		const app = createServer(
-			rateLimit({
-				skipFailedRequests: true,
-				store,
-			}),
-		)
-
-		await request(app).get('/').expect(200)
-
-		expect(store.decrementWasCalled).toEqual(false)
 	})
 
 	it('should decrement hits when rate limit is reached and `skipFailedRequests` is set to true', async () => {
@@ -488,12 +476,6 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(429)
 
 		expect(store.decrementWasCalled).toEqual(true)
-	})
-
-	it('should not modify the options object passed', () => {
-		const options = {}
-		rateLimit(options)
-		expect(options).toStrictEqual({})
 	})
 
 	it('should forward errors in the handler using `next()`', async () => {

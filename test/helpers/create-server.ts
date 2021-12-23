@@ -29,11 +29,8 @@ export const createServer = (
 	app.post(
 		'/crash',
 		(_request: Express.Request, response: Express.Response) => {
-			response.on('error', () => {
-				response.end()
-			})
-
 			response.emit('error', new Error('Oops!'))
+			response.end()
 		},
 	)
 
