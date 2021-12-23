@@ -84,9 +84,14 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  *
  * @returns {Options} - A complete configuration object
  */
-const parseOptions = (passedOptions: Partial<Options>): Options => {
+const parseOptions = (
+	passedOptions: Omit<Partial<Options>, 'store'> & {
+		store?: Store | LegacyStore
+	},
+): Options => {
 	// Now add the defaults for the other options
-	const options: Options = {
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+	const options = {
 		windowMs: 60 * 1000,
 		store: new MemoryStore(),
 		max: 5,
@@ -112,7 +117,7 @@ const parseOptions = (passedOptions: Partial<Options>): Options => {
 			response.status(options.statusCode).send(options.message),
 		onLimitReached: (_request, _response, _optionsUsed) => {},
 		...passedOptions,
-	}
+	} as Options
 
 	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
 	// interface
@@ -169,7 +174,9 @@ const handleAsyncErrors =
  * @public
  */
 const rateLimit = (
-	passedOptions?: Partial<Options>,
+	passedOptions?: Omit<Partial<Options>, 'store'> & {
+		store?: Store | LegacyStore
+	},
 ): RateLimitRequestHandler => {
 	// Parse the options and add the default values for unspecified options
 	const options = parseOptions(passedOptions ?? {})
