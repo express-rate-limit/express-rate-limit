@@ -324,7 +324,7 @@ when:
 - response status >= 400
 - requests that were cancelled before last chunk of data was sent (response
   `close` event triggered)
-- response `error` event was triggrered by response
+- response `error` event was triggered by response
 
 (Technically they are counted and then un-counted, so a large number of slow
 requests all at once could still trigger a rate-limit. This may be fixed in a
