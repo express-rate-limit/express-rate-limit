@@ -32,10 +32,14 @@ and this project adheres to
 
 ### Removed
 
-- Remove the deprecated `limiter.resetIp` method.
-- Remove the deprecated options `delayMs`, `delayAfter` and `global`.
+- Remove the deprecated `limiter.resetIp` method (use the `limiter.resetKey`
+  method instead).
+- Remove the deprecated options `delayMs`, `delayAfter` (the delay functionality
+  was moved to the
+  [`express-slow-down`](https://github.com/nfriedly/express-slow-down) package)
+  and `global` (use a key generator that returns a constant value).
 
-## [5.x](https://github.com/nfriedly/express-rate-limit/releases/tag/5.5.1)
+## [5.x](https://github.com/nfriedly/express-rate-limit/releases/tag/v5.5.1)
 
 ### Added
 
@@ -46,14 +50,14 @@ and this project adheres to
 - Removes typescript typings. (See
   [#138](https://github.com/nfriedly/express-rate-limit/issues/138))
 
-## [4.x](https://github.com/nfriedly/express-rate-limit/releases/tag/4.0.4)
+## [4.x](https://github.com/nfriedly/express-rate-limit/releases/tag/v4.0.4)
 
 ### Changed
 
 - The library no longer modifies the passed-in options object, it instead makes
   a clone of it.
 
-## [3.x](https://github.com/nfriedly/express-rate-limit/releases/tag/3.5.2)
+## [3.x](https://github.com/nfriedly/express-rate-limit/releases/tag/v3.5.2)
 
 ### Added
 
@@ -71,7 +75,7 @@ and this project adheres to
 - The `delayAfter` and `delayMs` options; they were moved to the
   [express-slow-down](https://npmjs.org/package/express-slow-down) package.
 
-## [2.x](https://github.com/nfriedly/express-rate-limit/releases/tag/2.14.2)
+## [2.x](https://github.com/nfriedly/express-rate-limit/releases/tag/v2.14.2)
 
 ### Added
 
