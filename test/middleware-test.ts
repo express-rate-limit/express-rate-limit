@@ -1,7 +1,7 @@
 // /test/middleware-test.ts
 // Tests the rate limiting middleware
 
-import Process from 'node:process'
+import { platform } from 'node:process'
 
 import { jest } from '@jest/globals'
 import Express from 'express'
@@ -562,7 +562,7 @@ describe('middleware test', () => {
 
 	// FIXME: This test fails on MacOS _sometimes_, so it is disabled on that
 	// platform for now
-	;(Process.platform === 'darwin' ? it.skip : it).each([
+	;(platform === 'darwin' ? it.skip : it).each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
