@@ -490,6 +490,17 @@ Resets the rate limiting for a given key. An example use case is to allow users
 to complete a captcha or whatever to reset their rate limit, then call this
 method.
 
+## Issues and Contributing
+
+If you encounter a bug or want to see something added/changed, please go ahead
+and [open an issue](https://github.com/nfriedly/express-rate-limit/issues/new)!
+If you need help with something, feel free to
+[start a discussion](https://github.com/nfriedly/express-rate-limit/discussions/new)!
+
+If you wish to contribute to the library, thanks! First, please read
+[the contributing guide](contributing.md). Then you can pick up any issue and
+fix/implement it!
+
 ## License
 
 MIT © [Nathan Friedly](http://nfriedly.com/)
