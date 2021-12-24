@@ -290,22 +290,6 @@ const handler = (request, response, next, optionsUsed) => {
 }
 ```
 
-### `onLimitReached`
-
-Function that is called the first time a user hits the rate limit within a given
-window.
-
-The `request.rateLimit` object has the rate limit `limit`, number of requests
-made so far `current`, the remaining number of requests `remaining` and, if the
-store provides it, a Date object for when the hit count for all clients will be
-reset `resetTime`.
-
-Default is an empty function:
-
-```ts
-const onLimitReached = (request, response, optionsUsed) => {}
-```
-
 ### `requestWasSuccessful`
 
 Function that is called when `skipFailedRequests` and/or
