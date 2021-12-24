@@ -1,20 +1,22 @@
-# Express Rate Limit
+# <div align="center"> Express Rate Limit </div>
+
+<div align="center">
 
 [![Tests](https://github.com/nfriedly/express-rate-limit/workflows/Test/badge.svg)](https://github.com/nfriedly/express-rate-limit/actions)
 [![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
 [![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
 
 Basic rate-limiting middleware for Express. Use to limit repeated requests to
-public APIs and/or endpoints such as password reset.
-
-Plays nice with
+public APIs and/or endpoints such as password reset. Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
-> Note: this module does not share state with other processes/servers by
-> default. If you need a more robust solution, I recommend using an external
-> store. See the [`stores` section](#store) below for a list of external stores.
+</div>
 
 ### Alternate Rate-limiters
+
+> This module does not share state with other processes/servers by
+> default. If you need a more robust solution, I recommend using an external
+> store. See the [`stores` section](#store) below for a list of external stores.
 
 This module was designed to only handle the basics and didn't even support
 external stores initially. These other options all are excellent pieces of
