@@ -10,10 +10,13 @@ and this project adheres to
 
 ### Added
 
+- `express` 4.x as a peer dependency.
 - Better Typescript support (the library was rewritten in Typescript).
 - Export the package as both ESM and CJS.
 - Publish the built package (`.tgz` file) on GitHub releases as well as the npm
   registry.
+- Issue and PR templates.
+- A contributing guide.
 
 ### Changed
 
