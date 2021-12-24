@@ -1,53 +1,154 @@
 {
-  "name": "express-rate-limit",
-  "version": "5.5.1",
-  "description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
-  "homepage": "https://github.com/nfriedly/express-rate-limit",
-  "author": {
-    "name": "Nathan Friedly",
-    "url": "http://nfriedly.com/"
-  },
-  "repository": "nfriedly/express-rate-limit",
-  "license": "MIT",
-  "main": "lib/express-rate-limit.js",
-  "files": [
-    "lib/"
-  ],
-  "keywords": [
-    "express-rate-limit",
-    "express",
-    "rate",
-    "limit",
-    "ratelimit",
-    "rate-limit",
-    "middleware",
-    "ip",
-    "auth",
-    "authorization",
-    "security",
-    "brute",
-    "force",
-    "bruteforce",
-    "brute-force",
-    "attack"
-  ],
-  "devDependencies": {
-    "bluebird": "^3.7.2",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "express": "^4.17.1",
-    "husky": "^7.0.2",
-    "mocha": "^9.1.2",
-    "prettier": "^2.4.1",
-    "pretty-quick": "^3.1.1",
-    "sinon": "^11.1.2",
-    "supertest": "^6.1.6"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "autofix": "npm run lint -- --fix",
-    "test": "npm run lint && mocha",
-    "precommit": "pretty-quick --staged"
-  }
+	"name": "express-rate-limit",
+	"version": "6.0.0",
+	"description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
+	"author": {
+		"name": "Nathan Friedly",
+		"url": "http://nfriedly.com/"
+	},
+	"license": "MIT",
+	"homepage": "https://github.com/nfriedly/express-rate-limit",
+	"repository": "https://github.com/nfriedly/express-rate-limit",
+	"keywords": [
+		"express-rate-limit",
+		"express",
+		"rate",
+		"limit",
+		"ratelimit",
+		"rate-limit",
+		"middleware",
+		"ip",
+		"auth",
+		"authorization",
+		"security",
+		"brute",
+		"force",
+		"bruteforce",
+		"brute-force",
+		"attack"
+	],
+	"type": "module",
+	"module": "dist/esm/index.js",
+	"main": "dist/cjs/index.js",
+	"exports": {
+		".": {
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
+		},
+		"./memory-store": {
+			"import": "./dist/esm/memory-store.js",
+			"require": "./dist/cjs/memory-store.js"
+		}
+	},
+	"typesVersions": {
+		"*": {
+			".": [
+				"./dist/esm/index.d.ts"
+			],
+			"./memory-store": [
+				"./dist/esm/memory-store.d.ts"
+			]
+		}
+	},
+	"files": [
+		"dist/",
+		"tsconfig.json",
+		"package.json",
+		"package-lock.json",
+		"readme.md",
+		"license.md",
+		"changelog.md"
+	],
+	"engines": {
+		"node": ">= 12.9.0"
+	},
+	"scripts": {
+		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
+		"build:cjs": "tsc --project config/typescript/cjs.json",
+		"build:esm": "tsc --project config/typescript/esm.json",
+		"build": "run-p build:*",
+		"compile": "run-s clean build",
+		"lint": "xo",
+		"autofix": "xo --fix",
+		"test-lib": "cross-env TS_NODE_PROJECT=config/typescript/test.json NODE_OPTIONS=--experimental-vm-modules jest",
+		"test": "run-s compile lint test-lib",
+		"view-coverage": "npx serve coverage/lcov-report",
+		"pre-commit": "lint-staged",
+		"prepare": "npm run compile && husky install config/husky"
+	},
+	"peerDependencies": {
+		"express": "^4"
+	},
+	"devDependencies": {
+		"@jest/globals": "^27.4.2",
+		"@types/express": "^4.17.13",
+		"@types/jest": "^27.0.3",
+		"@types/node": "^16.11.17",
+		"@types/supertest": "^2.0.11",
+		"cross-env": "^7.0.3",
+		"del-cli": "^4.0.1",
+		"express": "^4.17.1",
+		"husky": "^7.0.4",
+		"jest": "^27.4.3",
+		"lint-staged": "^12.1.2",
+		"npm-run-all": "^4.1.5",
+		"supertest": "^6.1.6",
+		"ts-jest": "^27.1.1",
+		"ts-node": "^10.4.0",
+		"typescript": "^4.5.2",
+		"xo": "^0.47.0"
+	},
+	"xo": {
+		"prettier": true,
+		"rules": {
+			"@typescript-eslint/no-empty-function": 0,
+			"@typescript-eslint/no-dynamic-delete": 0,
+			"@typescript-eslint/no-confusing-void-expression": 0,
+			"@typescript-eslint/consistent-indexed-object-style": [
+				"error",
+				"index-signature"
+			],
+			"import/no-named-as-default-member": 0,
+			"import/no-cycle": 0
+		}
+	},
+	"prettier": {
+		"semi": false,
+		"useTabs": true,
+		"singleQuote": true,
+		"bracketSpacing": true,
+		"trailingComma": "all",
+		"proseWrap": "always"
+	},
+	"jest": {
+		"preset": "ts-jest/presets/default-esm",
+		"globals": {
+			"ts-jest": {
+				"useESM": true
+			}
+		},
+		"verbose": true,
+		"collectCoverage": true,
+		"collectCoverageFrom": [
+			"source/**/*.ts"
+		],
+		"testTimeout": 30000,
+		"testMatch": [
+			"**/test/**/*-test.[jt]s?(x)"
+		],
+		"moduleFileExtensions": [
+			"js",
+			"jsx",
+			"json",
+			"ts",
+			"tsx"
+		],
+		"moduleNameMapper": {
+			"^(\\.{1,2}/.*)\\.js$": "$1"
+		}
+	},
+	"lint-staged": {
+		"{source,test}/**/*.ts": "xo --fix",
+		"**/*.{json,yaml,md}": "prettier --write"
+	}
 }

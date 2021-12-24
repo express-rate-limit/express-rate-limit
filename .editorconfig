@@ -1,10 +1,20 @@
-# EditorConfig: automatically set indentation and such
-# http://EditorConfig.org
+# /.editorconfig
+# Tells most editors what our style preferences are
+# https://editorconfig.org
 
-# top-most EditorConfig file
 root = true
 
-[*.{js,json}]
+[*]
 charset = utf-8
-indent_style = space
-indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 80
+indent_size = tab
+tab_width = 2
+
+[*.{ts,json,md}]
+indent_style = tab
+
+[*.yaml]
+indent_style = spaces

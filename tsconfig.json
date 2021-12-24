@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"sourceMap": true,
+
+		"strict": true,
+		"noUnusedLocals": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+
+		"inlineSources": true
+	},
+	"include": ["./source/**/*.ts"],
+	"exclude": ["./node_modules"]
+}

@@ -1,4 +1,14 @@
-/node_modules/
-npm-debug.log
-.idea/
+# /.gitignore
+# Tells Git to ignore these files
+
+node_modules/
+dist/
+coverage/
+
 .vscode/
+.idea/
+
+*.log
+*.tmp
+*.bak
+*.tgz
