@@ -430,10 +430,8 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(false)
 	})
 
-	// FIXME: Started hanging after I added the `useFakeTimers` call to `beforeAll`
-	/*
 	it('should decrement hits when response closes and `skipFailedRequests` is set to true', async () => {
-		jest.setTimeout(50_000)
+		jest.useRealTimers()
 
 		const store = new MockStore()
 		const app = createServer(
@@ -459,7 +457,6 @@ describe('middleware test', () => {
 
 		expect(store.decrementWasCalled).toEqual(true)
 	})
-	*/
 
 	it('should decrement hits when response emits an error and `skipFailedRequests` is set to true', async () => {
 		const store = new MockStore()
