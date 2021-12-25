@@ -63,7 +63,7 @@ jobs:
       - name: Create a Github release with the compiled code
         uses: softprops/action-gh-release@v1
         with:
-          files: express-rate-limit-*.tgz
+          files: express-rate-limit.tgz
           body:
             You can view the changelog
             [here](https://github.com/nfriedly/express-rate-limit/blob/master/changelog.md).
