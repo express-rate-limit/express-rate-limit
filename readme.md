@@ -55,7 +55,7 @@ This library is provided in ESM as well as CJS forms. To import it in a CJS
 project:
 
 ```ts
-const rateLimit = require('express-rate-limit')
+const rateLimit = require('express-rate-limit').default
 ```
 
 To import it in a Typescript/ESM project:
