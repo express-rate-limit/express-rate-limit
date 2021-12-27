@@ -14,9 +14,9 @@ public APIs and/or endpoints such as password reset. Plays nice with
 
 ### Alternate Rate-limiters
 
-> This module does not share state with other processes/servers by
-> default. If you need a more robust solution, I recommend using an external
-> store. See the [`stores` section](#store) below for a list of external stores.
+> This module does not share state with other processes/servers by default. If
+> you need a more robust solution, I recommend using an external store. See the
+> [`stores` section](#store) below for a list of external stores.
 
 This module was designed to only handle the basics and didn't even support
 external stores initially. These other options all are excellent pieces of
@@ -275,9 +275,9 @@ const keyGenerator = (request /*, response*/) => request.ip
 
 The function to handle requests once the max limit is exceeded. It receives the
 `request` and the `response` objects. The `next` param is available if you need
-to pass to the next middleware/route. Finally, the `options` param has all
-of the options that originally passed in when creating the current limiter and
-the default values for other options.
+to pass to the next middleware/route. Finally, the `options` param has all of
+the options that originally passed in when creating the current limiter and the
+default values for other options.
 
 The `request.rateLimit` object has `limit`, `current`, and `remaining` number of
 requests and, if the store provides it, a `resetTime` Date object.
