@@ -22,6 +22,8 @@ target.build = () => {
 	shell.exec(
 		'esbuild source/index.ts --bundle --format=cjs --outfile=dist/index.cjs',
 	)
+	// Hacky way of getting the default export to work in CJS modules too
+	'module.exports = rateLimit'.toEnd('dist/index.cjs')
 
 	shell.echo('=> Building ES module')
 	shell.exec(
