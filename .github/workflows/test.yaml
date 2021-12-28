@@ -1,36 +1,101 @@
 # /.github/workflows/test.yaml
-# Build, lint and test the library
+# Test everything with the library
 
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - 'master'
 
 jobs:
-  test:
-    name: Build, Lint and Test
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 15.x, 16.x, 17.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-
+  build_library:
+    name: Build the library
+    runs-on: ubuntu-latest
     steps:
-      # This is required to ensure the linter does not fail on Windows
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Use Node 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Build the library
+        run: |
+          npm ci
+          npm pack
+      - name: Use the built library to run extra tests
+        run: |
+          mv ./express-rate-limit*.tgz ../express-rate-limit.tgz
+          git fetch --no-tags --depth=1 origin tests
+          git checkout tests
+          cp ../express-rate-limit.tgz ./assets/
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/
+          git commit --allow-empty --message "chore: update library tarball"
+          git push
+  test_library:
+    name: Test the library
+    runs-on: ubuntu-latest
+    steps:
       - name: Disable `git autocrlf`
         run: |
           git config --global core.autocrlf false
       - name: Checkout the repository
         uses: actions/checkout@v2
-      - name: Use Node ${{ matrix.node-version }} on ${{ matrix.os }}
+      - name: Use Node 16
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: npm ci
-      - name: Build, lint and test the library
-        run: npm test
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v2
+          node-version: 16
+      - name: Test the library
+        run: |
+          npm ci
+          npm test
+  test_imports:
+    name: Import Variations
+    runs-on: ubuntu-latest
+    needs: build_library
+    steps:
+      - name: Checkout the `tests` branch
+        uses: actions/checkout@v2
         with:
-          name: Coverage Report
-          path: coverage/lcov-report
+          ref: tests
+      - name: Use Node 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Test various imports with the library
+        run: |
+          cd test/import-tests
+          bash run-all-tests
+  test_stores:
+    name: External Stores
+    runs-on: ubuntu-latest
+    needs: build_library
+    services:
+      rate-limit-redis:
+        image: redis
+        ports:
+          - 6379:6379
+      rate-limit-mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+      rate-limit-memcached:
+        image: memcached
+        ports:
+          - 11211:11211
+    steps:
+      - name: Checkout the `tests` branch
+        uses: actions/checkout@v2
+        with:
+          ref: tests
+      - name: Use Node 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Test various external stores with the library
+        run: |
+          cd test/store-tests
+          bash run-all-tests
