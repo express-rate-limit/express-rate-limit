@@ -82,7 +82,7 @@ jobs:
     name: External Stores
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 15.x, 16.x, 17.x]
+        node-version: [14.x, 15.x, 16.x, 17.x]
     runs-on: ubuntu-latest # Docker containers ('services' field) only work on Linux hosts
     needs: build_library
     services:
