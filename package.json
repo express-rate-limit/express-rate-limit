@@ -65,6 +65,7 @@
 		"@types/jest": "^27.0.3",
 		"@types/node": "^16.11.17",
 		"@types/supertest": "^2.0.11",
+		"chalk": "^5.0.0",
 		"cross-env": "^7.0.3",
 		"dts-bundle-generator": "^6.2.0",
 		"esbuild": "^0.14.8",
