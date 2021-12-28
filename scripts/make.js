@@ -31,7 +31,9 @@ target.build = () => {
 	)
 
 	shell.echo('=> Generating type declarations')
-	shell.exec('tsc --emitDeclarationOnly')
+	shell.exec('dts-bundle-generator --out-file=dist/index.d.ts source/index.ts')
+	// Hacky way of getting the default export to work in the declaration file too
+	'export default rateLimit'.toEnd('dist/index.d.ts')
 }
 
 /**

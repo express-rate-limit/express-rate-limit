@@ -66,6 +66,7 @@
 		"@types/node": "^16.11.17",
 		"@types/supertest": "^2.0.11",
 		"cross-env": "^7.0.3",
+		"dts-bundle-generator": "^6.2.0",
 		"esbuild": "^0.14.8",
 		"express": "^4.17.1",
 		"husky": "^7.0.4",
