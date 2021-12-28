@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"declaration": true,
-		"out": "dist/index.js",
 
 		"strict": true,
 		"noUnusedLocals": true,
