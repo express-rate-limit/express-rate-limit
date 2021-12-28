@@ -75,6 +75,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Test various imports with the library
         run: |
+          git checkout origin/tests
           cd test/import-tests
           bash run-all-tests
   test_stores:
@@ -111,5 +112,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Test various external stores with the library
         run: |
+          git checkout origin/tests
           cd test/store-tests
           bash run-all-tests

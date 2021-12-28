@@ -33,7 +33,9 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@v2
         with:
-          name: Coverage Report
+          name:
+            Coverage Report (Node ${{ matrix.node-version }} on ${{ matrix.os
+            }})
           path: coverage/lcov-report
   publish:
     name: Publish
