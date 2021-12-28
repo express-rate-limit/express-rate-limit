@@ -11,7 +11,7 @@ on:
 
 jobs:
   build_library:
-    name: Build the library
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -37,7 +37,7 @@ jobs:
           git commit --allow-empty --message "chore: update library tarball"
           git push
   test_library:
-    name: Test the library
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
