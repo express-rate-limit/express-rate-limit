@@ -59,8 +59,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 14.x, 15.x, 16.x, 17.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     needs: build_library
     steps:
       - name: Checkout the `tests` branch
@@ -69,7 +68,7 @@ jobs:
           ref: tests
       - name: Checkout the repository
         uses: actions/checkout@v2
-      - name: Use Node ${{ matrix.node-version }} on ${{ matrix.os }}
+      - name: Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
