@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]()
+
+### Added
+
+- Add additional tests that test:
+  - importing the library in `js-cjs`, `js-esm`, `ts-cjs`, `ts-esm`
+    environments.
+  - usage of the library with external stores (`redis`, `mongo`, `memcached`,
+    `precise`).
+
+### Changed
+
+- Use [`esbuild`](https://esbuild.github.io/) to generate ESM and CJS output.
+  This reduces the size of the built package from 138 kb to 13kb and build time
+  to 4 ms! :rocket:
+- Use [`dts-bundle-generator`](https://github.com/timocov/dts-bundle-generator)
+  to generate a single Typescript declaration file.
+
 ## [6.0.1](https://github.com/nfriedly/express-rate-limit/releases/v6.0.1)
 
 ### Fixed
