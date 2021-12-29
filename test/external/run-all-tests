@@ -1,4 +1,5 @@
 #!/bin/bash
+# Run all the external tests
 
 # Fail if any command fails
 set -e 
@@ -20,10 +21,10 @@ cd ../
 # Tests all external stores with the `express-rate-limit` package.
 cd stores/
 if [[ -z "$CI" ]]; then
-	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis
-	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis
+	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
+	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 
-	rm -rf /tmp/database
+	rm -rf /tmp/database || true
 
 	docker run --name rate-limit-memcached -p 11211:11211 -d memcached
 	docker run --name rate-limit-mongo -p 27017:27017 -v /tmp/database:/data/db -d mongo
