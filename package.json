@@ -47,14 +47,21 @@
 		"node": ">= 12.9.0"
 	},
 	"scripts": {
-		"clean": "node scripts/make clean",
-		"build": "node scripts/make build",
-		"compile": "node scripts/make compile",
-		"lint": "node scripts/make lint",
-		"autofix": "node scripts/make autofix",
-		"test": "node scripts/make build lint test",
+		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
+		"build:cjs": "esbuild source/index.ts --bundle --format=cjs --outfile=dist/index.cjs && echo 'module.exports = rateLimit;' >> dist/index.cjs",
+		"build:esm": "esbuild source/index.ts --bundle --format=esm --outfile=dist/index.mjs",
+		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts",
+		"compile": "run-s clean build:*",
+		"lint:code": "xo",
+		"lint:rest": "prettier --ignore-path .gitignore --ignore-unknown --check .",
+		"lint": "run-s lint:*",
+		"autofix:code": "xo --fix",
+		"autofix:rest": "prettier --ignore-path .gitignore --ignore-unknown --write .",
+		"autofix": "run-s autofix:*",
+		"test:lib": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+		"test": "run-s compile lint test:*",
 		"pre-commit": "lint-staged",
-		"prepare": "npm run compile && husky install config/husky"
+		"prepare": "run-s compile && husky install config/husky"
 	},
 	"peerDependencies": {
 		"express": "^4"
@@ -65,8 +72,8 @@
 		"@types/jest": "^27.0.3",
 		"@types/node": "^16.11.17",
 		"@types/supertest": "^2.0.11",
-		"chalk": "^5.0.0",
 		"cross-env": "^7.0.3",
+		"del-cli": "^4.0.1",
 		"dts-bundle-generator": "^6.2.0",
 		"esbuild": "^0.14.8",
 		"express": "^4.17.1",
@@ -74,7 +81,6 @@
 		"jest": "^27.4.3",
 		"lint-staged": "^12.1.2",
 		"npm-run-all": "^4.1.5",
-		"shelljs": "^0.8.4",
 		"supertest": "^6.1.6",
 		"ts-jest": "^27.1.1",
 		"ts-node": "^10.4.0",
