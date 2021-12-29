@@ -50,7 +50,7 @@
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
 		"build:cjs": "esbuild source/index.ts --bundle --format=cjs --outfile=dist/index.cjs && echo 'module.exports = rateLimit;' >> dist/index.cjs",
 		"build:esm": "esbuild source/index.ts --bundle --format=esm --outfile=dist/index.mjs",
-		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts",
+		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && echo 'export default rateLimit;' >> dist/index.d.ts",
 		"compile": "run-s clean build:*",
 		"lint:code": "xo",
 		"lint:rest": "prettier --ignore-path .gitignore --ignore-unknown --check .",
