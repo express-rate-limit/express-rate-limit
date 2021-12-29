@@ -3,87 +3,15 @@
 
 name: Test
 
-on:
-  push:
-    branches:
-      - 'master'
-  pull_request:
+on: [push, pull_request]
 
 jobs:
-  build_library:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-      - name: Use Node 16
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16
-      - name: Build the library
-        run: |
-          npm ci
-          npm pack
-      - name: Use the built library to run extra tests
-        run: |
-          mv ./express-rate-limit*.tgz ../express-rate-limit.tgz
-          git fetch --no-tags --depth=1 origin tests
-          git checkout tests
-          cp ../express-rate-limit.tgz ./assets/
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/
-          git commit --allow-empty --message "chore: update library tarball"
-          git push
-  test_library:
+  test:
     name: Test
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 15.x, 16.x, 17.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-      - name: Use Node ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Test the library
-        run: |
-          npm ci
-          npm test
-  test_imports:
-    name: Import Variations
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 15.x, 16.x, 17.x]
-    runs-on: ubuntu-latest
-    needs: build_library
-    steps:
-      - name: Checkout the `tests` branch
-        uses: actions/checkout@v2
-        with:
-          ref: tests
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-      - name: Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Test various imports with the library
-        run: |
-          git checkout origin/tests
-          cd test/import-tests
-          bash run-all-tests
-  test_stores:
-    name: External Stores
-    strategy:
-      matrix:
         node-version: [14.x, 15.x, 16.x, 17.x]
-    runs-on: ubuntu-latest # Docker containers ('services' field) only work on Linux hosts
-    needs: build_library
+    runs-on: ubuntu-latest
     services:
       rate-limit-redis:
         image: redis
@@ -98,18 +26,13 @@ jobs:
         ports:
           - 11211:11211
     steps:
-      - name: Checkout the `tests` branch
-        uses: actions/checkout@v2
-        with:
-          ref: tests
       - name: Checkout the repository
         uses: actions/checkout@v2
       - name: Use Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Test various external stores with the library
+      - name: Test the library
         run: |
-          git checkout origin/tests
-          cd test/store-tests
-          bash run-all-tests
+          npm ci
+          npm test

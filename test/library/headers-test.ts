@@ -3,7 +3,7 @@
 
 import request from 'supertest'
 
-import rateLimit from '../source/index.js'
+import rateLimit from '../../source/index.js'
 
 import { createServer } from './helpers/create-server.js'
 

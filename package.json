@@ -52,14 +52,15 @@
 		"build:esm": "esbuild source/index.ts --bundle --format=esm --outfile=dist/index.mjs",
 		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && echo 'export default rateLimit;' >> dist/index.d.ts",
 		"compile": "run-s clean build:*",
-		"lint:code": "xo",
+		"lint:code": "xo --ignore test/external/",
 		"lint:rest": "prettier --ignore-path .gitignore --ignore-unknown --check .",
 		"lint": "run-s lint:*",
-		"autofix:code": "xo --fix",
+		"autofix:code": "xo --ignore test/external/ --fix",
 		"autofix:rest": "prettier --ignore-path .gitignore --ignore-unknown --write .",
 		"autofix": "run-s autofix:*",
 		"test:lib": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-		"test": "run-s compile lint test:*",
+		"test:ext": "cd test/external/ && bash run-all-tests",
+		"test": "npm pack && run-s lint test:*",
 		"pre-commit": "lint-staged",
 		"prepare": "run-s compile && husky install config/husky"
 	},
@@ -123,7 +124,7 @@
 		],
 		"testTimeout": 30000,
 		"testMatch": [
-			"**/test/**/*-test.[jt]s?(x)"
+			"**/test/library/**/*-test.[jt]s?(x)"
 		],
 		"moduleFileExtensions": [
 			"js",
@@ -137,7 +138,7 @@
 		}
 	},
 	"lint-staged": {
-		"{source,test}/**/*.ts": "xo --fix",
-		"**/*.{json,yaml,md}": "prettier --write"
+		"{source,test}/**/*.ts": "xo --ignore test/external/ --fix",
+		"**/*.{json,yaml,md}": "prettier --ignore-path .gitignore --ignore-unknown --write "
 	}
 }

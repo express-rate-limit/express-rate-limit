@@ -1,0 +1,29 @@
+{
+	"name": "express-rate-limit-example-js-cjs",
+	"version": "1.0.0",
+	"description": "A minimal example (JS-CJS) of a project using the express-rate-limit package.",
+	"scripts": {
+		"start": "node source/index.js",
+		"test": "jest"
+	},
+	"dependencies": {
+		"express": "^4.17.2",
+		"express-rate-limit": "file:../../../../express-rate-limit-6.0.1.tgz"
+	},
+	"devDependencies": {
+		"jest": "^27.4.5",
+		"supertest": "^6.1.6"
+	},
+	"jest": {
+		"verbose": true,
+		"collectCoverage": true,
+		"testTimeout": 30000,
+		"testMatch": [
+			"**/test/**/*-test.js"
+		],
+		"moduleFileExtensions": [
+			"js",
+			"json"
+		]
+	}
+}

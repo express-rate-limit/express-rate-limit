@@ -1,0 +1,15 @@
+{
+	"include": ["source/"],
+	"exclude": ["node_modules/"],
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"declaration": true,
+		"sourceMap": false,
+		"outDir": "build/",
+		"strict": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	}
+}
