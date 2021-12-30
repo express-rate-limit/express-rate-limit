@@ -10,7 +10,7 @@ jobs:
     name: Test
     strategy:
       matrix:
-        node-version: [14.x, 15.x, 16.x, 17.x]
+        node-version: [16.x] # node-version: [14.x, 15.x, 16.x, 17.x]
     runs-on: ubuntu-latest
     services:
       rate-limit-redis:
@@ -35,7 +35,6 @@ jobs:
       - name: Test the library
         run: |
           npm ci
-          npm pack
           npm test
   publish:
     name: Publish
