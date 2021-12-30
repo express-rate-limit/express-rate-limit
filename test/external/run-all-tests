@@ -1,0 +1,36 @@
+#!/bin/bash
+# Run all the external tests
+
+# Fail if any command fails
+set -e 
+set -o pipefail
+
+# Tests all the variations (JS-TS and CJS-ESM) with the `express-rate-limit` package.
+cd imports/
+for dir in `ls -d */`; do
+	cd $dir
+
+	rm -rf node_modules
+	npm install ../../../../express-rate-limit*.tgz
+	npm test
+
+	cd ../
+done
+cd ../
+
+# Tests all external stores with the `express-rate-limit` package.
+cd stores/
+if [[ -z "$CI" ]]; then
+	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
+	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
+
+	rm -rf /tmp/database || true
+
+	docker run --name rate-limit-memcached -p 11211:11211 -d memcached
+	docker run --name rate-limit-mongo -p 27017:27017 -v /tmp/database:/data/db -d mongo
+	docker run --name rate-limit-redis -p 6379:6379 -d redis
+fi
+rm -rf node_modules
+npm install ../../../express-rate-limit*.tgz
+npm test
+cd ../

@@ -4,6 +4,7 @@
 node_modules/
 dist/
 coverage/
+test/external/**/package-lock.json
 
 .vscode/
 .idea/

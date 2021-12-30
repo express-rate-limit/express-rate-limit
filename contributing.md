@@ -9,9 +9,10 @@ First, you need to install and be familiar the following:
 
 - `git`: [Here](https://github.com/git-guides) is a great guide by GitHub on
   installing and getting started with Git.
-- `node` and `npm`: [This page](https://nodejs.org/en/download/package-manager/)
-  will help you install Node and npm. The recommended method is using the `n`
-  version manager if you are on MacOS or Linux. Make sure you are using the
+- `node` and `npm`:
+  [This guide](https://nodejs.org/en/download/package-manager/) will help you
+  install Node and npm. The recommended method is using the `n` version manager
+  if you are on MacOS or Linux. Make sure you are using the
   [active LTS version](https://github.com/nodejs/Release#release-schedule) of
   Node.
 
@@ -28,9 +29,9 @@ you want to fix/implement!
 
 ## Making Changes
 
-Once you have [`cloned`](https://github.com/git-guides/git-clone) the repository
-to your computer (say, in `~/Code/express-rate-limit`) and picked the issue you
-want to tackle, create a branch:
+Once you have cloned the repository to your computer (say, in
+`~/Code/express-rate-limit`) and picked the issue you want to tackle, create a
+branch:
 
 ```sh
 > git checkout -b branch-name
@@ -58,32 +59,34 @@ of Node. The code is arranged as follows:
 
 ```sh
 express-rate-limit
-├── source
+├── config/
+│  └── husky/
+│     ├── _
+│     └── pre-commit
+├── source/
 │  ├── index.ts
 │  ├── lib.ts
 │  ├── memory-store.ts
 │  └── types.ts
-├── test
-│  ├── helpers
-│  │  └── create-server.ts
-│  ├── headers-test.ts
-│  ├── memory-store-test.ts
-│  ├── middleware-test.ts
-│  └── options-test.ts
-├── config
-│  ├── husky
-│  │  └── pre-commit
-│  └── typescript
-│     ├── cjs.json
-│     ├── esm.json
-│     └── test.json
-├── package-lock.json
-├── package.json
-├── tsconfig.json
+├── test/
+│  ├── external/
+│  │  ├── imports/
+│  │  ├── stores/
+│  │  └── run-all-tests
+│  └── library/
+│     ├── helpers/
+│     │  └── create-server.ts
+│     ├── headers-test.ts
+│     ├── memory-store-test.ts
+│     ├── middleware-test.ts
+│     └── options-test.ts
 ├── changelog.md
 ├── contributing.md
 ├── license.md
-└── readme.md
+├── package-lock.json
+├── package.json
+├── readme.md
+└── tsconfig.json
 ```
 
 > Most files have a little description of what they do at the top.
@@ -108,21 +111,30 @@ express-rate-limit
 - `source/memory-store.ts`: The default, built-in memory store for the rate
   limiter.
 
-#### `test/`
+#### `test/library/`
 
-- `test/options-test.ts`: Ensures the library can parse options correctly.
-- `test/headers-test.ts`: Ensures that the middleware returns the correct
-  headers.
-- `test/middleware-test.ts`: Ensures the middleware works correctly with in
-  various different situations.
-- `test/memory-store-test.ts`: Tests the default, built-in memory store.
+- `test/library/helpers/create-server.ts`: Helper function to create an Express
+  server and register the middleware passed to it.
+- `test/library/options-test.ts`: Ensures the library can parse options
+  correctly.
+- `test/library/headers-test.ts`: Ensures that the middleware returns the
+  correct headers.
+- `test/library/middleware-test.ts`: Ensures the middleware works correctly with
+  in various different situations.
+- `test/library/memory-store-test.ts`: Tests the default, built-in memory store.
+
+#### `test/external/`
+
+- `test/external/imports/*`: Ensures the library can be imported in several
+  different environments (`js-cjs`, `js-esm`, `ts-cjs`, `ts-esm`).
+- `test/external/stores/*`: Ensures the library works with several external
+  stores (`redis`, `mongo`, `memcached`, `precise`).
+- `test/external/run-all-tests`: Sets up and then runs all external tests.
 
 #### `config/`
 
 - `config/husky/pre-commit`: The bash script to run just before someone runs
-  `git commit`
-- `config/typescript/*.json`: The TSC configurations for compiling to CJS, ESM
-  and running tests.
+  `git commit`.
 
 When adding a new feature/fixing a bug, please add/update the readme and
 changelog as well as add tests for the same. Also make sure your code has been

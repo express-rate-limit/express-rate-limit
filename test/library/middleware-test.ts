@@ -13,7 +13,7 @@ import rateLimit, {
 	Options,
 	IncrementCallback,
 	IncrementResponse,
-} from '../source/index.js'
+} from '../../source/index.js'
 
 import { createServer } from './helpers/create-server.js'
 

@@ -1,0 +1,31 @@
+{
+	"name": "express-rate-limit-example-js-esm",
+	"version": "1.0.0",
+	"description": "A minimal example (JS-ESM) of a project using the express-rate-limit package.",
+	"type": "module",
+	"scripts": {
+		"start": "node source/index.js",
+		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
+	},
+	"dependencies": {
+		"express": "^4.17.2",
+		"express-rate-limit": "file:../../../../express-rate-limit-6.0.1.tgz"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"jest": "^27.4.5",
+		"supertest": "^6.1.6"
+	},
+	"jest": {
+		"verbose": true,
+		"collectCoverage": true,
+		"testTimeout": 30000,
+		"testMatch": [
+			"**/test/**/*-test.js"
+		],
+		"moduleFileExtensions": [
+			"js",
+			"json"
+		]
+	}
+}
