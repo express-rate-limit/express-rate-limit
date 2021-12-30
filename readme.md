@@ -158,7 +158,7 @@ Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of the
 request might be the localhost IP or `undefined`. To solve this issue, add the
 following line to your code (right after you create the express application):
 
-```
+```ts
 app.set('trust proxy', numberOfProxies)
 ```
 
@@ -166,7 +166,7 @@ Where `numberOfProxies` is the number of proxies between the user and the
 server. To find the correct number, create a test endpoint that returns the
 client IP:
 
-```
+```ts
 app.set('trust proxy', 1)
 app.get('/ip', (request, response) => response.send(request.ip))
 ```
