@@ -6,24 +6,6 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: Build
-    strategy:
-      matrix:
-        node-version: [14.x, 15.x, 16.x, 17.x]
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-      - name: Use Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Build the library
-        run: |
-          npm ci
-          npm run compile
   lint:
     name: Lint
     strategy:
@@ -94,7 +76,7 @@ jobs:
           npm run test:ext
   publish:
     name: Publish
-    needs: [build, lint, test_lib, test_ext]
+    needs: [lint, test_lib, test_ext]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
