@@ -89,14 +89,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Publish package to NPM
-        run: |
-          npm publish
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a Github release with the compiled code
+      - name: Build package to upload to GitHub releases
+        run: |
+          npm pack
+          mv express-rate-limit-*.tgz express-rate-limit.tgz
+      - name: Create a Github release
         uses: softprops/action-gh-release@v1
         with:
-          files: express-rate-limit*.tgz
+          files: express-rate-limit.tgz
           body:
             You can view the changelog
             [here](https://github.com/nfriedly/express-rate-limit/blob/master/changelog.md).
