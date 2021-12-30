@@ -8,30 +8,42 @@ set -o pipefail
 # Tests all the variations (JS-TS and CJS-ESM) with the `express-rate-limit` package.
 cd imports/
 for dir in `ls -d */`; do
+	# cd into the example project
 	cd $dir
-
+	# Get a fresh install of all node modules
 	rm -rf node_modules
+	# Also install the latest version of the package, built off the master branch
 	npm install ../../../../express-rate-limit*.tgz
+	# Run the tests
 	npm test
-
+	# Go back
 	cd ../
 done
 cd ../
 
 # Tests all external stores with the `express-rate-limit` package.
+# cd into the example project
 cd stores/
 if [[ -z "$CI" ]]; then
+	# If we are not in the CI, start the docker containers needed to run these tests
+	# Stop and delete any existing containers
 	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
-
+	# Delete any existing files
 	rm -rf /tmp/database || true
-
+	# Start all the containers
 	docker run --name rate-limit-memcached -p 11211:11211 -d memcached
 	docker run --name rate-limit-mongo -p 27017:27017 -v /tmp/database:/data/db -d mongo
 	docker run --name rate-limit-redis -p 6379:6379 -d redis
 fi
+# Get a fresh install of all the node modules
 rm -rf node_modules
+# Also install the latest version of the package, built off the master branch
 npm install ../../../express-rate-limit*.tgz
+# npm 6 does not install other packages if they are not installed already when
+# running `npm install <something>`
 npm install
+# Run the tests
 npm test
+# Go back
 cd ../
