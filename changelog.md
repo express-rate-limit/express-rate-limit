@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.3](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.0.3)
+
+- Bump minimum node.js version from 12.9 to 14.5 because the transpiled output uses nullish coalescing operator (`??`) which isn't supported in node.js prior to 14.x - https://node.green/#ES2020-features--nullish-coalescing-operator-----
+
 ## [6.0.2](https://github.com/nfriedly/express-rate-limit/releases/v6.0.2)
 
 ### Fixed
