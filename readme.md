@@ -155,8 +155,10 @@ app.use('/api', apiLimiter)
 If you are behind a proxy/load balancer (usually the case with most hosting
 services, e.g. Heroku, Bluemix, AWS ELB, Nginx, Cloudflare, Akamai, Fastly,
 Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of the
-request might be the localhost IP or `undefined`. To solve this issue, add the
-following line to your code (right after you create the express application):
+request might be the IP of the load balancer/reverse proxy (making the rate
+limiter effectively a global one and blocking all requests once the limit is
+reached) or `undefined`. To solve this issue, add the following line to your
+code (right after you create the express application):
 
 ```ts
 app.set('trust proxy', numberOfProxies)
@@ -172,9 +174,10 @@ app.get('/ip', (request, response) => response.send(request.ip))
 ```
 
 Go to `/ip` and see the IP address returned in the response. If it matches your
-IP address (which you can get by going to https://api.ipify.org/), then the
-number of proxies is correct and the rate limiter should now work correctly. If
-not, then keep increasing the number until it does.
+IP address (which you can get by going to http://ip.nfriedly.com/ or
+https://api.ipify.org/), then the number of proxies is correct and the rate
+limiter should now work correctly. If not, then keep increasing the number until
+it does.
 
 For more information about the `trust proxy` setting, take a look at the
 [official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
