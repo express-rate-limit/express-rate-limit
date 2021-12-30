@@ -32,5 +32,6 @@ if [[ -z "$CI" ]]; then
 fi
 rm -rf node_modules
 npm install ../../../express-rate-limit*.tgz
+npm install
 npm test
 cd ../
