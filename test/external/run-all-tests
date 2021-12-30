@@ -11,7 +11,7 @@ for dir in `ls -d */`; do
 	cd $dir
 
 	rm -rf node_modules
-	npm install ../../../../*.tgz
+	npm install && npm install ../../../../express-rate-limit*.tgz
 	npm test
 
 	cd ../
@@ -31,6 +31,6 @@ if [[ -z "$CI" ]]; then
 	docker run --name rate-limit-redis -p 6379:6379 -d redis
 fi
 rm -rf node_modules
-npm install ../../../*.tgz
+npm install && npm install ../../../express-rate-limit*.tgz
 npm test
 cd ../
