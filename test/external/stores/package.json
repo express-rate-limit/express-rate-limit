@@ -9,7 +9,7 @@
 	"dependencies": {
 		"@types/rate-limit-redis": "^1.7.3",
 		"express": "^4.17.2",
-		"express-rate-limit": "file:../../../express-rate-limit-6.0.2.tgz",
+		"express-rate-limit": "file:../../../express-rate-limit-6.0.3.tgz",
 		"precise-memory-rate-limit": "^1.1.4",
 		"rate-limit-memcached": "^0.6.0",
 		"rate-limit-mongo": "^2.3.2",

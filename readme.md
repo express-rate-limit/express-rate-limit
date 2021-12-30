@@ -64,6 +64,8 @@ To import it in a Typescript/ESM project:
 import rateLimit from 'express-rate-limit'
 ```
 
+**This package requires you to use Node 14 or above.**
+
 ### Examples
 
 To use it in an API-only server where the rate-limiter should be applied to all
