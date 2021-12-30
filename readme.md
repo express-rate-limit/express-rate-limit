@@ -12,7 +12,7 @@ public APIs and/or endpoints such as password reset. Plays nice with
 
 </div>
 
-### Alternate Rate-limiters
+### Alternate Rate Limiters
 
 > This module does not share state with other processes/servers by default. If
 > you need a more robust solution, I recommend using an external store. See the
@@ -72,10 +72,6 @@ requests:
 ```ts
 import rateLimit from 'express-rate-limit'
 
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-// see https://expressjs.com/en/guide/behind-proxies.html
-// app.set('trust proxy', 1);
-
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -94,10 +90,6 @@ requests:
 ```ts
 import rateLimit from 'express-rate-limit'
 
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-// see https://expressjs.com/en/guide/behind-proxies.html
-// app.set('trust proxy', 1);
-
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -113,10 +105,6 @@ To create multiple instances to apply different rules to different endpoints:
 
 ```ts
 import rateLimit from 'express-rate-limit'
-
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-// see https://expressjs.com/en/guide/behind-proxies.html
-// app.set('trust proxy', 1);
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -147,10 +135,6 @@ To use a custom store:
 import rateLimit from 'express-rate-limit'
 import MemoryStore from 'express-rate-limit/memory-store.js'
 
-// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-// see https://expressjs.com/en/guide/behind-proxies.html
-// app.set('trust proxy', 1);
-
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
@@ -165,6 +149,35 @@ app.use('/api', apiLimiter)
 > **Note:** most stores will require additional configuration, such as custom
 > prefixes, when using multiple instances. The default built-in memory store is
 > an exception to this rule.
+
+### Troubleshooting Proxy Issues
+
+If you are behind a proxy/load balancer (usually the case with most hosting
+services, e.g. Heroku, Bluemix, AWS ELB, Nginx, Cloudflare, Akamai, Fastly,
+Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of the
+request might be the localhost IP or `undefined`. To solve this issue, add the
+following line to your code (right after you create the express application):
+
+```
+app.set('trust proxy', numberOfProxies)
+```
+
+Where `numberOfProxies` is the number of proxies between the user and the
+server. To find the correct number, create a test endpoint that returns the
+client IP:
+
+```
+app.set('trust proxy', 1)
+app.get('/ip', (request, response) => response.send(request.ip))
+```
+
+Go to `/ip` and see the IP address returned in the response. If it matches your
+IP address (which you can get by going to https://api.ipify.org/), then the
+number of proxies is correct and the rate limiter should now work correctly. If
+not, then keep increasing the number until it does.
+
+For more information about the `trust proxy` setting, take a look at the
+[official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
 
 ## Request API
 
