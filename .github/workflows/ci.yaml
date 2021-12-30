@@ -28,8 +28,8 @@ jobs:
     name: Lint
     strategy:
       matrix:
-        node-version: [14.x, 15.x, 16.x, 17.x]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16.x]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
