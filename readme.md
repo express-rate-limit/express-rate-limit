@@ -51,10 +51,14 @@ Replace `{version}` with the version of the package that you want to your, e.g.:
 
 ## Usage
 
+### Importing the Library
+
 This library is provided in ESM as well as CJS forms, and works with both
 Javascript and Typescript projects.
 
-### Javascript
+**This package requires you to use Node 14 or above.**
+
+#### Javascript
 
 Import it in a CommonJS project as follows:
 
@@ -68,7 +72,7 @@ Import it in a ESM project as follows:
 import rateLimit from 'express-rate-limit'
 ```
 
-### Typescript
+#### Typescript
 
 If you are using this library in a Typescript project that outputs CommonJS
 (`module: commonjs`), set `esModuleInterop` to `true` in the `compilerOptions`
@@ -102,8 +106,6 @@ And use the following to import any types if you need to:
 ```ts
 import rateLimit, { Store, IncrementResponse, ... } from 'express-rate-limit'
 ```
-
-**This package requires you to use Node 14 or above.**
 
 ### Examples
 
