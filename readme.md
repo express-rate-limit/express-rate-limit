@@ -51,17 +51,56 @@ Replace `{version}` with the version of the package that you want to your, e.g.:
 
 ## Usage
 
-This library is provided in ESM as well as CJS forms. To import it in a CJS
-project:
+This library is provided in ESM as well as CJS forms, and works with both
+Javascript and Typescript projects.
+
+### Javascript
+
+Import it in a CommonJS project as follows:
 
 ```ts
 const rateLimit = require('express-rate-limit')
 ```
 
-To import it in a Typescript/ESM project:
+Import it in a ESM project as follows:
 
 ```ts
 import rateLimit from 'express-rate-limit'
+```
+
+### Typescript
+
+If you are using this library in a Typescript project that outputs CommonJS
+(`module: commonjs`), set `esModuleInterop` to `true` in the `compilerOptions`
+of your `tsconfig.json` and then import it as follows:
+
+```ts
+import rateLimit from 'express-rate-limit'
+```
+
+If you cannot set `esModuleInterop` to true, import it as follows:
+
+```ts
+const rateLimit = require('express-rate-limit')
+```
+
+And use the following to import any types if you need to:
+
+```ts
+import { Store, IncrementResponse, ... } from 'express-rate-limit'
+```
+
+If you are using this library in a Typescript project that outputs ESM
+(`module: esnext`), import it as follows:
+
+```ts
+import rateLimit from 'express-rate-limit'
+```
+
+And use the following to import any types if you need to:
+
+```ts
+import rateLimit, { Store, IncrementResponse, ... } from 'express-rate-limit'
 ```
 
 **This package requires you to use Node 14 or above.**
