@@ -11,7 +11,7 @@ body:
   - type: textarea
     attributes:
       label: Description
-      description:
+      description: |
         Describe the issue and how to replicate it. If possible, please include
         a minimal example to reproduce the issue.
     validations:
@@ -19,7 +19,7 @@ body:
   - type: input
     attributes:
       label: Library version
-      description:
+      description: |
         Can be found the `express-rate-limit` field in the `dependencies` map of
         `package.json`
     validations:
@@ -33,15 +33,15 @@ body:
   - type: input
     attributes:
       label: Typescript version (if you are using it)
-      description:
+      description: |
         Can be found the `typescript` field in the
         `dependencies`/`devDependencies` map of `package.json`
   - type: dropdown
     attributes:
       label: Module system
-      description:
-        If you are using `import ... from '...'`, you are using ESM. If you are
-        using `require('...')`, you are using CommonJS
+      description: |
+        If you have `type: module` in your `package.json` file, then you are
+        using ESM, else you are using CommonJS.
       options:
         - ESM
         - CommonJS

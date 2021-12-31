@@ -74,15 +74,16 @@ import rateLimit from 'express-rate-limit'
 
 #### Typescript
 
-If you are using this library in a Typescript project that outputs CommonJS
-(`module: commonjs`), set `esModuleInterop` to `true` in the `compilerOptions`
-of your `tsconfig.json` and then import it as follows:
+If you are using this library in a Typescript project that outputs CommonJS (no
+`type: module` in `package.json` and `module: commonjs` in `tsconfig.json`), set
+`esModuleInterop` to `true` in the `compilerOptions` of your `tsconfig.json` and
+then import it as follows:
 
 ```ts
 import rateLimit from 'express-rate-limit'
 ```
 
-If you cannot set `esModuleInterop` to true, import it as follows:
+If you cannot set `esModuleInterop` to true, import it as follows instead:
 
 ```ts
 const rateLimit = require('express-rate-limit')
@@ -95,7 +96,8 @@ import { Store, IncrementResponse, ... } from 'express-rate-limit'
 ```
 
 If you are using this library in a Typescript project that outputs ESM
-(`module: esnext`), import it as follows:
+(`type: module` in `package.json` and `module: esnext` in `tsconfig.json`),
+import it as follows:
 
 ```ts
 import rateLimit from 'express-rate-limit'
