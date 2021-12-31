@@ -26,7 +26,7 @@ software and may be more appropriate for some situations:
 - [express-brute](https://www.npmjs.com/package/express-brute)
 - [rate-limiter](https://www.npmjs.com/package/express-limiter)
 
-## Install
+## Installation
 
 From the npm registry:
 
@@ -51,7 +51,7 @@ Replace `{version}` with the version of the package that you want to your, e.g.:
 
 ## Usage
 
-### Importing the Library
+### Importing
 
 This library is provided in ESM as well as CJS forms, and works with both
 Javascript and Typescript projects.
