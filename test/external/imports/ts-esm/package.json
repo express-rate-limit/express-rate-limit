@@ -4,7 +4,7 @@
 	"description": "A minimal example (TS-CJS) of a project using the express-rate-limit package.",
 	"type": "module",
 	"scripts": {
-		"start": "ts-node source/index.ts",
+		"start": "node --loader ts-node/esm source/index.ts",
 		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"dependencies": {

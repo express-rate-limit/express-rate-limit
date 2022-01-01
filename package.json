@@ -28,13 +28,18 @@
 		"attack"
 	],
 	"type": "module",
-	"types": "./dist/index.d.ts",
 	"exports": {
-		".": {
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs"
-		}
+		".": [
+			{
+				"import": "./dist/index.mjs",
+				"require": "./dist/index.cjs"
+			},
+			"./dist/index.cjs"
+		]
 	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
 	"files": [
 		"dist/",
 		"tsconfig.json",
@@ -59,8 +64,8 @@
 		"autofix:rest": "prettier --ignore-path .gitignore --ignore-unknown --write .",
 		"autofix": "run-s autofix:*",
 		"test:lib": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-		"test:ext": "cd test/external/ && bash run-all-tests",
-		"test": "npm pack && run-s lint test:*",
+		"test:ext": "npm pack && cd test/external/ && bash run-all-tests",
+		"test": "run-s lint test:*",
 		"pre-commit": "lint-staged",
 		"prepare": "run-s compile && husky install config/husky"
 	},
