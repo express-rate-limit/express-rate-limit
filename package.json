@@ -97,9 +97,7 @@
 			"@typescript-eslint/consistent-indexed-object-style": [
 				"error",
 				"index-signature"
-			],
-			"import/no-named-as-default-member": 0,
-			"import/no-cycle": 0
+			]
 		}
 	},
 	"prettier": {
