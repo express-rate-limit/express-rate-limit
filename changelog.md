@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.4](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.0.4)
+
+### Changed
+
+- Add ` main` and `module` fields to `package.json`. This helps tools such as
+  ESLint that do not yet support the `exports` field.
+
 ## [6.0.3](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.0.3)
 
 ### Changed
