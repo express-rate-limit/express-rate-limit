@@ -14,8 +14,11 @@ for dir in `ls -d */`; do
 	rm -rf node_modules
 	# Also install the latest version of the package, built off the master branch
 	npm install ../../../../express-rate-limit*.tgz
-	# Run the tests
-	npm test
+	# and ensure the other dependencies are installed...
+	npm install
+	# Run the linter and the tests
+	npm run lint
+	npm run test
 	# Go back
 	cd ../
 done
@@ -44,6 +47,6 @@ npm install ../../../express-rate-limit*.tgz
 # running `npm install <something>`
 npm install
 # Run the tests
-npm test
+npm run test
 # Go back
 cd ../

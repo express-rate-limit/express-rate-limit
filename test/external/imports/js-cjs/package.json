@@ -4,6 +4,7 @@
 	"description": "A minimal example (JS-CJS) of a project using the express-rate-limit package.",
 	"scripts": {
 		"start": "node source/index.js",
+		"lint": "eslint source/**/*.js",
 		"test": "jest"
 	},
 	"dependencies": {
@@ -11,8 +12,19 @@
 		"express-rate-limit": "file:../../../../express-rate-limit-6.0.3.tgz"
 	},
 	"devDependencies": {
+		"eslint": "^8.6.0",
 		"jest": "^27.4.5",
 		"supertest": "^6.1.6"
+	},
+	"eslintConfig": {
+		"extends": "eslint:recommended",
+		"parserOptions": {
+			"ecmaVersion": 2022
+		},
+		"env": {
+			"es6": true,
+			"node": true
+		}
 	},
 	"jest": {
 		"verbose": true,

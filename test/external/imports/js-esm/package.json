@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "node source/index.js",
+		"lint": "eslint source/**/*.js",
 		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"dependencies": {
@@ -13,8 +14,20 @@
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",
+		"eslint": "^8.6.0",
 		"jest": "^27.4.5",
 		"supertest": "^6.1.6"
+	},
+	"eslintConfig": {
+		"extends": "eslint:recommended",
+		"parserOptions": {
+			"ecmaVersion": 2022,
+			"sourceType": "module"
+		},
+		"env": {
+			"es6": true,
+			"node": true
+		}
 	},
 	"jest": {
 		"verbose": true,
