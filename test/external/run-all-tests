@@ -14,6 +14,8 @@ for dir in `ls -d */`; do
 	rm -rf node_modules
 	# Also install the latest version of the package, built off the master branch
 	npm install ../../../../express-rate-limit*.tgz
+	# and ensure the other dependencies are installed...
+	npm install
 	# Run the linter and the tests
 	npm run lint
 	npm run test
