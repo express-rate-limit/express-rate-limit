@@ -12,13 +12,15 @@ and this project adheres to
 
 - Add ` main` and `module` fields to `package.json`. This helps tools such as
   ESLint that do not yet support the `exports` field.
+- Bumped the minimum node.js version in `package-lock.json` to match
+  `package.json`
 
 ## [6.0.3](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.0.3)
 
 ### Changed
 
-- Bumped minimum Node version from 12.9 to 14.5 because the transpiled output
-  uses the nullish coalescing operator (`??`), which
+- Bumped minimum Node version from 12.9 to 14.5 in `package.json` because the
+  transpiled output uses the nullish coalescing operator (`??`), which
   [isn't supported in node.js prior to 14.x](https://node.green/#ES2020-features--nullish-coalescing-operator-----).
 
 ## [6.0.2](https://github.com/nfriedly/express-rate-limit/releases/v6.0.2)
