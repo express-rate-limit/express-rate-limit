@@ -15,7 +15,8 @@ for dir in `ls -d */`; do
 	# Also install the latest version of the package, built off the master branch
 	npm install ../../../../express-rate-limit*.tgz
 	# Run the linter and the tests
-	npm run lint && npm run test
+	npm run lint
+	npm run test
 	# Go back
 	cd ../
 done
