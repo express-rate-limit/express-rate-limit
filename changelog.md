@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [6.0.4](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.0.4)
 
+### Fixed
+
+- Upload the built package as a `.tgz` to GitHub releases.
+
 ### Changed
 
 - Add ` main` and `module` fields to `package.json`. This helps tools such as
