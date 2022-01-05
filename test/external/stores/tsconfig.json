@@ -4,12 +4,10 @@
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "esnext",
-		"declaration": true,
+		"declaration": false,
 		"sourceMap": false,
-		"outDir": "build/",
 		"strict": true,
 		"moduleResolution": "node",
-		"esModuleInterop": true,
-		"skipLibCheck": true
+		"outDir": "dist/"
 	}
 }

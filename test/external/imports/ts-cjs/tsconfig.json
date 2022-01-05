@@ -4,12 +4,11 @@
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "commonjs",
-		"declaration": true,
+		"declaration": false,
 		"sourceMap": false,
-		"outDir": "build/",
 		"strict": true,
-		"moduleResolution": "node",
 		"esModuleInterop": true,
-		"skipLibCheck": true
+		"moduleResolution": "node",
+		"outDir": "dist/"
 	}
 }
