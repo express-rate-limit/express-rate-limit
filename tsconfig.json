@@ -1,15 +1,13 @@
 {
+	"include": ["source/"],
+	"exclude": ["node_modules/"],
 	"compilerOptions": {
 		"declaration": true,
-
 		"strict": true,
 		"noUnusedLocals": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
-
-		"moduleResolution": "node",
-		"esModuleInterop": true
-	},
-	"include": ["./source/**/*.ts"],
-	"exclude": ["./node_modules"]
+		"esModuleInterop": true,
+		"moduleResolution": "node"
+	}
 }
