@@ -1,7 +1,7 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
-import Express from 'express'
+import { Request, Response, NextFunction, RequestHandler } from 'express'
 
 import {
 	Options,
@@ -102,16 +102,10 @@ const parseOptions = (
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
-		requestWasSuccessful: (
-			_request: Express.Request,
-			response: Express.Response,
-		): boolean => response.statusCode < 400,
-		skip: (_request: Express.Request, _response: Express.Response): boolean =>
-			false,
-		keyGenerator: (
-			request: Express.Request,
-			_response: Express.Response,
-		): string => {
+		requestWasSuccessful: (_request: Request, response: Response): boolean =>
+			response.statusCode < 400,
+		skip: (_request: Request, _response: Response): boolean => false,
+		keyGenerator: (request: Request, _response: Response): string => {
 			if (!request.ip) {
 				console.error(
 					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
@@ -121,16 +115,16 @@ const parseOptions = (
 			return request.ip
 		},
 		handler: (
-			_request: Express.Request,
-			response: Express.Response,
-			_next: Express.NextFunction,
+			_request: Request,
+			response: Response,
+			_next: NextFunction,
 			_optionsUsed: Options,
 		): void => {
 			response.status(options.statusCode).send(options.message)
 		},
 		onLimitReached: (
-			_request: Express.Request,
-			_response: Express.Response,
+			_request: Request,
+			_response: Response,
 			_optionsUsed: Options,
 		): void => {},
 		...passedOptions,
@@ -164,19 +158,15 @@ const parseOptions = (
  * Just pass on any errors for the developer to handle, usually as a HTTP 500
  * Internal Server Error.
  *
- * @param fn {Express.RequestHandler} - The request handler for which to handle errors
+ * @param fn {RequestHandler} - The request handler for which to handle errors
  *
- * @returns {Express.RequestHandler} - The request handler wrapped with a `.catch` clause
+ * @returns {RequestHandler} - The request handler wrapped with a `.catch` clause
  *
  * @private
  */
 const handleAsyncErrors =
-	(fn: Express.RequestHandler): Express.RequestHandler =>
-	async (
-		request: Express.Request,
-		response: Express.Response,
-		next: Express.NextFunction,
-	) => {
+	(fn: RequestHandler): RequestHandler =>
+	async (request: Request, response: Response, next: NextFunction) => {
 		try {
 			await Promise.resolve(fn(request, response, next)).catch(next)
 		} catch (error: unknown) {
@@ -206,11 +196,7 @@ const rateLimit = (
 
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
-		async (
-			request: Express.Request,
-			response: Express.Response,
-			next: Express.NextFunction,
-		) => {
+		async (request: Request, response: Response, next: NextFunction) => {
 			// First check if we should skip the request
 			const skip = await options.skip(request, response)
 			if (skip) {

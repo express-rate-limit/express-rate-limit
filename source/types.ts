@@ -1,7 +1,7 @@
 // /source/types.ts
 // All the types used by this package
 
-import Express from 'express'
+import { Request, Response, NextFunction, RequestHandler } from 'express'
 
 /**
  * Callback that fires when a client's hit counter is incremented.
@@ -20,29 +20,29 @@ export type IncrementCallback = (
  * Method (in the form of middleware) to generate/retrieve a value based on the
  * incoming request
  *
- * @param request {Express.Request} - The Express request object
- * @param response {Express.Response} - The Express response object
+ * @param request {Request} - The Express request object
+ * @param response {Response} - The Express response object
  *
  * @returns {T} - The value needed
  */
 export type ValueDeterminingMiddleware<T> = (
-	request: Express.Request,
-	response: Express.Response,
+	request: Request,
+	response: Response,
 ) => T | Promise<T>
 
 /**
  * Express request handler that sends back a response when a client is
  * rate-limited.
  *
- * @param request {Express.Request} - The Express request object
- * @param response {Express.Response} - The Express response object
- * @param next {Express.NextFunction} - The Express `next` function, can be called to skip responding
+ * @param request {Request} - The Express request object
+ * @param response {Response} - The Express response object
+ * @param next {NextFunction} - The Express `next` function, can be called to skip responding
  * @param optionsUsed {Options} - The options used to set up the middleware
  */
 export type RateLimitExceededEventHandler = (
-	request: Express.Request,
-	response: Express.Response,
-	next: Express.NextFunction,
+	request: Request,
+	response: Response,
+	next: NextFunction,
 	optionsUsed: Options,
 ) => void
 
@@ -51,13 +51,13 @@ export type RateLimitExceededEventHandler = (
  * but not for subsequent requests. May be used for logging, etc. Should *not*
  * send a response.
  *
- * @param request {Express.Request} - The Express request object
- * @param response {Express.Response} - The Express response object
+ * @param request {Request} - The Express request object
+ * @param response {Response} - The Express response object
  * @param optionsUsed {Options} - The options used to set up the middleware
  */
 export type RateLimitReachedEventHandler = (
-	request: Express.Request,
-	response: Express.Response,
+	request: Request,
+	response: Response,
 	optionsUsed: Options,
 ) => void
 
@@ -75,7 +75,7 @@ export type IncrementResponse = {
 /**
  * A modified Express request handler with the rate limit functions.
  */
-export type RateLimitRequestHandler = Express.RequestHandler & {
+export type RateLimitRequestHandler = RequestHandler & {
 	/**
 	 * Method to reset a client's hit counter.
 	 *
@@ -276,7 +276,7 @@ export interface Options {
  * The extended request object that includes information about the client's
  * rate limit.
  */
-export type AugmentedRequest = Express.Request & {
+export type AugmentedRequest = Request & {
 	[key: string]: RateLimitInfo
 }
 

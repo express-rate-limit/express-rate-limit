@@ -4,7 +4,7 @@
 // import { platform } from 'node:process'
 
 import { jest } from '@jest/globals'
-import Express from 'express'
+import { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
 
 import rateLimit, {
@@ -147,9 +147,9 @@ describe('middleware test', () => {
 
 		await Promise.resolve(
 			rateLimit()(
-				{ ip: undefined } as any as Express.Request,
-				{} as any as Express.Response,
-				(() => {}) as Express.NextFunction,
+				{ ip: undefined } as any as Request,
+				{} as any as Response,
+				(() => {}) as NextFunction,
 			),
 		)
 
@@ -664,9 +664,9 @@ describe('middleware test', () => {
 			app.use(
 				(
 					error: Error,
-					_request: Express.Request,
-					response: Express.Response,
-					_next: Express.NextFunction,
+					_request: Request,
+					response: Response,
+					_next: NextFunction,
 				) => {
 					errorCaught = true
 					response.status(500).send(error.message)
@@ -703,9 +703,9 @@ describe('middleware test', () => {
 			app.use(
 				(
 					error: Error,
-					_request: Express.Request,
-					response: Express.Response,
-					_next: Express.NextFunction,
+					_request: Request,
+					response: Response,
+					_next: NextFunction,
 				) => {
 					errorCaught = true
 					response.status(500).send(error.message)
@@ -721,9 +721,9 @@ describe('middleware test', () => {
 	it('should pass the number of hits and the limit to the next request handler in the `request.rateLimit` property', async () => {
 		let savedRequestObject: any
 		const saveRequestObject = (
-			request: Express.Request,
-			_response: Express.Response,
-			next: Express.NextFunction,
+			request: Request,
+			_response: Response,
+			next: NextFunction,
 		) => {
 			savedRequestObject = request
 
@@ -752,9 +752,9 @@ describe('middleware test', () => {
 	it('should pass the number of hits and the limit to the next request handler with a custom property', async () => {
 		let savedRequestObject: any
 		const saveRequestObject = (
-			request: Express.Request,
-			_response: Express.Response,
-			next: Express.NextFunction,
+			request: Request,
+			_response: Response,
+			next: NextFunction,
 		) => {
 			savedRequestObject = request
 
@@ -801,9 +801,9 @@ describe('middleware test', () => {
 
 		let savedRequestObject: any
 		const saveRequestObject = (
-			request: Express.Request,
-			_response: Express.Response,
-			next: Express.NextFunction,
+			request: Request,
+			_response: Response,
+			next: NextFunction,
 		) => {
 			savedRequestObject = request
 			next()
