@@ -12,9 +12,6 @@ for dir in `ls -d */`; do
 	cd $dir
 	# Get a fresh install of all node modules
 	rm -rf node_modules
-	# Also install the latest version of the package, built off the master branch
-	npm install ../../../../express-rate-limit*.tgz
-	# and ensure the other dependencies are installed...
 	npm install
 	# Run the linter and the tests
 	npm run lint
@@ -41,10 +38,6 @@ if [[ -z "$CI" ]]; then
 fi
 # Get a fresh install of all the node modules
 rm -rf node_modules
-# Also install the latest version of the package, built off the master branch
-npm install ../../../express-rate-limit*.tgz
-# npm 6 does not install other packages if they are not installed already when
-# running `npm install <something>`
 npm install
 # Run the tests
 npm run test
