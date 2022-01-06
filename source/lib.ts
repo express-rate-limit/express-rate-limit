@@ -3,6 +3,7 @@
 
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 
+import MemoryStore from './memory-store.js'
 import {
 	Options,
 	AugmentedRequest,
@@ -11,7 +12,6 @@ import {
 	Store,
 	IncrementResponse,
 } from './types.js'
-import MemoryStore from './memory-store.js'
 
 /**
  * Type guard to check if a store is legacy store.

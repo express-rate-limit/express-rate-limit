@@ -4,4 +4,6 @@
 import rateLimit from './lib.js'
 
 export * from './types.js'
-export default rateLimit // eslint-disable-line unicorn/prefer-export-from
+// https://github.com/timocov/dts-bundle-generator/issues/182
+// eslint-disable-next-line unicorn/prefer-export-from
+export default rateLimit
