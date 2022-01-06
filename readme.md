@@ -58,55 +58,17 @@ Javascript and Typescript projects.
 
 **This package requires you to use Node 14 or above.**
 
-#### Javascript
-
-Import it in a CommonJS project as follows:
-
-```ts
-const rateLimit = require('express-rate-limit')
-```
-
-Import it in a ESM project as follows:
-
-```ts
-import rateLimit from 'express-rate-limit'
-```
-
-#### Typescript
-
-If you are using this library in a Typescript project that outputs CommonJS (no
-`type: module` in `package.json` and `module: commonjs` in `tsconfig.json`), set
-`esModuleInterop` to `true` in the `compilerOptions` of your `tsconfig.json` and
-then import it as follows:
-
-```ts
-import rateLimit from 'express-rate-limit'
-```
-
-If you cannot set `esModuleInterop` to true, import it as follows instead:
+Import it in a CommonJS project (`type: commonjs` or no `type` field in
+`package.json`) as follows:
 
 ```ts
 const rateLimit = require('express-rate-limit')
 ```
 
-And use the following to import any types if you need to:
-
-```ts
-import { Store, IncrementResponse, ... } from 'express-rate-limit'
-```
-
-If you are using this library in a Typescript project that outputs ESM
-(`type: module` in `package.json` and `module: esnext` in `tsconfig.json`),
-import it as follows:
+Import it in a ESM project (`type: module` in `package.json`) as follows:
 
 ```ts
 import rateLimit from 'express-rate-limit'
-```
-
-And use the following to import any types if you need to:
-
-```ts
-import rateLimit, { Store, IncrementResponse, ... } from 'express-rate-limit'
 ```
 
 ### Examples
