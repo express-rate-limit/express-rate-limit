@@ -7,7 +7,6 @@
 		"noUnusedLocals": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
-		"esModuleInterop": true,
 		"moduleResolution": "node"
 	}
 }

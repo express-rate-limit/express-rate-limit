@@ -73,7 +73,7 @@
 		"@jest/globals": "^27.4.6",
 		"@types/express": "^4.17.13",
 		"@types/jest": "^27.4.0",
-		"@types/node": "^17.0.8",
+		"@types/node": "^16.11.17",
 		"@types/supertest": "^2.0.11",
 		"cross-env": "^7.0.3",
 		"del-cli": "^4.0.1",
