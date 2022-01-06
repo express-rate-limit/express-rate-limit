@@ -1,7 +1,7 @@
 // /test/helpers/create-server.ts
 // Create an Express server for testing
 
-import createExpressApplication, {
+import createApp, {
 	Application,
 	Request,
 	Response,
@@ -19,7 +19,7 @@ export const createServer = (
 	middleware: RequestHandler | RequestHandler[],
 ): Application => {
 	// Create an Express server
-	const app = createExpressApplication()
+	const app = createApp()
 
 	// Use the middleware
 	app.use(middleware)

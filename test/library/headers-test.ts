@@ -1,7 +1,7 @@
 // /test/headers-test.ts
 // Tests whether the headers sent back by the middleware
 
-import request from 'supertest'
+import { agent as request } from 'supertest'
 
 import rateLimit from '../../source/index.js'
 

@@ -1,7 +1,7 @@
 // /test/server-test.ts
 // Tests the server's rate limiting middleware
 
-import request from 'supertest'
+import { agent as request } from 'supertest'
 
 import app from '../source/app.js'
 
