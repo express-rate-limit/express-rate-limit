@@ -9,7 +9,7 @@
 	},
 	"dependencies": {
 		"express": "^4.17.2",
-		"express-rate-limit": "file:../../../../express-rate-limit-6.0.4.tgz"
+		"express-rate-limit": "file:../../../.."
 	},
 	"devDependencies": {
 		"eslint": "^8.6.0",
