@@ -1,14 +1,9 @@
 {
+	"extends": "../../../../tsconfig.json",
 	"include": ["source/"],
 	"exclude": ["node_modules/"],
 	"compilerOptions": {
 		"target": "esnext",
-		"module": "esnext",
-		"declaration": false,
-		"sourceMap": false,
-		"strict": true,
-		"esModuleInterop": true,
-		"moduleResolution": "node",
-		"outDir": "dist/"
+		"module": "esnext"
 	}
 }
