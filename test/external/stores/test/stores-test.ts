@@ -1,7 +1,7 @@
 // /test/stores-test.ts
 // Tests the rate limiter with various different stores
 
-import request from 'supertest'
+import { agent as request } from 'supertest'
 
 import redisStore from '../source/redis-store.js'
 import mongoStore from '../source/mongo-store.js'

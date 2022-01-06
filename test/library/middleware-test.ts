@@ -5,7 +5,7 @@
 
 import { jest } from '@jest/globals'
 import { Request, Response, NextFunction } from 'express'
-import request from 'supertest'
+import { agent as request } from 'supertest'
 
 import rateLimit, {
 	LegacyStore,
