@@ -1,17 +1,19 @@
 {
-	"name": "express-rate-limit-example-js-cjs",
+	"name": "express-rate-limit-example-js-esm",
 	"version": "1.0.0",
-	"description": "A minimal example (JS-CJS) of a project using the express-rate-limit package.",
+	"description": "A minimal example (JS-ESM) of a project using the express-rate-limit package.",
+	"type": "module",
 	"scripts": {
 		"start": "node source/index.js",
 		"lint": "eslint source/**/*.js",
-		"test": "jest"
+		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"dependencies": {
 		"express": "^4.17.2",
-		"express-rate-limit": "file:../../../.."
+		"express-rate-limit": "file:../../../../.."
 	},
 	"devDependencies": {
+		"cross-env": "^7.0.3",
 		"eslint": "^8.6.0",
 		"jest": "^27.4.5",
 		"supertest": "^6.1.6"
@@ -19,7 +21,8 @@
 	"eslintConfig": {
 		"extends": "eslint:recommended",
 		"parserOptions": {
-			"ecmaVersion": 2022
+			"ecmaVersion": 2022,
+			"sourceType": "module"
 		},
 		"env": {
 			"es6": true,

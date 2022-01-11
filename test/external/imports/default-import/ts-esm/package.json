@@ -1,15 +1,16 @@
 {
-	"name": "express-rate-limit-example-ts-cjs",
+	"name": "express-rate-limit-example-ts-esm",
 	"version": "1.0.0",
-	"description": "A minimal example (TS-CJS) of a project using the express-rate-limit package.",
+	"description": "A minimal example (TS-ESM) of a project using the express-rate-limit package.",
+	"type": "module",
 	"scripts": {
-		"start": "ts-node source/index.ts",
+		"start": "node --loader ts-node/esm source/index.ts",
 		"lint": "eslint --ext=.ts source/**/*.ts",
-		"test": "jest"
+		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"dependencies": {
 		"express": "^4.17.2",
-		"express-rate-limit": "file:../../../.."
+		"express-rate-limit": "file:../../../../.."
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.13",
@@ -18,6 +19,7 @@
 		"@types/supertest": "^2.0.11",
 		"@typescript-eslint/eslint-plugin": "^5.8.1",
 		"@typescript-eslint/parser": "^5.8.1",
+		"cross-env": "^7.0.3",
 		"eslint": "^8.6.0",
 		"jest": "^27.4.5",
 		"supertest": "^6.1.6",
@@ -31,7 +33,8 @@
 			"plugin:@typescript-eslint/recommended"
 		],
 		"parserOptions": {
-			"ecmaVersion": 2022
+			"ecmaVersion": 2022,
+			"sourceType": "module"
 		},
 		"env": {
 			"es6": true,

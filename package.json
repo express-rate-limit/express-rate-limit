@@ -50,7 +50,7 @@
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
-		"build:cjs": "esbuild --bundle --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit;\" source/index.ts",
+		"build:cjs": "esbuild --bundle --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit; module.exports.rateLimit = rateLimit;\" source/index.ts",
 		"build:esm": "esbuild --bundle --format=esm --outfile=dist/index.mjs source/index.ts",
 		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts",
 		"compile": "run-s clean build:*",
@@ -61,7 +61,7 @@
 		"autofix:rest": "prettier --ignore-path .gitignore --ignore-unknown --write .",
 		"autofix": "run-s autofix:*",
 		"test:lib": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-		"test:ext": "npm pack && cd test/external/ && bash run-all-tests",
+		"test:ext": "cd test/external/ && bash run-all-tests",
 		"test": "run-s lint test:*",
 		"pre-commit": "lint-staged",
 		"prepare": "run-s compile && husky install config/husky"
