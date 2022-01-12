@@ -22,9 +22,9 @@ This module was designed to only handle the basics and didn't even support
 external stores initially. These other options all are excellent pieces of
 software and may be more appropriate for some situations:
 
-- [rate-limiter-flexible](https://www.npmjs.com/package/rate-limiter-flexible)
-- [express-brute](https://www.npmjs.com/package/express-brute)
-- [rate-limiter](https://www.npmjs.com/package/express-limiter)
+- [`rate-limiter-flexible`](https://www.npmjs.com/package/rate-limiter-flexible)
+- [`express-brute`](https://www.npmjs.com/package/express-brute)
+- [`rate-limiter`](https://www.npmjs.com/package/express-limiter)
 
 ## Installation
 
@@ -189,17 +189,7 @@ it does.
 For more information about the `trust proxy` setting, take a look at the
 [official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
 
-## Request API
-
-A `request.rateLimit` property is added to all requests with the `limit`,
-`current`, and `remaining` number of requests and, if the store provides it, a
-`resetTime` Date object. These may be used in your application code to take
-additional actions or inform the user of their status.
-
-The property name can be configured with the configuration option
-`requestPropertyName`
-
-## Configuration options
+## Configuration
 
 ### `windowMs`
 
@@ -376,16 +366,16 @@ By default, the [memory store](source/memory-store.ts) is used.
 
 Available data stores are:
 
-- [memory-store](source/memory-store.ts): _(default)_ Simple in-memory option.
+- [`memory-store`](source/memory-store.ts): _(default)_ Simple in-memory option.
   Does not share state when app has multiple processes or servers.
-- [rate-limit-redis](https://npmjs.com/package/rate-limit-redis): A
+- [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis): A
   [Redis](http://redis.io/)-backed store, more suitable for large or demanding
   deployments.
-- [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached): A
+- [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached): A
   [Memcached](https://memcached.org/)-backed store.
-- [rate-limit-mongo](https://www.npmjs.com/package/rate-limit-mongo): A
+- [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo): A
   [MongoDB](https://www.mongodb.com/)-backed store.
-- [precise-memory-rate-limit](https://www.npmjs.com/package/precise-memory-rate-limit) -
+- [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) -
   A memory store similar to the built-in one, except that it stores a distinct
   timestamp for each IP rather than bucketing them together.
 
@@ -490,6 +480,16 @@ class SomeStore implements Store {
 
 export default SomeStore
 ```
+
+## Request API
+
+A `request.rateLimit` property is added to all requests with the `limit`,
+`current`, and `remaining` number of requests and, if the store provides it, a
+`resetTime` Date object. These may be used in your application code to take
+additional actions or inform the user of their status.
+
+The property name can be configured with the configuration option
+`requestPropertyName`
 
 ## Instance API
 
