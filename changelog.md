@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.1.0)
+
+### Added
+
+- Added a named export `rateLimit` in case the default import does not work.
+
+### Fixed
+
+- Added a named export `default`, so Typescript CommonJS developers can
+  default-import the library (`import rateLimit from 'express-rate-limit'`).
+
 ## [6.0.5](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.0.5)
 
 ### Fixed
