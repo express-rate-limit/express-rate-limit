@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"express": "^4.17.2",
-		"express-rate-limit": "file:../../../.."
+		"express-rate-limit": "file:../../../../.."
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",

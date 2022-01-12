@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"express": "^4.17.2",
-		"express-rate-limit": "file:../../../.."
+		"express-rate-limit": "file:../../../../.."
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.13",
