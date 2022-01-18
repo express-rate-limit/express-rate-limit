@@ -16,9 +16,9 @@ import {
 /**
  * Type guard to check if a store is legacy store.
  *
- * @param store {LegacyStore | Store} - The store to check
+ * @param store {LegacyStore | Store} - The store to check.
  *
- * @return {boolean} - Whether the store is a legacy store
+ * @return {boolean} - Whether the store is a legacy store.
  */
 const isLegacyStore = (store: LegacyStore | Store): store is LegacyStore =>
 	// Check that `incr` exists but `increment` does not - store authors might want
@@ -29,9 +29,9 @@ const isLegacyStore = (store: LegacyStore | Store): store is LegacyStore =>
 /**
  * Converts a legacy store to the promisified version.
  *
- * @param store {LegacyStore | Store} - The legacy store or even a modern store
+ * @param store {LegacyStore | Store} - The store passed to the middleware.
  *
- * @returns {Store} - The promisified version of the store
+ * @returns {Store} - The promisified version of the store.
  */
 const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	if (!isLegacyStore(passedStore)) {
@@ -39,7 +39,6 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 		return passedStore
 	}
 
-	// Why can't Typescript understand this?
 	const legacyStore = passedStore
 
 	// A promisified version of the store
@@ -78,19 +77,19 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 }
 
 /**
- * Adds the defaults for options the user has not specified.
+ * Type-checks and adds the defaults for options the user has not specified.
  *
- * @param options {Options} - The options the user specifies
+ * @param options {Options} - The options the user specifies.
  *
- * @returns {Options} - A complete configuration object
+ * @returns {Options} - A complete configuration object.
  */
 const parseOptions = (
 	passedOptions: Omit<Partial<Options>, 'store'> & {
 		store?: Store | LegacyStore
 	},
 ): Options => {
-	// Now add the defaults for the other options
-
+	// See ./types.ts#Options for a detailed description of the options and their
+	// defaults.
 	const options = {
 		windowMs: 60 * 1000,
 		store: new MemoryStore(),
@@ -127,6 +126,7 @@ const parseOptions = (
 			_response: Response,
 			_optionsUsed: Options,
 		): void => {},
+		// Allow the above to be overriden by the options passed to the middleware
 		...passedOptions,
 	}
 
@@ -158,9 +158,9 @@ const parseOptions = (
  * Just pass on any errors for the developer to handle, usually as a HTTP 500
  * Internal Server Error.
  *
- * @param fn {RequestHandler} - The request handler for which to handle errors
+ * @param fn {RequestHandler} - The request handler for which to handle errors.
  *
- * @returns {RequestHandler} - The request handler wrapped with a `.catch` clause
+ * @returns {RequestHandler} - The request handler wrapped with a `.catch` clause.
  *
  * @private
  */
@@ -178,9 +178,9 @@ const handleAsyncErrors =
  *
  * Create an instance of IP rate-limiting middleware for Express.
  *
- * @param passedOptions {Options} - Options to configure the rate limiter
+ * @param passedOptions {Options} - Options to configure the rate limiter.
  *
- * @returns {RateLimitRequestHandler} - The middleware that rate-limits clients based on your configuration
+ * @returns {RateLimitRequestHandler} - The middleware that rate-limits clients based on your configuration.
  *
  * @public
  */
@@ -294,14 +294,15 @@ const rateLimit = (
 				}
 			}
 
-			// Call the {@link Options.onLimitReached} callback on
-			// the first request where client exceeds their rate limit.
+			// Call the `onLimitReached` callback on the first request where client
+			// exceeds their rate limit
+			// NOTE: `onLimitReached` is deprecated, this should be removed in v7.x
 			if (maxHits && totalHits === maxHits + 1) {
 				options.onLimitReached(request, response, options)
 			}
 
-			// If the client has exceeded their rate limit, set the Retry-After
-			// header and call the {@link Options.handler} function
+			// If the client has exceeded their rate limit, set the Retry-After header
+			// and call the `handler` function
 			if (maxHits && totalHits > maxHits) {
 				if (
 					(options.legacyHeaders || options.standardHeaders) &&
