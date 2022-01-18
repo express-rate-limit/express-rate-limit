@@ -191,42 +191,49 @@ For more information about the `trust proxy` setting, take a look at the
 
 ## Configuration
 
-#### `windowMs`
+### `windowMs`
 
 > `number`
 
 Time frame for which requests are checked/remembered. Also used in the
 `Retry-After` header when the limit is reached.
 
-Note: with stores that do not implement the `init` function (all stores except
-the default, built-in `MemoryStore`), you may need to configure this value
+Note: with stores that do not implement the `init` function (see the table in
+the [`stores` section below](#stores)), you may need to configure this value
 twice, once here and once on the store. In some cases the units also differ
 (e.g. seconds vs miliseconds).
 
 Defaults to `60000` ms (= 1 minute).
 
-#### `max`
+### `max`
 
 > `number | function`
 
 The maximum number of connections to allow during the `window` before rate
 limiting the client.
 
-Can be the limit itself as a number or express middleware that parses the
-request and then figures out the limit.
+Can be the limit itself as a number or a (sync/async) function that accepts the
+Express `request` and `response` objects and then returns a number.
 
 Defaults to `5`. Set it to `0` to disable the rate limiter.
 
 An example of using a function:
 
 ```ts
-const max = async (request, response) => {
-	if (await isPremium(request)) return 10
-	else return 5
+const isPremium = async (user) => {
+	// ...
 }
+
+const limiter = rateLimit({
+	// ...
+	max: async (request, response) => {
+		if (await isPremium(request.user)) return 10
+		else return 5
+	},
+})
 ```
 
-#### `message`
+### `message`
 
 > `any`
 
@@ -238,7 +245,7 @@ supports.
 
 Defaults to `'Too many requests, please try again later.'`
 
-#### `statusCode`
+### `statusCode`
 
 > `number`
 
@@ -246,31 +253,33 @@ The HTTP status code to send back when a client is rate limited.
 
 Defaults to `429` (HTTP 429 Too Many Requests - RFC 6585).
 
-#### `legacyHeaders`
+### `legacyHeaders`
 
 > `boolean`
 
-Whether to send `X-RateLimit-*` headers with the rate limit and the number of
-requests.
+Whether to send the legacy rate limit headers for the limit
+(`X-RateLimit-Limit`), current usage (`X-RateLimit-Remaining`) and time to wait
+before retrying (`Retry-After`) on all responses.
 
 Defaults to `true` (for backward compatibility).
 
 > Renamed in `6.x` from `headers` to `legacyHeaders`.
 
-#### `standardHeaders`
+### `standardHeaders`
 
 > `boolean`
 
 Whether to enable support for headers conforming to the
 [ratelimit standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/main/draft-ietf-httpapi-ratelimit-headers.md)
-adopted by the IETF (`RateLimit-*`). May be used in conjunction with, or instead
-of the `legacyHeaders` option.
+adopted by the IETF (`RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
+supports it, `RateLimit-Reset`). May be used in conjunction with, or instead of
+the `legacyHeaders` option.
 
 Defaults to `false` (for backward compatibility, but its use is recommended).
 
 > Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
 
-#### `requestPropertyName`
+### `requestPropertyName`
 
 > `string`
 
@@ -279,7 +288,7 @@ info.
 
 Defaults to `'rateLimit'`.
 
-#### `skipFailedRequests`
+### `skipFailedRequests`
 
 > `boolean`
 
@@ -298,7 +307,7 @@ future release. PRs welcome!)
 
 Defaults to `false`.
 
-#### `skipSuccessfulRequests`
+### `skipSuccessfulRequests`
 
 > `boolean`
 
@@ -312,19 +321,25 @@ future release. PRs welcome!)
 
 Defaults to `false`.
 
-#### `keyGenerator`
+### `keyGenerator`
 
 > `function`
 
 Method to generate custom identifiers for clients.
 
+Should be a (sync/async) function that accepts the Express `request` and
+`response` objects and then returns a string.
+
 By default, the client's IP address is used:
 
 ```ts
-const keyGenerator = (request, response) => request.ip
+const limiter = rateLimit({
+	// ...
+	keyGenerator: (request, response) => request.ip,
+})
 ```
 
-#### `handler`
+### `handler`
 
 > `function`
 
@@ -334,57 +349,73 @@ rate-limited.
 By default, sends back the `statusCode` and `message` set via the options:
 
 ```ts
-const handler = (request, response, next, options) => {
-	response.status(options.statusCode).send(options.message)
-}
+const limiter = rateLimit({
+	// ...
+	handler: (request, response, next, options) =>
+		response.status(options.statusCode).send(options.message),
+})
 ```
 
-#### `onLimitReached`
+### `onLimitReached`
 
 > `function`
 
-Express request handler that sends back a response when a client has reached
-their rate limit, and will be rate limited on their next request.
+A (sync/async) function that accepts the Express `request` and `response`
+objects that is called when a client has reached their rate limit, and will be
+rate limited on their next request.
 
 This method was
 [deprecated in v6](https://github.com/nfriedly/express-rate-limit/releases/v6.0.0) -
 Please use a custom `handler` that checks the number of hits instead.
 
-#### `skip`
+### `skip`
 
 > `function`
 
-Method (in the form of middleware) to determine whether or not this request
-counts towards a client's quota. Could also act as an allowlist for certain
-keys:
+Function to determine whether or not this request counts towards a client's
+quota. Should be a (sync/async) function that accepts the Express `request` and
+`response` objects and then returns `true` or `false`.
+
+Could also act as an allowlist for certain keys:
 
 ```ts
 const allowlist = ['192.168.0.56', '192.168.0.21']
 
-const skip = (request, response) => allowlist.includes(request.ip)
+const limiter = rateLimit({
+	// ...
+	skip: (request, response) => allowlist.includes(request.ip),
+})
 ```
 
-By default, skips no requests:
+By default, it skips no requests:
 
 ```ts
-const skip = (request, response) => false
+const limiter = rateLimit({
+	// ...
+	skip: (request, response) => false,
+})
 ```
 
-#### `requestWasSuccessful`
+### `requestWasSuccessful`
 
 > `function`
 
 Method to determine whether or not the request counts as 'succesful'. Used when
-either `skipSuccessfulRequests` or `skipFailedRequests` is set to true.
+either `skipSuccessfulRequests` or `skipFailedRequests` is set to true. Should
+be a (sync/async) function that accepts the Express `request` and `response`
+objects and then returns `true` or `false`.
 
 By default, requests with a response status code less than 400 are considered
 successful:
 
 ```ts
-const requestWasSuccessful = (request, response) => response.statusCode < 400
+const limiter = rateLimit({
+	// ...
+	requestWasSuccessful: (request, response) => response.statusCode < 400,
+})
 ```
 
-#### `store`
+### `store`
 
 > `Store`
 
@@ -392,121 +423,17 @@ The `Store` to use to store the hit count for each client.
 
 By default, the [`memory-store`](source/memory-store.ts) is used.
 
-Available data stores are:
+Here is a list of external stores:
 
-- [`memory-store`](source/memory-store.ts): _(default)_ Simple in-memory option.
-  Does not share state when app has multiple processes or servers.
-- [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis): A
-  [Redis](http://redis.io/)-backed store, more suitable for large or demanding
-  deployments.
-- [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached): A
-  [Memcached](https://memcached.org/)-backed store.
-- [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo): A
-  [MongoDB](https://www.mongodb.com/)-backed store.
-- [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) -
-  A memory store similar to the built-in one, except that it stores a distinct
-  timestamp for each IP rather than bucketing them together.
+| Name                                                                                   | Description                                                                                           | Legacy/Modern       |
+| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------- |
+| [`memory-store`](source/memory-store.ts)                                               | _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers. | Modern as of v6.0.0 |
+| [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis)                       | A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.           | Modern as of v3.0.0 |
+| [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached)               | A [Memcached](https://memcached.org/)-backed store.                                                   | Legacy              |
+| [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo)                   | A [MongoDB](https://www.mongodb.com/)-backed store.                                                   | Legacy              |
+| [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.  | Legacy              |
 
-You may also create your own store. It must implement the `Store` interface as
-follows:
-
-```ts
-import rateLimit, {
-	Store,
-	Options,
-	IncrementResponse,
-} from 'express-rate-limit'
-
-/**
- * A `Store` that stores the hit count for each client.
- *
- * @public
- */
-class SomeStore implements Store {
-	/**
-	 * Some store-specific parameter.
-	 */
-	customParam!: string
-	/**
-	 * The duration of time before which all hit counts are reset (in milliseconds).
-	 */
-	windowMs!: number
-
-	/**
-	 * @constructor for `SomeStore`. Only required if the user needs to pass
-	 * some store specific parameters. For example, in a Mongo Store, the user will
-	 * need to pass the URI, username and password for the Mongo database.
-	 *
-	 * @param customParam {string} - Some store-specific parameter.
-	 */
-	constructor(customParam: string) {
-		this.customParam = customParam
-	}
-
-	/**
-	 * Method that actually initializes the store. Must be synchronous.
-	 *
-	 * @param options {Options} - The options used to setup the middleware.
-	 *
-	 * @public
-	 */
-	init(options: Options): void {
-		this.windowMs = options.windowMs
-		// ...
-	}
-
-	/**
-	 * Method to increment a client's hit counter.
-	 *
-	 * @param key {string} - The identifier for a client.
-	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
-	 *
-	 * @public
-	 */
-	async increment(key: string): Promise<IncrementResponse> {
-		// ...
-		return {
-			totalHits,
-			resetTime,
-		}
-	}
-
-	/**
-	 * Method to decrement a client's hit counter.
-	 *
-	 * @param key {string} - The identifier for a client.
-	 *
-	 * @public
-	 */
-	async decrement(key: string): Promise<void> {
-		// ...
-	}
-
-	/**
-	 * Method to reset a client's hit counter.
-	 *
-	 * @param key {string} - The identifier for a client.
-	 *
-	 * @public
-	 */
-	async resetKey(key: string): Promise<void> {
-		// ...
-	}
-
-	/**
-	 * Method to reset everyone's hit counter.
-	 *
-	 * @public
-	 */
-	async resetAll(): Promise<void> {
-		// ...
-	}
-}
-
-// Export the store so others can use it
-export default SomeStore
-```
+Take a look at [this guide]() if you wish to create your own store.
 
 ## Request API
 
@@ -516,7 +443,7 @@ A `request.rateLimit` property is added to all requests with the `limit`,
 additional actions or inform the user of their status.
 
 The property name can be configured with the configuration option
-`requestPropertyName`
+`requestPropertyName`.
 
 ## Instance API
 
