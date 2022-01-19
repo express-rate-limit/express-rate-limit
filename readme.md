@@ -433,7 +433,9 @@ Here is a list of external stores:
 | [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo)                   | A [MongoDB](https://www.mongodb.com/)-backed store.                                                   | Legacy              |
 | [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.  | Legacy              |
 
-Take a look at [this guide]() if you wish to create your own store.
+Take a look at
+[this guide](https://github.com/nfriedly/express-rate-limit/wiki/Creating-Your-Own-Store)
+if you wish to create your own store.
 
 ## Request API
 
