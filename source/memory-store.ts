@@ -6,7 +6,7 @@ import { Store, Options, IncrementResponse } from './types.js'
 /**
  * Calculates the time when all hit counters will be reset.
  *
- * @param windowMs {number} - The duration of a window (in milliseconds)
+ * @param windowMs {number} - The duration of a window (in milliseconds).
  *
  * @returns {Date}
  *
@@ -19,8 +19,7 @@ const calculateNextResetTime = (windowMs: number): Date => {
 }
 
 /**
- * A {@link Store} that stores the hit count for each client in
- * memory.
+ * A `Store` that stores the hit count for each client in memory.
  *
  * @public
  */
@@ -45,7 +44,7 @@ export default class MemoryStore implements Store {
 	/**
 	 * Method that initializes the store.
 	 *
-	 * @param options {Options} - The options used to setup the middleware
+	 * @param options {Options} - The options used to setup the middleware.
 	 */
 	init(options: Options): void {
 		// Get the duration of a window from the options
@@ -69,9 +68,9 @@ export default class MemoryStore implements Store {
 	/**
 	 * Method to increment a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
 	 *
 	 * @public
 	 */
@@ -88,7 +87,7 @@ export default class MemoryStore implements Store {
 	/**
 	 * Method to decrement a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 *
 	 * @public
 	 */
@@ -102,7 +101,7 @@ export default class MemoryStore implements Store {
 	/**
 	 * Method to reset a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 *
 	 * @public
 	 */

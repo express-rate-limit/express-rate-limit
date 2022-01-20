@@ -193,50 +193,51 @@ For more information about the `trust proxy` setting, take a look at the
 
 ### `windowMs`
 
+> `number`
+
 Time frame for which requests are checked/remembered. Also used in the
 `Retry-After` header when the limit is reached.
 
-Note: with non-default stores, you may need to configure this value twice, once
-here and once on the store. In some cases the units also differ (e.g. seconds vs
-miliseconds)
+Note: with stores that do not implement the `init` function (see the table in
+the [`stores` section below](#stores)), you may need to configure this value
+twice, once here and once on the store. In some cases the units also differ
+(e.g. seconds vs miliseconds).
 
 Defaults to `60000` ms (= 1 minute).
 
 ### `max`
 
-Max number of connections during `windowMs` milliseconds before sending a 429
-response.
+> `number | function`
 
-May be a number, or a function that returns a number or a promise. If `max` is a
-function, it will be called with `request` and `response` params.
+The maximum number of connections to allow during the `window` before rate
+limiting the client.
 
-Defaults to `5`. Set to `0` to disable.
+Can be the limit itself as a number or a (sync/async) function that accepts the
+Express `request` and `response` objects and then returns a number.
 
-Example of using a function:
+Defaults to `5`. Set it to `0` to disable the rate limiter.
+
+An example of using a function:
 
 ```ts
-import rateLimit from 'express-rate-limit'
-
-const isPremium = (request) => {
+const isPremium = async (user) => {
 	// ...
 }
 
 const limiter = rateLimit({
-	// `max` could also be an async function or return a promise
-	max: (request, response) => {
-		if (isPremium(request)) return 10
+	// ...
+	max: async (request, response) => {
+		if (await isPremium(request.user)) return 10
 		else return 5
 	},
-	// ...
 })
-
-// Apply the rate limiting middleware to all requests
-app.use(limiter)
 ```
 
 ### `message`
 
-Error message sent to user when `max` is exceeded.
+> `any`
+
+The response body to send back when a client is rate limited.
 
 May be a `string`, JSON object, or any other value that Express's
 [response.send](https://expressjs.com/en/4x/api.html#response.send) method
@@ -246,240 +247,198 @@ Defaults to `'Too many requests, please try again later.'`
 
 ### `statusCode`
 
-HTTP status code returned when `max` is exceeded.
+> `number`
 
-Defaults to `429`.
+The HTTP status code to send back when a client is rate limited.
+
+Defaults to `429` (HTTP 429 Too Many Requests - RFC 6585).
 
 ### `legacyHeaders`
 
-Enable headers for request limit (`X-RateLimit-Limit`) and current usage
-(`X-RateLimit-Remaining`) on all responses and time to wait before retrying
-(`Retry-After`) when `max` is exceeded.
+> `boolean`
 
-Defaults to `true`.
+Whether to send the legacy rate limit headers for the limit
+(`X-RateLimit-Limit`), current usage (`X-RateLimit-Remaining`) and reset time
+(if the store provides it) (`X-RateLimit-Reset`) on all responses. If set to
+`true`, the middleware also sends the `Retry-After` header on all blocked
+requests.
+
+Defaults to `true` (for backward compatibility).
 
 > Renamed in `6.x` from `headers` to `legacyHeaders`.
 
 ### `standardHeaders`
 
-Enable headers conforming to the
+> `boolean`
+
+Whether to enable support for headers conforming to the
 [ratelimit standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/main/draft-ietf-httpapi-ratelimit-headers.md)
-adopted by the IETF: `RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
-supports it, `RateLimit-Reset`. May be used in conjunction with, or instead of
-the `legacyHeaders` option.
+adopted by the IETF (`RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
+supports it, `RateLimit-Reset`). If set to `true`, the middleware also sends the
+`Retry-After` header on all blocked requests. May be used in conjunction with,
+or instead of the `legacyHeaders` option.
 
-This setting also enables the `Retry-After` header when `max` is exceeded.
-
-Defaults to `false` (for backward compatibility), but recommended to use.
+Defaults to `false` (for backward compatibility, but its use is recommended).
 
 > Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
 
-### `keyGenerator`
+### `requestPropertyName`
 
-Function used to generate keys.
+> `string`
 
-Defaults to `request.ip`, similar to this:
+The name of the property on the Express `request` object to store the rate limit
+info.
 
-```ts
-const keyGenerator = (request /*, response*/) => request.ip
-```
-
-### `handler`
-
-The function to handle requests once the max limit is exceeded. It receives the
-`request` and the `response` objects. The `next` param is available if you need
-to pass to the next middleware/route. Finally, the `options` param has all of
-the options that originally passed in when creating the current limiter and the
-default values for other options.
-
-The `request.rateLimit` object has `limit`, `current`, and `remaining` number of
-requests and, if the store provides it, a `resetTime` Date object.
-
-Defaults to:
-
-```ts
-const handler = (request, response, next, options) => {
-	response.status(options.statusCode).send(options.message)
-}
-```
-
-### `requestWasSuccessful`
-
-Function that is called when `skipFailedRequests` and/or
-`skipSuccessfulRequests` are set to `true`. May be overridden if, for example, a
-service sends out a 200 status code on errors.
-
-Defaults to
-
-```ts
-const requestWasSuccessful = (request, response) => response.statusCode < 400
-```
+Defaults to `'rateLimit'`.
 
 ### `skipFailedRequests`
 
-When set to `true`, failed requests won't be counted. Request considered failed
-when:
+> `boolean`
 
-- response status >= 400
-- requests that were cancelled before last chunk of data was sent (response
-  `close` event triggered)
-- response `error` event was triggered by response
+When set to `true`, failed requests won't be counted. Request considered failed
+when the `requestWasSuccessful` option returns `false`. By default, this means
+requests fail when:
+
+- the response status >= 400
+- the request was cancelled before last chunk of data was sent (response `close`
+  event triggered)
+- the response `error` event was triggered by response
 
 (Technically they are counted and then un-counted, so a large number of slow
 requests all at once could still trigger a rate-limit. This may be fixed in a
-future release.)
+future release. PRs welcome!)
 
 Defaults to `false`.
 
 ### `skipSuccessfulRequests`
 
-When set to `true` successful requests (response status < 400) won't be counted.
+> `boolean`
+
+If `true`, the library will (by default) skip all requests that are considered
+'failed' by the `requestWasSuccessful` function. By default, this means requests
+succeed when the response status code < 400.
+
 (Technically they are counted and then un-counted, so a large number of slow
 requests all at once could still trigger a rate-limit. This may be fixed in a
-future release.)
+future release. PRs welcome!)
 
 Defaults to `false`.
 
-### `skip`
+### `keyGenerator`
 
-Function used to skip (whitelist) requests. Returning `true`, or a promise that
-resolves with `true`, from the function will skip limiting for that request.
+> `function`
 
-Defaults to always `false` (count all requests):
+Method to generate custom identifiers for clients.
+
+Should be a (sync/async) function that accepts the Express `request` and
+`response` objects and then returns a string.
+
+By default, the client's IP address is used:
 
 ```ts
-const skip = (/*request, response*/) => false
+const limiter = rateLimit({
+	// ...
+	keyGenerator: (request, response) => request.ip,
+})
 ```
 
-### `requestPropertyName`
+### `handler`
 
-The name of the property that contains the rate limit information to add to the
-`request` object.
+> `function`
 
-Defaults to `rateLimit`.
+Express request handler that sends back a response when a client is
+rate-limited.
+
+By default, sends back the `statusCode` and `message` set via the options:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	handler: (request, response, next, options) =>
+		response.status(options.statusCode).send(options.message),
+})
+```
+
+### `onLimitReached`
+
+> `function`
+
+A (sync/async) function that accepts the Express `request` and `response`
+objects that is called when a client has reached their rate limit, and will be
+rate limited on their next request.
+
+This method was
+[deprecated in v6](https://github.com/nfriedly/express-rate-limit/releases/v6.0.0) -
+Please use a custom `handler` that checks the number of hits instead.
+
+### `skip`
+
+> `function`
+
+Function to determine whether or not this request counts towards a client's
+quota. Should be a (sync/async) function that accepts the Express `request` and
+`response` objects and then returns `true` or `false`.
+
+Could also act as an allowlist for certain keys:
+
+```ts
+const allowlist = ['192.168.0.56', '192.168.0.21']
+
+const limiter = rateLimit({
+	// ...
+	skip: (request, response) => allowlist.includes(request.ip),
+})
+```
+
+By default, it skips no requests:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	skip: (request, response) => false,
+})
+```
+
+### `requestWasSuccessful`
+
+> `function`
+
+Method to determine whether or not the request counts as 'succesful'. Used when
+either `skipSuccessfulRequests` or `skipFailedRequests` is set to true. Should
+be a (sync/async) function that accepts the Express `request` and `response`
+objects and then returns `true` or `false`.
+
+By default, requests with a response status code less than 400 are considered
+successful:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	requestWasSuccessful: (request, response) => response.statusCode < 400,
+})
+```
 
 ### `store`
 
-The storage to use when persisting rate limit attempts.
+> `Store`
 
-By default, the [memory store](source/memory-store.ts) is used.
+The `Store` to use to store the hit count for each client.
 
-Available data stores are:
+By default, the [`memory-store`](source/memory-store.ts) is used.
 
-- [`memory-store`](source/memory-store.ts): _(default)_ Simple in-memory option.
-  Does not share state when app has multiple processes or servers.
-- [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis): A
-  [Redis](http://redis.io/)-backed store, more suitable for large or demanding
-  deployments.
-- [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached): A
-  [Memcached](https://memcached.org/)-backed store.
-- [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo): A
-  [MongoDB](https://www.mongodb.com/)-backed store.
-- [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) -
-  A memory store similar to the built-in one, except that it stores a distinct
-  timestamp for each IP rather than bucketing them together.
+Here is a list of external stores:
 
-You may also create your own store. It must implement the `Store` interface as
-follows:
+| Name                                                                                   | Description                                                                                           | Legacy/Modern       |
+| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------- |
+| [`memory-store`](source/memory-store.ts)                                               | _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers. | Modern as of v6.0.0 |
+| [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis)                       | A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.           | Modern as of v3.0.0 |
+| [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached)               | A [Memcached](https://memcached.org/)-backed store.                                                   | Legacy              |
+| [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo)                   | A [MongoDB](https://www.mongodb.com/)-backed store.                                                   | Legacy              |
+| [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.  | Legacy              |
 
-```ts
-import rateLimit, {
-	Store,
-	Options,
-	IncrementResponse,
-} from 'express-rate-limit'
-
-/**
- * A {@link Store} that stores the hit count for each client.
- *
- * @public
- */
-class SomeStore implements Store {
-	/**
-	 * Some store-specific parameter.
-	 */
-	customParam!: string
-	/**
-	 * The duration of time before which all hit counts are reset (in milliseconds).
-	 */
-	windowMs!: number
-
-	/**
-	 * @constructor for {@link SomeStore}. Only required if the user needs to pass
-	 * some store specific parameters. For example, in a Mongo Store, the user will
-	 * need to pass the URI, username and password for the Mongo database.
-	 *
-	 * @param customParam {string} - Some store-specific parameter.
-	 */
-	constructor(customParam: string) {
-		this.customParam = customParam
-	}
-
-	/**
-	 * Method that actually initializes the store. Must be synchronous.
-	 *
-	 * @param options {Options} - The options used to setup the middleware.
-	 *
-	 * @public
-	 */
-	init(options: Options): void {
-		this.windowMs = options.windowMs
-
-		// ...
-	}
-
-	/**
-	 * Method to increment a client's hit counter.
-	 *
-	 * @param key {string} - The identifier for a client
-	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client
-	 *
-	 * @public
-	 */
-	async increment(key: string): Promise<IncrementResponse> {
-		// ...
-
-		return {
-			totalHits,
-			resetTime,
-		}
-	}
-
-	/**
-	 * Method to decrement a client's hit counter.
-	 *
-	 * @param key {string} - The identifier for a client
-	 *
-	 * @public
-	 */
-	async decrement(key: string): Promise<void> {
-		// ...
-	}
-
-	/**
-	 * Method to reset a client's hit counter.
-	 *
-	 * @param key {string} - The identifier for a client
-	 *
-	 * @public
-	 */
-	async resetKey(key: string): Promise<void> {
-		// ...
-	}
-
-	/**
-	 * Method to reset everyone's hit counter.
-	 *
-	 * @public
-	 */
-	async resetAll(): Promise<void> {
-		// ...
-	}
-}
-
-export default SomeStore
-```
+Take a look at
+[this guide](https://github.com/nfriedly/express-rate-limit/wiki/Creating-Your-Own-Store)
+if you wish to create your own store.
 
 ## Request API
 
@@ -489,7 +448,7 @@ A `request.rateLimit` property is added to all requests with the `limit`,
 additional actions or inform the user of their status.
 
 The property name can be configured with the configuration option
-`requestPropertyName`
+`requestPropertyName`.
 
 ## Instance API
 

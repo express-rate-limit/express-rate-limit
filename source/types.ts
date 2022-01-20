@@ -6,9 +6,9 @@ import { Request, Response, NextFunction, RequestHandler } from 'express'
 /**
  * Callback that fires when a client's hit counter is incremented.
  *
- * @param error {Error | undefined} - The error that occurred, if any
- * @param totalHits {number} - The number of hits for that client so far
- * @param resetTime {Date | undefined} - The time when the counter resets
+ * @param error {Error | undefined} - The error that occurred, if any.
+ * @param totalHits {number} - The number of hits for that client so far.
+ * @param resetTime {Date | undefined} - The time when the counter resets.
  */
 export type IncrementCallback = (
 	error: Error | undefined,
@@ -18,12 +18,12 @@ export type IncrementCallback = (
 
 /**
  * Method (in the form of middleware) to generate/retrieve a value based on the
- * incoming request
+ * incoming request.
  *
- * @param request {Request} - The Express request object
- * @param response {Response} - The Express response object
+ * @param request {Request} - The Express request object.
+ * @param response {Response} - The Express response object.
  *
- * @returns {T} - The value needed
+ * @returns {T} - The value needed.
  */
 export type ValueDeterminingMiddleware<T> = (
 	request: Request,
@@ -34,10 +34,10 @@ export type ValueDeterminingMiddleware<T> = (
  * Express request handler that sends back a response when a client is
  * rate-limited.
  *
- * @param request {Request} - The Express request object
- * @param response {Response} - The Express response object
- * @param next {NextFunction} - The Express `next` function, can be called to skip responding
- * @param optionsUsed {Options} - The options used to set up the middleware
+ * @param request {Request} - The Express request object.
+ * @param response {Response} - The Express response object.
+ * @param next {NextFunction} - The Express `next` function, can be called to skip responding.
+ * @param optionsUsed {Options} - The options used to set up the middleware.
  */
 export type RateLimitExceededEventHandler = (
 	request: Request,
@@ -51,9 +51,9 @@ export type RateLimitExceededEventHandler = (
  * but not for subsequent requests. May be used for logging, etc. Should *not*
  * send a response.
  *
- * @param request {Request} - The Express request object
- * @param response {Response} - The Express response object
- * @param optionsUsed {Options} - The options used to set up the middleware
+ * @param request {Request} - The Express request object.
+ * @param response {Response} - The Express response object.
+ * @param optionsUsed {Options} - The options used to set up the middleware.
  */
 export type RateLimitReachedEventHandler = (
 	request: Request,
@@ -64,8 +64,8 @@ export type RateLimitReachedEventHandler = (
 /**
  * Data returned from the `Store` when a client's hit counter is incremented.
  *
- * @property totalHits {number} - The number of hits for that client so far
- * @property resetTime {Date | undefined} - The time when the counter resets
+ * @property totalHits {number} - The number of hits for that client so far.
+ * @property resetTime {Date | undefined} - The time when the counter resets.
  */
 export type IncrementResponse = {
 	totalHits: number
@@ -79,7 +79,7 @@ export type RateLimitRequestHandler = RequestHandler & {
 	/**
 	 * Method to reset a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 */
 	resetKey: (key: string) => void
 }
@@ -93,22 +93,22 @@ export interface LegacyStore {
 	/**
 	 * Method to increment a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
-	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented
+	 * @param key {string} - The identifier for a client.
+	 * @param callback {IncrementCallback} - The callback to call once the counter is incremented.
 	 */
 	incr: (key: string, callback: IncrementCallback) => void
 
 	/**
 	 * Method to decrement a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 */
 	decrement: (key: string) => void
 
 	/**
 	 * Method to reset a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 */
 	resetKey: (key: string) => void
 
@@ -126,30 +126,30 @@ export interface Store {
 	 * Method that initializes the store, and has access to the options passed to
 	 * the middleware too.
 	 *
-	 * @param options {Options} - The options used to setup the middleware
+	 * @param options {Options} - The options used to setup the middleware.
 	 */
 	init?: (options: Options) => void
 
 	/**
 	 * Method to increment a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
 	 */
 	increment: (key: string) => Promise<IncrementResponse> | IncrementResponse
 
 	/**
 	 * Method to decrement a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 */
 	decrement: (key: string) => Promise<void> | void
 
 	/**
 	 * Method to reset a client's hit counter.
 	 *
-	 * @param key {string} - The identifier for a client
+	 * @param key {string} - The identifier for a client.
 	 */
 	resetKey: (key: string) => Promise<void> | void
 
@@ -165,20 +165,26 @@ export interface Store {
 export interface Options {
 	/**
 	 * How long we should remember the requests.
+	 *
+	 * Defaults to `60000` ms (= 1 minute).
 	 */
 	readonly windowMs: number
 
 	/**
-	 * The maximum number of connection to allow during the `window` before
+	 * The maximum number of connections to allow during the `window` before
 	 * rate limiting the client.
 	 *
 	 * Can be the limit itself as a number or express middleware that parses
 	 * the request and then figures out the limit.
+	 *
+	 * Defaults to `5`.
 	 */
 	readonly max: number | ValueDeterminingMiddleware<number>
 
 	/**
 	 * The response body to send back when a client is rate limited.
+	 *
+	 * Defaults to `'Too many requests, please try again later.'`
 	 */
 	readonly message: any
 
@@ -192,11 +198,15 @@ export interface Options {
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
 	 * of requests.
+	 *
+	 * Defaults to `true` (for backward compatibility).
 	 */
 	readonly legacyHeaders: boolean
 
 	/**
-	 * Whether to enable support for the rate limit standardization headers (`RateLimit-*`).
+	 * Whether to enable support for the standardized rate limit headers (`RateLimit-*`).
+	 *
+	 * Defaults to `false` (for backward compatibility, but its use is recommended).
 	 */
 	readonly standardHeaders: boolean
 
@@ -210,20 +220,18 @@ export interface Options {
 	/**
 	 * If `true`, the library will (by default) skip all requests that have a 4XX
 	 * or 5XX status.
+	 *
+	 * Defaults to `false`.
 	 */
 	readonly skipFailedRequests: boolean
 
 	/**
 	 * If `true`, the library will (by default) skip all requests that have a
 	 * status code less than 400.
+	 *
+	 * Defaults to `false`.
 	 */
 	readonly skipSuccessfulRequests: boolean
-
-	/**
-	 * Method to determine whether or not the request counts as 'succesful'. Used
-	 * when either `skipSuccessfulRequests` or `skipFailedRequests` is set to true.
-	 */
-	readonly requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 
 	/**
 	 * Method to generate custom identifiers for clients.
@@ -233,25 +241,43 @@ export interface Options {
 	readonly keyGenerator: ValueDeterminingMiddleware<string>
 
 	/**
-	 * Method (in the form of middleware) to determine whether or not this request
-	 * counts towards a client's quota.
-	 */
-	readonly skip: ValueDeterminingMiddleware<boolean>
-
-	/**
 	 * Express request handler that sends back a response when a client is
 	 * rate-limited.
+	 *
+	 * By default, sends back the `statusCode` and `message` set via the options.
 	 */
 	readonly handler: RateLimitExceededEventHandler
 
 	/**
 	 * Express request handler that sends back a response when a client has
 	 * reached their rate limit, and will be rate limited on their next request.
+	 *
+	 * @deprecated 6.x - Please use a custom `handler` that checks the number of
+	 * hits instead.
 	 */
 	readonly onLimitReached: RateLimitReachedEventHandler
 
 	/**
-	 * The {@link Store} to use to store the hit count for each client.
+	 * Method (in the form of middleware) to determine whether or not this request
+	 * counts towards a client's quota.
+	 *
+	 * By default, skips no requests.
+	 */
+	readonly skip: ValueDeterminingMiddleware<boolean>
+
+	/**
+	 * Method to determine whether or not the request counts as 'succesful'. Used
+	 * when either `skipSuccessfulRequests` or `skipFailedRequests` is set to true.
+	 *
+	 * By default, requests with a response status code less than 400 are considered
+	 * successful.
+	 */
+	readonly requestWasSuccessful: ValueDeterminingMiddleware<boolean>
+
+	/**
+	 * The `Store` to use to store the hit count for each client.
+	 *
+	 * By default, the built-in `MemoryStore` will be used.
 	 */
 	store: Store
 
