@@ -258,8 +258,10 @@ Defaults to `429` (HTTP 429 Too Many Requests - RFC 6585).
 > `boolean`
 
 Whether to send the legacy rate limit headers for the limit
-(`X-RateLimit-Limit`), current usage (`X-RateLimit-Remaining`) and time to wait
-before retrying (`Retry-After`) on all responses.
+(`X-RateLimit-Limit`), current usage (`X-RateLimit-Remaining`) and reset time
+(if the store provides it) (`X-RateLimit-Reset`) on all responses. If set to
+`true`, the middleware also sends the `Retry-After` header on all blocked
+requests.
 
 Defaults to `true` (for backward compatibility).
 
@@ -272,8 +274,9 @@ Defaults to `true` (for backward compatibility).
 Whether to enable support for headers conforming to the
 [ratelimit standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/main/draft-ietf-httpapi-ratelimit-headers.md)
 adopted by the IETF (`RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
-supports it, `RateLimit-Reset`). May be used in conjunction with, or instead of
-the `legacyHeaders` option.
+supports it, `RateLimit-Reset`). If set to `true`, the middleware also sends the
+`Retry-After` header on all blocked requests. May be used in conjunction with,
+or instead of the `legacyHeaders` option.
 
 Defaults to `false` (for backward compatibility, but its use is recommended).
 
