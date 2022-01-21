@@ -139,8 +139,7 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 To use a custom store:
 
 ```ts
-import rateLimit from 'express-rate-limit'
-import MemoryStore from 'express-rate-limit/memory-store.js'
+import rateLimit, { MemoryStore } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
