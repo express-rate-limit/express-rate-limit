@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.2.0)
+
+### Added
+
+- Export the `MemoryStore`, so it can now be imported as a named import
+  (`import { MemoryStore } from 'express-rate-limit'`).
+
+### Fixed
+
+- Deprecate the `onLimitReached` option (this was supposed to be deprecated in
+  v6.0.0 itself); developers should use a custom handler function that checks if
+  the rate limit has been exceeded instead.
+
 ## [6.1.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.1.0)
 
 ### Added
