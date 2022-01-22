@@ -3,10 +3,18 @@
 
 const createServer = require('express')
 const rateLimit = require('express-rate-limit')
+const { MemoryStore } = require('express-rate-limit')
 
 const app = createServer()
 
-app.use(rateLimit({ max: 2 }))
+app.use(
+	rateLimit({
+		max: 2,
+		legacyHeaders: false,
+		standardHeaders: true,
+		store: new MemoryStore(),
+	}),
+)
 
 app.get('/', (request, response) => response.send('Hello!'))
 

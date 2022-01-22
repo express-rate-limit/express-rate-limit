@@ -2,7 +2,12 @@
 // Create a basic server that uses express-rate-limit to rate limit requests
 
 import createServer from 'express'
-import { rateLimit, Store, IncrementResponse } from 'express-rate-limit'
+import {
+	rateLimit,
+	MemoryStore,
+	Store,
+	IncrementResponse,
+} from 'express-rate-limit'
 
 class TestStore implements Store {
 	hits: Record<string, number> = {}
@@ -28,7 +33,14 @@ class TestStore implements Store {
 
 const app = createServer()
 
-app.use(rateLimit({ max: 2, store: new TestStore() }))
+app.use(
+	rateLimit({
+		max: 2,
+		legacyHeaders: false,
+		standardHeaders: true,
+		store: Math.floor(Math.random() * 2) ? new TestStore() : new MemoryStore(),
+	}),
+)
 
 app.get('/', (request, response) => response.send('Hello!'))
 
