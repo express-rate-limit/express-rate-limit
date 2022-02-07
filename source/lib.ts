@@ -76,6 +76,10 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	return new PromisifiedStore()
 }
 
+type OptionsWithLegacyStore = Omit<Partial<Options>, 'store'> & {
+	store?: Store | LegacyStore
+}
+
 /**
  * Type-checks and adds the defaults for options the user has not specified.
  *
@@ -83,11 +87,12 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  *
  * @returns {Options} - A complete configuration object.
  */
-const parseOptions = (
-	passedOptions: Omit<Partial<Options>, 'store'> & {
-		store?: Store | LegacyStore
-	},
-): Options => {
+const parseOptions = (passedOptions: OptionsWithLegacyStore): Options => {
+	// Passing undefined should be equivalent to not passing an option at all, so we'll
+	// omit all fields where their value is undefined.
+	const omittedOptions: OptionsWithLegacyStore =
+		omitUndefinedOptions(passedOptions)
+
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const options = {
@@ -126,8 +131,8 @@ const parseOptions = (
 			_response: Response,
 			_optionsUsed: Options,
 		): void => {},
-		// Allow the above to be overriden by the options passed to the middleware
-		...passedOptions,
+		// Allow the options object to be overrode by the options passed to the middleware.
+		...omittedOptions,
 	}
 
 	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
@@ -325,6 +330,36 @@ const rateLimit = (
 		options.store.resetKey.bind(options.store)
 
 	return middleware as RateLimitRequestHandler
+}
+
+/**
+ *
+ * Remove any options where their value is set to undefined. This avoids overwriting defaults
+ * in the case a user passes undefined instead of simply omitting the key.
+ *
+ * @param passedOptions {Options} - The options to omit.
+ *
+ * @returns {Options} - The same options, but with all undefined fields omitted.
+ *
+ * @private
+ */
+const omitUndefinedOptions = (
+	passedOptions: OptionsWithLegacyStore,
+): OptionsWithLegacyStore => {
+	const omittedOptions: OptionsWithLegacyStore = {}
+
+	for (const k of Object.keys(passedOptions)) {
+		const key = k as keyof OptionsWithLegacyStore
+
+		if (passedOptions[key] !== undefined) {
+			// @ts-expect-error It (rightfully) complains that the properties are readonly here, but
+			// we're constructing this object, so there's no real way around this.
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			omittedOptions[key] = passedOptions[key]
+		}
+	}
+
+	return omittedOptions
 }
 
 // Export it to the world!
