@@ -100,72 +100,65 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
-	const config: Omit<Configuration, 'store'> & { store: Store | LegacyStore } =
-		{
-			windowMs: 60 * 1000,
-			// It's possible that this field might have a LegacyConfig if overrode by passedOptions.
-			// However, LegacyStores are converted to Stores later.
-			store: new MemoryStore(),
-			max: 5,
-			message: 'Too many requests, please try again later.',
-			statusCode: 429,
-			legacyHeaders: passedOptions.headers ?? true,
-			standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
-			requestPropertyName: 'rateLimit',
-			skipFailedRequests: false,
-			skipSuccessfulRequests: false,
-			requestWasSuccessful: (_request: Request, response: Response): boolean =>
-				response.statusCode < 400,
-			skip: (_request: Request, _response: Response): boolean => false,
-			keyGenerator: (request: Request, _response: Response): string => {
-				if (!request.ip) {
-					console.error(
-						'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
-					)
-				}
+	const config: Configuration = {
+		windowMs: 60 * 1000,
+		max: 5,
+		message: 'Too many requests, please try again later.',
+		statusCode: 429,
+		legacyHeaders: passedOptions.headers ?? true,
+		standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
+		requestPropertyName: 'rateLimit',
+		skipFailedRequests: false,
+		skipSuccessfulRequests: false,
+		requestWasSuccessful: (_request: Request, response: Response): boolean =>
+			response.statusCode < 400,
+		skip: (_request: Request, _response: Response): boolean => false,
+		keyGenerator: (request: Request, _response: Response): string => {
+			if (!request.ip) {
+				console.error(
+					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
+				)
+			}
 
-				return request.ip
-			},
-			handler: (
-				_request: Request,
-				response: Response,
-				_next: NextFunction,
-				_optionsUsed: Options,
-			): void => {
-				response.status(config.statusCode).send(config.message)
-			},
-			onLimitReached: (
-				_request: Request,
-				_response: Response,
-				_optionsUsed: Options,
-			): void => {},
-			// Allow the options object to be overriden by the options passed to the middleware.
-			...notUndefinedOptions,
-		}
+			return request.ip
+		},
+		handler: (
+			_request: Request,
+			response: Response,
+			_next: NextFunction,
+			_optionsUsed: Options,
+		): void => {
+			response.status(config.statusCode).send(config.message)
+		},
+		onLimitReached: (
+			_request: Request,
+			_response: Response,
+			_optionsUsed: Options,
+		): void => {},
+		// Allow the options object to be overriden by the options passed to the middleware.
+		...notUndefinedOptions,
+		// Note that this field is declared after the user's options are spread in,
+		// so that this field doesn't get overriden with an un-promisified store!
+		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
+	}
 
 	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
 	// interface
 	if (
-		(typeof (config.store as LegacyStore).incr !== 'function' &&
-			typeof (config.store as Store).increment !== 'function') ||
+		typeof config.store.increment !== 'function' ||
 		typeof config.store.decrement !== 'function' ||
 		typeof config.store.resetKey !== 'function' ||
 		(typeof config.store.resetAll !== 'undefined' &&
 			typeof config.store.resetAll !== 'function') ||
-		(typeof (config.store as Store).init !== 'undefined' &&
-			typeof (config.store as Store).init !== 'function')
+		(typeof config.store.init !== 'undefined' &&
+			typeof config.store.init !== 'function')
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
 		)
 	}
 
-	// Promisify the store, if it is not already
-	// This also turns a LegacyStore into a Store, if needs be.
-	config.store = promisifyStore(config.store)
-
-	// Return the 'clean' options
-	return config as Configuration
+	return config
 }
 
 /**
