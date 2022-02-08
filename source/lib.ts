@@ -76,8 +76,13 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	return new PromisifiedStore()
 }
 
-type OptionsWithLegacyStore = Omit<Partial<Options>, 'store'> & {
-	store?: Store | LegacyStore
+// Configuration represents what actually ends up configuring the rate limiter. This is
+// derived from the users options, but with some legacy fields left ignored.
+type Configuration = Omit<
+	Options,
+	'headers' | 'draft_polli_ratelimit_headers' | 'store'
+> & {
+	store: Store
 }
 
 /**
@@ -85,67 +90,70 @@ type OptionsWithLegacyStore = Omit<Partial<Options>, 'store'> & {
  *
  * @param options {Options} - The options the user specifies.
  *
- * @returns {Options} - A complete configuration object.
+ * @returns {Configuration} - A complete configuration object.
  */
-const parseOptions = (passedOptions: OptionsWithLegacyStore): Options => {
+const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Passing undefined should be equivalent to not passing an option at all, so we'll
 	// omit all fields where their value is undefined.
-	const omittedOptions: OptionsWithLegacyStore =
+	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedOptions(passedOptions)
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
-	const options = {
-		windowMs: 60 * 1000,
-		store: new MemoryStore(),
-		max: 5,
-		message: 'Too many requests, please try again later.',
-		statusCode: 429,
-		legacyHeaders: passedOptions.headers ?? true,
-		standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
-		requestPropertyName: 'rateLimit',
-		skipFailedRequests: false,
-		skipSuccessfulRequests: false,
-		requestWasSuccessful: (_request: Request, response: Response): boolean =>
-			response.statusCode < 400,
-		skip: (_request: Request, _response: Response): boolean => false,
-		keyGenerator: (request: Request, _response: Response): string => {
-			if (!request.ip) {
-				console.error(
-					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
-				)
-			}
+	const config: Omit<Configuration, 'store'> & { store: Store | LegacyStore } =
+		{
+			windowMs: 60 * 1000,
+			// It's possible that this field might have a LegacyConfig if overrode by passedOptions.
+			// However, LegacyStores are converted to Stores later.
+			store: new MemoryStore(),
+			max: 5,
+			message: 'Too many requests, please try again later.',
+			statusCode: 429,
+			legacyHeaders: passedOptions.headers ?? true,
+			standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
+			requestPropertyName: 'rateLimit',
+			skipFailedRequests: false,
+			skipSuccessfulRequests: false,
+			requestWasSuccessful: (_request: Request, response: Response): boolean =>
+				response.statusCode < 400,
+			skip: (_request: Request, _response: Response): boolean => false,
+			keyGenerator: (request: Request, _response: Response): string => {
+				if (!request.ip) {
+					console.error(
+						'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
+					)
+				}
 
-			return request.ip
-		},
-		handler: (
-			_request: Request,
-			response: Response,
-			_next: NextFunction,
-			_optionsUsed: Options,
-		): void => {
-			response.status(options.statusCode).send(options.message)
-		},
-		onLimitReached: (
-			_request: Request,
-			_response: Response,
-			_optionsUsed: Options,
-		): void => {},
-		// Allow the options object to be overrode by the options passed to the middleware.
-		...omittedOptions,
-	}
+				return request.ip
+			},
+			handler: (
+				_request: Request,
+				response: Response,
+				_next: NextFunction,
+				_optionsUsed: Options,
+			): void => {
+				response.status(config.statusCode).send(config.message)
+			},
+			onLimitReached: (
+				_request: Request,
+				_response: Response,
+				_optionsUsed: Options,
+			): void => {},
+			// Allow the options object to be overriden by the options passed to the middleware.
+			...notUndefinedOptions,
+		}
 
 	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
 	// interface
 	if (
-		(typeof (options.store as LegacyStore).incr !== 'function' &&
-			typeof (options.store as Store).increment !== 'function') ||
-		typeof options.store.decrement !== 'function' ||
-		typeof options.store.resetKey !== 'function' ||
-		(typeof options.store.resetAll !== 'undefined' &&
-			typeof options.store.resetAll !== 'function') ||
-		(typeof (options.store as Store).init !== 'undefined' &&
-			typeof (options.store as Store).init !== 'function')
+		(typeof (config.store as LegacyStore).incr !== 'function' &&
+			typeof (config.store as Store).increment !== 'function') ||
+		typeof config.store.decrement !== 'function' ||
+		typeof config.store.resetKey !== 'function' ||
+		(typeof config.store.resetAll !== 'undefined' &&
+			typeof config.store.resetAll !== 'function') ||
+		(typeof (config.store as Store).init !== 'undefined' &&
+			typeof (config.store as Store).init !== 'function')
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
@@ -153,10 +161,11 @@ const parseOptions = (passedOptions: OptionsWithLegacyStore): Options => {
 	}
 
 	// Promisify the store, if it is not already
-	options.store = promisifyStore(options.store)
+	// This also turns a LegacyStore into a Store, if needs be.
+	config.store = promisifyStore(config.store)
 
 	// Return the 'clean' options
-	return options as Options
+	return config as Configuration
 }
 
 /**
@@ -190,9 +199,7 @@ const handleAsyncErrors =
  * @public
  */
 const rateLimit = (
-	passedOptions?: Omit<Partial<Options>, 'store'> & {
-		store?: Store | LegacyStore
-	},
+	passedOptions?: Partial<Options>,
 ): RateLimitRequestHandler => {
 	// Parse the options and add the default values for unspecified options
 	const options = parseOptions(passedOptions ?? {})
@@ -344,12 +351,12 @@ const rateLimit = (
  * @private
  */
 const omitUndefinedOptions = (
-	passedOptions: OptionsWithLegacyStore,
-): OptionsWithLegacyStore => {
-	const omittedOptions: OptionsWithLegacyStore = {}
+	passedOptions: Partial<Options>,
+): Partial<Options> => {
+	const omittedOptions: Partial<Options> = {}
 
 	for (const k of Object.keys(passedOptions)) {
-		const key = k as keyof OptionsWithLegacyStore
+		const key = k as keyof Partial<Options>
 
 		if (passedOptions[key] !== undefined) {
 			// @ts-expect-error It (rightfully) complains that the properties are readonly here, but
