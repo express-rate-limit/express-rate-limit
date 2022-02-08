@@ -142,8 +142,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
 	}
 
-	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
-	// interface
+	// Ensure that the store passed implements the `Store` interface
 	if (
 		typeof config.store.increment !== 'function' ||
 		typeof config.store.decrement !== 'function' ||
