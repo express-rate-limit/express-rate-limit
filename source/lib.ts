@@ -11,6 +11,9 @@ import {
 	LegacyStore,
 	Store,
 	IncrementResponse,
+	ValueDeterminingMiddleware,
+	RateLimitExceededEventHandler,
+	RateLimitReachedEventHandler,
 } from './types.js'
 
 /**
@@ -76,12 +79,31 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	return new PromisifiedStore()
 }
 
-// Configuration represents what actually ends up configuring the rate limiter. This is
-// derived from the users options, but with some legacy fields left ignored.
-type Configuration = Omit<
-	Options,
-	'headers' | 'draft_polli_ratelimit_headers' | 'store'
-> & {
+/**
+ * Internal configuration interface.
+ * This is copied from Options, with fields made non-readonly
+ * and deprecated fields removed.
+ *
+ * For documentation on what each field does, {@see Options}.
+ *
+ * This is not stored in types because it's internal to the
+ * API, and should not be interacted with by the user.
+ */
+interface Configuration {
+	windowMs: number
+	max: number | ValueDeterminingMiddleware<number>
+	message: any
+	statusCode: number
+	legacyHeaders: boolean
+	standardHeaders: boolean
+	requestPropertyName: string
+	skipFailedRequests: boolean
+	skipSuccessfulRequests: boolean
+	keyGenerator: ValueDeterminingMiddleware<string>
+	handler: RateLimitExceededEventHandler
+	onLimitReached: RateLimitReachedEventHandler
+	skip: ValueDeterminingMiddleware<boolean>
+	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
 }
 
@@ -344,15 +366,13 @@ const rateLimit = (
  */
 const omitUndefinedOptions = (
 	passedOptions: Partial<Options>,
-): Partial<Options> => {
-	const omittedOptions: Partial<Options> = {}
+): Partial<Configuration> => {
+	const omittedOptions: Partial<Configuration> = {}
 
 	for (const k of Object.keys(passedOptions)) {
-		const key = k as keyof Partial<Options>
+		const key = k as keyof Configuration
 
 		if (passedOptions[key] !== undefined) {
-			// @ts-expect-error It (rightfully) complains that the properties are readonly here, but
-			// we're constructing this object, so there's no real way around this.
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			omittedOptions[key] = passedOptions[key]
 		}
