@@ -11,6 +11,9 @@ import {
 	LegacyStore,
 	Store,
 	IncrementResponse,
+	ValueDeterminingMiddleware,
+	RateLimitExceededEventHandler,
+	RateLimitReachedEventHandler,
 } from './types.js'
 
 /**
@@ -77,22 +80,50 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 }
 
 /**
+ * Internal configuration interface.
+ * This is copied from Options, with fields made non-readonly
+ * and deprecated fields removed.
+ *
+ * For documentation on what each field does, {@see Options}.
+ *
+ * This is not stored in types because it's internal to the
+ * API, and should not be interacted with by the user.
+ */
+interface Configuration {
+	windowMs: number
+	max: number | ValueDeterminingMiddleware<number>
+	message: any
+	statusCode: number
+	legacyHeaders: boolean
+	standardHeaders: boolean
+	requestPropertyName: string
+	skipFailedRequests: boolean
+	skipSuccessfulRequests: boolean
+	keyGenerator: ValueDeterminingMiddleware<string>
+	handler: RateLimitExceededEventHandler
+	onLimitReached: RateLimitReachedEventHandler
+	skip: ValueDeterminingMiddleware<boolean>
+	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
+	store: Store
+}
+
+/**
  * Type-checks and adds the defaults for options the user has not specified.
  *
  * @param options {Options} - The options the user specifies.
  *
- * @returns {Options} - A complete configuration object.
+ * @returns {Configuration} - A complete configuration object.
  */
-const parseOptions = (
-	passedOptions: Omit<Partial<Options>, 'store'> & {
-		store?: Store | LegacyStore
-	},
-): Options => {
+const parseOptions = (passedOptions: Partial<Options>): Configuration => {
+	// Passing undefined should be equivalent to not passing an option at all, so we'll
+	// omit all fields where their value is undefined.
+	const notUndefinedOptions: Partial<Options> =
+		omitUndefinedOptions(passedOptions)
+
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
-	const options = {
+	const config: Configuration = {
 		windowMs: 60 * 1000,
-		store: new MemoryStore(),
 		max: 5,
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
@@ -119,39 +150,36 @@ const parseOptions = (
 			_next: NextFunction,
 			_optionsUsed: Options,
 		): void => {
-			response.status(options.statusCode).send(options.message)
+			response.status(config.statusCode).send(config.message)
 		},
 		onLimitReached: (
 			_request: Request,
 			_response: Response,
 			_optionsUsed: Options,
 		): void => {},
-		// Allow the above to be overriden by the options passed to the middleware
-		...passedOptions,
+		// Allow the options object to be overriden by the options passed to the middleware.
+		...notUndefinedOptions,
+		// Note that this field is declared after the user's options are spread in,
+		// so that this field doesn't get overriden with an un-promisified store!
+		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
 	}
 
-	// Ensure that the store passed implements the either the `Store` or `LegacyStore`
-	// interface
+	// Ensure that the store passed implements the `Store` interface
 	if (
-		(typeof (options.store as LegacyStore).incr !== 'function' &&
-			typeof (options.store as Store).increment !== 'function') ||
-		typeof options.store.decrement !== 'function' ||
-		typeof options.store.resetKey !== 'function' ||
-		(typeof options.store.resetAll !== 'undefined' &&
-			typeof options.store.resetAll !== 'function') ||
-		(typeof (options.store as Store).init !== 'undefined' &&
-			typeof (options.store as Store).init !== 'function')
+		typeof config.store.increment !== 'function' ||
+		typeof config.store.decrement !== 'function' ||
+		typeof config.store.resetKey !== 'function' ||
+		(typeof config.store.resetAll !== 'undefined' &&
+			typeof config.store.resetAll !== 'function') ||
+		(typeof config.store.init !== 'undefined' &&
+			typeof config.store.init !== 'function')
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
 		)
 	}
 
-	// Promisify the store, if it is not already
-	options.store = promisifyStore(options.store)
-
-	// Return the 'clean' options
-	return options as Options
+	return config
 }
 
 /**
@@ -185,9 +213,7 @@ const handleAsyncErrors =
  * @public
  */
 const rateLimit = (
-	passedOptions?: Omit<Partial<Options>, 'store'> & {
-		store?: Store | LegacyStore
-	},
+	passedOptions?: Partial<Options>,
 ): RateLimitRequestHandler => {
 	// Parse the options and add the default values for unspecified options
 	const options = parseOptions(passedOptions ?? {})
@@ -325,6 +351,34 @@ const rateLimit = (
 		options.store.resetKey.bind(options.store)
 
 	return middleware as RateLimitRequestHandler
+}
+
+/**
+ *
+ * Remove any options where their value is set to undefined. This avoids overwriting defaults
+ * in the case a user passes undefined instead of simply omitting the key.
+ *
+ * @param passedOptions {Options} - The options to omit.
+ *
+ * @returns {Options} - The same options, but with all undefined fields omitted.
+ *
+ * @private
+ */
+const omitUndefinedOptions = (
+	passedOptions: Partial<Options>,
+): Partial<Configuration> => {
+	const omittedOptions: Partial<Configuration> = {}
+
+	for (const k of Object.keys(passedOptions)) {
+		const key = k as keyof Configuration
+
+		if (passedOptions[key] !== undefined) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			omittedOptions[key] = passedOptions[key]
+		}
+	}
+
+	return omittedOptions
 }
 
 // Export it to the world!

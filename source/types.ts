@@ -279,7 +279,7 @@ export interface Options {
 	 *
 	 * By default, the built-in `MemoryStore` will be used.
 	 */
-	store: Store
+	store: Store | LegacyStore
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
