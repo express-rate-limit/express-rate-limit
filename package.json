@@ -46,12 +46,12 @@
 		"changelog.md"
 	],
 	"engines": {
-		"node": ">= 14.5.0"
+		"node": ">= 12.9.0"
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
-		"build:cjs": "esbuild --bundle --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit; module.exports.rateLimit = rateLimit; module.exports.MemoryStore = MemoryStore;\" source/index.ts",
-		"build:esm": "esbuild --bundle --format=esm --outfile=dist/index.mjs source/index.ts",
+		"build:cjs": "esbuild --bundle --target=es2019 --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit; module.exports.rateLimit = rateLimit; module.exports.MemoryStore = MemoryStore;\" source/index.ts",
+		"build:esm": "esbuild --bundle --target=es2019 --format=esm --outfile=dist/index.mjs source/index.ts",
 		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts",
 		"compile": "run-s clean build:*",
 		"lint:code": "xo --ignore test/external/",

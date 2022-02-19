@@ -3,7 +3,7 @@
 	"include": ["source/"],
 	"exclude": ["node_modules/"],
 	"compilerOptions": {
-		"target": "esnext",
+		"target": "es2019",
 		"module": "esnext"
 	}
 }
