@@ -136,6 +136,23 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 })
 ```
 
+
+To use a custom middleware with standardHeaders:
+
+```ts
+const apiLimiter: typeof rateLimit = (options = {}) => {
+  return rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    ...options,
+  })
+}
+
+// Apply the rate limiting middleware
+app.use('/api', apiLimiter({ max: 20 }) )
+```
+
 To use a custom store:
 
 ```ts
