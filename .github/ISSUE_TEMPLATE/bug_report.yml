@@ -1,4 +1,4 @@
-name: Report a bug
+nameexpress-rate-limit/.github/ISSUE_TEMPLATE/bug_report.yml: Report a bug
 description: ———
 labels: [bug]
 body:
