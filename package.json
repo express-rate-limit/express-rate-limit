@@ -67,7 +67,7 @@
 		"prepare": "run-s compile && husky install config/husky"
 	},
 	"peerDependencies": {
-		"express": "^4"
+		"express": "^4 || ^5"
 	},
 	"devDependencies": {
 		"@jest/globals": "27.4.6",
