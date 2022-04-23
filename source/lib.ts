@@ -63,16 +63,16 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 		}
 
 		async decrement(key: string): Promise<void> {
-			return Promise.resolve(legacyStore.decrement(key))
+			return legacyStore.decrement(key)
 		}
 
 		async resetKey(key: string): Promise<void> {
-			return Promise.resolve(legacyStore.resetKey(key))
+			return legacyStore.resetKey(key)
 		}
 
 		async resetAll(): Promise<void> {
 			if (typeof legacyStore.resetAll === 'function')
-				return Promise.resolve(legacyStore.resetAll())
+				return legacyStore.resetAll()
 		}
 	}
 
@@ -135,7 +135,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		requestWasSuccessful: (_request: Request, response: Response): boolean =>
 			response.statusCode < 400,
 		skip: (_request: Request, _response: Response): boolean => false,
-		keyGenerator: (request: Request, _response: Response): string => {
+		keyGenerator(request: Request, _response: Response): string {
 			if (!request.ip) {
 				console.error(
 					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
@@ -144,19 +144,19 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 			return request.ip
 		},
-		handler: (
+		handler(
 			_request: Request,
 			response: Response,
 			_next: NextFunction,
 			_optionsUsed: Options,
-		): void => {
+		): void {
 			response.status(config.statusCode).send(config.message)
 		},
-		onLimitReached: (
+		onLimitReached(
 			_request: Request,
 			_response: Response,
 			_optionsUsed: Options,
-		): void => {},
+		): void {},
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// Note that this field is declared after the user's options are spread in,
