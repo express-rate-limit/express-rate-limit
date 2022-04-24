@@ -5,46 +5,92 @@
 set -e 
 set -o pipefail
 
-# Tests all the variations (JS-TS and CJS-ESM) with the `express-rate-limit` package.
-cd imports/
-for type in "named" "default"; do
-	cd "$type-import"
-	for dir in `ls -d */`; do
-		# cd into the example project
-		cd $dir
-		# Get a fresh install of all node modules
-		rm -rf node_modules
-		npm install
-		# Run the linter and the tests
-		npm run lint
-		npm run test
-		# Go back
-		cd ../
-	done
-	# Go back
-	cd ../
-done
-cd ../
-
-# Tests all external stores with the `express-rate-limit` package.
-# cd into the example project
-cd stores/
-if [[ -z "$CI" ]]; then
-	# If we are not in the CI, start the docker containers needed to run these tests
+# Recreates the docker containers needed for the external store tests. 
+function start_docker {
 	# Stop and delete any existing containers
 	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
-	# Delete any existing files
-	rm -rf /tmp/database || true
+
+	# Database directory for the mongo container
+	data_dir=$(mktemp -d 2>/dev/null || mktemp -d -t 'rate-limit-mongo-database')
+
 	# Start all the containers
 	docker run --name rate-limit-memcached -p 11211:11211 -d memcached
-	docker run --name rate-limit-mongo -p 27017:27017 -v /tmp/database:/data/db -d mongo
+	docker run --name rate-limit-mongo -p 27017:27017 -v $data_dir:/data/db -d mongo
 	docker run --name rate-limit-redis -p 6379:6379 -d redis
-fi
-# Get a fresh install of all the node modules
-rm -rf node_modules
-npm install
-# Run the tests
-npm run test
-# Go back
-cd ../
+
+	# Wait for a few seconds
+	sleep 10
+}
+
+# Tests all the variations (JS/TS and CJS/ESM) with the package.
+function run_import_tests {
+	# cd into the imports folder
+	cd imports/
+	# For each type of import (named and default), run the tests
+	for type in "named" "default"; do
+		cd "$type-import"
+		
+		for dir in `ls -d */`; do
+			# cd into the example project
+			cd $dir
+
+			# Get a fresh install of all node modules
+			rm -rf node_modules
+			npm install
+			# Run the linter and the tests
+			npm run lint
+			npm test
+
+			# Install Express v5
+			npm install express@5.0.0-beta.1
+			# Run the tests with this version
+			npm run lint
+			npm test
+			# Restore the version
+			git restore package.json
+
+			# Go back into the next variation
+			cd ../
+		done
+		
+		# Go back
+		cd ../
+	done
+
+	# Go back
+	cd ../
+}
+
+# Tests all external stores with the package.
+function run_store_tests {
+	# cd into the example project
+	cd stores/
+
+	# Start the containers
+	start_docker
+
+	# Get a fresh install of all the node modules
+	rm -rf node_modules
+	npm install
+	
+	# Run the tests with Express v4
+	npm run test
+
+	# Restart the containers
+	start_docker
+
+	# Install Express v5
+	npm install express@5.0.0-beta.1
+	# Run the tests with this version
+	npm test
+	# Restore the version
+	git restore package.json
+
+	# Go back
+	cd ../
+}
+
+# Run the tests!
+run_import_tests
+run_store_tests
