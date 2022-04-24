@@ -257,7 +257,7 @@ describe('middleware test', () => {
 		const app = createServer(
 			rateLimit({
 				max: 1,
-				handler: (_request, response) => {
+				handler(_request, response) {
 					response.status(420).end('Enhance your calm')
 				},
 			}),
@@ -303,8 +303,8 @@ describe('middleware test', () => {
 	it('should allow custom skip function that returns a promise', async () => {
 		const limiter = rateLimit({
 			max: 2,
-			skip: async () => {
-				return Promise.resolve(true)
+			async skip() {
+				return true
 			},
 		})
 
@@ -330,7 +330,7 @@ describe('middleware test', () => {
 	it('should allow max to be a function that returns a promise', async () => {
 		const app = createServer(
 			rateLimit({
-				max: async () => Promise.resolve(2),
+				max: async () => 2,
 			}),
 		)
 
@@ -342,7 +342,7 @@ describe('middleware test', () => {
 	it('should calculate the remaining hits', async () => {
 		const app = createServer(
 			rateLimit({
-				max: async () => Promise.resolve(2),
+				max: async () => 2,
 			}),
 		)
 
@@ -463,7 +463,7 @@ describe('middleware test', () => {
 			const app = createServer(
 				rateLimit({
 					skipSuccessfulRequests: true,
-					requestWasSuccessful: (request, response) => {
+					requestWasSuccessful(request, response) {
 						return response.statusCode === 200
 					},
 					store,
@@ -654,7 +654,7 @@ describe('middleware test', () => {
 				rateLimit({
 					max: 1,
 					store,
-					handler: () => {
+					handler() {
 						const exception = new Error('420: Enhance your calm')
 						throw exception
 					},
@@ -693,7 +693,7 @@ describe('middleware test', () => {
 				rateLimit({
 					max: 1,
 					store,
-					skip: () => {
+					skip() {
 						const exception = new Error('420: Enhance your calm')
 						throw exception
 					},
@@ -786,7 +786,7 @@ describe('middleware test', () => {
 			max: 2,
 			requestPropertyName: 'rateLimitKey',
 			keyGenerator: (request) => request.query.key as string,
-			handler: (_request, response) => {
+			handler(_request, response) {
 				response.status(420).end('Enhance your calm')
 			},
 		})
@@ -794,7 +794,7 @@ describe('middleware test', () => {
 			max: 5,
 			requestPropertyName: 'rateLimitGlobal',
 			keyGenerator: () => 'global',
-			handler: (_request, response) => {
+			handler(_request, response) {
 				response.status(429).end('Too many requests')
 			},
 		})
