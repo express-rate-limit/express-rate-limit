@@ -10,7 +10,7 @@ jobs:
     name: Lint
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [18]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -29,7 +29,7 @@ jobs:
     name: Test (Library)
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 15.x, 16.x, 17.x, 18.x]
+        node-version: [12, 14, 16, 18]
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -48,7 +48,7 @@ jobs:
     name: Test (External)
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 15.x, 16.x, 17.x, 18.x]
+        node-version: [12, 14, 16, 18]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     continue-on-error: true
