@@ -150,7 +150,17 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_next: NextFunction,
 			_optionsUsed: Options,
 		): void {
-			response.status(config.statusCode).send(config.message)
+			if (typeof config.message === 'function') {
+				;(
+					config.message as (
+						request: Request,
+						response: Response,
+						next: NextFunction,
+					) => any
+				)(_request, response, _next)
+			} else {
+				response.status(config.statusCode).send(config.message)
+			}
 		},
 		onLimitReached(
 			_request: Request,
