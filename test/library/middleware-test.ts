@@ -253,6 +253,23 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(429, message)
 	})
 
+	it('should allow responding manually with a function message', async () => {
+		const _message = 'too many requests'
+		const message = (_request: Request, response: Response) => {
+			response.status(429).send(_message)
+		}
+
+		const app = createServer(
+			rateLimit({
+				message,
+				max: 1,
+			}),
+		)
+
+		await request(app).get('/').expect(200, 'Hi there!')
+		await request(app).get('/').expect(429, _message)
+	})
+
 	it('should use a custom handler when specified', async () => {
 		const app = createServer(
 			rateLimit({
