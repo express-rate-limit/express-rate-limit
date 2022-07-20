@@ -144,22 +144,23 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 			return request.ip
 		},
-		handler(
+		async handler(
 			_request: Request,
 			response: Response,
 			_next: NextFunction,
 			_optionsUsed: Options,
-		): void {
-			if (typeof config.message === 'function') {
-				;(
-					config.message as (
-						request: Request,
-						response: Response,
-						next: NextFunction,
-					) => any
-				)(_request, response, _next)
-			} else {
-				response.status(config.statusCode).send(config.message)
+		): Promise<void> {
+			let { message } = config as { message: unknown }
+			// Set the response status code
+			response.status(config.statusCode)
+			// Call the `message` if it is a function.
+			if (typeof message === 'function') {
+				message = await message(_request, response)
+			}
+
+			// Send the response if headers are not sent.
+			if (!response.headersSent) {
+				response.send(message || 'Too many requests, please try again later.')
 			}
 		},
 		onLimitReached(
