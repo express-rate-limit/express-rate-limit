@@ -136,6 +136,30 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 })
 ```
 
+To respond by function message:
+
+```ts
+import rateLimit from 'express-rate-limit'
+
+const apiLimiter = rateLimit({
+	windowMs: 60 * 60 * 1000, // 1 hour
+	max: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
+	message: (request, response) => {
+		response
+			.status(429)
+			.send(
+				'Too many accounts created from this IP, please try again after an hour',
+			)
+	},
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+app.post('/create-account', createAccountLimiter, (request, response) => {
+	//...
+})
+```
+
 To use a custom store:
 
 ```ts
@@ -238,7 +262,7 @@ const limiter = rateLimit({
 
 The response body to send back when a client is rate limited.
 
-May be a `string`, JSON object, or any other value that Express's
+May be a `string`, JSON object, function, or any other value that Express's
 [response.send](https://expressjs.com/en/4x/api.html#response.send) method
 supports.
 
