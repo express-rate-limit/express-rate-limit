@@ -136,7 +136,7 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 })
 ```
 
-To respond by function message:
+To send a response via function message:
 
 ```ts
 import rateLimit from 'express-rate-limit'
@@ -145,6 +145,7 @@ const apiLimiter = rateLimit({
 	windowMs: 60 * 60 * 1000, // 1 hour
 	max: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
 	message: (request, response) => {
+		// response.send('Too many accounts created from this IP, please try again after an hour')
 		return 'Too many accounts created from this IP, please try again after an hour'
 	},
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
