@@ -253,10 +253,10 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(429, message)
 	})
 
-	it('should allow responding manually with a function message', async () => {
+	it('should allow responding with a return value via the function message', async () => {
 		const _message = 'too many requests'
-		const message = (_request: Request, response: Response) => {
-			response.status(429).send(_message)
+		const message = async (_request: Request, _response: Response) => {
+			return 'too many requests'
 		}
 
 		const app = createServer(
