@@ -186,7 +186,7 @@ export interface Options {
 	 *
 	 * Defaults to `'Too many requests, please try again later.'`
 	 */
-	readonly message: any
+	readonly message: any | ValueDeterminingMiddleware<any>
 
 	/**
 	 * The HTTP status code to send back when a client is rate limited.
