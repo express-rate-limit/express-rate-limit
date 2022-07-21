@@ -367,7 +367,8 @@ const limiter = rateLimit({
 Express request handler that sends back a response when a client is
 rate-limited.
 
-By default, sends back the `statusCode` and `message` set via the options:
+By default, sends back the `statusCode` and `message` set via the `options`,
+similar to this:
 
 ```ts
 const limiter = rateLimit({
