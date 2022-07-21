@@ -156,7 +156,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			const message: unknown =
 				typeof config.message === 'function'
 					? await (
-							config.message as (request: Request, response: Response) => any
+							config.message as ValueDeterminingMiddleware<any>
 					  )(request, response)
 					: config.message
 
