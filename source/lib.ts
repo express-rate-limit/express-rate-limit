@@ -155,14 +155,15 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			// Call the `message` if it is a function.
 			const message: unknown =
 				typeof config.message === 'function'
-					? await (
-							config.message as ValueDeterminingMiddleware<any>
-					  )(request, response)
+					? await (config.message as ValueDeterminingMiddleware<any>)(
+							request,
+							response,
+					  )
 					: config.message
 
 			// Send the response if writable.
 			if (!response.writableEnded) {
-				response.send(message || 'Too many requests, please try again later.')
+				response.send(message ?? 'Too many requests, please try again later.')
 			}
 		},
 		onLimitReached(
