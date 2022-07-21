@@ -92,7 +92,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 interface Configuration {
 	windowMs: number
 	max: number | ValueDeterminingMiddleware<number>
-	message: any
+	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
 	legacyHeaders: boolean
 	standardHeaders: boolean
@@ -145,21 +145,23 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			return request.ip
 		},
 		async handler(
-			_request: Request,
+			request: Request,
 			response: Response,
 			_next: NextFunction,
 			_optionsUsed: Options,
 		): Promise<void> {
-			let { message } = config as { message: unknown }
 			// Set the response status code
 			response.status(config.statusCode)
 			// Call the `message` if it is a function.
-			if (typeof message === 'function') {
-				message = await message(_request, response)
-			}
+			const message: unknown =
+				typeof config.message === 'function'
+					? await (
+							config.message as (request: Request, response: Response) => any
+					  )(request, response)
+					: config.message
 
-			// Send the response if headers are not sent.
-			if (!response.headersSent) {
+			// Send the response if writable.
+			if (!response.writableEnded) {
 				response.send(message || 'Too many requests, please try again later.')
 			}
 		},
