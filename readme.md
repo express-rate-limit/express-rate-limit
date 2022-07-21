@@ -136,27 +136,6 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 })
 ```
 
-To send a response via function message:
-
-```ts
-import rateLimit from 'express-rate-limit'
-
-const apiLimiter = rateLimit({
-	windowMs: 60 * 60 * 1000, // 1 hour
-	max: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
-	message: (request, response) => {
-		// response.send('Too many accounts created from this IP, please try again after an hour')
-		return 'Too many accounts created from this IP, please try again after an hour'
-	},
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
-
-app.post('/create-account', createAccountLimiter, (request, response) => {
-	//...
-})
-```
-
 To use a custom store:
 
 ```ts
@@ -259,11 +238,30 @@ const limiter = rateLimit({
 
 The response body to send back when a client is rate limited.
 
-May be a `string`, JSON object, function, or any other value that Express's
-[response.send](https://expressjs.com/en/4x/api.html#response.send) method
-supports.
+May be a `string`, JSON object, or any other value that Express's
+[`response.send`](https://expressjs.com/en/4x/api.html#res.send) method
+supports. It can also be a (sync/async) function that accepts the Express
+request and response objects and then returns a `string`, JSON object or any
+other value the Express `response.send` function accepts.
 
 Defaults to `'Too many requests, please try again later.'`
+
+An example of using a function:
+
+```ts
+const isPremium = async (user) => {
+	// ...
+}
+
+const limiter = rateLimit({
+	// ...
+	message: async (request, response) => {
+		if (await isPremium(request.user))
+			return 'You can only make 10 requests every hour.'
+		else return 'You can only make 5 requests every hour.'
+	},
+})
+```
 
 ### `statusCode`
 
