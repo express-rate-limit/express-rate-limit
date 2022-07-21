@@ -254,7 +254,6 @@ describe('middleware test', () => {
 	})
 
 	it('should allow responding with a return value via the function message', async () => {
-		const _message = 'too many requests'
 		const message = async (_request: Request, _response: Response) => {
 			return 'too many requests'
 		}
@@ -267,7 +266,7 @@ describe('middleware test', () => {
 		)
 
 		await request(app).get('/').expect(200, 'Hi there!')
-		await request(app).get('/').expect(429, _message)
+		await request(app).get('/').expect(429, 'too many requests')
 	})
 
 	it('should use a custom handler when specified', async () => {
