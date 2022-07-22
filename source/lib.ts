@@ -92,6 +92,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 interface Configuration {
 	windowMs: number
 	max: number | ValueDeterminingMiddleware<number>
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
 	legacyHeaders: boolean
