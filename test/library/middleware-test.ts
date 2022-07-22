@@ -19,7 +19,7 @@ import { createServer } from './helpers/create-server.js'
 
 describe('middleware test', () => {
 	beforeEach(() => {
-		jest.useFakeTimers('modern')
+		jest.useFakeTimers()
 	})
 	afterEach(() => {
 		jest.useRealTimers()

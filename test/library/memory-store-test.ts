@@ -8,7 +8,7 @@ import MemoryStore from '../../source/memory-store.js'
 
 describe('memory store test', () => {
 	beforeEach(() => {
-		jest.useFakeTimers('modern')
+		jest.useFakeTimers()
 	})
 	afterEach(() => {
 		jest.useRealTimers()
@@ -78,7 +78,7 @@ describe('memory store test', () => {
 
 	describe('reset time', () => {
 		beforeEach(() => {
-			jest.useFakeTimers('modern')
+			jest.useFakeTimers()
 		})
 		afterEach(() => {
 			jest.useRealTimers()
