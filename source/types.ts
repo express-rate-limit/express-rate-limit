@@ -186,6 +186,7 @@ export interface Options {
 	 *
 	 * Defaults to `'Too many requests, please try again later.'`
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	readonly message: any | ValueDeterminingMiddleware<any>
 
 	/**
