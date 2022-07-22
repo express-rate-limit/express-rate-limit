@@ -92,7 +92,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 interface Configuration {
 	windowMs: number
 	max: number | ValueDeterminingMiddleware<number>
-	message: any
+	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
 	legacyHeaders: boolean
 	standardHeaders: boolean
@@ -144,13 +144,27 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 			return request.ip
 		},
-		handler(
-			_request: Request,
+		async handler(
+			request: Request,
 			response: Response,
 			_next: NextFunction,
 			_optionsUsed: Options,
-		): void {
-			response.status(config.statusCode).send(config.message)
+		): Promise<void> {
+			// Set the response status code
+			response.status(config.statusCode)
+			// Call the `message` if it is a function.
+			const message: unknown =
+				typeof config.message === 'function'
+					? await (config.message as ValueDeterminingMiddleware<any>)(
+							request,
+							response,
+					  )
+					: config.message
+
+			// Send the response if writable.
+			if (!response.writableEnded) {
+				response.send(message ?? 'Too many requests, please try again later.')
+			}
 		},
 		onLimitReached(
 			_request: Request,

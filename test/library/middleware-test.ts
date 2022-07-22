@@ -253,6 +253,30 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(429, message)
 	})
 
+	it('should allow message to be a function', async () => {
+		const app = createServer(
+			rateLimit({
+				message: () => 'Too many requests.',
+				max: 1,
+			}),
+		)
+
+		await request(app).get('/').expect(200, 'Hi there!')
+		await request(app).get('/').expect(429, 'Too many requests.')
+	})
+
+	it('should allow message to be a function that returns a promise', async () => {
+		const app = createServer(
+			rateLimit({
+				message: async () => 'Too many requests.',
+				max: 1,
+			}),
+		)
+
+		await request(app).get('/').expect(200, 'Hi there!')
+		await request(app).get('/').expect(429, 'Too many requests.')
+	})
+
 	it('should use a custom handler when specified', async () => {
 		const app = createServer(
 			rateLimit({
@@ -303,9 +327,7 @@ describe('middleware test', () => {
 	it('should allow custom skip function that returns a promise', async () => {
 		const limiter = rateLimit({
 			max: 2,
-			async skip() {
-				return true
-			},
+			skip: async () => true,
 		})
 
 		const app = createServer(limiter)

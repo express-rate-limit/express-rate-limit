@@ -239,10 +239,29 @@ const limiter = rateLimit({
 The response body to send back when a client is rate limited.
 
 May be a `string`, JSON object, or any other value that Express's
-[response.send](https://expressjs.com/en/4x/api.html#response.send) method
-supports.
+[`response.send`](https://expressjs.com/en/4x/api.html#res.send) method
+supports. It can also be a (sync/async) function that accepts the Express
+request and response objects and then returns a `string`, JSON object or any
+other value the Express `response.send` function accepts.
 
 Defaults to `'Too many requests, please try again later.'`
+
+An example of using a function:
+
+```ts
+const isPremium = async (user) => {
+	// ...
+}
+
+const limiter = rateLimit({
+	// ...
+	message: async (request, response) => {
+		if (await isPremium(request.user))
+			return 'You can only make 10 requests every hour.'
+		else return 'You can only make 5 requests every hour.'
+	},
+})
+```
 
 ### `statusCode`
 
@@ -348,7 +367,8 @@ const limiter = rateLimit({
 Express request handler that sends back a response when a client is
 rate-limited.
 
-By default, sends back the `statusCode` and `message` set via the options:
+By default, sends back the `statusCode` and `message` set via the `options`,
+similar to this:
 
 ```ts
 const limiter = rateLimit({
