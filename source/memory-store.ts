@@ -42,6 +42,11 @@ export default class MemoryStore implements Store {
 	resetTime!: Date
 
 	/**
+	 * Reference to the active timer.
+	 */
+	interval?: NodeJS.Timer
+
+	/**
 	 * Method that initializes the store.
 	 *
 	 * @param options {Options} - The options used to setup the middleware.
@@ -57,11 +62,11 @@ export default class MemoryStore implements Store {
 
 		// Reset hit counts for ALL clients every `windowMs` - this will also
 		// re-calculate the `resetTime`
-		const interval = setInterval(async () => {
+		this.interval = setInterval(async () => {
 			await this.resetAll()
 		}, this.windowMs)
-		if (interval.unref) {
-			interval.unref()
+		if (this.interval.unref) {
+			this.interval.unref()
 		}
 	}
 
@@ -117,5 +122,17 @@ export default class MemoryStore implements Store {
 	async resetAll(): Promise<void> {
 		this.hits = {}
 		this.resetTime = calculateNextResetTime(this.windowMs)
+	}
+
+	/**
+	 * Method to stop the timer.
+	 *
+	 * @public
+	 */
+	shutdown(): void {
+		if (this.interval !== undefined) {
+			clearInterval(this.interval)
+			this.interval = undefined
+		}
 	}
 }

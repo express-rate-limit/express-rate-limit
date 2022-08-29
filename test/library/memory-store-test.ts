@@ -76,6 +76,14 @@ describe('memory store test', () => {
 		expect(totalHitsTwo).toEqual(1)
 	})
 
+	it('clears the timer when `shutdown` is called', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
+		expect(store.interval).toBeDefined()
+		store.shutdown()
+		expect(store.interval).toBeUndefined()
+	})
+
 	describe('reset time', () => {
 		beforeEach(() => {
 			jest.useFakeTimers()
