@@ -157,6 +157,11 @@ export interface Store {
 	 * Method to reset everyone's hit counter.
 	 */
 	resetAll?: () => Promise<void> | void
+
+	/**
+	 * Method to shutdown the store, stop timers, and release all resources.
+	 */
+	shutdown?: () => Promise<void> | void
 }
 
 /**
