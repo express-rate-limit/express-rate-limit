@@ -9,7 +9,7 @@ import {
 	IncrementResponse,
 } from 'express-rate-limit'
 
-class TestStore implements Store {
+export class TestStore implements Store {
 	hits: Record<string, number> = {}
 
 	async increment(key: string): Promise<IncrementResponse> {
@@ -29,19 +29,25 @@ class TestStore implements Store {
 	async resetKey(key: string): Promise<void> {
 		delete this.hits[key]
 	}
+
+	async shutdown(): Promise<void> {
+		console.log('Shutdown successful')
+	}
 }
 
-const app = createServer()
+export const app = createServer()
+
+export const store = Math.floor(Math.random() * 2)
+	? new TestStore()
+	: new MemoryStore()
 
 app.use(
 	rateLimit({
 		max: 2,
 		legacyHeaders: false,
 		standardHeaders: true,
-		store: Math.floor(Math.random() * 2) ? new TestStore() : new MemoryStore(),
+		store,
 	}),
 )
 
 app.get('/', (request, response) => response.send('Hello!'))
-
-export default app
