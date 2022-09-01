@@ -7,7 +7,7 @@ import { agent as request } from 'supertest'
 import { app, store, TestStore } from '../source/app.js'
 
 test('rate limiting middleware', async () => {
-	jest.spyOn(global.console, 'log').mockImplementation(() => undefined)
+	jest.spyOn(global.console, 'log').mockImplementation(() => {})
 
 	await request(app).get('/').expect(200)
 	await request(app).get('/').expect(200)
