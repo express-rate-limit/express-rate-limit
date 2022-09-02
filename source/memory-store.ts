@@ -129,9 +129,6 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	shutdown(): void {
-		if (this.interval !== undefined) {
-			clearInterval(this.interval)
-			this.interval = undefined
-		}
+		clearInterval(this.interval)
 	}
 }
