@@ -9,6 +9,7 @@ import MemoryStore from '../../source/memory-store.js'
 describe('memory store test', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
+		jest.spyOn(global, 'clearInterval')
 	})
 	afterEach(() => {
 		jest.useRealTimers()
@@ -74,6 +75,14 @@ describe('memory store test', () => {
 		const { totalHits: totalHitsTwo } = await store.increment(keyTwo)
 		expect(totalHitsOne).toEqual(1)
 		expect(totalHitsTwo).toEqual(1)
+	})
+
+	it('clears the timer when `shutdown` is called', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: -1 } as Options)
+		expect(store.interval).toBeDefined()
+		store.shutdown()
+		expect(clearInterval).toHaveBeenCalledWith(store.interval)
 	})
 
 	describe('reset time', () => {

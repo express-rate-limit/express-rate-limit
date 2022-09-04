@@ -42,27 +42,31 @@ export default class MemoryStore implements Store {
 	resetTime!: Date
 
 	/**
+	 * Reference to the active timer.
+	 */
+	interval?: NodeJS.Timer
+
+	/**
 	 * Method that initializes the store.
 	 *
 	 * @param options {Options} - The options used to setup the middleware.
 	 */
 	init(options: Options): void {
-		// Get the duration of a window from the options
+		// Get the duration of a window from the options.
 		this.windowMs = options.windowMs
-		// Then calculate the reset time using that
+		// Then calculate the reset time using that.
 		this.resetTime = calculateNextResetTime(this.windowMs)
 
-		// Initialise the hit counter map
+		// Initialise the hit counter map.
 		this.hits = {}
 
 		// Reset hit counts for ALL clients every `windowMs` - this will also
 		// re-calculate the `resetTime`
-		const interval = setInterval(async () => {
+		this.interval = setInterval(async () => {
 			await this.resetAll()
 		}, this.windowMs)
-		if (interval.unref) {
-			interval.unref()
-		}
+		// Cleaning up the interval will be taken care of by the `shutdown` method.
+		if (this.interval.unref) this.interval.unref()
 	}
 
 	/**
@@ -93,9 +97,8 @@ export default class MemoryStore implements Store {
 	 */
 	async decrement(key: string): Promise<void> {
 		const current = this.hits[key]
-		if (current) {
-			this.hits[key] = current - 1
-		}
+
+		if (current) this.hits[key] = current - 1
 	}
 
 	/**
@@ -117,5 +120,15 @@ export default class MemoryStore implements Store {
 	async resetAll(): Promise<void> {
 		this.hits = {}
 		this.resetTime = calculateNextResetTime(this.windowMs)
+	}
+
+	/**
+	 * Method to stop the timer (if currently running) and prevent any memory
+	 * leaks.
+	 *
+	 * @public
+	 */
+	shutdown(): void {
+		clearInterval(this.interval)
 	}
 }
