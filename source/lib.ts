@@ -124,7 +124,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const config: Configuration = {
-		windowMs: 60 * 1000,
+		windowMs: passedOptions.windowMs ?? 60 * 1000,
 		max: 5,
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
