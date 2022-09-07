@@ -6,13 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.5.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.5.0)
+## [6.6.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.5.2)
 
-## Changed
+### Added
+
+- Added `shutdown` method to the Store interface and the MemoryStore.
+
+## [6.5.2](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.5.2)
+
+### Fixed
+
+- Fixed an issue with missing types in ESM monorepos.
+
+## [6.5.1](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.5.1)
+
+### Added
 
 - The message option can now be a (sync/asynx) function that returns a value
   (#311)
+
+### Changed
+
 - Updated all dependencies
+
+Note: 6.5.0 was not released due to CI automation issues.
 
 ## [6.4.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.3.0)
 
@@ -20,7 +37,7 @@ and this project adheres to
 
 - Adds Express 5 (`5.0.0-beta.1`) as a supported peer dependency (#304)
 
-## Changed
+### Changed
 
 - Tests are now run on Node 12, 14, 16 and 18 on CI (#305)
 - Updated all development dependencies (#306)
