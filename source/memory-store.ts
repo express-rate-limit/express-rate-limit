@@ -60,6 +60,9 @@ export default class MemoryStore implements Store {
 		// Initialise the hit counter map.
 		this.hits = {}
 
+		// Make sure to reset the previous interval if one was present
+		if (this.interval) this.shutdown()
+
 		// Reset hit counts for ALL clients every `windowMs` - this will also
 		// re-calculate the `resetTime`
 		this.interval = setInterval(async () => {

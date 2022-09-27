@@ -132,4 +132,16 @@ describe('memory store test', () => {
 			clearTimeout(realTimeoutId)
 		}
 	})
+
+	it('When calling init it should reset interval when already initialized', async () => {
+		const shutdownSpy = jest.spyOn(MemoryStore.prototype, 'shutdown')
+
+		const store = new MemoryStore()
+
+		store.init({} as Options)
+		expect(shutdownSpy).toHaveBeenCalledTimes(0)
+
+		store.init({} as Options)
+		expect(shutdownSpy).toHaveBeenCalledTimes(1)
+	})
 })
