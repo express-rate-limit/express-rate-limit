@@ -1,5 +1,11 @@
 # <div align="center"> Express Rate Limit </div>
 
+---
+
+Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API Gateway for developers. Add [dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting), authentication and more to any API in minutes. Learn more at [zuplo.com](https://zuplo.link/express-rate-limit) 
+
+---
+
 <div align="center">
 
 [![Tests](https://github.com/nfriedly/express-rate-limit/workflows/Test/badge.svg)](https://github.com/nfriedly/express-rate-limit/actions)
