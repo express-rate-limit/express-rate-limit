@@ -6,7 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.6.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.5.2)
+## [6.7.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.0)
+
+### Changed
+
+- Updated links to point to new express-rate-limit organization on GitHub.
+- Added advertisement to Readme for project sponsor
+  [Zuplo](https://zuplo.link/express-rate-limit).
+- Updated TypeScript version and other dev dependencies
+
+No functional changes.
+
+## [6.6.0](https://github.com/nfriedly/express-rate-limit/releases/tag/v6.6.0)
 
 ### Added
 
