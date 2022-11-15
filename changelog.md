@@ -14,6 +14,7 @@ and this project adheres to
 - Added advertisement to Readme for project sponsor
   [Zuplo](https://zuplo.link/express-rate-limit).
 - Updated TypeScript version and other dev dependencies
+- Changed CI test suite: dropped node.js 12, added node.js 19
 
 No functional changes.
 
