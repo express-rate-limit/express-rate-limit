@@ -4,16 +4,17 @@
 // import { platform } from 'node:process'
 
 import { jest } from '@jest/globals'
-import { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import { agent as request } from 'supertest'
 
-import rateLimit, {
+import type {
 	LegacyStore,
 	Store,
 	Options,
 	IncrementCallback,
 	IncrementResponse,
 } from '../../source/index.js'
+import rateLimit from '../../source/index.js'
 
 import { createServer } from './helpers/create-server.js'
 

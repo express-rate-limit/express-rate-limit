@@ -1,7 +1,7 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import { Store, Options, IncrementResponse } from './types.js'
+import type { Store, Options, IncrementResponse } from './types.js'
 
 /**
  * Calculates the time when all hit counters will be reset.

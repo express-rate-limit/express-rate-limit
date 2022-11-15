@@ -1,7 +1,7 @@
 // /source/types.ts
 // All the types used by this package
 
-import { Request, Response, NextFunction, RequestHandler } from 'express'
+import type { Request, Response, NextFunction, RequestHandler } from 'express'
 
 /**
  * Callback that fires when a client's hit counter is incremented.
@@ -89,7 +89,7 @@ export type RateLimitRequestHandler = RequestHandler & {
  *
  * @deprecated 6.x - Implement the `Store` interface instead.
  */
-export interface LegacyStore {
+export type LegacyStore = {
 	/**
 	 * Method to increment a client's hit counter.
 	 *
@@ -121,7 +121,7 @@ export interface LegacyStore {
 /**
  * An interface that all hit counter stores must implement.
  */
-export interface Store {
+export type Store = {
 	/**
 	 * Method that initializes the store, and has access to the options passed to
 	 * the middleware too.
@@ -167,7 +167,7 @@ export interface Store {
 /**
  * The configuration options for the rate limiter.
  */
-export interface Options {
+export type Options = {
 	/**
 	 * How long we should remember the requests.
 	 *
@@ -316,7 +316,7 @@ export type AugmentedRequest = Request & {
  * The rate limit related information for each client included in the
  * Express request object.
  */
-export interface RateLimitInfo {
+export type RateLimitInfo = {
 	readonly limit: number
 	readonly current: number
 	readonly remaining: number

@@ -1,10 +1,10 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
-import { Request, Response, NextFunction, RequestHandler } from 'express'
+import type { Request, Response, NextFunction, RequestHandler } from 'express'
 
 import MemoryStore from './memory-store.js'
-import {
+import type {
 	Options,
 	AugmentedRequest,
 	RateLimitRequestHandler,
@@ -89,7 +89,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  * This is not stored in types because it's internal to the
  * API, and should not be interacted with by the user.
  */
-interface Configuration {
+type Configuration = {
 	windowMs: number
 	max: number | ValueDeterminingMiddleware<number>
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
