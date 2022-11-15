@@ -2,7 +2,11 @@
 
 ---
 
-Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API Gateway for developers. Add [dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting), authentication and more to any API in minutes. Learn more at [zuplo.com](https://zuplo.link/express-rate-limit) 
+Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API
+Gateway for developers. Add
+[dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting),
+authentication and more to any API in minutes. Learn more at
+[zuplo.com](https://zuplo.link/express-rate-limit)
 
 ---
 
