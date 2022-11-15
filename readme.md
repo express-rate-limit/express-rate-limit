@@ -12,7 +12,7 @@ authentication and more to any API in minutes. Learn more at
 
 <div align="center">
 
-[![Tests](https://github.com/nfriedly/express-rate-limit/workflows/Test/badge.svg)](https://github.com/nfriedly/express-rate-limit/actions)
+[![Tests](https://github.com/express-rate-limit/express-rate-limit/workflows/Test/badge.svg)](https://github.com/express-rate-limit/express-rate-limit/actions)
 [![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
 [![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
 
@@ -51,9 +51,9 @@ From Github Releases:
 
 ```sh
 # Using npm
-> npm install https://github.com/nfriedly/express-rate-limit/releases/download/v{version}/express-rate-limit.tgz
+> npm install https://github.com/express-rate-limit/express-rate-limit/releases/download/v{version}/express-rate-limit.tgz
 # Using yarn or pnpm
-> yarn/pnpm add https://github.com/nfriedly/express-rate-limit/releases/download/v{version}/express-rate-limit.tgz
+> yarn/pnpm add https://github.com/express-rate-limit/express-rate-limit/releases/download/v{version}/express-rate-limit.tgz
 ```
 
 Replace `{version}` with the version of the package that you want to your, e.g.:
@@ -190,10 +190,9 @@ app.get('/ip', (request, response) => response.send(request.ip))
 ```
 
 Go to `/ip` and see the IP address returned in the response. If it matches your
-IP address (which you can get by going to http://ip.nfriedly.com/ or
-https://api.ipify.org/), then the number of proxies is correct and the rate
-limiter should now work correctly. If not, then keep increasing the number until
-it does.
+public IP address, then the number of proxies is correct and the rate limiter
+should now work correctly. If not, then keep increasing the number until it
+does.
 
 For more information about the `trust proxy` setting, take a look at the
 [official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
@@ -397,7 +396,7 @@ objects that is called when a client has reached their rate limit, and will be
 rate limited on their next request.
 
 This method was
-[deprecated in v6](https://github.com/nfriedly/express-rate-limit/releases/v6.0.0) -
+[deprecated in v6](https://github.com/express-rate-limit/express-rate-limit/releases/v6.0.0) -
 Please use a custom `handler` that checks the number of hits instead.
 
 ### `skip`
@@ -466,7 +465,7 @@ Here is a list of external stores:
 | [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.  | Legacy              |
 
 Take a look at
-[this guide](https://github.com/nfriedly/express-rate-limit/wiki/Creating-Your-Own-Store)
+[this guide](https://github.com/express-rate-limit/express-rate-limit/wiki/Creating-Your-Own-Store)
 if you wish to create your own store.
 
 ## Request API
@@ -490,9 +489,10 @@ method.
 ## Issues and Contributing
 
 If you encounter a bug or want to see something added/changed, please go ahead
-and [open an issue](https://github.com/nfriedly/express-rate-limit/issues/new)!
+and
+[open an issue](https://github.com/nfriexpress-rate-limitedly/express-rate-limit/issues/new)!
 If you need help with something, feel free to
-[start a discussion](https://github.com/nfriedly/express-rate-limit/discussions/new)!
+[start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
 
 If you wish to contribute to the library, thanks! First, please read
 [the contributing guide](contributing.md). Then you can pick up any issue and
