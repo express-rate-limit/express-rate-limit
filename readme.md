@@ -355,7 +355,8 @@ Defaults to `false`.
 
 > `function`
 
-Method to retrieve custom identifiers for clients, such as their IP address, username, or API Key.
+Method to retrieve custom identifiers for clients, such as their IP address,
+username, or API Key.
 
 Should be a (sync/async) function that accepts the Express `request` and
 `response` objects and then returns a string.
@@ -369,7 +370,9 @@ const limiter = rateLimit({
 })
 ```
 
-Note: if a keyGenerator returns the same value for every user, it becomes a global rate limiter. This could be combined with a second instance of express-rate-limit to have both global and per-user limits.
+Note: if a keyGenerator returns the same value for every user, it becomes a
+global rate limiter. This could be combined with a second instance of 
+express-rate-limit to have both global and per-user limits.
 
 ### `handler`
 
