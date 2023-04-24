@@ -89,7 +89,7 @@
 		"ts-jest": "29.0.5",
 		"ts-node": "10.9.1",
 		"typescript": "5.0.2",
-		"xo": "0.53.1"
+		"xo": "0.54.1"
 	},
 	"xo": {
 		"prettier": true,
