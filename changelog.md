@@ -6,15 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- Bumped development dependencies.
+- Added `node` 20 to list of versions the CI jobs run on.
+
 ## [6.7.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.0)
 
 ### Changed
 
-- Updated links to point to new express-rate-limit organization on GitHub.
-- Added advertisement to Readme for project sponsor
+- Updated links to point to the new `express-rate-limit` organization on GitHub.
+- Added advertisement to `readme.md` for project sponsor
   [Zuplo](https://zuplo.link/express-rate-limit).
-- Updated TypeScript version and other dev dependencies
-- Changed CI test suite: dropped node.js 12, added node.js 19
+- Updated to `typescript` version 5 and bumped other dependencies.
+- Dropped `node` 12, and added `node` 19 to the list of versions the CI jobs run
+  on.
 
 No functional changes.
 
