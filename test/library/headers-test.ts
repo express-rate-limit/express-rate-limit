@@ -2,9 +2,7 @@
 // Tests whether the headers sent back by the middleware
 
 import { agent as request } from 'supertest'
-
 import rateLimit from '../../source/index.js'
-
 import { createServer } from './helpers/create-server.js'
 
 describe('headers test', () => {

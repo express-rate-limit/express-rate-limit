@@ -6,7 +6,6 @@
 import { jest } from '@jest/globals'
 import type { Request, Response, NextFunction } from 'express'
 import { agent as request } from 'supertest'
-
 import type {
 	LegacyStore,
 	Store,
@@ -15,7 +14,6 @@ import type {
 	IncrementResponse,
 } from '../../source/index.js'
 import rateLimit from '../../source/index.js'
-
 import { createServer } from './helpers/create-server.js'
 
 describe('middleware test', () => {

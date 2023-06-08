@@ -2,7 +2,6 @@
 // The option parser and rate limiting middleware
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
-
 import MemoryStore from './memory-store.js'
 import type {
 	Options,
@@ -184,10 +183,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		typeof config.store.increment !== 'function' ||
 		typeof config.store.decrement !== 'function' ||
 		typeof config.store.resetKey !== 'function' ||
-		(typeof config.store.resetAll !== 'undefined' &&
+		(config.store.resetAll !== undefined &&
 			typeof config.store.resetAll !== 'function') ||
-		(typeof config.store.init !== 'undefined' &&
-			typeof config.store.init !== 'function')
+		(config.store.init !== undefined && typeof config.store.init !== 'function')
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',

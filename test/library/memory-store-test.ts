@@ -2,9 +2,8 @@
 // Tests the built in memory store
 
 import { jest } from '@jest/globals'
-
-import type { Options } from '../../source/index.js'
 import MemoryStore from '../../source/memory-store.js'
+import type { Options } from '../../source/index.js'
 
 describe('memory store test', () => {
 	beforeEach(() => {
