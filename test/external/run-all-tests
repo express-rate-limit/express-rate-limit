@@ -73,7 +73,6 @@ function run_import_tests {
 			cd $dir
 
 			# Get a fresh install of all node modules
-			rm -rf node_modules
 			npm install
 			# Run the linter and the tests
 			npm run lint
@@ -117,7 +116,6 @@ function run_store_tests {
 	start_docker
 
 	# Get a fresh install of all the node modules
-	rm -rf node_modules
 	npm install
 
 	print_info "running store tests (express 4)"
@@ -141,6 +139,45 @@ function run_store_tests {
 	print_success "successfully ran all store tests"
 }
 
+# Upgrades all dependencies
+function upgrade_dependencies {
+	print_info "upgrading project dependencies"
+
+	# cd into the imports folder
+	cd imports/
+	# For each type of import (named and default), run the tests
+	for type in "named" "default"; do
+		cd "$type-import"
+		
+		for dir in `ls -d */`; do
+			print_info "upgrading dependencies of $type-import/$dir"
+			# cd into the example project
+			cd $dir
+
+			# Get a fresh install of all node modules
+			rm -rf node_modules
+			npx npm-check-updates -u
+			npm install
+			echo
+			print_success "sucessfully upgraded dependencies of $type-import/$dir"
+
+			# Go back into the next variation
+			cd ../
+		done
+		
+		# Go back
+		cd ../
+	done
+
+	# Go back
+	cd ../
+
+	print_success "successfully upgraded dependencies"
+}
+
 # Run the tests!
 run_import_tests
 run_store_tests
+
+# Upgrade dependencies!
+# upgrade_dependencies

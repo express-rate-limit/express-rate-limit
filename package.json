@@ -30,9 +30,14 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs"
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
 		}
 	},
 	"main": "./dist/index.cjs",
@@ -53,13 +58,13 @@
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
 		"build:cjs": "esbuild --bundle --target=es2019 --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit; module.exports.rateLimit = rateLimit; module.exports.MemoryStore = MemoryStore;\" source/index.ts",
 		"build:esm": "esbuild --bundle --target=es2019 --format=esm --outfile=dist/index.mjs source/index.ts",
-		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts",
+		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && cp dist/index.d.ts dist/index.d.cts && cp dist/index.d.ts dist/index.d.mts",
 		"compile": "run-s clean build:*",
 		"lint:code": "xo --ignore test/external/",
 		"lint:rest": "prettier --ignore-path .gitignore --ignore-unknown --check .",
 		"lint": "run-s lint:*",
-		"autofix:code": "xo --ignore test/external/ --fix",
-		"autofix:rest": "prettier --ignore-path .gitignore --ignore-unknown --write .",
+		"autofix:code": "run-s lint:code --fix",
+		"autofix:rest": "run-s lint:rest --write .",
 		"autofix": "run-s autofix:*",
 		"test:lib": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
 		"test:ext": "cd test/external/ && bash run-all-tests",
