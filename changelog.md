@@ -6,10 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [6.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.1)
+
+### Fixed
+
+- Fixed compatibility with TypeScript's TypeScript new `node16` module
+  resolution strategy (See
+  [#355](https://github.com/express-rate-limit/express-rate-limit/issues/355))
+
+### Changed
 
 - Bumped development dependencies.
 - Added `node` 20 to list of versions the CI jobs run on.
+
+No functional changes.
 
 ## [6.7.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.0)
 
