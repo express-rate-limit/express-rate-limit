@@ -3,7 +3,7 @@
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import MemoryStore from './memory-store.js'
-import type {
+import {
 	Options,
 	AugmentedRequest,
 	RateLimitRequestHandler,
@@ -13,7 +13,13 @@ import type {
 	ValueDeterminingMiddleware,
 	RateLimitExceededEventHandler,
 	RateLimitReachedEventHandler,
+	ValidationLevel,
 } from './types.js'
+import {
+	validateIP,
+	validateTrustProxy,
+	validateXForwardedForHeader,
+} from './validations.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -105,6 +111,7 @@ type Configuration = {
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
+	validation: ValidationLevel
 }
 
 /**
@@ -136,12 +143,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			response.statusCode < 400,
 		skip: (_request: Request, _response: Response): boolean => false,
 		keyGenerator(request: Request, _response: Response): string {
-			if (!request.ip) {
-				console.error(
-					'WARN | `express-rate-limit` | `request.ip` is undefined. You can avoid this by providing a custom `keyGenerator` function, but it may be indicative of a larger issue.',
-				)
-			}
-
+			validateIP(config.validation, request.ip)
+			validateTrustProxy(config.validation, request)
+			validateXForwardedForHeader(config.validation, request)
 			return request.ip
 		},
 		async handler(
@@ -171,6 +175,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
+		validation: passedOptions.validation ?? ValidationLevel.Warn,
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// Note that this field is declared after the user's options are spread in,

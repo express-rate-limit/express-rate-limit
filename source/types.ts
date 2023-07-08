@@ -164,6 +164,12 @@ export type Store = {
 	shutdown?: () => Promise<void> | void
 }
 
+export enum ValidationLevel {
+	Off,
+	Warn,
+	Throw,
+}
+
 /**
  * The configuration options for the rate limiter.
  */
@@ -286,6 +292,11 @@ export type Options = {
 	 * By default, the built-in `MemoryStore` will be used.
 	 */
 	store: Store | LegacyStore
+
+	/**
+	 * Should validation checks be run, and if so what should the response be
+	 */
+	validation: ValidationLevel
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
