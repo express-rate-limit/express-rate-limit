@@ -1,5 +1,5 @@
 import type { Request } from 'express'
-import { ValidationLevel } from './types.ts'
+import { ValidationLevel } from './types.js'
 
 function runCheck(
 	level: ValidationLevel,
