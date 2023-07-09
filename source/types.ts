@@ -164,9 +164,28 @@ export type Store = {
 	shutdown?: () => Promise<void> | void
 }
 
+/**
+ * Whether to run validation checks, and if yes, the type of warning to give
+ * when a validation error occurs.
+ */
 export enum ValidationLevel {
+	/**
+	 * No error will be shown.
+	 */
 	Off,
+
+	/**
+	 * The error will be printed out to the console using `console.warn`.
+	 *
+	 * This is the default setting.
+	 */
 	Warn,
+
+	/**
+	 * The error will be thrown.
+	 *
+	 * It is advisable to use this only in development environments.
+	 */
 	Throw,
 }
 
@@ -294,7 +313,7 @@ export type Options = {
 	store: Store | LegacyStore
 
 	/**
-	 * Should validation checks be run, and if so what should the response be
+	 * Should validation checks be run, and if yes, what the response should be.
 	 */
 	validation: ValidationLevel
 

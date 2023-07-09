@@ -15,7 +15,7 @@ import type {
 } from './types.js'
 import { ValidationLevel } from './types.js'
 import {
-	validateIP,
+	validateIp,
 	validateTrustProxy,
 	validateXForwardedForHeader,
 } from './validations.js'
@@ -85,14 +85,15 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 }
 
 /**
- * Internal configuration interface.
- * This is copied from Options, with fields made non-readonly
- * and deprecated fields removed.
+ * The internal configuration interface.
+ *
+ * This is copied from Options, with fields made non-readonly and deprecated
+ * fields removed.
  *
  * For documentation on what each field does, {@see Options}.
  *
- * This is not stored in types because it's internal to the
- * API, and should not be interacted with by the user.
+ * This is not stored in types because it's internal to the API, and should not
+ * be interacted with by the user.
  */
 type Configuration = {
 	windowMs: number
@@ -112,6 +113,34 @@ type Configuration = {
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
 	validation: ValidationLevel
+}
+
+/**
+ *
+ * Remove any options where their value is set to undefined. This avoids overwriting defaults
+ * in the case a user passes undefined instead of simply omitting the key.
+ *
+ * @param passedOptions {Options} - The options to omit.
+ *
+ * @returns {Options} - The same options, but with all undefined fields omitted.
+ *
+ * @private
+ */
+const omitUndefinedOptions = (
+	passedOptions: Partial<Options>,
+): Partial<Configuration> => {
+	const omittedOptions: Partial<Configuration> = {}
+
+	for (const k of Object.keys(passedOptions)) {
+		const key = k as keyof Configuration
+
+		if (passedOptions[key] !== undefined) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			omittedOptions[key] = passedOptions[key]
+		}
+	}
+
+	return omittedOptions
 }
 
 /**
@@ -143,9 +172,13 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			response.statusCode < 400,
 		skip: (_request: Request, _response: Response): boolean => false,
 		keyGenerator(request: Request, _response: Response): string {
-			validateIP(config.validation, request.ip)
+			// Run the validation checks on the IP and headers to make sure everything
+			// is working as intended.
+			validateIp(config.validation, request.ip)
 			validateTrustProxy(config.validation, request)
 			validateXForwardedForHeader(config.validation, request)
+
+			// By default, use the IP address to rate limit users.
 			return request.ip
 		},
 		async handler(
@@ -154,7 +187,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_next: NextFunction,
 			_optionsUsed: Options,
 		): Promise<void> {
-			// Set the response status code
+			// Set the response status code.
 			response.status(config.statusCode)
 			// Call the `message` if it is a function.
 			const message: unknown =
@@ -175,6 +208,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
+		// Set the default action to be printing a warning in the console.
 		validation: passedOptions.validation ?? ValidationLevel.Warn,
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
@@ -279,7 +313,8 @@ const rateLimit = (
 					augmentedRequest[options.requestPropertyName].remaining,
 				)
 
-				// If we have a resetTime, also provide the current date to help avoid issues with incorrect clocks
+				// If we have a resetTime, also provide the current date to help avoid
+				// issues with incorrect clocks.
 				if (resetTime instanceof Date) {
 					response.setHeader('Date', new Date().toUTCString())
 					response.setHeader(
@@ -290,7 +325,7 @@ const rateLimit = (
 			}
 
 			// Set the standardized RateLimit headers on the response object
-			// if enabled
+			// if enabled.
 			if (options.standardHeaders && !response.headersSent) {
 				response.setHeader('RateLimit-Limit', maxHits)
 				response.setHeader(
@@ -369,34 +404,6 @@ const rateLimit = (
 		options.store.resetKey.bind(options.store)
 
 	return middleware as RateLimitRequestHandler
-}
-
-/**
- *
- * Remove any options where their value is set to undefined. This avoids overwriting defaults
- * in the case a user passes undefined instead of simply omitting the key.
- *
- * @param passedOptions {Options} - The options to omit.
- *
- * @returns {Options} - The same options, but with all undefined fields omitted.
- *
- * @private
- */
-const omitUndefinedOptions = (
-	passedOptions: Partial<Options>,
-): Partial<Configuration> => {
-	const omittedOptions: Partial<Configuration> = {}
-
-	for (const k of Object.keys(passedOptions)) {
-		const key = k as keyof Configuration
-
-		if (passedOptions[key] !== undefined) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			omittedOptions[key] = passedOptions[key]
-		}
-	}
-
-	return omittedOptions
 }
 
 // Export it to the world!
