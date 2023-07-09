@@ -1,7 +1,7 @@
 // /test/library/validation-test.ts
 // Tests the validation functions
 
-import { expect, jest, test } from '@jest/globals'
+import { expect, jest } from '@jest/globals'
 import { ValidationLevel } from '../../source/types.js'
 import { validateIp } from '../../source/validations.js'
 
@@ -40,7 +40,7 @@ describe('validations tests', () => {
 		})
 
 		it('warn for an undefined IP', () => {
-			validateIp(ValidationLevel.Warn, undefined as string)
+			validateIp(ValidationLevel.Warn, undefined)
 			expect(console.warn).toBeCalled()
 		})
 
