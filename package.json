@@ -66,7 +66,7 @@
 		"autofix:code": "run-s lint:code --fix",
 		"autofix:rest": "run-s lint:rest --write .",
 		"autofix": "run-s autofix:*",
-		"test:lib": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+		"test:lib": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest",
 		"test:ext": "cd test/external/ && bash run-all-tests",
 		"test": "run-s lint test:*",
 		"pre-commit": "lint-staged",
@@ -119,12 +119,6 @@
 	},
 	"jest": {
 		"preset": "ts-jest/presets/default-esm",
-		"globals": {
-			"ts-jest": {
-				"useESM": true
-			}
-		},
-		"verbose": true,
 		"collectCoverage": true,
 		"collectCoverageFrom": [
 			"source/**/*.ts"
