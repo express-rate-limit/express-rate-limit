@@ -2,8 +2,7 @@
 // The option parser and rate limiting middleware
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
-import MemoryStore from './memory-store.js'
-import {
+import type {
 	Options,
 	AugmentedRequest,
 	RateLimitRequestHandler,
@@ -13,13 +12,14 @@ import {
 	ValueDeterminingMiddleware,
 	RateLimitExceededEventHandler,
 	RateLimitReachedEventHandler,
-	ValidationLevel,
 } from './types.js'
+import { ValidationLevel } from './types.js'
 import {
 	validateIP,
 	validateTrustProxy,
 	validateXForwardedForHeader,
 } from './validations.js'
+import MemoryStore from './memory-store.js'
 
 /**
  * Type guard to check if a store is legacy store.
