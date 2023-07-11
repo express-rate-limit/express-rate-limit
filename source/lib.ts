@@ -13,7 +13,6 @@ import type {
 	RateLimitExceededEventHandler,
 	RateLimitReachedEventHandler,
 } from './types.js'
-import { ValidationLevel } from './types.js'
 import {
 	validateIp,
 	validateTrustProxy,
@@ -112,7 +111,7 @@ type Configuration = {
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
-	validation: ValidationLevel
+	validation: boolean
 }
 
 /**
@@ -209,7 +208,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_optionsUsed: Options,
 		): void {},
 		// Set the default action to be printing a warning in the console.
-		validation: passedOptions.validation ?? ValidationLevel.Warn,
+		validation: true,
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// Note that this field is declared after the user's options are spread in,

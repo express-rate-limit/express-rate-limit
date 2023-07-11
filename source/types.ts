@@ -165,31 +165,6 @@ export type Store = {
 }
 
 /**
- * Whether to run validation checks, and if yes, the type of warning to give
- * when a validation error occurs.
- */
-export enum ValidationLevel {
-	/**
-	 * No error will be shown.
-	 */
-	Off,
-
-	/**
-	 * The error will be printed out to the console using `console.warn`.
-	 *
-	 * This is the default setting.
-	 */
-	Warn,
-
-	/**
-	 * The error will be thrown.
-	 *
-	 * It is advisable to use this only in development environments.
-	 */
-	Throw,
-}
-
-/**
  * The configuration options for the rate limiter.
  */
 export type Options = {
@@ -313,9 +288,9 @@ export type Options = {
 	store: Store | LegacyStore
 
 	/**
-	 * Should validation checks be run, and if yes, what the response should be.
+	 * Whether or not the validation checks should run.
 	 */
-	validation: ValidationLevel
+	readonly validation: boolean
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
@@ -351,4 +326,29 @@ export type RateLimitInfo = {
 	readonly current: number
 	readonly remaining: number
 	readonly resetTime: Date | undefined
+}
+
+/**
+ * An error thrown/returned when a validation error occurs.
+ */
+export class ValidationError extends Error {
+	name: string
+	code: string
+	message: string
+
+	/**
+	 * The code must be a string, in snake case and all capital, that starts with
+	 * the substring `ERR_ERL_`.
+	 *
+	 * The message must be a string, starting with a lowercase character,
+	 * describing the issue in detail.
+	 */
+	constructor(code: string, message: string) {
+		super(message)
+
+		// `this.constructor.name` is the class name
+		this.name = this.constructor.name
+		this.code = code
+		this.message = message
+	}
 }

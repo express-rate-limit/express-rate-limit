@@ -2,36 +2,28 @@
 // The validation functions
 
 import type { Request } from 'express'
-import { ValidationLevel } from './types.js'
+import { ValidationError } from './types.js'
 
 /**
- * Runs the given validation check, and conveys the error message to the user
- * as per the given validation level.
+ * Runs the given validation check, and conveys the error message to the user.
  *
- * @param level {ValidationLevel} - The validation level set by the user.
+ * @param shouldRun {boolean} - Whether or not the check should even run.
  * @param check {Function} - The validation check to run.
- * @param error {string} - The error message to return in case the validation check fails.
+ * @param error {ValidationError} - The error to convey in case the validation check fails.
  *
  * @returns {void}
  */
 const runCheck = (
-	level: ValidationLevel,
+	shouldRun: boolean,
 	check: () => boolean,
-	error: string,
-) => {
-	// If the validation is turned off, don't even bother performing the check.
-	if (level === ValidationLevel.Off) return
+	error: ValidationError,
+): void => {
+	if (!shouldRun) return
 
 	// Run the check. If it fails, then return the error message to the user.
 	if (!check()) {
-		const message = `express-rate-limit: ${error}`
-		if (level === ValidationLevel.Warn) {
-			// If set to 'warn', console.warn the messsage.
-			console.warn(message)
-		} else if (level === ValidationLevel.Throw) {
-			// If set to 'throw', throw the error.
-			throw new Error(message)
-		}
+		const formattedMessage = `express-rate-limit: ${error.code} ${error.message}`
+		console.warn(formattedMessage)
 	}
 }
 
@@ -50,18 +42,20 @@ const ipAddressRegex =
  *
  * See https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues.
  *
- * @param level {ValidationLevel} - The validation level passed by the user.
  * @param ip {string | undefined} - The IP address provided by Express as request.ip.
  *
  * @returns {void}
  */
-export const validateIp = (level: ValidationLevel, ip: string | undefined) => {
+export const validateIp = (shouldRun: boolean, ip: string | undefined) => {
 	runCheck(
-		level,
+		shouldRun,
 		() => ipAddressRegex.test(ip ?? 'no-ip'),
-		`an invalid 'request.ip' (${
-			ip ?? 'undefined'
-		}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`,
+		new ValidationError(
+			'ERR_ERL_INVALID_IP_ADDRESS',
+			`an invalid 'request.ip' (${
+				ip ?? 'undefined'
+			}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`,
+		),
 	)
 }
 
@@ -75,19 +69,18 @@ export const validateIp = (level: ValidationLevel, ip: string | undefined) => {
  *
  * See https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues.
  *
- * @param level {ValidationLevel} - The validation level passed by the user.
  * @param request {Request} - The Express request object.
  *
  * @returns {void}
  */
-export const validateTrustProxy = (
-	level: ValidationLevel,
-	request: Request,
-) => {
+export const validateTrustProxy = (shouldRun: boolean, request: Request) => {
 	runCheck(
-		level,
+		shouldRun,
 		() => request.app.get('trust proxy') === true,
-		`the express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. For more information, see http://expressjs.com/en/guide/behind-proxies.html.`,
+		new ValidationError(
+			'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+			`the express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. For more information, see http://expressjs.com/en/guide/behind-proxies.html.`,
+		),
 	)
 }
 
@@ -95,20 +88,22 @@ export const validateTrustProxy = (
  * Makes sure the trust proxy setting is set in case the `X-Forwarded-For`
  * header is present.
  *
- * @param level {ValidationLevel} - The validation level passed by the user.
  * @param request {Request} - The Express request object.
  *
  * @returns {void}
  */
 export function validateXForwardedForHeader( // eslint-disable-line @typescript-eslint/naming-convention
-	level: ValidationLevel,
+	shouldRun: boolean,
 	request: Request,
 ) {
 	runCheck(
-		level,
+		shouldRun,
 		() =>
 			Boolean(request.headers['x-forwarded-for']) &&
 			request.app.get('trust proxy') === undefined,
-		`the 'X-Forwarded-For' header is set but the 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor.`,
+		new ValidationError(
+			'ERR_ERL_UNSET_TRUST_PROXY',
+			`the 'X-Forwarded-For' header is set but the 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor.`,
+		),
 	)
 }
