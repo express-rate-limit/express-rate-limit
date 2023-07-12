@@ -6,7 +6,7 @@ import { validateIp } from '../../source/validations.js'
 
 describe('validations tests', () => {
 	beforeEach(() => {
-		jest.spyOn(console, 'warn')
+		jest.spyOn(console, 'error')
 	})
 	afterEach(() => {
 		jest.restoreAllMocks()
@@ -17,27 +17,27 @@ describe('validations tests', () => {
 	describe('validateIp', () => {
 		it('should do nothing when validation is off', () => {
 			validateIp(false, 'badip')
-			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
 		})
 
 		it('should allow a valid IPv4', () => {
 			validateIp(true, '1.2.3.4')
-			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
 		})
 
 		it('should allow a valid IPv6', () => {
 			validateIp(true, '1200:0000:AB00:1234:0000:2552:7777:1313')
-			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
 		})
 
-		it('warn for an invalid IP', () => {
+		it('should log an error for an invalid IP', () => {
 			validateIp(true, 'badip')
-			expect(console.warn).toBeCalled()
+			expect(console.error).toBeCalled()
 		})
 
-		it('warn for an undefined IP', () => {
+		it('shoud log an error for an undefined IP', () => {
 			validateIp(true, undefined)
-			expect(console.warn).toBeCalled()
+			expect(console.error).toBeCalled()
 		})
 	})
 })
