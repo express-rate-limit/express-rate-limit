@@ -23,7 +23,7 @@ const runCheck = (
 	// Run the check. If it fails, then return the error message to the user.
 	if (!check()) {
 		const formattedMessage = `express-rate-limit: ${error.code} ${error.message}`
-		console.warn(formattedMessage)
+		console.error(formattedMessage)
 	}
 }
 
