@@ -2,7 +2,31 @@
 // The validation functions
 
 import type { Request } from 'express'
-import { ValidationError } from './types.js'
+
+/**
+ * An error thrown/returned when a validation error occurs.
+ */
+class ValidationError extends Error {
+	name: string
+	code: string
+	message: string
+
+	/**
+	 * The code must be a string, in snake case and all capital, that starts with
+	 * the substring `ERR_ERL_`.
+	 *
+	 * The message must be a string, starting with a lowercase character,
+	 * describing the issue in detail.
+	 */
+	constructor(code: string, message: string) {
+		super(message)
+
+		// `this.constructor.name` is the class name
+		this.name = this.constructor.name
+		this.code = code
+		this.message = message
+	}
+}
 
 /**
  * Runs the given validation check, and conveys the error message to the user.
