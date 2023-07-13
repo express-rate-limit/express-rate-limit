@@ -18,7 +18,9 @@ class ValidationError extends Error {
 	 * describing the issue in detail.
 	 */
 	constructor(code: string, message: string) {
-		super(`express-rate-limit: ${code} - ${message}`)
+		super(
+			`express-rate-limit: ${code} - ${message} See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#${code.toLowerCase()} for more information on this error.`,
+		)
 
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
@@ -55,14 +57,14 @@ export class Validations {
 			if (ip === undefined) {
 				throw new ValidationError(
 					'ERR_ERL_UNDEFINED_IP_ADDRESS',
-					`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_undefined_ip_address for more information on this error.`,
+					`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.`,
 				)
 			}
 
 			if (!Validations.ipAddressRegex.test(ip)) {
 				throw new ValidationError(
 					'ERR_ERL_INVALID_IP_ADDRESS',
-					`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address for more information on this error.`,
+					`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`,
 				)
 			}
 		})
@@ -82,7 +84,7 @@ export class Validations {
 			if (request.app.get('trust proxy') === true) {
 				throw new ValidationError(
 					'ERR_ERL_PERMISSIVE_TRUST_PROXY',
-					`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy for more information on this error.`,
+					`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting.`,
 				)
 			}
 		})
@@ -106,7 +108,7 @@ export class Validations {
 			) {
 				throw new ValidationError(
 					'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
-					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unexpected_x_forwarded_for for more information on this error.`,
+					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users.`,
 				)
 			}
 		})
