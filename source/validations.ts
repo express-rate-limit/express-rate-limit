@@ -27,24 +27,6 @@ class ValidationError extends Error {
 	}
 }
 
-// Decorator that wraps validation methods to handle the enabled setting and any thrown errors
-function validator(originalMethod: any, context: ClassMethodDecoratorContext) {
-	function validatorWrapper(this: any, ...args: any[]) {
-		if (!this.enabled) {
-			return
-		}
-
-		try {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-			originalMethod.call(this, ...args)
-		} catch (error: any) {
-			console.error(error.message || error)
-		}
-	}
-
-	return validatorWrapper
-}
-
 export class Validations {
 	constructor(readonly enabled: boolean) {}
 
@@ -64,21 +46,22 @@ export class Validations {
 	 *
 	 * @returns {void}
 	 */
-	@validator
 	ip(ip: string | undefined) {
-		if (ip === undefined) {
-			throw new ValidationError(
-				'ERR_ERL_UNDEFINED_IP_ADDRESS',
-				`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_undefined_ip_address for more information on this error.`,
-			)
-		}
+		this.wrap(() => {
+			if (ip === undefined) {
+				throw new ValidationError(
+					'ERR_ERL_UNDEFINED_IP_ADDRESS',
+					`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_undefined_ip_address for more information on this error.`,
+				)
+			}
 
-		if (!Validations.ipAddressRegex.test(ip)) {
-			throw new ValidationError(
-				'ERR_ERL_INVALID_IP_ADDRESS',
-				`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address for more information on this error.`,
-			)
-		}
+			if (!Validations.ipAddressRegex.test(ip)) {
+				throw new ValidationError(
+					'ERR_ERL_INVALID_IP_ADDRESS',
+					`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address for more information on this error.`,
+				)
+			}
+		})
 	}
 
 	/**
@@ -90,14 +73,15 @@ export class Validations {
 	 *
 	 * @returns {void}
 	 */
-	@validator
 	trustProxy(request: Request) {
-		if (request.app.get('trust proxy') === true) {
-			throw new ValidationError(
-				'ERR_ERL_PERMISSIVE_TRUST_PROXY',
-				`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy for more information on this error.`,
-			)
-		}
+		this.wrap(() => {
+			if (request.app.get('trust proxy') === true) {
+				throw new ValidationError(
+					'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+					`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy for more information on this error.`,
+				)
+			}
+		})
 	}
 
 	/**
@@ -110,16 +94,29 @@ export class Validations {
 	 *
 	 * @returns {void}
 	 */
-	@validator
 	xForwardedForHeader(request: Request) {
-		if (
-			request.headers['x-forwarded-for'] &&
-			request.app.get('trust proxy') === undefined
-		) {
-			throw new ValidationError(
-				'ERR_ERL_UNSET_TRUST_PROXY',
-				`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy for more information on this error.`,
-			)
+		this.wrap(() => {
+			if (
+				request.headers['x-forwarded-for'] &&
+				request.app.get('trust proxy') === undefined
+			) {
+				throw new ValidationError(
+					'ERR_ERL_UNSET_TRUST_PROXY',
+					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy for more information on this error.`,
+				)
+			}
+		})
+	}
+
+	private wrap(validation: () => void) {
+		if (!this.enabled) {
+			return
+		}
+
+		try {
+			validation.call(this)
+		} catch (error: any) {
+			console.error(error.message || error)
 		}
 	}
 }
