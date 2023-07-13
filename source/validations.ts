@@ -102,11 +102,11 @@ export class Validations {
 		this.wrap(() => {
 			if (
 				request.headers['x-forwarded-for'] &&
-				request.app.get('trust proxy') === undefined
+				request.app.get('trust proxy') === false
 			) {
 				throw new ValidationError(
-					'ERR_ERL_UNSET_TRUST_PROXY',
-					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy for more information on this error.`,
+					'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unexpected_x_forwarded_for for more information on this error.`,
 				)
 			}
 		})
