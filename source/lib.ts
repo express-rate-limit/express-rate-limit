@@ -381,6 +381,9 @@ const rateLimit = (
 				options.onLimitReached(request, response, options)
 			}
 
+			// All validations should have run at least once by now
+			validate.disable()
+
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function
 			if (maxHits && totalHits > maxHits) {
