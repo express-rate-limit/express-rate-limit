@@ -9,7 +9,6 @@ import type { Request } from 'express'
 class ValidationError extends Error {
 	name: string
 	code: string
-	message: string
 
 	/**
 	 * The code must be a string, in snake case and all capital, that starts with
@@ -19,7 +18,7 @@ class ValidationError extends Error {
 	 * describing the issue in detail.
 	 */
 	constructor(code: string, message: string) {
-		super(message)
+		super(`express-rate-limit: ${code} - ${message}`)
 
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
@@ -28,123 +27,99 @@ class ValidationError extends Error {
 	}
 }
 
-/**
- * Runs the given validation check, and conveys the error message to the user.
- *
- * @param shouldRun {boolean} - Whether or not the check should even run.
- * @param check {Function} - The validation check to run.
- * @param error {ValidationError} - The error to convey in case the validation check fails.
- *
- * @returns {void}
- */
-const runCheck = (
-	shouldRun: boolean,
-	check: () => boolean,
-	error: ValidationError,
-): void => {
-	if (!shouldRun) return
+// Decorator that wraps validation methods to handle the enabled setting and any thrown errors
+function validator(originalMethod: any, context: ClassMethodDecoratorContext) {
+	function validatorWrapper(this: any, ...args: any[]) {
+		if (!this.enabled) {
+			return
+		}
 
-	// Run the check. If it fails, then return the error message to the user.
-	if (!check()) {
-		const formattedMessage = `express-rate-limit: ${error.code} - ${error.message}`
-		console.error(formattedMessage)
+		try {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+			originalMethod.call(this, ...args)
+		} catch (error: any) {
+			console.error(error.message || error)
+		}
 	}
+
+	return validatorWrapper
 }
 
-/**
- * Checks whether the IP address is undefined.
- *
- * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_undefined_ip_address.
- *
- * @param ip {string | undefined} - The IP address provided by Express as request.ip.
- *
- * @returns {void}
- */
-export const checkIfIpIsUndefined = (
-	shouldRun: boolean,
-	ip: string | undefined,
-) => {
-	runCheck(
-		shouldRun,
-		() => ipAddressRegex.test(ip ?? 'no-ip'),
-		new ValidationError(
-			'ERR_ERL_UNDEFINED_IP_ADDRESS',
-			`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_undefined_ip_address for more information on this error.`,
-		),
-	)
-}
+export class Validations {
+	constructor(readonly enabled: boolean) {}
 
-// The following regex matches IPv4 and IPv6, but not if they include a port number at the end.
-// https://www.regextester.com/104038
-const ipAddressRegex =
-	/((^\s*(((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))\s*$)|(^\s*((([\dA-Fa-f]{1,4}:){7}([\dA-Fa-f]{1,4}|:))|(([\dA-Fa-f]{1,4}:){6}(:[\dA-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([\dA-Fa-f]{1,4}:){5}(((:[\dA-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([\dA-Fa-f]{1,4}:){4}(((:[\dA-Fa-f]{1,4}){1,3})|((:[\dA-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([\dA-Fa-f]{1,4}:){3}(((:[\dA-Fa-f]{1,4}){1,4})|((:[\dA-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([\dA-Fa-f]{1,4}:){2}(((:[\dA-Fa-f]{1,4}){1,5})|((:[\dA-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([\dA-Fa-f]{1,4}:)(((:[\dA-Fa-f]{1,4}){1,6})|((:[\dA-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[\dA-Fa-f]{1,4}){1,7})|((:[\dA-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/
+	// The following regex matches IPv4 and IPv6, but not if they include a port number at the end.
+	// https://www.regextester.com/104038
+	private static get ipAddressRegex() {
+		return /((^\s*(((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))\s*$)|(^\s*((([\dA-Fa-f]{1,4}:){7}([\dA-Fa-f]{1,4}|:))|(([\dA-Fa-f]{1,4}:){6}(:[\dA-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([\dA-Fa-f]{1,4}:){5}(((:[\dA-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([\dA-Fa-f]{1,4}:){4}(((:[\dA-Fa-f]{1,4}){1,3})|((:[\dA-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([\dA-Fa-f]{1,4}:){3}(((:[\dA-Fa-f]{1,4}){1,4})|((:[\dA-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([\dA-Fa-f]{1,4}:){2}(((:[\dA-Fa-f]{1,4}){1,5})|((:[\dA-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([\dA-Fa-f]{1,4}:)(((:[\dA-Fa-f]{1,4}){1,6})|((:[\dA-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[\dA-Fa-f]{1,4}){1,7})|((:[\dA-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/
+	}
 
-/**
- * Checks whether the IP address is valid, and that it does not have a port
- * number in it.
- *
- * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address.
- *
- * @param ip {string | undefined} - The IP address provided by Express as request.ip.
- *
- * @returns {void}
- */
-export const validateIp = (
-	shouldRun: boolean,
-	ip: string | undefined = 'no-ip',
-) => {
-	runCheck(
-		shouldRun,
-		() => ipAddressRegex.test(ip),
-		new ValidationError(
-			'ERR_ERL_INVALID_IP_ADDRESS',
-			`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address for more information on this error.`,
-		),
-	)
-}
+	/**
+	 * Checks whether the IP address is valid, and that it does not have a port
+	 * number in it.
+	 *
+	 * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address.
+	 *
+	 * @param ip {string | undefined} - The IP address provided by Express as request.ip.
+	 *
+	 * @returns {void}
+	 */
+	@validator
+	ip(ip: string | undefined) {
+		if (ip === undefined) {
+			throw new ValidationError(
+				'ERR_ERL_UNDEFINED_IP_ADDRESS',
+				`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_undefined_ip_address for more information on this error.`,
+			)
+		}
 
-/**
- * Makes sure the trust proxy setting is not set to `true`.
- *
- * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy.
- *
- * @param request {Request} - The Express request object.
- *
- * @returns {void}
- */
-export const validateTrustProxy = (shouldRun: boolean, request: Request) => {
-	runCheck(
-		shouldRun,
-		() => request.app.get('trust proxy') === true,
-		new ValidationError(
-			'ERR_ERL_PERMISSIVE_TRUST_PROXY',
-			`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy for more information on this error.`,
-		),
-	)
-}
+		if (!Validations.ipAddressRegex.test(ip)) {
+			throw new ValidationError(
+				'ERR_ERL_INVALID_IP_ADDRESS',
+				`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_invalid_ip_address for more information on this error.`,
+			)
+		}
+	}
 
-/**
- * Makes sure the trust proxy setting is set in case the `X-Forwarded-For`
- * header is present.
- *
- * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy.
- *
- * @param request {Request} - The Express request object.
- *
- * @returns {void}
- */
-export function validateXForwardedForHeader( // eslint-disable-line @typescript-eslint/naming-convention
-	shouldRun: boolean,
-	request: Request,
-) {
-	runCheck(
-		shouldRun,
-		() =>
-			Boolean(request.headers['x-forwarded-for']) &&
-			request.app.get('trust proxy') === undefined,
-		new ValidationError(
-			'ERR_ERL_UNSET_TRUST_PROXY',
-			`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy for more information on this error.`,
-		),
-	)
+	/**
+	 * Makes sure the trust proxy setting is not set to `true`.
+	 *
+	 * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy.
+	 *
+	 * @param request {Request} - The Express request object.
+	 *
+	 * @returns {void}
+	 */
+	@validator
+	trustProxy(request: Request) {
+		if (request.app.get('trust proxy') === true) {
+			throw new ValidationError(
+				'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+				`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_permissive_trust_proxy for more information on this error.`,
+			)
+		}
+	}
+
+	/**
+	 * Makes sure the trust proxy setting is set in case the `X-Forwarded-For`
+	 * header is present.
+	 *
+	 * See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy.
+	 *
+	 * @param request {Request} - The Express request object.
+	 *
+	 * @returns {void}
+	 */
+	@validator
+	xForwardedForHeader(request: Request) {
+		if (
+			request.headers['x-forwarded-for'] &&
+			request.app.get('trust proxy') === undefined
+		) {
+			throw new ValidationError(
+				'ERR_ERL_UNSET_TRUST_PROXY',
+				`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is undefined. This could indicate misconfiguration or a malicious actor. See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#err_erl_unset_trust_proxy for more information on this error.`,
+			)
+		}
+	}
 }

@@ -13,11 +13,7 @@ import type {
 	RateLimitExceededEventHandler,
 	RateLimitReachedEventHandler,
 } from './types.js'
-import {
-	validateIp,
-	validateTrustProxy,
-	validateXForwardedForHeader,
-} from './validations.js'
+import { Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
 
 /**
@@ -149,7 +145,10 @@ const omitUndefinedOptions = (
  *
  * @returns {Configuration} - A complete configuration object.
  */
-const parseOptions = (passedOptions: Partial<Options>): Configuration => {
+const parseOptions = (
+	passedOptions: Partial<Options>,
+	validate: Validations,
+): Configuration => {
 	// Passing undefined should be equivalent to not passing an option at all, so we'll
 	// omit all fields where their value is undefined.
 	const notUndefinedOptions: Partial<Options> =
@@ -173,9 +172,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		keyGenerator(request: Request, _response: Response): string {
 			// Run the validation checks on the IP and headers to make sure everything
 			// is working as intended.
-			validateIp(config.validation, request.ip)
-			validateTrustProxy(config.validation, request)
-			validateXForwardedForHeader(config.validation, request)
+			validate.ip(request.ip)
+			validate.trustProxy(request)
+			validate.xForwardedForHeader(request)
 
 			// By default, use the IP address to rate limit users.
 			return request.ip
@@ -266,8 +265,11 @@ const handleAsyncErrors =
 const rateLimit = (
 	passedOptions?: Partial<Options>,
 ): RateLimitRequestHandler => {
+	// Create the validator before even parsing the rest of the options
+	const validate = new Validations(passedOptions?.validation ?? true)
 	// Parse the options and add the default values for unspecified options
-	const options = parseOptions(passedOptions ?? {})
+	const options = parseOptions(passedOptions ?? {}, validate)
+
 	// Call the `init` method on the store, if it exists
 	if (typeof options.store.init === 'function') options.store.init(options)
 
