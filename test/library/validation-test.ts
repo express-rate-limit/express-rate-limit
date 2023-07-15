@@ -22,8 +22,6 @@ describe('validations tests', () => {
 		validate = new Validations(true)
 	})
 
-	// This one is a little more extensive because we're also testing the privat
-	// `runCheck` method.
 	describe('validate.ip', () => {
 		it('should allow a valid IPv4', () => {
 			validate.ip('1.2.3.4')
