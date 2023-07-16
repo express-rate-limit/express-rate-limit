@@ -451,7 +451,7 @@ const limiter = rateLimit({
 })
 ```
 
-### `validation`
+### `validate`
 
 > `boolean`
 

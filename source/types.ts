@@ -290,7 +290,7 @@ export type Options = {
 	/**
 	 * Whether or not the validation checks should run.
 	 */
-	readonly validation: boolean
+	readonly validate: boolean
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number

@@ -107,7 +107,7 @@ type Configuration = {
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
-	validation: boolean
+	validate: boolean
 }
 
 /**
@@ -147,7 +147,7 @@ const omitUndefinedOptions = (
  */
 const parseOptions = (
 	passedOptions: Partial<Options>,
-	validate: Validations,
+	validations: Validations,
 ): Configuration => {
 	// Passing undefined should be equivalent to not passing an option at all, so we'll
 	// omit all fields where their value is undefined.
@@ -172,9 +172,9 @@ const parseOptions = (
 		keyGenerator(request: Request, _response: Response): string {
 			// Run the validation checks on the IP and headers to make sure everything
 			// is working as intended.
-			validate.ip(request.ip)
-			validate.trustProxy(request)
-			validate.xForwardedForHeader(request)
+			validations.ip(request.ip)
+			validations.trustProxy(request)
+			validations.xForwardedForHeader(request)
 
 			// By default, use the IP address to rate limit users.
 			return request.ip
@@ -206,8 +206,8 @@ const parseOptions = (
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
-		// Will print an error to the console if a few known misconfigurations are detected.
-		validation: true,
+		// Print an error to the console if a few known misconfigurations are detected.
+		validate: true,
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// Note that this field is declared after the user's options are spread in,
@@ -266,9 +266,9 @@ const rateLimit = (
 	passedOptions?: Partial<Options>,
 ): RateLimitRequestHandler => {
 	// Create the validator before even parsing the rest of the options
-	const validate = new Validations(passedOptions?.validation ?? true)
+	const validations = new Validations(passedOptions?.validate ?? true)
 	// Parse the options and add the default values for unspecified options
-	const options = parseOptions(passedOptions ?? {}, validate)
+	const options = parseOptions(passedOptions ?? {}, validations)
 
 	// Call the `init` method on the store, if it exists
 	if (typeof options.store.init === 'function') options.store.init(options)
@@ -381,8 +381,8 @@ const rateLimit = (
 				options.onLimitReached(request, response, options)
 			}
 
-			// All validations should have run at least once by now
-			validate.disable()
+			// Disable the validations, since they should have run at least once by now.
+			validations.disable()
 
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function
