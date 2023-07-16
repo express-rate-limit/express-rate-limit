@@ -56,8 +56,8 @@
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
-		"build:cjs": "esbuild --bundle --target=es2019 --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit; module.exports.rateLimit = rateLimit; module.exports.MemoryStore = MemoryStore;\" source/index.ts",
-		"build:esm": "esbuild --bundle --target=es2019 --format=esm --outfile=dist/index.mjs source/index.ts",
+		"build:cjs": "esbuild --platform=node --bundle --target=es2019 --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = rateLimit; module.exports.default = rateLimit; module.exports.rateLimit = rateLimit; module.exports.MemoryStore = MemoryStore;\" source/index.ts",
+		"build:esm": "esbuild --platform=node --bundle --target=es2019 --format=esm --outfile=dist/index.mjs source/index.ts",
 		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && cp dist/index.d.ts dist/index.d.cts && cp dist/index.d.ts dist/index.d.mts",
 		"compile": "run-s clean build:*",
 		"lint:code": "xo --ignore test/external/",
