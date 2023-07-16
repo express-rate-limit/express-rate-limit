@@ -206,7 +206,7 @@ const parseOptions = (
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
-		// Set the default action to be printing a warning in the console.
+		// Will print an error to the console if a few known misconfigurations are detected.
 		validation: true,
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
