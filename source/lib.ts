@@ -107,7 +107,24 @@ type Configuration = {
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
-	validate: boolean
+	validations: Validations
+}
+
+/**
+ * Converts a `Configuration` object to a valid `Options` object, in case the
+ * configuration needs to be passed back to the user.
+ *
+ * @param config {Configuration} - The configuration object to convert.
+ *
+ * @returns {Partial<Options>} - The options derived from the configuration.
+ */
+const getOptionsFromConfig = (config: Configuration): Options => {
+	const { validations, ...directlyPassableEntries } = config
+
+	return {
+		...directlyPassableEntries,
+		validate: validations.enabled,
+	}
 }
 
 /**
@@ -123,11 +140,11 @@ type Configuration = {
  */
 const omitUndefinedOptions = (
 	passedOptions: Partial<Options>,
-): Partial<Configuration> => {
-	const omittedOptions: Partial<Configuration> = {}
+): Partial<Options> => {
+	const omittedOptions: Partial<Options> = {}
 
 	for (const k of Object.keys(passedOptions)) {
-		const key = k as keyof Configuration
+		const key = k as keyof Options
 
 		if (passedOptions[key] !== undefined) {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -145,14 +162,14 @@ const omitUndefinedOptions = (
  *
  * @returns {Configuration} - A complete configuration object.
  */
-const parseOptions = (
-	passedOptions: Partial<Options>,
-	validations: Validations,
-): Configuration => {
+const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Passing undefined should be equivalent to not passing an option at all, so we'll
 	// omit all fields where their value is undefined.
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedOptions(passedOptions)
+
+	// Create the validator before even parsing the rest of the options
+	const validations = new Validations(notUndefinedOptions?.validate ?? true)
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
@@ -206,13 +223,13 @@ const parseOptions = (
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
-		// Print an error to the console if a few known misconfigurations are detected.
-		validate: true,
 		// Allow the options object to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// Note that this field is declared after the user's options are spread in,
 		// so that this field doesn't get overriden with an un-promisified store!
 		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
+		// Print an error to the console if a few known misconfigurations are detected.
+		validations,
 	}
 
 	// Ensure that the store passed implements the `Store` interface
@@ -265,19 +282,18 @@ const handleAsyncErrors =
 const rateLimit = (
 	passedOptions?: Partial<Options>,
 ): RateLimitRequestHandler => {
-	// Create the validator before even parsing the rest of the options
-	const validations = new Validations(passedOptions?.validate ?? true)
 	// Parse the options and add the default values for unspecified options
-	const options = parseOptions(passedOptions ?? {}, validations)
+	const config = parseOptions(passedOptions ?? {})
+	const options = getOptionsFromConfig(config)
 
 	// Call the `init` method on the store, if it exists
-	if (typeof options.store.init === 'function') options.store.init(options)
+	if (typeof config.store.init === 'function') config.store.init(options)
 
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
 		async (request: Request, response: Response, next: NextFunction) => {
 			// First check if we should skip the request
-			const skip = await options.skip(request, response)
+			const skip = await config.skip(request, response)
 			if (skip) {
 				next()
 				return
@@ -287,19 +303,19 @@ const rateLimit = (
 			const augmentedRequest = request as AugmentedRequest
 
 			// Get a unique key for the client
-			const key = await options.keyGenerator(request, response)
+			const key = await config.keyGenerator(request, response)
 			// Increment the client's hit counter by one
-			const { totalHits, resetTime } = await options.store.increment(key)
+			const { totalHits, resetTime } = await config.store.increment(key)
 
 			// Get the quota (max number of hits) for each client
 			const retrieveQuota =
-				typeof options.max === 'function'
-					? options.max(request, response)
-					: options.max
+				typeof config.max === 'function'
+					? config.max(request, response)
+					: config.max
 
 			const maxHits = await retrieveQuota
 			// Set the rate limit information on the augmented request object
-			augmentedRequest[options.requestPropertyName] = {
+			augmentedRequest[config.requestPropertyName] = {
 				limit: maxHits,
 				current: totalHits,
 				remaining: Math.max(maxHits - totalHits, 0),
@@ -307,11 +323,11 @@ const rateLimit = (
 			}
 
 			// Set the X-RateLimit headers on the response object if enabled
-			if (options.legacyHeaders && !response.headersSent) {
+			if (config.legacyHeaders && !response.headersSent) {
 				response.setHeader('X-RateLimit-Limit', maxHits)
 				response.setHeader(
 					'X-RateLimit-Remaining',
-					augmentedRequest[options.requestPropertyName].remaining,
+					augmentedRequest[config.requestPropertyName].remaining,
 				)
 
 				// If we have a resetTime, also provide the current date to help avoid
@@ -327,11 +343,11 @@ const rateLimit = (
 
 			// Set the standardized RateLimit headers on the response object
 			// if enabled.
-			if (options.standardHeaders && !response.headersSent) {
+			if (config.standardHeaders && !response.headersSent) {
 				response.setHeader('RateLimit-Limit', maxHits)
 				response.setHeader(
 					'RateLimit-Remaining',
-					augmentedRequest[options.requestPropertyName].remaining,
+					augmentedRequest[config.requestPropertyName].remaining,
 				)
 
 				if (resetTime) {
@@ -344,18 +360,18 @@ const rateLimit = (
 
 			// If we are to skip failed/successfull requests, decrement the
 			// counter accordingly once we know the status code of the request
-			if (options.skipFailedRequests || options.skipSuccessfulRequests) {
+			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
 				let decremented = false
 				const decrementKey = async () => {
 					if (!decremented) {
-						await options.store.decrement(key)
+						await config.store.decrement(key)
 						decremented = true
 					}
 				}
 
-				if (options.skipFailedRequests) {
+				if (config.skipFailedRequests) {
 					response.on('finish', async () => {
-						if (!options.requestWasSuccessful(request, response))
+						if (!config.requestWasSuccessful(request, response))
 							await decrementKey()
 					})
 					response.on('close', async () => {
@@ -366,9 +382,9 @@ const rateLimit = (
 					})
 				}
 
-				if (options.skipSuccessfulRequests) {
+				if (config.skipSuccessfulRequests) {
 					response.on('finish', async () => {
-						if (options.requestWasSuccessful(request, response))
+						if (config.requestWasSuccessful(request, response))
 							await decrementKey()
 					})
 				}
@@ -378,23 +394,23 @@ const rateLimit = (
 			// exceeds their rate limit
 			// NOTE: `onLimitReached` is deprecated, this should be removed in v7.x
 			if (maxHits && totalHits === maxHits + 1) {
-				options.onLimitReached(request, response, options)
+				config.onLimitReached(request, response, options)
 			}
 
 			// Disable the validations, since they should have run at least once by now.
-			validations.disable()
+			config.validations.disable()
 
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function
 			if (maxHits && totalHits > maxHits) {
 				if (
-					(options.legacyHeaders || options.standardHeaders) &&
+					(config.legacyHeaders || config.standardHeaders) &&
 					!response.headersSent
 				) {
-					response.setHeader('Retry-After', Math.ceil(options.windowMs / 1000))
+					response.setHeader('Retry-After', Math.ceil(config.windowMs / 1000))
 				}
 
-				options.handler(request, response, next, options)
+				config.handler(request, response, next, options)
 				return
 			}
 
@@ -405,7 +421,7 @@ const rateLimit = (
 	// Export the store's function to reset the hit counter for a particular
 	// client based on their identifier
 	;(middleware as RateLimitRequestHandler).resetKey =
-		options.store.resetKey.bind(options.store)
+		config.store.resetKey.bind(config.store)
 
 	return middleware as RateLimitRequestHandler
 }

@@ -30,8 +30,20 @@ class ValidationError extends Error {
 	}
 }
 
+/**
+ * The validations that can be run, as well as the methods to run them.
+ */
 export class Validations {
-	constructor(private enabled: boolean) {}
+	// eslint-disable-next-line @typescript-eslint/parameter-properties
+	enabled: boolean
+
+	constructor(enabled: boolean) {
+		this.enabled = enabled
+	}
+
+	enable() {
+		this.enabled = true
+	}
 
 	disable() {
 		this.enabled = false
