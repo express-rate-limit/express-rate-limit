@@ -83,7 +83,7 @@
 		"@types/supertest": "2.0.12",
 		"cross-env": "7.0.3",
 		"del-cli": "5.0.0",
-		"dts-bundle-generator": "8.0.1",
+		"dts-bundle-generator": "7.2.0",
 		"esbuild": "0.18.11",
 		"express": "4.18.2",
 		"husky": "8.0.3",
