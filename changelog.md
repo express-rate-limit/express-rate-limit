@@ -8,9 +8,12 @@ and this project adheres to
 
 ## [6.8.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0)
 
-### Changed
+### Added
 
-- Added a set of validation checks to execute on the first request. (See
+- Added a set of validation checks that will log an error if failed. See
+  https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes for
+  a list of potential errors. Can be disabled by setting `validate: false` in
+  the configuration. Automatically disables after the first request. (See
   [#358](https://github.com/express-rate-limit/express-rate-limit/issues/358))
 
 ## [6.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.1)
