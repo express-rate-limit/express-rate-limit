@@ -173,7 +173,7 @@ export type Options = {
 	 *
 	 * Defaults to `60000` ms (= 1 minute).
 	 */
-	readonly windowMs: number
+	windowMs: number
 
 	/**
 	 * The maximum number of connections to allow during the `window` before
@@ -184,7 +184,7 @@ export type Options = {
 	 *
 	 * Defaults to `5`.
 	 */
-	readonly max: number | ValueDeterminingMiddleware<number>
+	max: number | ValueDeterminingMiddleware<number>
 
 	/**
 	 * The response body to send back when a client is rate limited.
@@ -192,14 +192,14 @@ export type Options = {
 	 * Defaults to `'Too many requests, please try again later.'`
 	 */
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-	readonly message: any | ValueDeterminingMiddleware<any>
+	message: any | ValueDeterminingMiddleware<any>
 
 	/**
 	 * The HTTP status code to send back when a client is rate limited.
 	 *
 	 * Defaults to `HTTP 429 Too Many Requests` (RFC 6585).
 	 */
-	readonly statusCode: number
+	statusCode: number
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
@@ -207,21 +207,21 @@ export type Options = {
 	 *
 	 * Defaults to `true` (for backward compatibility).
 	 */
-	readonly legacyHeaders: boolean
+	legacyHeaders: boolean
 
 	/**
 	 * Whether to enable support for the standardized rate limit headers (`RateLimit-*`).
 	 *
 	 * Defaults to `false` (for backward compatibility, but its use is recommended).
 	 */
-	readonly standardHeaders: boolean
+	standardHeaders: boolean
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.
 	 *
 	 * Defaults to `rateLimit`.
 	 */
-	readonly requestPropertyName: string
+	requestPropertyName: string
 
 	/**
 	 * If `true`, the library will (by default) skip all requests that have a 4XX
@@ -229,7 +229,7 @@ export type Options = {
 	 *
 	 * Defaults to `false`.
 	 */
-	readonly skipFailedRequests: boolean
+	skipFailedRequests: boolean
 
 	/**
 	 * If `true`, the library will (by default) skip all requests that have a
@@ -237,14 +237,14 @@ export type Options = {
 	 *
 	 * Defaults to `false`.
 	 */
-	readonly skipSuccessfulRequests: boolean
+	skipSuccessfulRequests: boolean
 
 	/**
 	 * Method to generate custom identifiers for clients.
 	 *
 	 * By default, the client's IP address is used.
 	 */
-	readonly keyGenerator: ValueDeterminingMiddleware<string>
+	keyGenerator: ValueDeterminingMiddleware<string>
 
 	/**
 	 * Express request handler that sends back a response when a client is
@@ -252,7 +252,7 @@ export type Options = {
 	 *
 	 * By default, sends back the `statusCode` and `message` set via the options.
 	 */
-	readonly handler: RateLimitExceededEventHandler
+	handler: RateLimitExceededEventHandler
 
 	/**
 	 * Express request handler that sends back a response when a client has
@@ -261,7 +261,7 @@ export type Options = {
 	 * @deprecated 6.x - Please use a custom `handler` that checks the number of
 	 * hits instead.
 	 */
-	readonly onLimitReached: RateLimitReachedEventHandler
+	onLimitReached: RateLimitReachedEventHandler
 
 	/**
 	 * Method (in the form of middleware) to determine whether or not this request
@@ -269,7 +269,7 @@ export type Options = {
 	 *
 	 * By default, skips no requests.
 	 */
-	readonly skip: ValueDeterminingMiddleware<boolean>
+	skip: ValueDeterminingMiddleware<boolean>
 
 	/**
 	 * Method to determine whether or not the request counts as 'succesful'. Used
@@ -278,7 +278,7 @@ export type Options = {
 	 * By default, requests with a response status code less than 400 are considered
 	 * successful.
 	 */
-	readonly requestWasSuccessful: ValueDeterminingMiddleware<boolean>
+	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 
 	/**
 	 * The `Store` to use to store the hit count for each client.
@@ -286,6 +286,11 @@ export type Options = {
 	 * By default, the built-in `MemoryStore` will be used.
 	 */
 	store: Store | LegacyStore
+
+	/**
+	 * Whether or not the validation checks should run.
+	 */
+	validate: boolean
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
@@ -317,8 +322,8 @@ export type AugmentedRequest = Request & {
  * Express request object.
  */
 export type RateLimitInfo = {
-	readonly limit: number
-	readonly current: number
-	readonly remaining: number
-	readonly resetTime: Date | undefined
+	limit: number
+	current: number
+	remaining: number
+	resetTime: Date | undefined
 }

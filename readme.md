@@ -451,6 +451,21 @@ const limiter = rateLimit({
 })
 ```
 
+### `validate`
+
+> `boolean`
+
+When enabled, a set of validation checks are run on the first request to detect
+common misconfigurations with proxies, etc. Prints an error to the console if
+any issue is detected.
+
+Automatically disables after the first request is processed.
+
+See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes
+for more info.
+
+Defaults to true.
+
 ### `store`
 
 > `Store`

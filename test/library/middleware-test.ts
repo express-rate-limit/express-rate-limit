@@ -141,20 +141,6 @@ describe('middleware test', () => {
 		expect(store.initWasCalled).toEqual(true)
 	})
 
-	it('should print an error if `request.ip` is undefined', async () => {
-		jest.spyOn(global.console, 'error').mockImplementation(() => {})
-
-		await Promise.resolve(
-			rateLimit()(
-				{ ip: undefined } as any as Request,
-				{} as any as Response,
-				(() => {}) as NextFunction,
-			),
-		)
-
-		expect(console.error).toBeCalled()
-	})
-
 	it('should let the first request through', async () => {
 		const app = createServer(rateLimit({ max: 1 }))
 

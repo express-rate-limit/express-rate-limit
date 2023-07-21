@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0)
+
+### Changed
+
+- Added a set of validation checks to execute on the first request. (See
+  [#358](https://github.com/express-rate-limit/express-rate-limit/issues/358))
+
 ## [6.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.1)
 
 ### Fixed
