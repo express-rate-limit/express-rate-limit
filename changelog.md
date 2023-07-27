@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0) & [6.7.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0)
+
+### Changed
+
+- Revert 6.7.1 change that bumped typescript from 5.x to 4.x and
+  dts-bundle-generator from 8.x to 7.x (See
+  [#360](https://github.com/express-rate-limit/express-rate-limit/issues/360))
+
 ## [6.8.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0)
 
 ### Added
@@ -26,7 +34,9 @@ and this project adheres to
 
 ### Changed
 
-- Bumped development dependencies.
+- Bumped development dependencies
+  - This initially include bumping typescript from 4.x to 5.x and
+    dts-bundle-generator from 7.x to 8.x
 - Added `node` 20 to list of versions the CI jobs run on.
 
 No functional changes.
