@@ -47,6 +47,12 @@ export default class MemoryStore implements Store {
 	interval?: NodeJS.Timer
 
 	/**
+	 * Keys incremented in once instance of MemoryStore do not affect other instances
+	 * (This flag prevents false-positives when detecting double-counting.)
+	 */
+	localKeys = true
+
+	/**
 	 * Method that initializes the store.
 	 *
 	 * @param options {Options} - The options used to setup the middleware.

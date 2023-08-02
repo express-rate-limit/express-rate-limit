@@ -10,6 +10,7 @@ import {
 	afterEach,
 } from '@jest/globals'
 import { Validations } from '../../source/validations.js'
+import type { Store } from '../../source/types'
 
 describe('validations tests', () => {
 	let validations = new Validations(true)
@@ -88,6 +89,57 @@ describe('validations tests', () => {
 				headers: { 'x-forwarded-for': '1.2.3.4' },
 			} as any)
 			expect(console.error).toBeCalled()
+		})
+	})
+
+	describe('singleCount', () => {
+		class ExtStore {} // eslint-disable-line @typescript-eslint/no-extraneous-class
+
+		it('should log an error if a request is double-counted with a MemoryStore', () => {
+			const request = {}
+			const store = { localKeys: true }
+			const key = '1.2.3.4'
+			validations.singleCount(request as any, store as Store, key)
+			expect(console.error).not.toBeCalled()
+			validations.singleCount(request as any, store as Store, key)
+			expect(console.error).toBeCalled()
+		})
+		it('should log an error if a request is double-counted with an external store', () => {
+			const request = {}
+			const store = new ExtStore()
+			const key = '1.2.3.4'
+			validations.singleCount(request as any, store as Store, key)
+			expect(console.error).not.toBeCalled()
+			validations.singleCount(request as any, store as Store, key)
+			expect(console.error).toBeCalled()
+		})
+		it('should not log an error if a request is double-counted with separate instances of MemoryStore', () => {
+			const request = {}
+			const store1 = { localKeys: true }
+			const store2 = { localKeys: true }
+			const key = '1.2.3.4'
+			validations.singleCount(request as any, store1 as Store, key)
+			validations.singleCount(request as any, store2 as Store, key)
+			expect(console.error).not.toBeCalled()
+		})
+		it('should log an error if a request is double-counted with separate instances of an external store', () => {
+			const request = {}
+			const store1 = new ExtStore()
+			const store2 = new ExtStore()
+			const key = '1.2.3.4'
+			validations.singleCount(request as any, store1 as Store, key)
+			validations.singleCount(request as any, store2 as Store, key)
+			expect(console.error).toBeCalled()
+		})
+		it('should not log an error for multiple requests from the same key', () => {
+			const request1 = {}
+			const request2 = {}
+			const store = { localKeys: true }
+			const key = '1.2.3.4'
+			validations.singleCount(request1 as any, store as Store, key)
+			expect(console.error).not.toBeCalled()
+			validations.singleCount(request2 as any, store as Store, key)
+			expect(console.error).not.toBeCalled()
 		})
 	})
 
