@@ -23,8 +23,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          standalone: true
-          version: latest
+          version: 8
       - name: Check for lint/formatting errors
         run: |
           pnpm install
@@ -46,8 +45,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          standalone: true
-          version: latest
+          version: 7
       - name: Run library tests
         run: |
           pnpm install
@@ -69,8 +67,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          standalone: true
-          version: latest
+          version: 7
       - name: Run import and external store usage tests
         run: |
           pnpm install
@@ -91,8 +88,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          standalone: true
-          version: latest
+          version: 8
       - name: Install dependencies
         run: pnpm install
       - name: Publish package to NPM
