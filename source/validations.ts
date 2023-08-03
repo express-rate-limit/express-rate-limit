@@ -11,6 +11,7 @@ import type { Store } from './types'
 class ValidationError extends Error {
 	name: string
 	code: string
+	help: string
 
 	/**
 	 * The code must be a string, in snake case and all capital, that starts with
@@ -26,6 +27,7 @@ class ValidationError extends Error {
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
 		this.code = code
+		this.help = url
 	}
 }
 
