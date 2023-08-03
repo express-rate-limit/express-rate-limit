@@ -36,11 +36,14 @@ class ValidationError extends Error {
  */
 export class Validations {
 	/**
-	 * Map of request -> store -> keys
+	 * Maps the key used in a store for a certain request, and ensures that the
+	 * same key isn't used more than once per request.
 	 *
-	 * Store is either:
-	 *  - an instance for stores like the MemoryStore where two instances do not share state
-	 *  - a string (usually class name) for stores where multiple instances typically share state, such as the redis store
+	 * The store can be any one of the following:
+	 *  - an instance for stores like the MemoryStore where two instances do not
+	 *    share state.
+	 *  - a string (usually class name) for stores where multiple instances
+	 *    typically share state, such as the redis store.
 	 *
 	 * todo: add a reset method (for tests)
 	 */
@@ -137,23 +140,27 @@ export class Validations {
 	}
 
 	/**
-	 * Ensures a given key is incremented only once per request
-	 * @param req
-	 * @param key
+	 * Ensures a given key is incremented only once per request.
+	 *
+	 * @param request {Request} - The Express request object.
+	 * @param store {Store} - The store class.
+	 * @param key {string} - The key used to store the client's hit count.
+	 *
+	 * @returns {void}
 	 */
 	singleCount(request: Request, store: Store, key: string) {
 		this.wrap(() => {
-			let stores = Validations.singleCountKeys.get(request)
-			if (!stores) {
-				stores = new Map()
-				Validations.singleCountKeys.set(request, stores)
+			let storeKeys = Validations.singleCountKeys.get(request)
+			if (!storeKeys) {
+				storeKeys = new Map()
+				Validations.singleCountKeys.set(request, storeKeys)
 			}
 
 			const storeKey = store.localKeys ? store : store.constructor.name
-			let keys = stores.get(storeKey)
+			let keys = storeKeys.get(storeKey)
 			if (!keys) {
 				keys = []
-				stores.set(storeKey, keys)
+				storeKeys.set(storeKey, keys)
 			}
 
 			if (keys.includes(key)) {

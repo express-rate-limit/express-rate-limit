@@ -47,8 +47,8 @@ export default class MemoryStore implements Store {
 	interval?: NodeJS.Timer
 
 	/**
-	 * Keys incremented in once instance of MemoryStore do not affect other instances
-	 * (This flag prevents false-positives when detecting double-counting.)
+	 * Confirmation that the keys incremented in once instance of MemoryStore
+	 * cannot affect other instances.
 	 */
 	localKeys = true
 

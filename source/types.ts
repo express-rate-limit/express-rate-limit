@@ -164,10 +164,12 @@ export type Store = {
 	shutdown?: () => Promise<void> | void
 
 	/**
-	 * Flag to indicate that keys incremented in one instance of this store do not affect other instances.
-	 * Typically false if a database is used, true for MemoryStore.
+	 * Flag to indicate that keys incremented in one instance of this store can
+	 * not affect other instances. Typically false if a database is used, true for
+	 * MemoryStore.
+	 *
 	 * Used to help detect double-counting misconfigurations.
-	 **/
+	 */
 	localKeys?: boolean
 }
 
