@@ -27,8 +27,8 @@ jobs:
           version: latest
       - name: Check for lint/formatting errors
         run: |
-          npm ci
-          npm run lint
+          pnpm install
+          pnpm lint
   test-library:
     name: Test (Library)
     strategy:
@@ -50,8 +50,8 @@ jobs:
           version: latest
       - name: Run library tests
         run: |
-          npm ci
-          npm run test:lib
+          pnpm install
+          pnpm test:lib
   test-external:
     name: Test (External)
     strategy:
@@ -73,9 +73,9 @@ jobs:
           version: latest
       - name: Run import and external store usage tests
         run: |
-          npm ci
-          npm pack
-          npm run test:ext
+          pnpm install
+          pnpm pack
+          pnpm test:ext
   publish:
     name: Publish
     needs: [lint, test-library, test-external]
@@ -94,7 +94,7 @@ jobs:
           standalone: true
           version: latest
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install
       - name: Publish package to NPM
         run: pnpm publish
         env:
