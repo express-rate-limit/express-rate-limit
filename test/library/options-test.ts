@@ -1,8 +1,11 @@
 // /test/options-test.ts
 // Tests parsing/handling of options passed in by the user
 
-import type { Store, Options, IncrementResponse } from '../../source/index.js'
-import rateLimit from '../../source/index.js'
+import rateLimit, {
+	type Store,
+	type Options,
+	type IncrementResponse,
+} from '../../source/index.js'
 
 describe('options test', () => {
 	it('should not allow the use of an invalid store', async () => {
