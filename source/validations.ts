@@ -20,14 +20,12 @@ class ValidationError extends Error {
 	 * describing the issue in detail.
 	 */
 	constructor(code: string, message: string) {
-		super(
-			`express-rate-limit: ${code} - ${message} See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#${code.toLowerCase()} for more information on this error.`,
-		)
+		const url = `https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#${code.toLowerCase()}`
+		super(`${message} See ${url} for more information on this error.`)
 
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
 		this.code = code
-		this.message = message
 	}
 }
 
