@@ -50,7 +50,7 @@
 
 - [ ] The issues that this PR fixes/closes have been mentioned above.
 - [ ] What this PR adds/changes/removes has been explained.
-- [ ] All tests (`npm test`) pass.
+- [ ] All library tests (`npm run test`) pass.
 - [ ] All added/modified code has been commented, and
       methods/classes/constants/types have been annotated with TSDoc comments.
 - [ ] If a new feature has been added or a bug has been fixed, tests have been
