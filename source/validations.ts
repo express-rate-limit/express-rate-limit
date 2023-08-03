@@ -3,6 +3,7 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
+import type { Store } from './types'
 
 /**
  * An error thrown/returned when a validation error occurs.
@@ -34,6 +35,21 @@ class ValidationError extends Error {
  * The validations that can be run, as well as the methods to run them.
  */
 export class Validations {
+	/**
+	 * Maps the key used in a store for a certain request, and ensures that the
+	 * same key isn't used more than once per request.
+	 *
+	 * The store can be any one of the following:
+	 *  - An instance, for stores like the MemoryStore where two instances do not
+	 *    share state.
+	 *  - A string (class name), for stores where multiple instances
+	 *    typically share state, such as the Redis store.
+	 */
+	private static readonly singleCountKeys = new WeakMap<
+		Request,
+		Map<Store | string, string[]>
+	>()
+
 	// eslint-disable-next-line @typescript-eslint/parameter-properties
 	enabled: boolean
 
@@ -118,6 +134,41 @@ export class Validations {
 					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users.`,
 				)
 			}
+		})
+	}
+
+	/**
+	 * Ensures a given key is incremented only once per request.
+	 *
+	 * @param request {Request} - The Express request object.
+	 * @param store {Store} - The store class.
+	 * @param key {string} - The key used to store the client's hit count.
+	 *
+	 * @returns {void}
+	 */
+	singleCount(request: Request, store: Store, key: string) {
+		this.wrap(() => {
+			let storeKeys = Validations.singleCountKeys.get(request)
+			if (!storeKeys) {
+				storeKeys = new Map()
+				Validations.singleCountKeys.set(request, storeKeys)
+			}
+
+			const storeKey = store.localKeys ? store : store.constructor.name
+			let keys = storeKeys.get(storeKey)
+			if (!keys) {
+				keys = []
+				storeKeys.set(storeKey, keys)
+			}
+
+			if (keys.includes(key)) {
+				throw new ValidationError(
+					'ERR_ERL_DOUBLE_COUNT',
+					`The hit count for ${key} was incremented more than once for a single request.`,
+				)
+			}
+
+			keys.push(key)
 		})
 	}
 
