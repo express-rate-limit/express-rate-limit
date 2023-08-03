@@ -40,12 +40,10 @@ export class Validations {
 	 * same key isn't used more than once per request.
 	 *
 	 * The store can be any one of the following:
-	 *  - an instance for stores like the MemoryStore where two instances do not
+	 *  - An instance, for stores like the MemoryStore where two instances do not
 	 *    share state.
-	 *  - a string (usually class name) for stores where multiple instances
-	 *    typically share state, such as the redis store.
-	 *
-	 * todo: add a reset method (for tests)
+	 *  - A string (class name), for stores where multiple instances
+	 *    typically share state, such as the Redis store.
 	 */
 	private static readonly singleCountKeys = new WeakMap<
 		Request,
