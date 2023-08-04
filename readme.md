@@ -27,7 +27,7 @@ public APIs and/or endpoints such as password reset. Plays nice with
 Depending on your use case, you may need to switch to a different
 [store](#store).
 
-#### Basic Abuse Prevention
+#### Abuse Prevention
 
 The default `MemoryStore` is probably fine.
 
@@ -35,17 +35,20 @@ The default `MemoryStore` is probably fine.
 
 You likely want to switch to a different [store](#store). As a performance
 optimization, the default `MemoryStore` uses a global time window, so if your
-limit is 10 requests per minute, a single user might be able to get up to 20
-requests in a row if they happen to get the first 10 in right at the end of one
-minute and the next 10 in at the start of the next minute. All of the other
-stores use per-user time windows, so a user will get exactly 10 requests
+limit is 10 requests per minute, a single user might be able to get an initial
+burst of up to 20 requests in a row if they happen to get the first 10 in at the
+end of one minute and the next 10 in at the start of the next minute. (After the
+initial burst, they will be limited to the expected 10 requests per minute.) All
+other stores use per-user time windows, so a user will get exactly 10 requests
 regardless.
 
-Additionally, if you have multiple servers, or even just multiple processes (for
-example, with the [cluster](https://nodejs.org/api/cluster.html), you'll likely
-want to use an external database to syhcnronize hits, so that a user gets the
-expected result even if some of their requests get handled by different
-servers/processes.
+Additionally, if you have multiple servers or processes (for example, with the
+[node:cluster](https://nodejs.org/api/cluster.html) module), you'll likely want
+to use an external data store to syhcnronize hits
+([redis](https://npmjs.com/package/rate-limit-redis),
+[memcached](https://npmjs.org/package/rate-limit-memcached), [etc.](#store))
+This will guarentee the expected result even if some requests get handled by
+different servers/processes.
 
 ### Alternate Rate Limiters
 
