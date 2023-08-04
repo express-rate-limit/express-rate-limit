@@ -124,15 +124,17 @@ express-rate-limit
 - `config/husky/pre-commit`: The bash script to run just before someone runs
   `git commit`.
 
-When adding a new feature/fixing a bug, please add/update the readme and
-changelog as well as add tests for the same. Also make sure your code has been
-linted and that existing tests pass. You can run the linter using
-`npm run lint`, the tests using `npm run test` and try to automatically fix most
-lint issues using `npm run format`.
+### Documentation and testing
 
-> Note that the external tests require more CPU and RAM, and therefore are run
-> only on GitHub Actions. Please run only the library tests and the linter
-> locally using `npm run test`.
+When adding a new feature/fixing a bug, please add/update the readme and
+changelog as well as add tests for the same. Also make sure the codebase passes
+the linter and library tests by running `npm test`.
+
+Tip: `npm run format` will automatically resolve many style/lint issues.
+
+> Note that the external tests require various datastores and take more time to
+> execute. Typically they are run only on GitHub Actions. If desired, you may
+> run these tests locally by running `npm run test:ext`
 
 Once you have made changes to the code, you will want to
 [`commit`](https://github.com/git-guides/git-commit) (basically, Git's version
