@@ -11,6 +11,7 @@ import type { Store } from './types'
 class ValidationError extends Error {
 	name: string
 	code: string
+	help: string
 
 	/**
 	 * The code must be a string, in snake case and all capital, that starts with
@@ -20,14 +21,13 @@ class ValidationError extends Error {
 	 * describing the issue in detail.
 	 */
 	constructor(code: string, message: string) {
-		super(
-			`express-rate-limit: ${code} - ${message} See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#${code.toLowerCase()} for more information on this error.`,
-		)
+		const url = `https://express-rate-limit.github.io/${code.toLowerCase()}`
+		super(`${message} See ${url} for more information on this error.`)
 
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
 		this.code = code
-		this.message = message
+		this.help = url
 	}
 }
 
