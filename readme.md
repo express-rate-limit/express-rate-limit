@@ -118,6 +118,7 @@ const limiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	store: new ExternalStore(), // Use an external store for more precise rate limiting
 })
 
 // Apply the rate limiting middleware to all requests
@@ -136,6 +137,7 @@ const apiLimiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	store: new ExternalStore(), // Use an external store for more precise rate limiting
 })
 
 // Apply the rate limiting middleware to API calls only
@@ -152,6 +154,7 @@ const apiLimiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	store: new ExternalStore(), // Use an external store for more precise rate limiting
 })
 
 app.use('/api/', apiLimiter)
@@ -175,15 +178,15 @@ To use a custom store:
 ```ts
 import rateLimit, { MemoryStore } from 'express-rate-limit'
 
-const apiLimiter = rateLimit({
+const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	store: new MemoryStore(),
 })
 
-// Apply the rate limiting middleware to API calls only
-app.use('/api', apiLimiter)
+// Apply the rate limiting middleware to all requests
+app.use(rateLimiter)
 ```
 
 > **Note:** most stores will require additional configuration, such as custom
