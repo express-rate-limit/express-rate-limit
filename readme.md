@@ -16,17 +16,42 @@ authentication and more to any API in minutes. Learn more at
 [![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
 [![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
 
-Basic rate-limiting middleware for Express. Use to limit repeated requests to
-public APIs and/or endpoints such as password reset. Plays nice with
+Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
+limit repeated requests to public APIs and/or endpoints such as password reset.
+Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
 </div>
 
-### Alternate Rate Limiters
+## Use Cases
 
-> This module does not share state with other processes/servers by default. If
-> you need a more robust solution, I recommend using an external store. See the
-> [`stores` section](#store) below for a list of external stores.
+Depending on your use case, you may need to switch to a different
+[store](#store).
+
+#### Abuse Prevention
+
+The default `MemoryStore` is probably fine.
+
+#### API Rate Limit Enforcement
+
+You likely want to switch to a different [store](#store). As a performance
+optimization, the default `MemoryStore` uses a global time window, so if your
+limit is 10 requests per minute, a single user might be able to get an initial
+burst of up to 20 requests in a row if they happen to get the first 10 in at the
+end of one minute and the next 10 in at the start of the next minute. (After the
+initial burst, they will be limited to the expected 10 requests per minute.) All
+other stores use per-user time windows, so a user will get exactly 10 requests
+regardless.
+
+Additionally, if you have multiple servers or processes (for example, with the
+[node:cluster](https://nodejs.org/api/cluster.html) module), you'll likely want
+to use an external data store to syhcnronize hits
+([redis](https://npmjs.com/package/rate-limit-redis),
+[memcached](https://npmjs.org/package/rate-limit-memcached), [etc.](#store))
+This will guarentee the expected result even if some requests get handled by
+different servers/processes.
+
+### Alternate Rate Limiters
 
 This module was designed to only handle the basics and didn't even support
 external stores initially. These other options all are excellent pieces of
@@ -94,6 +119,7 @@ const limiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	// store: ... , // Use an external store for more precise rate limiting
 })
 
 // Apply the rate limiting middleware to all requests
@@ -112,6 +138,7 @@ const apiLimiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	// store: ... , // Use an external store for more precise rate limiting
 })
 
 // Apply the rate limiting middleware to API calls only
@@ -128,6 +155,7 @@ const apiLimiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	// store: ... , // Use an external store for more precise rate limiting
 })
 
 app.use('/api/', apiLimiter)
@@ -149,17 +177,22 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 To use a custom store:
 
 ```ts
-import rateLimit, { MemoryStore } from 'express-rate-limit'
+import rateLimit from 'express-rate-limit'
+import RedisStore from 'rate-limit-redis'
+import RedisClient from 'ioredis'
 
-const apiLimiter = rateLimit({
+const redisClient = new RedisClient()
+const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	store: new MemoryStore(),
+	store: new RedisStore({
+		/* ... */
+	}), // Use the external store
 })
 
-// Apply the rate limiting middleware to API calls only
-app.use('/api', apiLimiter)
+// Apply the rate limiting middleware to all requests
+app.use(rateLimiter)
 ```
 
 > **Note:** most stores will require additional configuration, such as custom
