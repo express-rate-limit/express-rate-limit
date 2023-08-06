@@ -16,8 +16,9 @@ authentication and more to any API in minutes. Learn more at
 [![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
 [![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
 
-Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to limit repeated requests to
-public APIs and/or endpoints such as password reset. Plays nice with
+Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
+limit repeated requests to public APIs and/or endpoints such as password reset.
+Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
 </div>
@@ -118,7 +119,7 @@ const limiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-	store: new ExternalStore(), // Use an external store for more precise rate limiting
+	// store: ... , // Use an external store for more precise rate limiting
 })
 
 // Apply the rate limiting middleware to all requests
@@ -137,7 +138,7 @@ const apiLimiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-	store: new ExternalStore(), // Use an external store for more precise rate limiting
+	// store: ... , // Use an external store for more precise rate limiting
 })
 
 // Apply the rate limiting middleware to API calls only
@@ -154,7 +155,7 @@ const apiLimiter = rateLimit({
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-	store: new ExternalStore(), // Use an external store for more precise rate limiting
+	// store: ... , // Use an external store for more precise rate limiting
 })
 
 app.use('/api/', apiLimiter)
@@ -176,13 +177,18 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 To use a custom store:
 
 ```ts
-import rateLimit, { MemoryStore } from 'express-rate-limit'
+import rateLimit from 'express-rate-limit'
+import RedisStore from 'rate-limit-redis'
+import RedisClient from 'ioredis'
 
+const redisClient = new RedisClient()
 const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	store: new MemoryStore(),
+	store: new RedisStore({
+		/* ... */
+	}), // Use the external store
 })
 
 // Apply the rate limiting middleware to all requests
