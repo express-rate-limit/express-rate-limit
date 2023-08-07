@@ -87,7 +87,7 @@ function run_import_tests {
 			pnpm lint
 			pnpm test
 			# Restore the version
-			git restore package.json
+			git restore package.json pnpm-lock.yaml
 			echo
 			print_success "sucessfully ran $dir variation for $type imports (express 5)"
 
@@ -131,7 +131,7 @@ function run_store_tests {
 	# Run the tests with this version
 	pnpm test
 	# Restore the version
-	git restore package.json
+	git restore package.json pnpm-lock.yaml
 
 	# Go back
 	cd ../
