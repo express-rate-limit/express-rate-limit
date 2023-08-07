@@ -5,13 +5,19 @@ import createServer from 'express'
 import rateLimit from 'express-rate-limit'
 
 import RedisStore from 'rate-limit-redis'
+import { createClient } from 'redis'
 
 const app = createServer()
+const client = createClient()
+await client.connect()
+
 app.use(
 	rateLimit({
 		max: 3,
 		message: 'Thou must enhanceth thy peace',
-		store: new RedisStore(),
+		store: new RedisStore({
+			sendCommand: (...args: string[]) => client.sendCommand(args),
+		}),
 	}),
 )
 
