@@ -215,7 +215,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 			// Send the response if writable.
 			if (!response.writableEnded) {
-				response.send(message ?? 'Too many requests, please try again later.')
+				response.send(message)
 			}
 		},
 		onLimitReached(

@@ -166,5 +166,11 @@ describe('validations tests', () => {
 			validations.ip('badip')
 			expect(console.error).not.toBeCalled()
 		})
+
+		it('should be enabled after enable() is called', () => {
+			validations.enable()
+			validations.ip('badip')
+			expect(console.error).toBeCalled()
+		})
 	})
 })
