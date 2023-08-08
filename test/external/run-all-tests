@@ -136,6 +136,11 @@ function run_store_tests {
 	# Go back
 	cd ../
 
+	print_info "stopping docker containers"
+	# Stop and delete any existing containers
+	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
+	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
+
 	print_success "successfully ran all store tests"
 }
 
