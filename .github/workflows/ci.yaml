@@ -20,14 +20,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7
       - name: Check for lint/formatting errors
         run: |
-          pnpm install
-          pnpm lint
+          npm install
+          npm run lint
   test-library:
     name: Test (Library)
     strategy:
@@ -42,14 +38,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7
       - name: Run library tests
         run: |
-          pnpm install
-          pnpm test:lib
+          npm install
+          npm run test:lib
   test-external:
     name: Test (External)
     strategy:
@@ -85,19 +77,15 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
       - name: Publish package to NPM
-        run: pnpm publish
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build package to upload to GitHub releases
         run: |
-          pnpm pack
+          npm pack
           mv express-rate-limit-*.tgz express-rate-limit.tgz
       - name: Create a Github release
         uses: softprops/action-gh-release@v1
