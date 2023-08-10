@@ -10,7 +10,7 @@ jobs:
     name: Lint
     strategy:
       matrix:
-        node-version: [lts]
+        node-version: [lts/*]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -46,7 +46,7 @@ jobs:
     name: Test (External)
     strategy:
       matrix:
-        node-version: [lts, latest]
+        node-version: [lts/*, latest]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
