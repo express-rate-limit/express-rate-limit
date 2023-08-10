@@ -22,7 +22,7 @@ class ValidationError extends Error {
 	 */
 	constructor(code: string, message: string) {
 		const url = `https://express-rate-limit.github.io/${code}/`
-		super(`${message} See ${url} for more information on this error.`)
+		super(`${message} See ${url} for more information.`)
 
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
