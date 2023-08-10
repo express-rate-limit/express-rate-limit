@@ -22,7 +22,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Check for lint/formatting errors
         run: |
-          npm install
+          npm ci
           npm run lint
   test-library:
     name: Test (Library)
@@ -40,7 +40,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Run library tests
         run: |
-          npm install
+          npm ci
           npm run test:lib
   test-external:
     name: Test (External)
@@ -78,7 +78,7 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Publish package to NPM
         run: npm publish
         env:
