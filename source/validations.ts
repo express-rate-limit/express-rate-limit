@@ -35,23 +35,7 @@ class ValidationError extends Error {
  * A warning logged when the configuration used will/has been changed by a
  * newly released version of the library.
  */
-class ChangeWarning extends ValidationError {
-	name: string
-
-	/**
-	 * The code must be a string, in snake case and all capital, that starts with
-	 * the substring `WRN_ERL_`.
-	 *
-	 * The message must be a string, starting with an uppercase character,
-	 * describing the issue in detail.
-	 */
-	constructor(code: string, message: string) {
-		super(code, message)
-
-		// `this.constructor.name` is the class name
-		this.name = this.constructor.name
-	}
-}
+class ChangeWarning extends ValidationError {}
 
 /**
  * The validations that can be run, as well as the methods to run them.
