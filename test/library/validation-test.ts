@@ -155,7 +155,6 @@ describe('validations tests', () => {
 		})
 	})
 
-	// TODO: Remove before releasing v7.0.0.
 	describe('max', () => {
 		it('should log a warning if max is set to 0', () => {
 			validations.max(0)

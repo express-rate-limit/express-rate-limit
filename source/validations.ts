@@ -202,7 +202,6 @@ export class Validations {
 	 *
 	 * @returns {void}
 	 */
-	// TODO: Remove in v7.0.0
 	max(max: number) {
 		this.wrap(() => {
 			if (max === 0) {
