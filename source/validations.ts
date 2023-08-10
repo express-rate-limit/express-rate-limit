@@ -17,7 +17,7 @@ class ValidationError extends Error {
 	 * The code must be a string, in snake case and all capital, that starts with
 	 * the substring `ERR_ERL_`.
 	 *
-	 * The message must be a string, starting with a lowercase character,
+	 * The message must be a string, starting with an uppercase character,
 	 * describing the issue in detail.
 	 */
 	constructor(code: string, message: string) {
@@ -28,6 +28,28 @@ class ValidationError extends Error {
 		this.name = this.constructor.name
 		this.code = code
 		this.help = url
+	}
+}
+
+/**
+ * A warning logged when the configuration used will/has been changed by a
+ * newly released version of the library.
+ */
+class ChangeWarning extends ValidationError {
+	name: string
+
+	/**
+	 * The code must be a string, in snake case and all capital, that starts with
+	 * the substring `WRN_ERL_`.
+	 *
+	 * The message must be a string, starting with an uppercase character,
+	 * describing the issue in detail.
+	 */
+	constructor(code: string, message: string) {
+		super(code, message)
+
+		// `this.constructor.name` is the class name
+		this.name = this.constructor.name
 	}
 }
 
@@ -184,8 +206,9 @@ export class Validations {
 	max(max: number) {
 		this.wrap(() => {
 			if (max === 0) {
-				console.warn(
-					`The behaviour shown when 'max' is set to zero will change in v7.0.0. Please see https://express-rate-limit.github.io/WRN_MAX/ for more information on this change.`,
+				throw new ChangeWarning(
+					'WRN_ERL_MAX_ZERO',
+					`Setting max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
 				)
 			}
 		})
@@ -199,7 +222,8 @@ export class Validations {
 		try {
 			validation.call(this)
 		} catch (error: any) {
-			console.error(error)
+			if (error instanceof ChangeWarning) console.warn(error)
+			else console.error(error)
 		}
 	}
 }
