@@ -17,6 +17,7 @@ describe('validations tests', () => {
 
 	beforeEach(() => {
 		jest.spyOn(console, 'error').mockImplementation(() => {})
+		jest.spyOn(console, 'warn').mockImplementation(() => {})
 	})
 	afterEach(() => {
 		jest.restoreAllMocks()
@@ -151,6 +152,19 @@ describe('validations tests', () => {
 			expect(console.error).not.toBeCalled()
 			validations.singleCount(request2 as any, store as Store, key)
 			expect(console.error).not.toBeCalled()
+		})
+	})
+
+	// TODO: Remove before releasing v7.0.0.
+	describe('max', () => {
+		it('should log a warning if max is set to 0', () => {
+			validations.max(0)
+			expect(console.warn).toBeCalled()
+		})
+
+		it('should not log a warning if max is set to a non zero number', () => {
+			validations.max(3)
+			expect(console.warn).not.toBeCalled()
 		})
 	})
 

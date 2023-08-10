@@ -172,6 +172,25 @@ export class Validations {
 		})
 	}
 
+	/**
+	 * Warns the user that the behaviour for `max: 0` is changing in the next
+	 * major release.
+	 *
+	 * @param max {number} - The maximum number of hits per client.
+	 *
+	 * @returns {void}
+	 */
+	// TODO: Remove in v7.0.0
+	max(max: number) {
+		this.wrap(() => {
+			if (max === 0) {
+				console.warn(
+					`The behaviour shown when 'max' is set to zero will change in v7.0.0. Please see https://express-rate-limit.github.io/max_warning for more information on this change.`,
+				)
+			}
+		})
+	}
+
 	private wrap(validation: () => void) {
 		if (!this.enabled) {
 			return

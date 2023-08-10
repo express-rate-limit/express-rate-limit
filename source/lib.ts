@@ -304,9 +304,8 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
-			// Increment the client's hit counter by one
+			// Increment the client's hit counter by one, and make sure it's only by one
 			const { totalHits, resetTime } = await config.store.increment(key)
-
 			config.validations.singleCount(request, config.store, key)
 
 			// Get the quota (max number of hits) for each client
@@ -314,8 +313,9 @@ const rateLimit = (
 				typeof config.max === 'function'
 					? config.max(request, response)
 					: config.max
-
 			const maxHits = await retrieveQuota
+			config.validations.max(maxHits)
+
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[config.requestPropertyName] = {
 				limit: maxHits,
@@ -394,7 +394,7 @@ const rateLimit = (
 
 			// Call the `onLimitReached` callback on the first request where client
 			// exceeds their rate limit
-			// NOTE: `onLimitReached` is deprecated, this should be removed in v7.x
+			// TODO: `onLimitReached` is deprecated, this should be removed in v7.x
 			if (maxHits && totalHits === maxHits + 1) {
 				config.onLimitReached(request, response, options)
 			}
