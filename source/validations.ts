@@ -17,12 +17,12 @@ class ValidationError extends Error {
 	 * The code must be a string, in snake case and all capital, that starts with
 	 * the substring `ERR_ERL_`.
 	 *
-	 * The message must be a string, starting with a lowercase character,
+	 * The message must be a string, starting with an uppercase character,
 	 * describing the issue in detail.
 	 */
 	constructor(code: string, message: string) {
 		const url = `https://express-rate-limit.github.io/${code}/`
-		super(`${message} See ${url} for more information on this error.`)
+		super(`${message} See ${url} for more information.`)
 
 		// `this.constructor.name` is the class name
 		this.name = this.constructor.name
@@ -30,6 +30,12 @@ class ValidationError extends Error {
 		this.help = url
 	}
 }
+
+/**
+ * A warning logged when the configuration used will/has been changed by a
+ * newly released version of the library.
+ */
+class ChangeWarning extends ValidationError {}
 
 /**
  * The validations that can be run, as well as the methods to run them.
@@ -172,6 +178,25 @@ export class Validations {
 		})
 	}
 
+	/**
+	 * Warns the user that the behaviour for `max: 0` is changing in the next
+	 * major release.
+	 *
+	 * @param max {number} - The maximum number of hits per client.
+	 *
+	 * @returns {void}
+	 */
+	max(max: number) {
+		this.wrap(() => {
+			if (max === 0) {
+				throw new ChangeWarning(
+					'WRN_ERL_MAX_ZERO',
+					`Setting max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
+				)
+			}
+		})
+	}
+
 	private wrap(validation: () => void) {
 		if (!this.enabled) {
 			return
@@ -180,7 +205,8 @@ export class Validations {
 		try {
 			validation.call(this)
 		} catch (error: any) {
-			console.error(error)
+			if (error instanceof ChangeWarning) console.warn(error)
+			else console.error(error)
 		}
 	}
 }
