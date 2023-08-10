@@ -73,21 +73,21 @@ function run_import_tests {
 			cd $dir
 
 			# Get a fresh install of all node modules
-			npm install
+			pnpm install
 			# Run the linter and the tests
-			npm run lint
-			npm test
+			pnpm lint
+			pnpm test
 			echo
 			print_success "sucessfully ran $dir variation for $type imports (express 4)"
 
 			print_info "running $dir variation for $type imports (express 5)"
 			# Install Express v5
-			npm install express@5.0.0-beta.1
+			pnpm install express@5.0.0-beta.1
 			# Run the tests with this version
-			npm run lint
-			npm test
+			pnpm lint
+			pnpm test
 			# Restore the version
-			git restore package.json
+			git restore package.json pnpm-lock.yaml
 			echo
 			print_success "sucessfully ran $dir variation for $type imports (express 5)"
 
@@ -116,25 +116,30 @@ function run_store_tests {
 	start_docker
 
 	# Get a fresh install of all the node modules
-	npm install
+	pnpm install
 
 	print_info "running store tests (express 4)"
 	# Run the tests with Express v4
-	npm run test
+	pnpm test
 
 	# Restart the containers
 	start_docker
 
 	print_info "running store tests (express 5)"
 	# Install Express v5
-	npm install express@5.0.0-beta.1
+	pnpm install express@5.0.0-beta.1
 	# Run the tests with this version
-	npm test
+	pnpm test
 	# Restore the version
-	git restore package.json
+	git restore package.json pnpm-lock.yaml
 
 	# Go back
 	cd ../
+
+	print_info "stopping docker containers"
+	# Stop and delete any existing containers
+	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
+	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 
 	print_success "successfully ran all store tests"
 }
@@ -156,8 +161,7 @@ function upgrade_dependencies {
 
 			# Get a fresh install of all node modules
 			rm -rf node_modules
-			npx npm-check-updates -u
-			npm install
+			pnpm upgrade -L
 			echo
 			print_success "sucessfully upgraded dependencies of $type-import/$dir"
 

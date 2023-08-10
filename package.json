@@ -52,7 +52,7 @@
 		"changelog.md"
 	],
 	"engines": {
-		"node": ">= 14.0.0"
+		"node": ">= 14"
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",

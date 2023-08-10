@@ -10,7 +10,7 @@ jobs:
     name: Lint
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [lts/*]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -46,7 +46,7 @@ jobs:
     name: Test (External)
     strategy:
       matrix:
-        node-version: [14, 16, 18, 20]
+        node-version: [lts/*, latest]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -56,11 +56,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - name: Run import and external store usage tests
         run: |
-          npm ci
-          npm pack
-          npm run test:ext
+          pnpm install
+          pnpm pack
+          pnpm test:ext
   publish:
     name: Publish
     needs: [lint, test-library, test-external]

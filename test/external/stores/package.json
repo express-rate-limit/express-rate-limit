@@ -13,7 +13,8 @@
 		"precise-memory-rate-limit": "^1.1.4",
 		"rate-limit-memcached": "^0.6.0",
 		"rate-limit-mongo": "^2.3.2",
-		"rate-limit-redis": "^2.1.0"
+		"rate-limit-redis": "^3.0.2",
+		"redis": "^4.6.7"
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.17",
