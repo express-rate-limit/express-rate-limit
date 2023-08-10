@@ -185,7 +185,7 @@ export class Validations {
 		this.wrap(() => {
 			if (max === 0) {
 				console.warn(
-					`The behaviour shown when 'max' is set to zero will change in v7.0.0. Please see https://express-rate-limit.github.io/WRN_MAX for more information on this change.`,
+					`The behaviour shown when 'max' is set to zero will change in v7.0.0. Please see https://express-rate-limit.github.io/WRN_MAX/ for more information on this change.`,
 				)
 			}
 		})
