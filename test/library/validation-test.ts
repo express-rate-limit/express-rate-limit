@@ -167,6 +167,20 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('onLimitReached', () => {
+		it('should log a warning if onLimitReached is set', () => {
+			validations.onLimitReached(() => {})
+			expect(console.warn).toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should not  log a warning if onLimitReached is unset', () => {
+			validations.onLimitReached(undefined)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
 	describe('disable', () => {
 		it('should initialize disabled when passed false', () => {
 			const disabledValidator = new Validations(false)
