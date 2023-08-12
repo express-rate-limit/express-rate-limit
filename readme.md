@@ -97,13 +97,13 @@ Import it in a CommonJS project (`type: commonjs` or no `type` field in
 `package.json`) as follows:
 
 ```ts
-const rateLimit = require('express-rate-limit')
+const { rateLimit } = require('express-rate-limit')
 ```
 
 Import it in a ESM project (`type: module` in `package.json`) as follows:
 
 ```ts
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 ```
 
 ### Examples
@@ -112,7 +112,7 @@ To use it in an API-only server where the rate-limiter should be applied to all
 requests:
 
 ```ts
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -131,7 +131,7 @@ To use it in a 'regular' web server (e.g. anything that uses
 requests:
 
 ```ts
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -148,7 +148,7 @@ app.use('/api', apiLimiter)
 To create multiple instances to apply different rules to different endpoints:
 
 ```ts
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -177,7 +177,7 @@ app.post('/create-account', createAccountLimiter, (request, response) => {
 To use a custom store:
 
 ```ts
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 import RedisStore from 'rate-limit-redis'
 import RedisClient from 'ioredis'
 
