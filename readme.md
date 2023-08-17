@@ -343,7 +343,7 @@ accordance with
 
 If set to `draft-7`, a combined `RateLimit` header is set containing all values,
 and a `RateLimit-Policy` header is set, in accordiance with
-[draft-ietf-httpapi-ratelimit-headers-06](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07).
+[draft-ietf-httpapi-ratelimit-headers-07](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07).
 
 If set to `true`, it is treated as `draft-6`, however this behavior may change
 in a future semver major release.
