@@ -25,7 +25,10 @@ export function setLegacyHeaders(response: Response, info: RateLimitInfo) {
 export function setStandardHeadersDraft6(
 	response: Response,
 	info: RateLimitInfo,
+	windowMs: number,
 ) {
+	const windowSeconds = Math.ceil(windowMs / 1000)
+	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
 	response.setHeader('RateLimit-Limit', info.limit)
 	response.setHeader('RateLimit-Remaining', info.remaining)
 

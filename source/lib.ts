@@ -354,7 +354,7 @@ const rateLimit = (
 			// if enabled.
 			if (config.standardHeaders && !response.headersSent) {
 				if (config.standardHeaders === 'draft-6') {
-					setStandardHeadersDraft6(response, info)
+					setStandardHeadersDraft6(response, info, config.windowMs)
 				} else if (config.standardHeaders === 'draft-7') {
 					// Todo: validation check to ensure a reset time is provided by the store
 					setStandardHeadersDraft7(response, info, config.windowMs)
@@ -410,6 +410,7 @@ const rateLimit = (
 					(config.legacyHeaders || config.standardHeaders) &&
 					!response.headersSent
 				) {
+					// Todo: use the reset time here if possible
 					response.setHeader('Retry-After', Math.ceil(config.windowMs / 1000))
 				}
 
