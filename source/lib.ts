@@ -12,9 +12,16 @@ import type {
 	ValueDeterminingMiddleware,
 	RateLimitExceededEventHandler,
 	RateLimitReachedEventHandler,
+	DraftHeadersVersion,
+	RateLimitInfo,
 } from './types.js'
 import { Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
+import {
+	setLegacyHeaders,
+	setStandardHeadersDraft6,
+	setStandardHeadersDraft7,
+} from './headers.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -97,7 +104,7 @@ type Configuration = {
 	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
 	legacyHeaders: boolean
-	standardHeaders: boolean
+	standardHeaders: false | DraftHeadersVersion
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
@@ -173,6 +180,15 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
+	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
+	if (
+		standardHeaders === true ||
+		(standardHeaders === undefined &&
+			notUndefinedOptions.draft_polli_ratelimit_headers)
+	) {
+		standardHeaders = 'draft-6'
+	}
+
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const config: Configuration = {
@@ -181,7 +197,6 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
 		legacyHeaders: passedOptions.headers ?? true,
-		standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
@@ -225,8 +240,10 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
-		// Allow the options object to be overriden by the options passed to the middleware.
+		// Allow the default options to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
+		// StandardHeaders is determined above to ensure the value is valid.
+		standardHeaders,
 		// Note that this field is declared after the user's options are spread in,
 		// so that this field doesn't get overriden with an un-promisified store!
 		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
@@ -318,47 +335,29 @@ const rateLimit = (
 			const maxHits = await retrieveQuota
 			config.validations.max(maxHits)
 
-			// Set the rate limit information on the augmented request object
-			augmentedRequest[config.requestPropertyName] = {
+			const info: RateLimitInfo = {
 				limit: maxHits,
 				current: totalHits,
 				remaining: Math.max(maxHits - totalHits, 0),
 				resetTime,
 			}
 
+			// Set the rate limit information on the augmented request object
+			augmentedRequest[config.requestPropertyName] = info
+
 			// Set the X-RateLimit headers on the response object if enabled
 			if (config.legacyHeaders && !response.headersSent) {
-				response.setHeader('X-RateLimit-Limit', maxHits)
-				response.setHeader(
-					'X-RateLimit-Remaining',
-					augmentedRequest[config.requestPropertyName].remaining,
-				)
-
-				// If we have a resetTime, also provide the current date to help avoid
-				// issues with incorrect clocks.
-				if (resetTime instanceof Date) {
-					response.setHeader('Date', new Date().toUTCString())
-					response.setHeader(
-						'X-RateLimit-Reset',
-						Math.ceil(resetTime.getTime() / 1000),
-					)
-				}
+				setLegacyHeaders(response, info)
 			}
 
 			// Set the standardized RateLimit headers on the response object
 			// if enabled.
 			if (config.standardHeaders && !response.headersSent) {
-				response.setHeader('RateLimit-Limit', maxHits)
-				response.setHeader(
-					'RateLimit-Remaining',
-					augmentedRequest[config.requestPropertyName].remaining,
-				)
-
-				if (resetTime) {
-					const deltaSeconds = Math.ceil(
-						(resetTime.getTime() - Date.now()) / 1000,
-					)
-					response.setHeader('RateLimit-Reset', Math.max(0, deltaSeconds))
+				if (config.standardHeaders === 'draft-6') {
+					setStandardHeadersDraft6(response, info)
+				} else if (config.standardHeaders === 'draft-7') {
+					// Todo: validation check to ensure a reset time is provided by the store
+					setStandardHeadersDraft7(response, info, config.windowMs)
 				}
 			}
 

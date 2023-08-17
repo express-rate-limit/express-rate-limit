@@ -173,6 +173,8 @@ export type Store = {
 	localKeys?: boolean
 }
 
+export type DraftHeadersVersion = 'draft-6' | 'draft-7'
+
 /**
  * The configuration options for the rate limiter.
  */
@@ -223,7 +225,7 @@ export type Options = {
 	 *
 	 * Defaults to `false` (for backward compatibility, but its use is recommended).
 	 */
-	standardHeaders: boolean
+	standardHeaders: boolean | DraftHeadersVersion
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.

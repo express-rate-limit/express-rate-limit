@@ -117,7 +117,7 @@ import { rateLimit } from 'express-rate-limit'
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
@@ -136,7 +136,7 @@ import { rateLimit } from 'express-rate-limit'
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
@@ -153,7 +153,7 @@ import { rateLimit } from 'express-rate-limit'
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
@@ -165,7 +165,7 @@ const createAccountLimiter = rateLimit({
 	max: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
 	message:
 		'Too many accounts created from this IP, please try again after an hour',
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
@@ -185,7 +185,8 @@ const redisClient = new RedisClient()
 const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	store: new RedisStore({
 		/* ... */
 	}), // Use the external store
@@ -329,16 +330,31 @@ Defaults to `true` (for backward compatibility).
 
 ### `standardHeaders`
 
-> `boolean`
+> `boolean` | `'draft-6'` | `'draft-7'`
 
 Whether to enable support for headers conforming to the
-[ratelimit standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/main/draft-ietf-httpapi-ratelimit-headers.md)
-adopted by the IETF (`RateLimit-Limit`, `RateLimit-Remaining`, and, if the store
-supports it, `RateLimit-Reset`). If set to `true`, the middleware also sends the
-`Retry-After` header on all blocked requests. May be used in conjunction with,
-or instead of the `legacyHeaders` option.
+[RateLimit header fields for HTTP standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers)
+adopted by the IETF.
 
-Defaults to `false` (for backward compatibility, but its use is recommended).
+If set to `draft-6`, separate `RateLimit-Limit`, `RateLimit-Remaining`, and, if
+the store supports it, `RateLimit-Reset` headers are set on the response, in
+accordance with
+[draft-ietf-httpapi-ratelimit-headers-06](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-06).
+
+If set to `draft-7`, a combined `RateLimit` header is set containing all values,
+and a `RateLimit-Policy` header is set, in accordiance with
+[draft-ietf-httpapi-ratelimit-headers-06](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07).
+
+If set to `true`, it is treated as `draft-6`, however this behavior may change
+in a future semver major release.
+
+If set to any truthy value, the middleware also sends the `Retry-After` header
+on all blocked requests.
+
+The `standardHeaders` option may be used in conjunction with, or instead of the
+`legacyHeaders` option.
+
+Defaults to `false`.
 
 > Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
 
