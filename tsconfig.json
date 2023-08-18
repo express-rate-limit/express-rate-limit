@@ -1,13 +1,5 @@
 {
 	"include": ["source/"],
 	"exclude": ["node_modules/"],
-	"compilerOptions": {
-		"declaration": true,
-		"strict": true,
-		"noUnusedLocals": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"esModuleInterop": true,
-		"moduleResolution": "node"
-	}
+	"extends": "@express-rate-limit/tsconfig"
 }

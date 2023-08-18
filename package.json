@@ -66,7 +66,7 @@
 		"format:code": "npm run lint:code -- --fix",
 		"format:rest": "npm run lint:rest -- --write .",
 		"format": "run-s format:*",
-		"test:lib": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest",
+		"test:lib": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.json",
 		"test:ext": "cd test/external/ && bash run-all-tests",
 		"test": "run-s lint test:lib",
 		"pre-commit": "lint-staged",
@@ -76,6 +76,8 @@
 		"express": "^4 || ^5"
 	},
 	"devDependencies": {
+		"@express-rate-limit/prettier": "1.0.0",
+		"@express-rate-limit/tsconfig": "1.0.0",
 		"@jest/globals": "29.6.1",
 		"@types/express": "4.17.17",
 		"@types/jest": "29.5.2",
@@ -117,35 +119,7 @@
 			}
 		]
 	},
-	"prettier": {
-		"semi": false,
-		"useTabs": true,
-		"singleQuote": true,
-		"bracketSpacing": true,
-		"trailingComma": "all",
-		"proseWrap": "always"
-	},
-	"jest": {
-		"preset": "ts-jest/presets/default-esm",
-		"collectCoverage": true,
-		"collectCoverageFrom": [
-			"source/**/*.ts"
-		],
-		"testTimeout": 30000,
-		"testMatch": [
-			"**/test/library/**/*-test.[jt]s?(x)"
-		],
-		"moduleFileExtensions": [
-			"js",
-			"jsx",
-			"json",
-			"ts",
-			"tsx"
-		],
-		"moduleNameMapper": {
-			"^(\\.{1,2}/.*)\\.js$": "$1"
-		}
-	},
+	"prettier": "@express-rate-limit/prettier",
 	"lint-staged": {
 		"{source,test}/**/*.ts": "xo --ignore test/external/ --fix",
 		"**/*.{json,yaml,md}": "prettier --ignore-path .gitignore --ignore-unknown --write "
