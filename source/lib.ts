@@ -21,6 +21,7 @@ import {
 	setLegacyHeaders,
 	setStandardHeadersDraft6,
 	setStandardHeadersDraft7,
+	setRetryAfter,
 } from './headers.js'
 
 /**
@@ -406,12 +407,8 @@ const rateLimit = (
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function
 			if (maxHits && totalHits > maxHits) {
-				if (
-					(config.legacyHeaders || config.standardHeaders) &&
-					!response.headersSent
-				) {
-					// Todo: use the reset time here if possible
-					response.setHeader('Retry-After', Math.ceil(config.windowMs / 1000))
+				if (config.legacyHeaders || config.standardHeaders) {
+					setRetryAfter(response, info, config.windowMs)
 				}
 
 				config.handler(request, response, next, options)

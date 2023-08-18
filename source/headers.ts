@@ -5,6 +5,10 @@ import type { RateLimitInfo } from './types.js'
  * Sets X-RateLimit-* headers on a response
  */
 export function setLegacyHeaders(response: Response, info: RateLimitInfo) {
+	if (response.headersSent) {
+		return
+	}
+
 	response.setHeader('X-RateLimit-Limit', info.limit)
 	response.setHeader('X-RateLimit-Remaining', info.remaining)
 
@@ -27,6 +31,10 @@ export function setStandardHeadersDraft6(
 	info: RateLimitInfo,
 	windowMs: number,
 ) {
+	if (response.headersSent) {
+		return
+	}
+
 	const windowSeconds = Math.ceil(windowMs / 1000)
 	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
 	response.setHeader('RateLimit-Limit', info.limit)
@@ -47,6 +55,10 @@ export function setStandardHeadersDraft7(
 	info: RateLimitInfo,
 	windowMs: number,
 ) {
+	if (response.headersSent) {
+		return
+	}
+
 	const windowSeconds = Math.ceil(windowMs / 1000)
 	let resetSeconds: number
 	const { resetTime } = info
@@ -55,7 +67,7 @@ export function setStandardHeadersDraft7(
 		resetSeconds = Math.max(0, deltaSeconds)
 	} else {
 		// This isn't really correct, but the field is required by the spec, so this is the best we can do.
-		// Validator should have already logged an error by this point.
+		// Validator should have already logged a warning by this point.
 		resetSeconds = windowSeconds
 	}
 
@@ -64,4 +76,29 @@ export function setStandardHeadersDraft7(
 		'RateLimit',
 		`limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds}`,
 	)
+}
+
+/**
+ * Sets the Retry-After header
+ */
+export function setRetryAfter(
+	response: Response,
+	info: RateLimitInfo,
+	windowMs: number,
+) {
+	if (response.headersSent) {
+		return
+	}
+
+	const windowSeconds = Math.ceil(windowMs / 1000)
+	const { resetTime } = info
+	let resetSeconds: number
+	if (resetTime) {
+		const deltaSeconds = Math.ceil((resetTime.getTime() - Date.now()) / 1000)
+		resetSeconds = Math.max(0, deltaSeconds)
+	} else {
+		resetSeconds = windowSeconds
+	}
+
+	response.setHeader('Retry-After', resetSeconds)
 }
