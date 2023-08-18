@@ -357,8 +357,12 @@ const rateLimit = (
 				if (config.standardHeaders === 'draft-6') {
 					setStandardHeadersDraft6(response, info, config.windowMs)
 				} else if (config.standardHeaders === 'draft-7') {
-					// Todo: validation check to ensure a reset time is provided by the store
-					setStandardHeadersDraft7(response, info, config.windowMs)
+					setStandardHeadersDraft7(
+						response,
+						info,
+						config.windowMs,
+						config.validations,
+					)
 				}
 			}
 

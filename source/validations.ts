@@ -216,6 +216,24 @@ export class Validations {
 		})
 	}
 
+	/**
+	 * Warns the user when the selected headers option requires a reset time but the store does not provide one
+	 *
+	 * @param resetTime {Date|undefined} - Time when the user's rate limit count will be reset
+	 *
+	 * @returns {void}
+	 */
+	headersResetTime(resetTime?: Date) {
+		this.wrap(() => {
+			if (!resetTime) {
+				throw new ChangeWarning(
+					'WRN_ERL_HEADERS_NO_RESET',
+					`standardHeaders:  'draft-7' requires a resetTime, but the store did not provide one. The windowMs value will be used instead, which may cause clients to wait longer than necessary.`,
+				)
+			}
+		})
+	}
+
 	private wrap(validation: () => void) {
 		if (!this.enabled) {
 			return

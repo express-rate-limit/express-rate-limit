@@ -1,5 +1,6 @@
 import type { Response } from 'express'
 import type { RateLimitInfo } from './types.js'
+import type { Validations } from './validations.js'
 
 /**
  * Sets X-RateLimit-* headers on a response
@@ -54,7 +55,10 @@ export function setStandardHeadersDraft7(
 	response: Response,
 	info: RateLimitInfo,
 	windowMs: number,
+	validations: Validations,
 ) {
+	validations.headersResetTime(info.resetTime)
+
 	if (response.headersSent) {
 		return
 	}
