@@ -1,5 +1,4 @@
 {
-	"verbose": true,
 	"rootDir": "../",
 	"preset": "ts-jest/presets/default-esm",
 	"collectCoverage": true,
