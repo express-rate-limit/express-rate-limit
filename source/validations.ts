@@ -226,8 +226,8 @@ export class Validations {
 	headersResetTime(resetTime?: Date) {
 		this.wrap(() => {
 			if (!resetTime) {
-				throw new ChangeWarning(
-					'WRN_ERL_HEADERS_NO_RESET',
+				throw new ValidationError(
+					'ERR_ERL_HEADERS_NO_RESET',
 					`standardHeaders:  'draft-7' requires a resetTime, but the store did not provide one. The windowMs value will be used instead, which may cause clients to wait longer than necessary.`,
 				)
 			}

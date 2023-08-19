@@ -174,9 +174,21 @@ describe('validations tests', () => {
 			expect(console.error).not.toBeCalled()
 		})
 
-		it('should not  log a warning if onLimitReached is unset', () => {
+		it('should not log a warning if onLimitReached is unset', () => {
 			validations.onLimitReached(undefined)
 			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
+	describe('headersResetTime', () => {
+		it('should log an error if resetTime is omitted', () => {
+			validations.headersResetTime(undefined)
+			expect(console.error).toBeCalled()
+		})
+
+		it('should not log an error if resetTime is set', () => {
+			validations.headersResetTime(new Date())
 			expect(console.error).not.toBeCalled()
 		})
 	})
