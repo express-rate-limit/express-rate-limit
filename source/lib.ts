@@ -182,8 +182,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Warn for the deprecated option.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
-	// The default value for the `standardHeaders` option is `true`, which
-	// resolves to `draft-6`. Note that the recommended value is `draft-7`.
+	// The default value for the `standardHeaders` option is `false`. If it is set
+	// to `true`, resolve it as `draft-7`. Note that the recommended value is `draft-7`.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (
 		standardHeaders === true ||
@@ -354,8 +354,8 @@ const rateLimit = (
 				setLegacyHeaders(response, info)
 			}
 
-			// Set the standardized `RateLimit` and `RateLimit-Policy` headers on the
-			// response object if enabled.
+			// Set the standardized `RateLimit-*` headers on the response object if
+			// enabled.
 			if (config.standardHeaders && !response.headersSent) {
 				if (config.standardHeaders === 'draft-6') {
 					setDraft6Headers(response, info, config.windowMs)

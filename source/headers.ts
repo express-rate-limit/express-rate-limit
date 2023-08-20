@@ -1,5 +1,5 @@
 // /source/headers.ts
-// The header parsing and setting functions
+// The header setting functions
 
 import type { Response } from 'express'
 import type { RateLimitInfo } from './types.js'
