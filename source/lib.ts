@@ -15,14 +15,14 @@ import type {
 	DraftHeadersVersion,
 	RateLimitInfo,
 } from './types.js'
-import { Validations } from './validations.js'
-import MemoryStore from './memory-store.js'
 import {
 	setLegacyHeaders,
-	setStandardHeadersDraft6,
-	setStandardHeadersDraft7,
-	setRetryAfter,
+	setDraft6Headers,
+	setDraft7Headers,
+	setRetryAfterHeader,
 } from './headers.js'
+import { Validations } from './validations.js'
+import MemoryStore from './memory-store.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -176,11 +176,14 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedOptions(passedOptions)
 
-	// Create the validator before even parsing the rest of the options
+	// Create the validator before even parsing the rest of the options.
 	const validations = new Validations(notUndefinedOptions?.validate ?? true)
 
+	// Warn for the deprecated option.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
+	// The default value for the `standardHeaders` option is `true`, which
+	// resolves to `draft-6`. Note that the recommended value is `draft-7`.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (
 		standardHeaders === true ||
@@ -243,7 +246,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		): void {},
 		// Allow the default options to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
-		// StandardHeaders is determined above to ensure the value is valid.
+		// `standardHeaders` is resolved into a draft version above, use that.
 		standardHeaders,
 		// Note that this field is declared after the user's options are spread in,
 		// so that this field doesn't get overriden with an un-promisified store!
@@ -346,23 +349,19 @@ const rateLimit = (
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[config.requestPropertyName] = info
 
-			// Set the X-RateLimit headers on the response object if enabled
+			// Set the `X-RateLimit` headers on the response object if enabled.
 			if (config.legacyHeaders && !response.headersSent) {
 				setLegacyHeaders(response, info)
 			}
 
-			// Set the standardized RateLimit headers on the response object
-			// if enabled.
+			// Set the standardized `RateLimit` and `RateLimit-Policy` headers on the
+			// response object if enabled.
 			if (config.standardHeaders && !response.headersSent) {
 				if (config.standardHeaders === 'draft-6') {
-					setStandardHeadersDraft6(response, info, config.windowMs)
+					setDraft6Headers(response, info, config.windowMs)
 				} else if (config.standardHeaders === 'draft-7') {
-					setStandardHeadersDraft7(
-						response,
-						info,
-						config.windowMs,
-						config.validations,
-					)
+					config.validations.headersResetTime(info.resetTime)
+					setDraft7Headers(response, info, config.windowMs)
 				}
 			}
 
@@ -409,10 +408,10 @@ const rateLimit = (
 			config.validations.disable()
 
 			// If the client has exceeded their rate limit, set the Retry-After header
-			// and call the `handler` function
+			// and call the `handler` function.
 			if (maxHits && totalHits > maxHits) {
 				if (config.legacyHeaders || config.standardHeaders) {
-					setRetryAfter(response, info, config.windowMs)
+					setRetryAfterHeader(response, info, config.windowMs)
 				}
 
 				config.handler(request, response, next, options)

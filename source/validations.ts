@@ -217,9 +217,10 @@ export class Validations {
 	}
 
 	/**
-	 * Warns the user when the selected headers option requires a reset time but the store does not provide one
+	 * Warns the user when the selected headers option requires a reset time but
+	 * the store does not provide one.
 	 *
-	 * @param resetTime {Date|undefined} - Time when the user's rate limit count will be reset
+	 * @param resetTime {Date | undefined} - The timestamp when the client's hit count will be reset.
 	 *
 	 * @returns {void}
 	 */
@@ -228,7 +229,7 @@ export class Validations {
 			if (!resetTime) {
 				throw new ValidationError(
 					'ERR_ERL_HEADERS_NO_RESET',
-					`standardHeaders:  'draft-7' requires a resetTime, but the store did not provide one. The windowMs value will be used instead, which may cause clients to wait longer than necessary.`,
+					`standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`,
 				)
 			}
 		})

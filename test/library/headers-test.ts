@@ -1,18 +1,17 @@
 // /test/headers-test.ts
 // Tests whether the headers sent back by the middleware
 
+import type { Response } from 'express'
 import { jest } from '@jest/globals'
 import { agent as request } from 'supertest'
-import type { Response } from 'express'
 import rateLimit from '../../source/index.js'
+import type { RateLimitInfo } from '../../source/types.js'
 import {
 	setLegacyHeaders,
-	setStandardHeadersDraft6,
-	setStandardHeadersDraft7,
-	setRetryAfter,
+	setDraft6Headers,
+	setDraft7Headers,
+	setRetryAfterHeader,
 } from '../../source/headers.js'
-import type { RateLimitInfo } from '../../source/types.js'
-import { Validations } from '../../source/validations.js'
 import { createServer } from './helpers/create-server.js'
 
 describe('headers test', () => {
@@ -24,14 +23,14 @@ describe('headers test', () => {
 				legacyHeaders: true,
 			}),
 		)
-		const expectedResetTimestamp = Math.ceil(
-			(Date.now() + 60 * 1000) / 1000,
-		).toString()
+
+		const oneMinLater = Date.now() + 60 * 1000
+		const expectedResetTimestamp = Math.ceil(oneMinLater / 1000).toString()
 		const resetRegexp = new RegExp(
 			`^${expectedResetTimestamp.slice(
 				0,
 				Math.max(0, expectedResetTimestamp.length - 2),
-			)}\\d\\d$`,
+			)}\\d\\d$`, // Expect the same seconds, not same milliseconds.
 		)
 
 		await request(app)
@@ -101,12 +100,11 @@ describe('headers test', () => {
 			resetTime: new Date(),
 		}
 		const windowMs = 60 * 1000
-		const validatons: Validations = new Validations(false)
 
 		setLegacyHeaders(response, info)
-		setStandardHeadersDraft6(response, info, windowMs)
-		setStandardHeadersDraft7(response, info, windowMs, validatons)
-		setRetryAfter(response, info, windowMs)
+		setDraft6Headers(response, info, windowMs)
+		setDraft7Headers(response, info, windowMs)
+		setRetryAfterHeader(response, info, windowMs)
 
 		expect(response.setHeader).not.toBeCalled()
 	})
