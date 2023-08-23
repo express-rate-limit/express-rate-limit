@@ -8,6 +8,10 @@ type Client = {
 	totalHits: number
 	resetTime: Date
 }
+
+const average = (array: number[]) =>
+	array.reduce((a, b) => a + b) / array.length
+
 /**
  * A `Store` that stores the hit count for each client in memory.
  *
@@ -23,22 +27,30 @@ export default class MemoryStore implements Store {
 	 * These two maps store usage (requests) and reset time by key (IP)
 	 *
 	 * They are split into two to avoid having to iterate through the entire set to determine which ones need reset.
-	 * Instead, Clients are moved from previous to current as new requests come in from them.
-	 * Once windowMS has elapsed, all clients left in previous are reset at once.
+	 * Instead, Clients are moved from previous to current as new requests come in.
+	 * Once windowMS has elapsed, all clients left in previous are known to be expired.
+	 * At that point, the cache pool is filled from previous, and any remaining clients are cleared.
 	 *
 	 */
-	previous!: Map<string, Client>
-	current!: Map<string, Client>
+	previous = new Map<string, Client>()
+	current = new Map<string, Client>()
 
 	/**
-	 * Pool of unused clients, kept to reduce the number of objects created and destroyed
+	 * Cache of unused clients, kept to reduce the number of objects created and destroyed.
+	 *
+	 * Improves performance, at the expense of a small amount of RAM.
+	 *
+	 * Each individual entry takes up 152 bytes.
+	 * In one benchmark, the total time taken to handle 100M requests was reduced from 70.184s to 47.862s (~32% improvement) with ~5.022 MB extra RAM used.
+	 * .
 	 */
-	pool!: Client[]
+	pool: Client[] = []
 
 	/**
-	 * Maximum number of unused clients to keep in the pool
+	 * Used to calculate how many entries to keep in the pool
 	 */
-	poolSize = 100
+	newClients = 0
+	recentNew: number[] = []
 
 	/**
 	 * Reference to the active timer.
@@ -52,20 +64,6 @@ export default class MemoryStore implements Store {
 	localKeys = true
 
 	/**
-	 * Create a new MemoryStore with an optional custom poolSize
-	 *
-	 * Note that the windowMS option is passed to init() by express-rate-limit
-	 *
-	 * @param [options]
-	 * @param [options.poolSize] - Maximum number of unused objects to keep around. Increase to reduce garbage collection.
-	 */
-	constructor({ poolSize }: { poolSize?: number } = {}) {
-		if (typeof poolSize === 'number') {
-			this.poolSize = poolSize
-		}
-	}
-
-	/**
 	 * Method that initializes the store.
 	 *
 	 * @param options {Options} - The options used to setup the middleware.
@@ -73,13 +71,6 @@ export default class MemoryStore implements Store {
 	init(options: Options): void {
 		// Get the duration of a window from the options.
 		this.windowMs = options.windowMs
-
-		// Initialise the hit counter map
-		this.previous = new Map()
-		this.current = new Map()
-
-		// Initialize the spare client pool
-		this.pool = []
 
 		// Indicates that init was called more than once.
 		// Could happen if a store was shared between multiple instances.
@@ -89,7 +80,7 @@ export default class MemoryStore implements Store {
 
 		// Reset all clients left in previous every `windowMs`.
 		this.interval = setInterval(() => {
-			this.resetPrevious()
+			this.clearExpired()
 		}, this.windowMs)
 
 		// Cleaning up the interval will be taken care of by the `shutdown` method.
@@ -172,11 +163,20 @@ export default class MemoryStore implements Store {
 	/**
 	 * Refill the pool, set previous to current, reset current
 	 */
-	private resetPrevious() {
-		const temporary = this.previous
-		this.previous = this.current
-		let poolSpace = this.poolSize - this.pool.length
-		for (const client of temporary.values()) {
+	private clearExpired() {
+		// At this point, all clients in previous are expired
+
+		// calculate the target pool size
+		this.recentNew.push(this.newClients)
+		if (this.recentNew.length > 10) this.recentNew.shift()
+		this.newClients = 0
+		const targetPoolSize = Math.round(average(this.recentNew))
+
+		// Calculate how many entries to potentially copy to the pool
+		let poolSpace = targetPoolSize - this.pool.length
+
+		// Fill up the pool with expired clients
+		for (const client of this.previous.values()) {
 			if (poolSpace > 0) {
 				this.pool.push(client)
 				poolSpace--
@@ -185,7 +185,12 @@ export default class MemoryStore implements Store {
 			}
 		}
 
-		temporary.clear()
+		// Clear all expired clients from previous
+		this.previous.clear()
+
+		// Swap previous and temporary
+		const temporary = this.previous
+		this.previous = this.current
 		this.current = temporary
 	}
 
@@ -205,9 +210,11 @@ export default class MemoryStore implements Store {
 		} else if (this.pool.length > 0) {
 			client = this.pool.pop()!
 			this.resetClient(client)
+			this.newClients++
 		} else {
 			client = { totalHits: 0, resetTime: new Date() }
 			this.resetClient(client)
+			this.newClients++
 		}
 
 		this.current.set(key, client)
