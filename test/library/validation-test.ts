@@ -174,8 +174,26 @@ describe('validations tests', () => {
 			expect(console.error).not.toBeCalled()
 		})
 
-		it('should not  log a warning if onLimitReached is unset', () => {
+		it('should not log a warning if onLimitReached is unset', () => {
 			validations.onLimitReached(undefined)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
+	describe('draft_polli_ratelimit_headers', () => {
+		it('should log a warning if draft_polli_ratelimit_headers is set', () => {
+			validations.draftPolliHeaders(true)
+			expect(console.warn).toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should not log a warning if draft_polli_ratelimit_headers is unset or false', () => {
+			validations.draftPolliHeaders(false)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+
+			validations.draftPolliHeaders(undefined)
 			expect(console.warn).not.toBeCalled()
 			expect(console.error).not.toBeCalled()
 		})
