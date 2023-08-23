@@ -182,8 +182,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Warn for the deprecated option.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
-	// The default value for the `standardHeaders` option is `false`. 
-	// If set to `true`, it resolve to `draft-6`. 
+	// The default value for the `standardHeaders` option is `false`.
+	// If set to `true`, it resolve to `draft-6`.
 	// The deprecated `draft_polli_ratelimit_headers` option also resolves to `draft-6`.
 	// `draft-7` (recommended) is used only if explicitly set.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
