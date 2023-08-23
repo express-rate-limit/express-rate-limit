@@ -198,14 +198,14 @@ export class Validations {
 	}
 
 	/**
-	 * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated and will be removed in the next
-	 * major release.
+	 * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated
+	 * and will be removed in the next major release.
 	 *
-	 * @param draft_polli_ratelimit_headers {boolean|undefined} - Initial setting to enable standard headers.
+	 * @param draft_polli_ratelimit_headers {boolean|undefined} - The now-deprecated setting that was used to enable standard headers.
 	 *
 	 * @returns {void}
 	 */
-	draftPolliRatelimitHeaders(draft_polli_ratelimit_headers?: boolean) {
+	draftPolliHeaders(draft_polli_ratelimit_headers?: boolean) {
 		this.wrap(() => {
 			if (draft_polli_ratelimit_headers) {
 				throw new ChangeWarning(

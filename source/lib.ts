@@ -171,7 +171,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Create the validator before even parsing the rest of the options
 	const validations = new Validations(notUndefinedOptions?.validate ?? true)
 
-	validations.draftPolliRatelimitHeaders(
+	validations.draftPolliHeaders(
 		notUndefinedOptions.draft_polli_ratelimit_headers,
 	)
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
