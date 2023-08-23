@@ -109,7 +109,7 @@ export default class MemoryStore implements Store {
 		const client = this.getClient(key)
 
 		const now = Date.now()
-		if (client.resetTime.getTime() < now) {
+		if (client.resetTime.getTime() <= now) {
 			this.resetClient(client, now)
 		}
 
@@ -175,7 +175,7 @@ export default class MemoryStore implements Store {
 	private resetPrevious() {
 		const temporary = this.previous
 		this.previous = this.current
-		let poolSpace = this.pool.length - this.poolSize
+		let poolSpace = this.poolSize - this.pool.length
 		for (const client of temporary.values()) {
 			if (poolSpace > 0) {
 				this.pool.push(client)
