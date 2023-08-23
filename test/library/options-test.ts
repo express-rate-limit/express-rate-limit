@@ -21,6 +21,7 @@ describe('options test', () => {
 		}).toThrowError(/store/)
 	})
 
+	// TODO: Update in v7.
 	it('should allow the use of pre-6.x headers options', async () => {
 		class MockStore implements Store {
 			options!: Options

@@ -198,6 +198,25 @@ export class Validations {
 	}
 
 	/**
+	 * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated
+	 * and will be removed in the next major release.
+	 *
+	 * @param draft_polli_ratelimit_headers {boolean|undefined} - The now-deprecated setting that was used to enable standard headers.
+	 *
+	 * @returns {void}
+	 */
+	draftPolliHeaders(draft_polli_ratelimit_headers?: boolean) {
+		this.wrap(() => {
+			if (draft_polli_ratelimit_headers) {
+				throw new ChangeWarning(
+					'WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS',
+					`The draft_polli_ratelimit_headers configuration option is deprecated and will be removed in express-rate-limit v7, please set standardHeaders: 'draft-6' instead.`,
+				)
+			}
+		})
+	}
+
+	/**
 	 * Warns the user that the `onLimitReached` option is deprecated and will be removed in the next
 	 * major release.
 	 *
