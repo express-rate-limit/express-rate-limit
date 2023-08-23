@@ -5,7 +5,9 @@ import { jest } from '@jest/globals'
 import MemoryStore from '../../source/memory-store.js'
 import type { Options } from '../../source/index.js'
 
-describe('memory store test', () => {
+const minute = 60 * 1000
+
+describe.only('memory store test', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
 		jest.spyOn(global, 'clearInterval')
@@ -17,7 +19,7 @@ describe('memory store test', () => {
 
 	it('sets the value to 1 on first call to `increment`', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		const key = 'test-store'
 
 		const { totalHits } = await store.increment(key)
@@ -26,7 +28,7 @@ describe('memory store test', () => {
 
 	it('increments the key for the store when `increment` is called', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		const key = 'test-store'
 
 		await store.increment(key)
@@ -37,7 +39,7 @@ describe('memory store test', () => {
 
 	it('decrements the key for the store when `decrement` is called', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		const key = 'test-store'
 
 		await store.increment(key)
@@ -50,7 +52,7 @@ describe('memory store test', () => {
 
 	it('resets the count for a key in the store when `resetKey` is called', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		const key = 'test-store'
 
 		await store.increment(key)
@@ -62,7 +64,7 @@ describe('memory store test', () => {
 
 	it('resets the count for all keys in the store when `resetAll` is called', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		const keyOne = 'test-store-one'
 		const keyTwo = 'test-store-two'
 
@@ -78,7 +80,7 @@ describe('memory store test', () => {
 
 	it('clears the timer when `shutdown` is called', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		expect(store.interval).toBeDefined()
 		store.shutdown()
 		expect(clearInterval).toHaveBeenCalledWith(store.interval)

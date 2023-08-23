@@ -3,21 +3,11 @@
 
 import type { Store, Options, IncrementResponse } from './types.js'
 
-/**
- * Calculates the time when all hit counters will be reset.
- *
- * @param windowMs {number} - The duration of a window (in milliseconds).
- *
- * @returns {Date}
- *
- * @private
- */
-const calculateNextResetTime = (windowMs: number): Date => {
-	const resetTime = new Date()
-	resetTime.setMilliseconds(resetTime.getMilliseconds() + windowMs)
-	return resetTime
+// Client is similar to IncrementResponse, except that resetTime is always defined
+type Client = {
+	totalHits: number
+	resetTime: Date
 }
-
 /**
  * A `Store` that stores the hit count for each client in memory.
  *
@@ -30,16 +20,25 @@ export default class MemoryStore implements Store {
 	windowMs!: number
 
 	/**
-	 * The map that stores the number of hits for each client in memory.
+	 * These two maps store usage (requests) and reset time by key (IP)
+	 *
+	 * They are split into two to avoid having to iterate through the entire set to determine which ones need reset.
+	 * Instead, Clients are moved from previous to current as new requests come in from them.
+	 * Once windowMS has elapsed, all clients left in previous are reset at once.
+	 *
 	 */
-	hits!: {
-		[key: string]: number | undefined
-	}
+	previous!: Map<string, Client>
+	current!: Map<string, Client>
 
 	/**
-	 * The time at which all hit counts will be reset.
+	 * Pool of unused clients, kept to reduce the number of objects created and destroyed
 	 */
-	resetTime!: Date
+	pool!: Client[]
+
+	/**
+	 * Maximum number of unused clients to keep in the pool
+	 */
+	poolSize = 100
 
 	/**
 	 * Reference to the active timer.
@@ -53,6 +52,20 @@ export default class MemoryStore implements Store {
 	localKeys = true
 
 	/**
+	 * Create a new MemoryStore with an optional custom poolSize
+	 *
+	 * Note that the windowMS option is passed to init() by express-rate-limit
+	 *
+	 * @param [options]
+	 * @param [options.poolSize] - Maximum number of unused objects to keep around. Increase to reduce garbage collection.
+	 */
+	constructor({ poolSize }: { poolSize?: number } = {}) {
+		if (typeof poolSize === 'number') {
+			this.poolSize = poolSize
+		}
+	}
+
+	/**
 	 * Method that initializes the store.
 	 *
 	 * @param options {Options} - The options used to setup the middleware.
@@ -60,17 +73,25 @@ export default class MemoryStore implements Store {
 	init(options: Options): void {
 		// Get the duration of a window from the options.
 		this.windowMs = options.windowMs
-		// Then calculate the reset time using that.
-		this.resetTime = calculateNextResetTime(this.windowMs)
 
-		// Initialise the hit counter map.
-		this.hits = {}
+		// Initialise the hit counter map
+		this.previous = new Map()
+		this.current = new Map()
 
-		// Reset hit counts for ALL clients every `windowMs` - this will also
-		// re-calculate the `resetTime`
-		this.interval = setInterval(async () => {
-			await this.resetAll()
+		// Initialize the spare client pool
+		this.pool = []
+
+		// Indicates that init was called more than once.
+		// Could happen if a store was shared between multiple instances.
+		if (this.interval) {
+			clearTimeout(this.interval)
+		}
+
+		// Reset all clients left in previous every `windowMs`.
+		this.interval = setInterval(() => {
+			this.resetPrevious()
 		}, this.windowMs)
+
 		// Cleaning up the interval will be taken care of by the `shutdown` method.
 		if (this.interval.unref) this.interval.unref()
 	}
@@ -85,13 +106,16 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async increment(key: string): Promise<IncrementResponse> {
-		const totalHits = (this.hits[key] ?? 0) + 1
-		this.hits[key] = totalHits
+		const client = this.getClient(key)
 
-		return {
-			totalHits,
-			resetTime: this.resetTime,
+		const now = Date.now()
+		if (client.resetTime.getTime() < now) {
+			this.resetClient(client, now)
 		}
+
+		client.totalHits++
+
+		return client
 	}
 
 	/**
@@ -102,9 +126,9 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async decrement(key: string): Promise<void> {
-		const current = this.hits[key]
+		const client = this.getClient(key)
 
-		if (current) this.hits[key] = current - 1
+		if (client.totalHits > 1) client.totalHits--
 	}
 
 	/**
@@ -115,7 +139,8 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async resetKey(key: string): Promise<void> {
-		delete this.hits[key]
+		this.current.delete(key)
+		this.previous.delete(key)
 	}
 
 	/**
@@ -124,8 +149,8 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async resetAll(): Promise<void> {
-		this.hits = {}
-		this.resetTime = calculateNextResetTime(this.windowMs)
+		this.current.clear()
+		this.previous.clear()
 	}
 
 	/**
@@ -136,5 +161,56 @@ export default class MemoryStore implements Store {
 	 */
 	shutdown(): void {
 		clearInterval(this.interval)
+		void this.resetAll()
+	}
+
+	private resetClient(client: Client, now = Date.now()) {
+		client.totalHits = 0
+		client.resetTime.setTime(now + this.windowMs)
+	}
+
+	/**
+	 * Refill the pool, set previous to current, reset current
+	 */
+	private resetPrevious() {
+		const temporary = this.previous
+		this.previous = this.current
+		let poolSpace = this.pool.length - this.poolSize
+		for (const client of temporary.values()) {
+			if (poolSpace > 0) {
+				this.pool.push(client)
+				poolSpace--
+			} else {
+				break
+			}
+		}
+
+		temporary.clear()
+		this.current = temporary
+	}
+
+	/**
+	 * Retrieves or creates a client. Ensures it is in this.current
+	 * @param key IP or other key
+	 * @returns Client
+	 */
+	private getClient(key: string): Client {
+		if (this.current.has(key)) {
+			return this.current.get(key)!
+		}
+
+		let client
+		if (this.previous.has(key)) {
+			client = this.previous.get(key)!
+		} else if (this.pool.length > 0) {
+			client = this.pool.pop()!
+			this.resetClient(client)
+		} else {
+			client = { totalHits: 0, resetTime: new Date() }
+			this.resetClient(client)
+		}
+
+		this.current.set(key, client)
+		return client
 	}
 }
