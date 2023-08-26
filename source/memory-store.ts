@@ -3,13 +3,25 @@
 
 import type { Store, Options, IncrementResponse } from './types.js'
 
-// Client is similar to IncrementResponse, except that resetTime is always defined
+/**
+ * The record that stores information about a client - namely, how many times
+ * they have hit the endpoint, and when their hit count resets.
+ *
+ * Similar to `IncrementResponse`, except `resetTime` is a compulsory field.
+ */
 type Client = {
 	totalHits: number
 	resetTime: Date
 }
 
-const average = (array: number[]) =>
+/**
+ * Find the average of a list of numbers.
+ *
+ * @param array {number[]} - The list to find the average of.
+ *
+ * @returns {number} - The average.
+ */
+const average = (array: number[]): number =>
 	array.reduce((a, b) => a + b) / array.length
 
 /**
@@ -24,36 +36,37 @@ export default class MemoryStore implements Store {
 	windowMs!: number
 
 	/**
-	 * These two maps store usage (requests) and reset time by key (IP)
+	 * These two maps store usage (requests) and reset time by key (for example, IP
+	 * addresses or API keys).
 	 *
-	 * They are split into two to avoid having to iterate through the entire set to determine which ones need reset.
-	 * Instead, Clients are moved from previous to current as new requests come in.
-	 * Once windowMS has elapsed, all clients left in previous are known to be expired.
-	 * At that point, the cache pool is filled from previous, and any remaining clients are cleared.
-	 *
+	 * They are split into two to avoid having to iterate through the entire set to
+	 * determine which ones need reset. Instead, `Client`s are moved from `previous`
+	 * to `current` as they hit the endpoint. Once `windowMs` has elapsed, all clients
+	 * left in `previous`, i.e., those that have not made any recent requests, are
+	 * known to be expired. At that point, the cache pool is filled from `previous`,
+	 * and any remaining `Client`s are cleared from memory.
 	 */
 	previous = new Map<string, Client>()
 	current = new Map<string, Client>()
 
 	/**
-	 * Cache of unused clients, kept to reduce the number of objects created and destroyed.
+	 * The cache of unused clients, kept to reduce the number of objects created
+	 * and destroyed. Improves performance, at the expense of a small amount of RAM.
 	 *
-	 * Improves performance, at the expense of a small amount of RAM.
-	 *
-	 * Each individual entry takes up 152 bytes.
-	 * In one benchmark, the total time taken to handle 100M requests was reduced from 70.184s to 47.862s (~32% improvement) with ~5.022 MB extra RAM used.
-	 * .
+	 * Each entry takes up 152 bytes. In one benchmark, the total time taken to handle
+	 * 100M requests was reduced from 70.184s to 47.862s (~32% improvement) with
+	 * ~5.022 MB extra RAM used.
 	 */
 	pool: Client[] = []
 
 	/**
-	 * Used to calculate how many entries to keep in the pool
+	 * Used to calculate how many entries to keep in the pool.
 	 */
-	newClients = 0
-	recentNew: number[] = []
+	numberOfCreatedClients = 0
+	recentClientsCount: number[] = []
 
 	/**
-	 * Reference to the active timer.
+	 * A reference to the active timer.
 	 */
 	interval?: NodeJS.Timer
 
@@ -105,7 +118,6 @@ export default class MemoryStore implements Store {
 		}
 
 		client.totalHits++
-
 		return client
 	}
 
@@ -155,69 +167,96 @@ export default class MemoryStore implements Store {
 		void this.resetAll()
 	}
 
-	private resetClient(client: Client, now = Date.now()) {
+	/**
+	 * Recycles a client by setting its hit count to zero, and reset time to
+	 * `windowMs` milliseconds from now.
+	 *
+	 * NOT to be confused with `#resetKey()`, which removes a client from both the
+	 * `current` and `previous` maps.
+	 *
+	 * @param client {Client} - The client to recycle.
+	 * @param now {number} - The current time, to which the `windowMs` is added to get the `resetTime` for the client.
+	 *
+	 * @return {Client} - The modified client that was passed in, to allow for chaining.
+	 */
+	private resetClient(client: Client, now = Date.now()): Client {
 		client.totalHits = 0
 		client.resetTime.setTime(now + this.windowMs)
+
+		return client
 	}
 
 	/**
-	 * Refill the pool, set previous to current, reset current
+	 * Retrieves or creates a client, given a key. Also ensures that the client being
+	 * returned is in the `current` map.
+	 *
+	 * @param key {string} - The key under which the client is (or is to be) stored.
+	 *
+	 * @returns {Client} - The requested client.
 	 */
-	private clearExpired() {
-		// At this point, all clients in previous are expired
+	private getClient(key: string): Client {
+		// If we already have a client for that key in the `current` map, return it.
+		if (this.current.has(key)) return this.current.get(key)!
 
-		// calculate the target pool size
-		this.recentNew.push(this.newClients)
-		if (this.recentNew.length > 10) this.recentNew.shift()
-		this.newClients = 0
-		const targetPoolSize = Math.round(average(this.recentNew))
+		let client
+		if (this.previous.has(key)) {
+			// If it's in the `previous` map, return it and bump it up to the `current` map.
+			client = this.previous.get(key)!
+		} else if (this.pool.length > 0) {
+			// If it's in neither the `current` nor the `previous` maps, animate a corpse
+			// from the pool. Spoooooooooooky!
+			client = this.pool.pop()!
+			this.resetClient(client)
 
-		// Calculate how many entries to potentially copy to the pool
+			// Note that we created a new client.
+			this.numberOfCreatedClients++
+		} else {
+			// If the pool does not have spare corpses, pull one from thin air. Boo!
+			client = { totalHits: 0, resetTime: new Date() }
+			this.resetClient(client)
+
+			// Once more, note that we created a new client.
+			this.numberOfCreatedClients++
+		}
+
+		// Make sure the client is bumped into the `current` map, and return it.
+		this.current.set(key, client)
+		return client
+	}
+
+	/**
+	 * Refills the pool, demotes `current` clients to `previous`, and resets the
+	 * `current` map.
+	 *
+	 * This function is called every `windowMs`.
+	 */
+	private clearExpired(): void {
+		// At this point, all clients in previous are expired.
+
+		// Calculate the new `pool`'s size. The new size is basically the average of
+		// the number of clients created per `windowMs` in the last ten windows.
+		this.recentClientsCount.push(this.numberOfCreatedClients)
+		if (this.recentClientsCount.length > 10) this.recentClientsCount.shift()
+		this.numberOfCreatedClients = 0
+		const targetPoolSize = Math.round(average(this.recentClientsCount))
+
+		// Calculate how many entries to potentially copy to the pool.
 		let poolSpace = targetPoolSize - this.pool.length
 
-		// Fill up the pool with expired clients
+		// Fill up the pool with expired clients.
 		for (const client of this.previous.values()) {
 			if (poolSpace > 0) {
 				this.pool.push(client)
 				poolSpace--
-			} else {
-				break
-			}
+			} else break
 		}
 
-		// Clear all expired clients from previous
+		// Clear all expired clients from `previous`.
 		this.previous.clear()
 
 		// Swap previous and temporary
 		const temporary = this.previous
 		this.previous = this.current
 		this.current = temporary
-	}
-
-	/**
-	 * Retrieves or creates a client. Ensures it is in this.current
-	 * @param key IP or other key
-	 * @returns Client
-	 */
-	private getClient(key: string): Client {
-		if (this.current.has(key)) {
-			return this.current.get(key)!
-		}
-
-		let client
-		if (this.previous.has(key)) {
-			client = this.previous.get(key)!
-		} else if (this.pool.length > 0) {
-			client = this.pool.pop()!
-			this.resetClient(client)
-			this.newClients++
-		} else {
-			client = { totalHits: 0, resetTime: new Date() }
-			this.resetClient(client)
-			this.newClients++
-		}
-
-		this.current.set(key, client)
-		return client
 	}
 }
