@@ -97,17 +97,20 @@ describe('validations tests', () => {
 
 	describe('positiveHits', () => {
 		it('should log an error if hits is non-numeric', () => {
-			;(validations.positiveHits as (input: any) => void)(true)
+			validations.positiveHits(true)
 			expect(console.error).toBeCalled()
 		})
+
 		it('should log an error if hits is less than 1', () => {
 			validations.positiveHits(0)
 			expect(console.error).toBeCalled()
 		})
+
 		it('should log an error if hits is not an integer', () => {
 			validations.positiveHits(1.5)
 			expect(console.error).toBeCalled()
 		})
+
 		it('should not log an error if hits is a positive integer', () => {
 			validations.positiveHits(1)
 			expect(console.error).not.toBeCalled()
