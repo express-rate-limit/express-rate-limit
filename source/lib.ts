@@ -311,8 +311,12 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
-			// Increment the client's hit counter by one, and make sure it's only by one
+			// Increment the client's hit counter by one.
 			const { totalHits, resetTime } = await config.store.increment(key)
+			// Make sure that -
+			// - the hit count is incremented only by one.
+			// - the returned hit count is a positive integer.
+			config.validations.positiveHits(totalHits)
 			config.validations.singleCount(request, config.store, key)
 
 			// Get the quota (max number of hits) for each client
