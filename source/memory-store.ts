@@ -200,8 +200,9 @@ export default class MemoryStore implements Store {
 
 		let client
 		if (this.previous.has(key)) {
-			// If it's in the `previous` map, return it and bump it up to the `current` map.
+			// If it's in the `previous` map, take it out
 			client = this.previous.get(key)!
+			this.previous.delete(key)
 		} else if (this.pool.length > 0) {
 			// If it's in neither the `current` nor the `previous` maps, animate a corpse
 			// from the pool. Spoooooooooooky!
