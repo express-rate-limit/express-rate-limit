@@ -4,6 +4,7 @@
 import type { Response } from 'express'
 import { jest } from '@jest/globals'
 import { agent as request } from 'supertest'
+import { parseRateLimit } from 'ratelimit-header-parser'
 import rateLimit from '../../source/index.js'
 import type { RateLimitInfo } from '../../source/types.js'
 import {
@@ -88,7 +89,6 @@ describe('headers test', () => {
 	})
 
 	it('should not attempt to set headers if request.headersSent is true', () => {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const response: Response = {
 			headersSent: true,
 			setHeader: jest.fn(),
@@ -107,5 +107,63 @@ describe('headers test', () => {
 		setRetryAfterHeader(response, info, windowMs)
 
 		expect(response.setHeader).not.toBeCalled()
+	})
+
+	describe('ratelimit-header-parser compatibility', () => {
+		it('should emit legacy headers that ratelimit-header-parser can read', async () => {
+			const app = createServer(
+				rateLimit({
+					windowMs: 60 * 1000,
+					max: 5,
+					legacyHeaders: true,
+					standardHeaders: false,
+				}),
+			)
+			const response = await request(app).get('/').expect(200)
+			const rateLimitDetails = parseRateLimit(response as any)
+			expect(rateLimitDetails).toMatchObject({
+				used: 1,
+				remaining: 4,
+				limit: 5,
+				reset: expect.any(Date),
+			})
+		})
+		it('should emit standard draft-6 headers that ratelimit-header-parser can read', async () => {
+			const app = createServer(
+				rateLimit({
+					windowMs: 60 * 1000,
+					max: 5,
+					legacyHeaders: false,
+					standardHeaders: 'draft-6',
+				}),
+			)
+			const response = await request(app).get('/').expect(200)
+			const rateLimitDetails = parseRateLimit(response as any)
+			expect(rateLimitDetails).toMatchObject({
+				used: 1,
+				remaining: 4,
+				limit: 5,
+				reset: expect.any(Date),
+			})
+		})
+
+		it('should emit a standard draft 7 combined header that ratelimit-header-parser can parse', async () => {
+			const app = createServer(
+				rateLimit({
+					windowMs: 60 * 1000,
+					max: 5,
+					legacyHeaders: false,
+					standardHeaders: 'draft-7',
+				}),
+			)
+			const response = await request(app).get('/').expect(200)
+			const rateLimitDetails = parseRateLimit(response as any)
+			expect(rateLimitDetails).toMatchObject({
+				used: 1,
+				remaining: 4,
+				limit: 5,
+				reset: expect.any(Date),
+			})
+		})
 	})
 })
