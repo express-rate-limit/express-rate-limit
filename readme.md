@@ -357,6 +357,10 @@ on all blocked requests.
 The `standardHeaders` option may be used in conjunction with, or instead of the
 `legacyHeaders` option.
 
+ℹ️ Tip: use
+[ratelimit-header-parser](https://www.npmjs.com/package/ratelimit-header-parser)
+in clients to read/parse any form of express-rate-limit's headers.
+
 Defaults to `false`.
 
 > Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
