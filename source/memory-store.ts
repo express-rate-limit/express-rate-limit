@@ -62,8 +62,8 @@ export default class MemoryStore implements Store {
 	/**
 	 * Used to calculate how many entries to keep in the pool.
 	 */
-	numberOfCreatedClients = 0
-	recentClientsCount: number[] = []
+	uncachedCount = 0
+	uncachedCounts: number[] = []
 
 	/**
 	 * A reference to the active timer.
@@ -210,14 +210,14 @@ export default class MemoryStore implements Store {
 			this.resetClient(client)
 
 			// Note that we created a new client.
-			this.numberOfCreatedClients++
+			this.uncachedCount++
 		} else {
 			// If the pool does not have spare corpses, pull one from thin air. Boo!
 			client = { totalHits: 0, resetTime: new Date() }
 			this.resetClient(client)
 
 			// Once more, note that we created a new client.
-			this.numberOfCreatedClients++
+			this.uncachedCount++
 		}
 
 		// Make sure the client is bumped into the `current` map, and return it.
@@ -236,10 +236,10 @@ export default class MemoryStore implements Store {
 
 		// Calculate the new `pool`'s size. The new size is basically the average of
 		// the number of clients created per `windowMs` in the last ten windows.
-		this.recentClientsCount.push(this.numberOfCreatedClients)
-		if (this.recentClientsCount.length > 10) this.recentClientsCount.shift()
-		this.numberOfCreatedClients = 0
-		const targetPoolSize = Math.round(average(this.recentClientsCount))
+		this.uncachedCounts.push(this.uncachedCount)
+		if (this.uncachedCounts.length > 10) this.uncachedCounts.shift()
+		this.uncachedCount = 0
+		const targetPoolSize = Math.round(average(this.uncachedCounts))
 
 		// Calculate how many entries to potentially copy to the pool.
 		let poolSpace = targetPoolSize - this.pool.length
