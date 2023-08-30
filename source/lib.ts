@@ -12,7 +12,15 @@ import type {
 	ValueDeterminingMiddleware,
 	RateLimitExceededEventHandler,
 	RateLimitReachedEventHandler,
+	DraftHeadersVersion,
+	RateLimitInfo,
 } from './types.js'
+import {
+	setLegacyHeaders,
+	setDraft6Headers,
+	setDraft7Headers,
+	setRetryAfterHeader,
+} from './headers.js'
 import { Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
 
@@ -98,7 +106,7 @@ type Configuration = {
 	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
 	legacyHeaders: boolean
-	standardHeaders: boolean
+	standardHeaders: false | DraftHeadersVersion
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
@@ -169,13 +177,27 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedOptions(passedOptions)
 
-	// Create the validator before even parsing the rest of the options
+	// Create the validator before even parsing the rest of the options.
 	const validations = new Validations(notUndefinedOptions?.validate ?? true)
 
+	// Warn for the deprecated options.
 	validations.draftPolliHeaders(
 		notUndefinedOptions.draft_polli_ratelimit_headers,
 	)
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
+
+	// The default value for the `standardHeaders` option is `false`.
+	// If set to `true`, it resolve to `draft-6`.
+	// The deprecated `draft_polli_ratelimit_headers` option also resolves to `draft-6`.
+	// `draft-7` (recommended) is used only if explicitly set.
+	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
+	if (
+		standardHeaders === true ||
+		(standardHeaders === undefined &&
+			notUndefinedOptions.draft_polli_ratelimit_headers)
+	) {
+		standardHeaders = 'draft-6'
+	}
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
@@ -185,7 +207,6 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
 		legacyHeaders: passedOptions.headers ?? true,
-		standardHeaders: passedOptions.draft_polli_ratelimit_headers ?? false,
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
@@ -229,8 +250,10 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			_response: Response,
 			_optionsUsed: Options,
 		): void {},
-		// Allow the options object to be overriden by the options passed to the middleware.
+		// Allow the default options to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
+		// `standardHeaders` is resolved into a draft version above, use that.
+		standardHeaders,
 		// Note that this field is declared after the user's options are spread in,
 		// so that this field doesn't get overriden with an un-promisified store!
 		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
@@ -327,47 +350,29 @@ const rateLimit = (
 			const maxHits = await retrieveQuota
 			config.validations.max(maxHits)
 
-			// Set the rate limit information on the augmented request object
-			augmentedRequest[config.requestPropertyName] = {
+			const info: RateLimitInfo = {
 				limit: maxHits,
 				current: totalHits,
 				remaining: Math.max(maxHits - totalHits, 0),
 				resetTime,
 			}
 
-			// Set the X-RateLimit headers on the response object if enabled
-			if (config.legacyHeaders && !response.headersSent) {
-				response.setHeader('X-RateLimit-Limit', maxHits)
-				response.setHeader(
-					'X-RateLimit-Remaining',
-					augmentedRequest[config.requestPropertyName].remaining,
-				)
+			// Set the rate limit information on the augmented request object
+			augmentedRequest[config.requestPropertyName] = info
 
-				// If we have a resetTime, also provide the current date to help avoid
-				// issues with incorrect clocks.
-				if (resetTime instanceof Date) {
-					response.setHeader('Date', new Date().toUTCString())
-					response.setHeader(
-						'X-RateLimit-Reset',
-						Math.ceil(resetTime.getTime() / 1000),
-					)
-				}
+			// Set the `X-RateLimit` headers on the response object if enabled.
+			if (config.legacyHeaders && !response.headersSent) {
+				setLegacyHeaders(response, info)
 			}
 
-			// Set the standardized RateLimit headers on the response object
-			// if enabled.
+			// Set the standardized `RateLimit-*` headers on the response object if
+			// enabled.
 			if (config.standardHeaders && !response.headersSent) {
-				response.setHeader('RateLimit-Limit', maxHits)
-				response.setHeader(
-					'RateLimit-Remaining',
-					augmentedRequest[config.requestPropertyName].remaining,
-				)
-
-				if (resetTime) {
-					const deltaSeconds = Math.ceil(
-						(resetTime.getTime() - Date.now()) / 1000,
-					)
-					response.setHeader('RateLimit-Reset', Math.max(0, deltaSeconds))
+				if (config.standardHeaders === 'draft-6') {
+					setDraft6Headers(response, info, config.windowMs)
+				} else if (config.standardHeaders === 'draft-7') {
+					config.validations.headersResetTime(info.resetTime)
+					setDraft7Headers(response, info, config.windowMs)
 				}
 			}
 
@@ -414,13 +419,10 @@ const rateLimit = (
 			config.validations.disable()
 
 			// If the client has exceeded their rate limit, set the Retry-After header
-			// and call the `handler` function
+			// and call the `handler` function.
 			if (maxHits && totalHits > maxHits) {
-				if (
-					(config.legacyHeaders || config.standardHeaders) &&
-					!response.headersSent
-				) {
-					response.setHeader('Retry-After', Math.ceil(config.windowMs / 1000))
+				if (config.legacyHeaders || config.standardHeaders) {
+					setRetryAfterHeader(response, info, config.windowMs)
 				}
 
 				config.handler(request, response, next, options)

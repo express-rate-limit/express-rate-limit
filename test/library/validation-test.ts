@@ -221,6 +221,18 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('headersResetTime', () => {
+		it('should log an error if resetTime is omitted', () => {
+			validations.headersResetTime(undefined)
+			expect(console.error).toBeCalled()
+		})
+
+		it('should not log an error if resetTime is set', () => {
+			validations.headersResetTime(new Date())
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
 	describe('disable', () => {
 		it('should initialize disabled when passed false', () => {
 			const disabledValidator = new Validations(false)
