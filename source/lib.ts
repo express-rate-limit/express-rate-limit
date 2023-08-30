@@ -180,7 +180,10 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Create the validator before even parsing the rest of the options.
 	const validations = new Validations(notUndefinedOptions?.validate ?? true)
 
-	// Warn for the deprecated option.
+	// Warn for the deprecated options.
+	validations.draftPolliHeaders(
+		notUndefinedOptions.draft_polli_ratelimit_headers,
+	)
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
 	// The default value for the `standardHeaders` option is `false`.
@@ -331,8 +334,12 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
-			// Increment the client's hit counter by one, and make sure it's only by one
+			// Increment the client's hit counter by one.
 			const { totalHits, resetTime } = await config.store.increment(key)
+			// Make sure that -
+			// - the hit count is incremented only by one.
+			// - the returned hit count is a positive integer.
+			config.validations.positiveHits(totalHits)
 			config.validations.singleCount(request, config.store, key)
 
 			// Get the quota (max number of hits) for each client

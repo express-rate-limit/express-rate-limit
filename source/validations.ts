@@ -144,6 +144,22 @@ export class Validations {
 	}
 
 	/**
+	 * Ensures totalHits value from store is a positive integer.
+	 *
+	 * @param hits {any} - The `totalHits` returned by the store.
+	 */
+	positiveHits(hits: any) {
+		this.wrap(() => {
+			if (typeof hits !== 'number' || hits < 1 || hits !== Math.round(hits)) {
+				throw new ValidationError(
+					'ERR_ERL_INVALID_HITS',
+					`The totalHits value returned from the store must be a positive integer, got ${hits}`, // eslint-disable-line @typescript-eslint/restrict-template-expressions
+				)
+			}
+		})
+	}
+
+	/**
 	 * Ensures a given key is incremented only once per request.
 	 *
 	 * @param request {Request} - The Express request object.
@@ -192,6 +208,25 @@ export class Validations {
 				throw new ChangeWarning(
 					'WRN_ERL_MAX_ZERO',
 					`Setting max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
+				)
+			}
+		})
+	}
+
+	/**
+	 * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated
+	 * and will be removed in the next major release.
+	 *
+	 * @param draft_polli_ratelimit_headers {boolean|undefined} - The now-deprecated setting that was used to enable standard headers.
+	 *
+	 * @returns {void}
+	 */
+	draftPolliHeaders(draft_polli_ratelimit_headers?: boolean) {
+		this.wrap(() => {
+			if (draft_polli_ratelimit_headers) {
+				throw new ChangeWarning(
+					'WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS',
+					`The draft_polli_ratelimit_headers configuration option is deprecated and will be removed in express-rate-limit v7, please set standardHeaders: 'draft-6' instead.`,
 				)
 			}
 		})

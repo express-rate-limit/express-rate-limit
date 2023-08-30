@@ -95,6 +95,28 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('positiveHits', () => {
+		it('should log an error if hits is non-numeric', () => {
+			validations.positiveHits(true)
+			expect(console.error).toBeCalled()
+		})
+
+		it('should log an error if hits is less than 1', () => {
+			validations.positiveHits(0)
+			expect(console.error).toBeCalled()
+		})
+
+		it('should log an error if hits is not an integer', () => {
+			validations.positiveHits(1.5)
+			expect(console.error).toBeCalled()
+		})
+
+		it('should not log an error if hits is a positive integer', () => {
+			validations.positiveHits(1)
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
 	describe('singleCount', () => {
 		class TestExternalStore {} // eslint-disable-line @typescript-eslint/no-extraneous-class
 
@@ -176,6 +198,24 @@ describe('validations tests', () => {
 
 		it('should not log a warning if onLimitReached is unset', () => {
 			validations.onLimitReached(undefined)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
+	describe('draft_polli_ratelimit_headers', () => {
+		it('should log a warning if draft_polli_ratelimit_headers is set', () => {
+			validations.draftPolliHeaders(true)
+			expect(console.warn).toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should not log a warning if draft_polli_ratelimit_headers is unset or false', () => {
+			validations.draftPolliHeaders(false)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+
+			validations.draftPolliHeaders(undefined)
 			expect(console.warn).not.toBeCalled()
 			expect(console.error).not.toBeCalled()
 		})
