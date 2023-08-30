@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.10.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.10.0)
+
+### Added
+
+- Support for combined `RateLimit` header from the
+  [RateLimit header fields for HTTP standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers)
+  adopted by the IETF. Enable by setting `standardHeaders: 'draft-7'`
+- New `standardHeaders: 'draft-6'` option, treated equivalent to
+  `standardHeaders: true` from previous releases. (`true` and `false` are still
+  supported.)
+- New `RateLimit-Policy` header added when `standardHeaders` is set to
+  `'draft-6'`, `'draft-7'`, or `true`
+- Warning when using deprecated `draft_polli_ratelimit_headers` option
+- Warning when using deprecated `onLimitReached` option
+- Warning when `totalHits` value returned from Store is invalid
+
 ## [6.9.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.9.0)
 
 ### Added
