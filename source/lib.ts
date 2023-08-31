@@ -11,7 +11,6 @@ import type {
 	ClientRateLimitInfo,
 	ValueDeterminingMiddleware,
 	RateLimitExceededEventHandler,
-	RateLimitReachedEventHandler,
 	DraftHeadersVersion,
 	RateLimitInfo,
 } from './types.js'
@@ -119,7 +118,6 @@ type Configuration = {
 	skipSuccessfulRequests: boolean
 	keyGenerator: ValueDeterminingMiddleware<string>
 	handler: RateLimitExceededEventHandler
-	onLimitReached: RateLimitReachedEventHandler
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
@@ -193,6 +191,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		// @ts-expect-error see the note above.
 		notUndefinedOptions.draft_polli_ratelimit_headers,
 	)
+	// @ts-expect-error see the note above.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
 	// The default value for the `standardHeaders` option is `false`. If set to
@@ -247,11 +246,6 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 				response.send(message)
 			}
 		},
-		onLimitReached(
-			_request: Request,
-			_response: Response,
-			_optionsUsed: Options,
-		): void {},
 		// Allow the default options to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// `standardHeaders` is resolved into a draft version above, use that.
@@ -408,13 +402,6 @@ const rateLimit = (
 							await decrementKey()
 					})
 				}
-			}
-
-			// Call the `onLimitReached` callback on the first request where client
-			// exceeds their rate limit
-			// TODO: `onLimitReached` is deprecated, this should be removed in v7.x
-			if (maxHits && totalHits === maxHits + 1) {
-				config.onLimitReached(request, response, options)
 			}
 
 			// Disable the validations, since they should have run at least once by now.

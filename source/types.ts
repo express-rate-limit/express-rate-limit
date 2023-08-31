@@ -303,15 +303,6 @@ export type Options = {
 	handler: RateLimitExceededEventHandler
 
 	/**
-	 * Express request handler that sends back a response when a client has
-	 * reached their rate limit, and will be rate limited on their next request.
-	 *
-	 * @deprecated 6.x - Please use a custom `handler` that checks the number of
-	 * hits instead.
-	 */
-	onLimitReached: RateLimitReachedEventHandler
-
-	/**
 	 * Method (in the form of middleware) to determine whether or not this request
 	 * counts towards a client's quota.
 	 *

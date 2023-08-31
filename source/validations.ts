@@ -3,7 +3,7 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
-import type { RateLimitReachedEventHandler, Store } from './types'
+import type { Store } from './types'
 
 /**
  * An error thrown/returned when a validation error occurs.
@@ -238,16 +238,16 @@ export class Validations {
 	 * Warns the user that the `onLimitReached` option is deprecated and will be removed in the next
 	 * major release.
 	 *
-	 * @param onLimitReached {function|undefined} - The maximum number of hits per client.
+	 * @param onLimitReached {any | undefined} - The maximum number of hits per client.
 	 *
 	 * @returns {void}
 	 */
-	onLimitReached(onLimitReached?: RateLimitReachedEventHandler) {
+	onLimitReached(onLimitReached?: any) {
 		this.wrap(() => {
 			if (onLimitReached) {
 				throw new ChangeWarning(
 					'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
-					`The onLimitReached configuration option is deprecated and will be removed in express-rate-limit v7.`,
+					`The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`,
 				)
 			}
 		})
