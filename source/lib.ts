@@ -401,7 +401,7 @@ const rateLimit = (
 			config.validations.disable()
 
 			// If the client has exceeded their rate limit, set the Retry-After header
-			// and call the `handler` function
+			// and call the `handler` function.
 			if (typeof maxHits === 'number' && totalHits > maxHits) {
 				if (config.legacyHeaders || config.standardHeaders) {
 					setRetryAfterHeader(response, info, config.windowMs)
