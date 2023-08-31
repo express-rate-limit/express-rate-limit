@@ -259,7 +259,8 @@ Express `request` and `response` objects and then returns a number.
 
 Defaults to `5`. Set it to `0` to disable the rate limiter.
 
-> Renamed in v7.x from `max` to `limit`.
+> Renamed in v7.x from `max` to `limit`. However, `max` will still be supported
+> for backwards-compatibility.
 
 An example of using a function:
 
