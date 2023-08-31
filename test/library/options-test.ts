@@ -30,11 +30,9 @@ describe('options test', () => {
 		rateLimit({
 			store,
 			headers: false,
-			draft_polli_ratelimit_headers: true, // eslint-disable-line @typescript-eslint/naming-convention
 		})
 
 		expect(store.options.headers).toEqual(false)
-		expect(store.options.draft_polli_ratelimit_headers).toEqual(true)
 	})
 
 	it('should allow the use of the `max` option', async () => {
