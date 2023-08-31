@@ -402,7 +402,7 @@ const rateLimit = (
 
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function.
-			if (totalHits > maxHits) {
+			if (totalHits > limit) {
 				if (config.legacyHeaders || config.standardHeaders) {
 					setRetryAfterHeader(response, info, config.windowMs)
 				}
