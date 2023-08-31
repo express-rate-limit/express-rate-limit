@@ -195,7 +195,7 @@ export type Options = {
 	 *
 	 * Defaults to `5`.
 	 */
-	max: number | ValueDeterminingMiddleware<number>
+	limit: number | ValueDeterminingMiddleware<number>
 
 	/**
 	 * The response body to send back when a client is rate limited.

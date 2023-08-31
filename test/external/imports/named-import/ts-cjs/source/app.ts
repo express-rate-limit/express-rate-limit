@@ -43,7 +43,7 @@ export const store = Math.floor(Math.random() * 2)
 
 app.use(
 	rateLimit({
-		max: 2,
+		limit: 2,
 		legacyHeaders: false,
 		standardHeaders: true,
 		store,
