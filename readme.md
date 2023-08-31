@@ -91,7 +91,7 @@ Replace `{version}` with the version of the package that you want to your, e.g.:
 This library is provided in ESM as well as CJS forms, and works with both
 Javascript and Typescript projects.
 
-**This package requires you to use Node 14 or above.**
+**This package requires you to use Node 16 or above.**
 
 Import it in a CommonJS project (`type: commonjs` or no `type` field in
 `package.json`) as follows:
