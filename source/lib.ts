@@ -187,24 +187,19 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Create the validator before even parsing the rest of the options.
 	const validations = new Validations(notUndefinedOptions?.validate ?? true)
 
-	// Warn for the deprecated options.
+	// Warn for the deprecated options. Note that these options have been removed
+	// from the type definitions in v7.
 	validations.draftPolliHeaders(
+		// @ts-expect-error see the note above.
 		notUndefinedOptions.draft_polli_ratelimit_headers,
 	)
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
-	// The default value for the `standardHeaders` option is `false`.
-	// If set to `true`, it resolve to `draft-6`.
-	// The deprecated `draft_polli_ratelimit_headers` option also resolves to `draft-6`.
-	// `draft-7` (recommended) is used only if explicitly set.
+	// The default value for the `standardHeaders` option is `false`. If set to
+	// `true`, it resolve to `draft-6`. `draft-7` (recommended) is used only if
+	// explicitly set.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
-	if (
-		standardHeaders === true ||
-		(standardHeaders === undefined &&
-			notUndefinedOptions.draft_polli_ratelimit_headers)
-	) {
-		standardHeaders = 'draft-6'
-	}
+	if (standardHeaders === true) standardHeaders = 'draft-6'
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
