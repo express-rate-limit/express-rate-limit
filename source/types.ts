@@ -310,14 +310,6 @@ export type Options = {
 	 * @deprecated 6.x - This option was renamed to `legacyHeaders`.
 	 */
 	headers?: boolean
-
-	/**
-	 * Whether to send `RateLimit-*` headers with the rate limit and the number
-	 * of requests.
-	 *
-	 * @deprecated 6.x - This option was renamed to `standardHeaders`.
-	 */
-	draft_polli_ratelimit_headers?: boolean
 }
 
 /**
