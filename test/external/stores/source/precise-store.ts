@@ -10,7 +10,7 @@ import PreciseMemoryStore from 'precise-memory-rate-limit'
 const app = createServer()
 app.use(
 	rateLimit({
-		max: 3,
+		limit: 3,
 		message: 'Thou must enhanceth thy peace',
 		store: new PreciseMemoryStore(60 * 1000, 3),
 	}),

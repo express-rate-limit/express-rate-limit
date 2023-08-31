@@ -141,7 +141,7 @@ describe('middleware test', () => {
 	})
 
 	it('should let the first request through', async () => {
-		const app = createServer(rateLimit({ max: 1 }))
+		const app = createServer(rateLimit({ limit: 1 }))
 
 		await request(app).get('/').expect(200).expect('Hi there!')
 	})
@@ -149,7 +149,7 @@ describe('middleware test', () => {
 	it('should refuse additional connections once IP has reached the max', async () => {
 		const app = createServer(
 			rateLimit({
-				max: 2,
+				limit: 2,
 			}),
 		)
 
@@ -161,7 +161,7 @@ describe('middleware test', () => {
 	it('should (eventually) accept new connections from a blocked IP', async () => {
 		const app = createServer(
 			rateLimit({
-				max: 2,
+				limit: 2,
 				windowMs: 50,
 			}),
 		)
@@ -176,7 +176,7 @@ describe('middleware test', () => {
 	it('should work repeatedly', async () => {
 		const app = createServer(
 			rateLimit({
-				max: 2,
+				limit: 2,
 				windowMs: 50,
 			}),
 		)
@@ -203,7 +203,7 @@ describe('middleware test', () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 1000,
-				max: 2,
+				limit: 2,
 				message,
 			}),
 		)
@@ -217,7 +217,7 @@ describe('middleware test', () => {
 		const statusCode = 420
 		const app = createServer(
 			rateLimit({
-				max: 1,
+				limit: 1,
 				statusCode,
 			}),
 		)
@@ -235,7 +235,7 @@ describe('middleware test', () => {
 		const app = createServer(
 			rateLimit({
 				message,
-				max: 1,
+				limit: 1,
 			}),
 		)
 
@@ -247,7 +247,7 @@ describe('middleware test', () => {
 		const app = createServer(
 			rateLimit({
 				message: () => 'Too many requests.',
-				max: 1,
+				limit: 1,
 			}),
 		)
 
@@ -259,7 +259,7 @@ describe('middleware test', () => {
 		const app = createServer(
 			rateLimit({
 				message: async () => 'Too many requests.',
-				max: 1,
+				limit: 1,
 			}),
 		)
 
@@ -270,7 +270,7 @@ describe('middleware test', () => {
 	it('should use a custom handler when specified', async () => {
 		const app = createServer(
 			rateLimit({
-				max: 1,
+				limit: 1,
 				handler(_request, response) {
 					response.status(420).end('Enhance your calm')
 				},
@@ -284,7 +284,7 @@ describe('middleware test', () => {
 	it('should allow custom key generators', async () => {
 		const app = createServer(
 			rateLimit({
-				max: 2,
+				limit: 2,
 				keyGenerator: (request, _response) => request.query.key as string,
 			}),
 		)
@@ -303,7 +303,7 @@ describe('middleware test', () => {
 	it('should allow custom skip function', async () => {
 		const app = createServer(
 			rateLimit({
-				max: 2,
+				limit: 2,
 				skip: () => true,
 			}),
 		)
@@ -316,7 +316,7 @@ describe('middleware test', () => {
 
 	it('should allow custom skip function that returns a promise', async () => {
 		const limiter = rateLimit({
-			max: 2,
+			limit: 2,
 			skip: async () => true,
 		})
 
@@ -330,7 +330,7 @@ describe('middleware test', () => {
 	it('should allow max to be a function', async () => {
 		const app = createServer(
 			rateLimit({
-				max: () => 2,
+				limit: () => 2,
 			}),
 		)
 
@@ -342,7 +342,7 @@ describe('middleware test', () => {
 	it('should allow max to be a function that returns a promise', async () => {
 		const app = createServer(
 			rateLimit({
-				max: async () => 2,
+				limit: async () => 2,
 			}),
 		)
 
@@ -354,7 +354,7 @@ describe('middleware test', () => {
 	it('should calculate the remaining hits', async () => {
 		const app = createServer(
 			rateLimit({
-				max: async () => 2,
+				limit: async () => 2,
 			}),
 		)
 
@@ -639,7 +639,7 @@ describe('middleware test', () => {
 		async (name, store) => {
 			const app = createServer(
 				rateLimit({
-					max: 2,
+					limit: 2,
 					store,
 					skipFailedRequests: true,
 				}),
@@ -664,7 +664,7 @@ describe('middleware test', () => {
 
 			const app = createServer(
 				rateLimit({
-					max: 1,
+					limit: 1,
 					store,
 					handler() {
 						const exception = new Error('420: Enhance your calm')
@@ -703,7 +703,7 @@ describe('middleware test', () => {
 
 			const app = createServer(
 				rateLimit({
-					max: 1,
+					limit: 1,
 					store,
 					skip() {
 						const exception = new Error('420: Enhance your calm')
@@ -795,7 +795,7 @@ describe('middleware test', () => {
 
 	it('should handle two rate-limiters with different `requestPropertyNames` operating independently', async () => {
 		const keyLimiter = rateLimit({
-			max: 2,
+			limit: 2,
 			requestPropertyName: 'rateLimitKey',
 			keyGenerator: (request) => request.query.key as string,
 			handler(_request, response) {
@@ -803,7 +803,7 @@ describe('middleware test', () => {
 			},
 		})
 		const globalLimiter = rateLimit({
-			max: 5,
+			limit: 5,
 			requestPropertyName: 'rateLimitGlobal',
 			keyGenerator: () => 'global',
 			handler(_request, response) {

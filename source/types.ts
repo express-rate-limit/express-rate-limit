@@ -195,7 +195,7 @@ export type Options = {
 	 *
 	 * Defaults to `5`.
 	 */
-	max: number | ValueDeterminingMiddleware<number>
+	limit: number | ValueDeterminingMiddleware<number>
 
 	/**
 	 * The response body to send back when a client is rate limited.
@@ -301,6 +301,18 @@ export type Options = {
 	 * @deprecated 6.x - This option was renamed to `legacyHeaders`.
 	 */
 	headers?: boolean
+
+	/**
+	 * The maximum number of connections to allow during the `window` before
+	 * rate limiting the client.
+	 *
+	 * Can be the limit itself as a number or express middleware that parses
+	 * the request and then figures out the limit.
+	 *
+	 * @deprecated 7.x - This option was renamed to `limit`. However, it will not
+	 * be removed from the library in the foreseeable future.
+	 */
+	max?: number | ValueDeterminingMiddleware<number>
 }
 
 /**

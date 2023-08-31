@@ -116,7 +116,7 @@ import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
 	legacyHeaders: false, // X-RateLimit-* headers
 	// store: ... , // Use an external store for more precise rate limiting
@@ -135,7 +135,7 @@ import { rateLimit } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
@@ -152,7 +152,7 @@ import { rateLimit } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
 	legacyHeaders: false, // X-RateLimit-* headers
 	// store: ... , // Use an external store for more precise rate limiting
@@ -162,7 +162,7 @@ app.use('/api/', apiLimiter)
 
 const createAccountLimiter = rateLimit({
 	windowMs: 60 * 60 * 1000, // 1 hour
-	max: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
+	limit: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
 	message:
 		'Too many accounts created from this IP, please try again after an hour',
 	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
@@ -184,7 +184,7 @@ import RedisClient from 'ioredis'
 const redisClient = new RedisClient()
 const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
 	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
 	legacyHeaders: false, // X-RateLimit-* headers
 	store: new RedisStore({
@@ -247,7 +247,7 @@ twice, once here and once on the store. In some cases the units also differ
 
 Defaults to `60000` ms (= 1 minute).
 
-### `max`
+### `limit`
 
 > `number | function`
 
@@ -263,6 +263,9 @@ requests to that endpoint.
 
 Defaults to `5`.
 
+> Renamed in v7.x from `max` to `limit`. However, `max` will still be supported
+> for backwards-compatibility.
+
 An example of using a function:
 
 ```ts
@@ -272,7 +275,7 @@ const isPremium = async (user) => {
 
 const limiter = rateLimit({
 	// ...
-	max: async (request, response) => {
+	limit: async (request, response) => {
 		if (await isPremium(request.user)) return 10
 		else return 5
 	},
