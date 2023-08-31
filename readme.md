@@ -257,7 +257,11 @@ limiting the client.
 Can be the limit itself as a number or a (sync/async) function that accepts the
 Express `request` and `response` objects and then returns a number.
 
-Defaults to `5`. Set it to `0` to disable the rate limiter.
+~Set it to `0` to disable the rate limiter.~ As of version 7.0.0, setting `max`
+to zero will no longer disable the rate limiter - instead, it will 'block' all
+requests to that endpoint.
+
+Defaults to `5`.
 
 > Renamed in v7.x from `max` to `limit`. However, `max` will still be supported
 > for backwards-compatibility.
