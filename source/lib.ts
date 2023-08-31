@@ -107,7 +107,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  */
 type Configuration = {
 	windowMs: number
-	max: number | ValueDeterminingMiddleware<number>
+	limit: number | ValueDeterminingMiddleware<number>
 	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
@@ -204,7 +204,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// defaults.
 	const config: Configuration = {
 		windowMs: 60 * 1000,
-		max: 5,
+		limit: passedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
 		legacyHeaders: passedOptions.headers ?? true,
@@ -338,18 +338,18 @@ const rateLimit = (
 			config.validations.positiveHits(totalHits)
 			config.validations.singleCount(request, config.store, key)
 
-			// Get the quota (max number of hits) for each client
-			const retrieveQuota =
-				typeof config.max === 'function'
-					? config.max(request, response)
-					: config.max
-			const maxHits = await retrieveQuota
-			config.validations.max(maxHits)
+			// Get the limit (max number of hits) for each client.
+			const retrieveLimit =
+				typeof config.limit === 'function'
+					? config.limit(request, response)
+					: config.limit
+			const limit = await retrieveLimit
+			config.validations.max(limit)
 
 			const info: RateLimitInfo = {
-				limit: maxHits,
+				limit,
 				current: totalHits,
-				remaining: Math.max(maxHits - totalHits, 0),
+				remaining: Math.max(limit - totalHits, 0),
 				resetTime,
 			}
 
@@ -409,7 +409,7 @@ const rateLimit = (
 
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function.
-			if (totalHits > maxHits) {
+			if (totalHits > limit) {
 				if (config.legacyHeaders || config.standardHeaders) {
 					setRetryAfterHeader(response, info, config.windowMs)
 				}

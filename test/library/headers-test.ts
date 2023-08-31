@@ -20,7 +20,7 @@ describe('headers test', () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 60 * 1000,
-				max: 5,
+				limit: 5,
 				legacyHeaders: true,
 			}),
 		)
@@ -46,7 +46,7 @@ describe('headers test', () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 60 * 1000,
-				max: 5,
+				limit: 5,
 				standardHeaders: true,
 			}),
 		)
@@ -64,7 +64,7 @@ describe('headers test', () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 60 * 1000,
-				max: 5,
+				limit: 5,
 				standardHeaders: 'draft-7',
 			}),
 		)
@@ -80,7 +80,7 @@ describe('headers test', () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 60 * 1000,
-				max: 1,
+				limit: 1,
 			}),
 		)
 
@@ -114,7 +114,7 @@ describe('headers test', () => {
 			const app = createServer(
 				rateLimit({
 					windowMs: 60 * 1000,
-					max: 5,
+					limit: 5,
 					legacyHeaders: true,
 					standardHeaders: false,
 				}),
@@ -134,7 +134,7 @@ describe('headers test', () => {
 			const app = createServer(
 				rateLimit({
 					windowMs: 60 * 1000,
-					max: 5,
+					limit: 5,
 					legacyHeaders: false,
 					standardHeaders: 'draft-6',
 				}),
@@ -155,7 +155,7 @@ describe('headers test', () => {
 			const app = createServer(
 				rateLimit({
 					windowMs: 60 * 1000,
-					max: 5,
+					limit: 5,
 					legacyHeaders: false,
 					standardHeaders: 'draft-7',
 				}),

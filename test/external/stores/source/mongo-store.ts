@@ -10,7 +10,7 @@ import MongoStore from 'rate-limit-mongo'
 const app = createServer()
 app.use(
 	rateLimit({
-		max: 3,
+		limit: 3,
 		message: 'Thou must enhanceth thy peace',
 		store: new MongoStore({
 			uri: 'mongodb://127.0.0.1:27017/test_db',

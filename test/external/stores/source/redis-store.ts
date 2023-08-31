@@ -13,7 +13,7 @@ await client.connect()
 
 app.use(
 	rateLimit({
-		max: 3,
+		limit: 3,
 		message: 'Thou must enhanceth thy peace',
 		store: new RedisStore({
 			sendCommand: (...args: string[]) => client.sendCommand(args),
