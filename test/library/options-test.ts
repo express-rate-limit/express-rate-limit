@@ -37,7 +37,6 @@ describe('options test', () => {
 		expect(store.options.draft_polli_ratelimit_headers).toEqual(true)
 	})
 
-	// TODO: Update in v8.
 	it('should allow the use of the `max` option', async () => {
 		const store = new MockStore()
 		rateLimit({
