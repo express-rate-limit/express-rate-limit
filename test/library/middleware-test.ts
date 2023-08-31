@@ -206,6 +206,12 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 	})
 
+	it('should block all requests if max is set to 0', async () => {
+		const app = createServer(rateLimit({ max: 0 }))
+
+		await request(app).get('/').expect(429)
+	})
+
 	it('should show the provided message instead of the default message when max connections are reached', async () => {
 		const message = 'Enhance your calm'
 		const app = createServer(
