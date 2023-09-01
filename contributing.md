@@ -31,10 +31,11 @@ you want to fix/implement!
 
 Once you have cloned the repository to your computer (say, in
 `~/Code/express-rate-limit`) and picked the issue you want to tackle, create a
-branch:
+branch based off the `next` branch:
 
 ```sh
-> git switch -c branch-name
+> git switch next
+> git switch --create branch-name
 ```
 
 While naming your branch, make sure the name is short and self explanatory.
@@ -43,31 +44,36 @@ Once you have created a branch, you can start coding!
 
 The library is written in
 [Typescript](https://github.com/microsoft/TypeScript#readme) and supports Node
-14, 16, 18 and 20. The code is arranged as follows:
+16, 18 and 20. The code is arranged as follows:
 
 ```sh
-express-rate-limit
-├── config/
-│  └── husky/
-│     ├── _
-│     └── pre-commit
-├── source/
+express-rate-limit.
+├── config
+│  ├── husky
+│  │  └── pre-commit
+│  └── jest.json
+├── source
+│  ├── headers.ts
 │  ├── index.ts
 │  ├── lib.ts
 │  ├── memory-store.ts
-│  └── types.ts
-├── test/
-│  ├── external/
-│  │  ├── imports/
-│  │  ├── stores/
+│  ├── types.ts
+│  └── validations.ts
+├── test
+│  ├── external
+│  │  ├── imports
+│  │  │  └── ...
+│  │  ├── stores
+│  │  │  └── ...
 │  │  └── run-all-tests
-│  └── library/
-│     ├── helpers/
+│  └── library
+│     ├── helpers
 │     │  └── create-server.ts
 │     ├── headers-test.ts
 │     ├── memory-store-test.ts
 │     ├── middleware-test.ts
-│     └── options-test.ts
+│     ├── options-test.ts
+│     └── validation-test.ts
 ├── changelog.md
 ├── contributing.md
 ├── license.md
@@ -96,6 +102,8 @@ express-rate-limit
   `source/lib.ts`, and types from `source/types.ts`.
 - `source/lib.ts`: The option parser and rate limiting middleware.
 - `source/types.ts`: Typescript types for the library.
+- `source/headers.ts`: The header parsing functions.
+- `source/validations.ts`: The validation checks built into the library.
 - `source/memory-store.ts`: The default, built-in memory store for the rate
   limiter.
 
@@ -110,6 +118,7 @@ express-rate-limit
 - `test/library/middleware-test.ts`: Ensures the middleware works correctly with
   in various different situations.
 - `test/library/memory-store-test.ts`: Tests the default, built-in memory store.
+- `test/library/validation-test.ts`: Ensures the validations work.
 
 #### `test/external/`
 
@@ -123,14 +132,14 @@ express-rate-limit
 
 - `config/husky/pre-commit`: The bash script to run just before someone runs
   `git commit`.
+- `config/jest.json`: The configuration for `jest`, the test runner.
 
 ### Documentation and testing
 
 When adding a new feature/fixing a bug, please add/update the readme and
 changelog as well as add tests for the same. Also make sure the codebase passes
-the linter and library tests by running `npm test`.
-
-Tip: `npm run format` will automatically resolve many style/lint issues.
+the linter and library tests by running `npm test`. Note thaat running
+`npm run format` will automatically resolve most style/lint issues.
 
 > Note that the external tests require various datastores and take more time to
 > execute. Typically they are run only on GitHub Actions. If desired, you may
@@ -141,7 +150,7 @@ Once you have made changes to the code, you will want to
 of save) the changes. To commit the changes you have made locally:
 
 ```sh
-> git add this/folder that/file
+> git add this/folder that-file.js
 > git commit --message 'commit-message'
 ```
 
@@ -163,7 +172,13 @@ While writing the `commit-message`, try to follow the below guidelines:
 
 When you commit files, `husky` and `lint-staged` will automatically lint the
 code and fix most issues. In case an error is not automatically fixable, they
-will cancel the commit. Please fix the errors before committing the changes.
+will cancel the commit. Please fix the errors before committing the changes. If
+you still wish to commit the changes, prefix the `git commit` command with
+`HUSKY=0`, like so:
+
+```sh
+> HUSKY=0 git commit --message 'commit-message'
+```
 
 ## Contributing Changes
 
@@ -176,20 +191,18 @@ changes to GitHub) your commits. To push your changes to your fork:
 ```
 
 If there are changes made to the `main` branch of the
-`express-rate-limit/express-rate-limit` repository, you may wish to
-[`rebase`](https://docs.github.com/en/get-started/using-git/about-git-rebase)
-your branch to include those changes. To rebase, or include the changes from the
-`main` branch of the `express-rate-limit/express-rate-limit` repository:
+`express-rate-limit/express-rate-limit` repository, you may wish to merge those
+changes into your branch. To do so, you can run the following commands:
 
 ```
 > git fetch upstream main
-> git rebase upstream/main
+> git merge upstream/main
 ```
 
 This will automatically add the changes from `main` branch of the
 `express-rate-limit/express-rate-limit` repository to the current branch. If you
 encounter any merge conflicts, follow
-[this guide](https://docs.github.com/en/get-started/using-git/resolving-merge-conflicts-after-a-git-rebase)
+[this guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-using-the-command-line)
 to resolve them.
 
 Once you have pushed your changes to your fork, follow
