@@ -188,17 +188,13 @@ export default class MemoryStore implements Store {
 	}
 
 	/**
-	 * Clear out expired clients in previous, then move all current clients to previous.
+	 * Move current clients to previous, create a new map for current.
 	 *
 	 * This function is called every `windowMs`.
 	 */
 	private clearExpired(): void {
-		// At this point, all clients in previous are expired, so delete them all
-		this.previous.clear()
-
-		// Swap previous and current so that current clients are moved to previous and current will have a blank slate
-		const temporary = this.previous
+		// At this point, all clients in previous are expired
 		this.previous = this.current
-		this.current = temporary
+		this.current = new Map()
 	}
 }
