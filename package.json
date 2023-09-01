@@ -60,11 +60,11 @@
 		"build:esm": "esbuild --platform=node --bundle --target=es2019 --format=esm --outfile=dist/index.mjs source/index.ts",
 		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && cp dist/index.d.ts dist/index.d.cts && cp dist/index.d.ts dist/index.d.mts",
 		"compile": "run-s clean build:*",
-		"lint:code": "xo --ignore test/external/",
-		"lint:rest": "prettier --ignore-path .gitignore --ignore-unknown --check .",
+		"lint:code": "xo",
+		"lint:rest": "prettier --check .",
 		"lint": "run-s lint:*",
-		"format:code": "npm run lint:code -- --fix",
-		"format:rest": "npm run lint:rest -- --write .",
+		"format:code": "xo --fix",
+		"format:rest": "prettier --write .",
 		"format": "run-s format:*",
 		"test:lib": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.json",
 		"test:ext": "cd test/external/ && bash run-all-tests",
@@ -119,11 +119,14 @@
 					"@typescript-eslint/no-unsafe-assignment": 0
 				}
 			}
+		],
+		"ignore": [
+			"test/external"
 		]
 	},
 	"prettier": "@express-rate-limit/prettier",
 	"lint-staged": {
-		"{source,test}/**/*.ts": "xo --ignore test/external/ --fix",
-		"**/*.{json,yaml,md}": "prettier --ignore-path .gitignore --ignore-unknown --write "
+		"{source,test}/**/*.ts": "xo --fix",
+		"**/*.{json,yaml,md}": "prettier --write "
 	}
 }

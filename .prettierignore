@@ -1,0 +1,15 @@
+# /.prettierignore
+# Tells Prettier to ignore these files
+
+node_modules/
+dist/
+coverage/
+test/external/**/package-lock.json
+
+.vscode/
+.idea/
+
+*.log
+*.tmp
+*.bak
+*.tgz
