@@ -15,16 +15,6 @@ type Client = {
 }
 
 /**
- * Find the average of a list of numbers.
- *
- * @param array {number[]} - The list to find the average of.
- *
- * @returns {number} - The average.
- */
-const average = (array: number[]): number =>
-	array.reduce((a, b) => a + b) / array.length
-
-/**
  * A `Store` that stores the hit count for each client in memory.
  *
  * @public
@@ -43,27 +33,10 @@ export default class MemoryStore implements Store {
 	 * determine which ones need reset. Instead, `Client`s are moved from `previous`
 	 * to `current` as they hit the endpoint. Once `windowMs` has elapsed, all clients
 	 * left in `previous`, i.e., those that have not made any recent requests, are
-	 * known to be expired. At that point, the cache pool is filled from `previous`,
-	 * and any remaining `Client`s are cleared from memory.
+	 * known to be expired and can be deleted in bulk.
 	 */
 	previous = new Map<string, Client>()
 	current = new Map<string, Client>()
-
-	/**
-	 * The cache of unused clients, kept to reduce the number of objects created
-	 * and destroyed. Improves performance, at the expense of a small amount of RAM.
-	 *
-	 * Each entry takes up 152 bytes. In one benchmark, the total time taken to handle
-	 * 100M requests was reduced from 70.184s to 47.862s (~32% improvement) with
-	 * ~5.022 MB extra RAM used.
-	 */
-	pool: Client[] = []
-
-	/**
-	 * Used to calculate how many entries to keep in the pool.
-	 */
-	uncachedCount = 0
-	uncachedCounts: number[] = []
 
 	/**
 	 * A reference to the active timer.
@@ -203,21 +176,10 @@ export default class MemoryStore implements Store {
 			// If it's in the `previous` map, take it out
 			client = this.previous.get(key)!
 			this.previous.delete(key)
-		} else if (this.pool.length > 0) {
-			// If it's in neither the `current` nor the `previous` maps, animate a corpse
-			// from the pool. Spoooooooooooky!
-			client = this.pool.pop()!
-			this.resetClient(client)
-
-			// Note that we created a new client.
-			this.uncachedCount++
 		} else {
-			// If the pool does not have spare corpses, pull one from thin air. Boo!
+			// Finally, if we don't have an existing entry for this client, create a new one
 			client = { totalHits: 0, resetTime: new Date() }
 			this.resetClient(client)
-
-			// Once more, note that we created a new client.
-			this.uncachedCount++
 		}
 
 		// Make sure the client is bumped into the `current` map, and return it.
@@ -226,36 +188,15 @@ export default class MemoryStore implements Store {
 	}
 
 	/**
-	 * Refills the pool, demotes `current` clients to `previous`, and resets the
-	 * `current` map.
+	 * Clear out expired clients in previous, then move all current clients to previous.
 	 *
 	 * This function is called every `windowMs`.
 	 */
 	private clearExpired(): void {
-		// At this point, all clients in previous are expired.
-
-		// Calculate the new `pool`'s size. The new size is basically the average of
-		// the number of clients created per `windowMs` in the last ten windows.
-		this.uncachedCounts.push(this.uncachedCount)
-		if (this.uncachedCounts.length > 10) this.uncachedCounts.shift()
-		this.uncachedCount = 0
-		const targetPoolSize = Math.round(average(this.uncachedCounts))
-
-		// Calculate how many entries to potentially copy to the pool.
-		let poolSpace = targetPoolSize - this.pool.length
-
-		// Fill up the pool with expired clients.
-		for (const client of this.previous.values()) {
-			if (poolSpace > 0) {
-				this.pool.push(client)
-				poolSpace--
-			} else break
-		}
-
-		// Clear all expired clients from `previous`.
+		// At this point, all clients in previous are expired, so delete them all
 		this.previous.clear()
 
-		// Swap previous and temporary
+		// Swap previous and current so that current clients are moved to previous and current will have a blank slate
 		const temporary = this.previous
 		this.previous = this.current
 		this.current = temporary
