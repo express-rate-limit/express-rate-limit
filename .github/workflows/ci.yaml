@@ -93,4 +93,4 @@ jobs:
           files: express-rate-limit.tgz
           body:
             You can view the changelog
-            [here](https://github.com/nfriedly/express-rate-limit/blob/master/changelog.md).
+            [here](https://github.com/express-rate-limit/express-rate-limit/blob/main/changelog.md).
