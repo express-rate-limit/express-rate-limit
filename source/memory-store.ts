@@ -104,7 +104,7 @@ export default class MemoryStore implements Store {
 	async decrement(key: string): Promise<void> {
 		const client = this.getClient(key)
 
-		if (client.totalHits > 1) client.totalHits--
+		if (client.totalHits > 0) client.totalHits--
 	}
 
 	/**
