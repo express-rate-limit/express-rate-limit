@@ -239,7 +239,6 @@ export type Options = {
 	 *
 	 * Defaults to `'Too many requests, please try again later.'`
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	message: any | ValueDeterminingMiddleware<any>
 
 	/**
