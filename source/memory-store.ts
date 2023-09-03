@@ -4,18 +4,14 @@
 import type { Store, Options, IncrementResponse } from './types.js'
 
 /**
- * Calculates the time when all hit counters will be reset.
+ * The record that stores information about a client - namely, how many times
+ * they have hit the endpoint, and when their hit count resets.
  *
- * @param windowMs {number} - The duration of a window (in milliseconds).
- *
- * @returns {Date}
- *
- * @private
+ * Similar to `IncrementResponse`, except `resetTime` is a compulsory field.
  */
-const calculateNextResetTime = (windowMs: number): Date => {
-	const resetTime = new Date()
-	resetTime.setMilliseconds(resetTime.getMilliseconds() + windowMs)
-	return resetTime
+type Client = {
+	totalHits: number
+	resetTime: Date
 }
 
 /**
@@ -30,19 +26,20 @@ export default class MemoryStore implements Store {
 	windowMs!: number
 
 	/**
-	 * The map that stores the number of hits for each client in memory.
+	 * These two maps store usage (requests) and reset time by key (for example, IP
+	 * addresses or API keys).
+	 *
+	 * They are split into two to avoid having to iterate through the entire set to
+	 * determine which ones need reset. Instead, `Client`s are moved from `previous`
+	 * to `current` as they hit the endpoint. Once `windowMs` has elapsed, all clients
+	 * left in `previous`, i.e., those that have not made any recent requests, are
+	 * known to be expired and can be deleted in bulk.
 	 */
-	hits!: {
-		[key: string]: number | undefined
-	}
+	previous = new Map<string, Client>()
+	current = new Map<string, Client>()
 
 	/**
-	 * The time at which all hit counts will be reset.
-	 */
-	resetTime!: Date
-
-	/**
-	 * Reference to the active timer.
+	 * A reference to the active timer.
 	 */
 	interval?: NodeJS.Timer
 
@@ -60,17 +57,18 @@ export default class MemoryStore implements Store {
 	init(options: Options): void {
 		// Get the duration of a window from the options.
 		this.windowMs = options.windowMs
-		// Then calculate the reset time using that.
-		this.resetTime = calculateNextResetTime(this.windowMs)
 
-		// Initialise the hit counter map.
-		this.hits = {}
+		// Indicates that init was called more than once.
+		// Could happen if a store was shared between multiple instances.
+		if (this.interval) {
+			clearTimeout(this.interval)
+		}
 
-		// Reset hit counts for ALL clients every `windowMs` - this will also
-		// re-calculate the `resetTime`
-		this.interval = setInterval(async () => {
-			await this.resetAll()
+		// Reset all clients left in previous every `windowMs`.
+		this.interval = setInterval(() => {
+			this.clearExpired()
 		}, this.windowMs)
+
 		// Cleaning up the interval will be taken care of by the `shutdown` method.
 		if (this.interval.unref) this.interval.unref()
 	}
@@ -85,13 +83,15 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async increment(key: string): Promise<IncrementResponse> {
-		const totalHits = (this.hits[key] ?? 0) + 1
-		this.hits[key] = totalHits
+		const client = this.getClient(key)
 
-		return {
-			totalHits,
-			resetTime: this.resetTime,
+		const now = Date.now()
+		if (client.resetTime.getTime() <= now) {
+			this.resetClient(client, now)
 		}
+
+		client.totalHits++
+		return client
 	}
 
 	/**
@@ -102,9 +102,9 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async decrement(key: string): Promise<void> {
-		const current = this.hits[key]
+		const client = this.getClient(key)
 
-		if (current) this.hits[key] = current - 1
+		if (client.totalHits > 0) client.totalHits--
 	}
 
 	/**
@@ -115,7 +115,8 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async resetKey(key: string): Promise<void> {
-		delete this.hits[key]
+		this.current.delete(key)
+		this.previous.delete(key)
 	}
 
 	/**
@@ -124,8 +125,8 @@ export default class MemoryStore implements Store {
 	 * @public
 	 */
 	async resetAll(): Promise<void> {
-		this.hits = {}
-		this.resetTime = calculateNextResetTime(this.windowMs)
+		this.current.clear()
+		this.previous.clear()
 	}
 
 	/**
@@ -136,5 +137,64 @@ export default class MemoryStore implements Store {
 	 */
 	shutdown(): void {
 		clearInterval(this.interval)
+		void this.resetAll()
+	}
+
+	/**
+	 * Recycles a client by setting its hit count to zero, and reset time to
+	 * `windowMs` milliseconds from now.
+	 *
+	 * NOT to be confused with `#resetKey()`, which removes a client from both the
+	 * `current` and `previous` maps.
+	 *
+	 * @param client {Client} - The client to recycle.
+	 * @param now {number} - The current time, to which the `windowMs` is added to get the `resetTime` for the client.
+	 *
+	 * @return {Client} - The modified client that was passed in, to allow for chaining.
+	 */
+	private resetClient(client: Client, now = Date.now()): Client {
+		client.totalHits = 0
+		client.resetTime.setTime(now + this.windowMs)
+
+		return client
+	}
+
+	/**
+	 * Retrieves or creates a client, given a key. Also ensures that the client being
+	 * returned is in the `current` map.
+	 *
+	 * @param key {string} - The key under which the client is (or is to be) stored.
+	 *
+	 * @returns {Client} - The requested client.
+	 */
+	private getClient(key: string): Client {
+		// If we already have a client for that key in the `current` map, return it.
+		if (this.current.has(key)) return this.current.get(key)!
+
+		let client
+		if (this.previous.has(key)) {
+			// If it's in the `previous` map, take it out
+			client = this.previous.get(key)!
+			this.previous.delete(key)
+		} else {
+			// Finally, if we don't have an existing entry for this client, create a new one
+			client = { totalHits: 0, resetTime: new Date() }
+			this.resetClient(client)
+		}
+
+		// Make sure the client is bumped into the `current` map, and return it.
+		this.current.set(key, client)
+		return client
+	}
+
+	/**
+	 * Move current clients to previous, create a new map for current.
+	 *
+	 * This function is called every `windowMs`.
+	 */
+	private clearExpired(): void {
+		// At this point, all clients in previous are expired
+		this.previous = this.current
+		this.current = new Map()
 	}
 }
