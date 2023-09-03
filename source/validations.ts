@@ -153,7 +153,7 @@ export class Validations {
 			if (typeof hits !== 'number' || hits < 1 || hits !== Math.round(hits)) {
 				throw new ValidationError(
 					'ERR_ERL_INVALID_HITS',
-					`The totalHits value returned from the store must be a positive integer, got ${hits}`, // eslint-disable-line @typescript-eslint/restrict-template-expressions
+					`The totalHits value returned from the store must be a positive integer, got ${hits}`,
 				)
 			}
 		})
