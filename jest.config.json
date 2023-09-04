@@ -1,5 +1,4 @@
 {
-	"rootDir": "../",
 	"preset": "ts-jest/presets/default-esm",
 	"collectCoverage": true,
 	"collectCoverageFrom": ["source/**/*.ts"],

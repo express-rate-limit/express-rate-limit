@@ -66,7 +66,7 @@
 		"format:code": "xo --fix",
 		"format:rest": "prettier --write .",
 		"format": "run-s format:*",
-		"test:lib": "cross-env NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.json",
+		"test:lib": "jest",
 		"test:ext": "cd test/external/ && bash run-all-tests",
 		"test": "run-s lint test:lib",
 		"pre-commit": "lint-staged",
