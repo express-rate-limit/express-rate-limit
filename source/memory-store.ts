@@ -1,13 +1,13 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import type { Store, Options, IncrementResponse } from './types.js'
+import type { Store, Options, ClientRateLimitInfo } from './types.js'
 
 /**
  * The record that stores information about a client - namely, how many times
  * they have hit the endpoint, and when their hit count resets.
  *
- * Similar to `IncrementResponse`, except `resetTime` is a compulsory field.
+ * Similar to `ClientRateLimitInfo`, except `resetTime` is a compulsory field.
  */
 type Client = {
 	totalHits: number
@@ -76,11 +76,11 @@ export default class MemoryStore implements Store {
 	 *
 	 * @param key {string} - The identifier for a client.
 	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
 	 *
 	 * @public
 	 */
-	async increment(key: string): Promise<IncrementResponse> {
+	async increment(key: string): Promise<ClientRateLimitInfo> {
 		const client = this.getClient(key)
 
 		const now = Date.now()
@@ -115,6 +115,19 @@ export default class MemoryStore implements Store {
 	async resetKey(key: string): Promise<void> {
 		this.current.delete(key)
 		this.previous.delete(key)
+	}
+
+	/**
+	 * Method to fetch a client's hit count and reset time.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
+	 *
+	 * @public
+	 */
+	async fetchKey(key: string): Promise<ClientRateLimitInfo | undefined> {
+		return this.current.get(key) ?? this.previous.get(key)
 	}
 
 	/**

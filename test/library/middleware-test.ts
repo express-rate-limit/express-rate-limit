@@ -11,7 +11,7 @@ import rateLimit, {
 	type Store,
 	type Options,
 	type IncrementCallback,
-	type IncrementResponse,
+	type ClientRateLimitInfo,
 } from '../../source/index.js'
 import { createServer } from './helpers/create-server.js'
 
@@ -29,6 +29,7 @@ describe('middleware test', () => {
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
+		fetchKeyWasCalled = false
 		resetAllWasCalled = false
 
 		counter = 0
@@ -37,7 +38,7 @@ describe('middleware test', () => {
 			this.initWasCalled = true
 		}
 
-		async increment(_key: string): Promise<IncrementResponse> {
+		async increment(_key: string): Promise<ClientRateLimitInfo> {
 			this.counter += 1
 			this.incrementWasCalled = true
 
@@ -51,6 +52,12 @@ describe('middleware test', () => {
 
 		async resetKey(_key: string): Promise<void> {
 			this.resetKeyWasCalled = true
+		}
+
+		async fetchKey(_key: string): Promise<ClientRateLimitInfo> {
+			this.fetchKeyWasCalled = true
+
+			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		async resetAll(): Promise<void> {
@@ -93,6 +100,7 @@ describe('middleware test', () => {
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
+		fetchKeyWasCalled = false
 		resetAllWasCalled = false
 
 		counter = 0
@@ -104,7 +112,7 @@ describe('middleware test', () => {
 			callback(undefined, this.counter, undefined)
 		}
 
-		async increment(_key: string): Promise<IncrementResponse> {
+		async increment(_key: string): Promise<ClientRateLimitInfo> {
 			this.counter += 1
 			this.incrementWasCalled = true
 
@@ -118,6 +126,12 @@ describe('middleware test', () => {
 
 		resetKey(_key: string): void {
 			this.resetKeyWasCalled = true
+		}
+
+		async fetchKey(_key: string): Promise<ClientRateLimitInfo> {
+			this.fetchKeyWasCalled = true
+
+			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		resetAll(): void {

@@ -5,13 +5,13 @@ import createServer from 'express'
 import rateLimit, {
 	MemoryStore,
 	Store,
-	IncrementResponse,
+	ClientRateLimitInfo,
 } from 'express-rate-limit'
 
 export class TestStore implements Store {
 	hits: Record<string, number> = {}
 
-	async increment(key: string): Promise<IncrementResponse> {
+	async increment(key: string): Promise<ClientRateLimitInfo> {
 		if (!this.hits[key]) this.hits[key] = 0
 		this.hits[key] += 1
 
