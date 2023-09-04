@@ -12,3 +12,5 @@ coverage/
 *.tmp
 *.bak
 *.tgz
+
+test/external/imports/*/*/package-lock.json
