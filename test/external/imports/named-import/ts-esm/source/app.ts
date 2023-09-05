@@ -26,6 +26,13 @@ export class TestStore implements Store {
 		if (this.hits[key]) this.hits[key]--
 	}
 
+	async fetchKey(key: string): Promise<ClientRateLimitInfo> {
+		return {
+			totalHits: this.hits[key],
+			resetTime: undefined,
+		}
+	}
+
 	async resetKey(key: string): Promise<void> {
 		delete this.hits[key]
 	}
