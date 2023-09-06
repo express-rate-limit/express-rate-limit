@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.0)
+
+### Added
+
+- Support for retrieving the current hit count and reset time for a given key
+  from a store (See
+  [#390](https://github.com/express-rate-limit/express-rate-limit/issues/389)).
+
 ## [6.10.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.10.0)
 
 ### Added
