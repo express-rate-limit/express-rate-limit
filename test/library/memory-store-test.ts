@@ -19,7 +19,7 @@ describe.only('memory store test', () => {
 
 	it('returns the current hit count and reset time for a key', async () => {
 		const store = new MemoryStore()
-		store.init({ windowMs: -1 } as Options)
+		store.init({ windowMs: minute } as Options)
 		const key = 'test-store'
 
 		await store.increment(key)

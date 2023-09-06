@@ -15,6 +15,10 @@ describe('options test', () => {
 			this.options = options
 		}
 
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			return { totalHits: 1, resetTime: undefined }
+		}
+
 		async increment(_key: string): Promise<ClientRateLimitInfo> {
 			return { totalHits: 1, resetTime: undefined }
 		}

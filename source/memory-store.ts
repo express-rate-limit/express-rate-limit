@@ -7,7 +7,7 @@ import type { Store, Options, ClientRateLimitInfo } from './types.js'
  * The record that stores information about a client - namely, how many times
  * they have hit the endpoint, and when their hit count resets.
  *
- * Similar to `IncrementResponse`, except `resetTime` is a compulsory field.
+ * Similar to `ClientRateLimitInfo`, except `resetTime` is a compulsory field.
  */
 type Client = {
 	totalHits: number
