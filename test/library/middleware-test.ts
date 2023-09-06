@@ -750,15 +750,25 @@ describe('middleware test', () => {
 		])
 
 		await request(app).get('/').expect(200)
-		expect(savedRequestObject).toBeTruthy()
-		expect(savedRequestObject.rateLimit).toBeTruthy()
-		expect(savedRequestObject.rateLimit.limit).toEqual(5)
-		expect(savedRequestObject.rateLimit.remaining).toEqual(4)
+		expect(savedRequestObject?.rateLimit).toMatchObject({
+			limit: 5,
+			used: 1,
+			remaining: 4,
+			resetTime: expect.any(Date),
+		})
+
+		// Make sure the hidden proerty is also set.
+		expect(savedRequestObject?.rateLimit.current).toBe(1)
 
 		savedRequestObject = undefined
 		await request(app).get('/').expect(200)
-		expect(savedRequestObject.rateLimit.limit).toEqual(5)
-		expect(savedRequestObject.rateLimit.remaining).toEqual(3)
+		expect(savedRequestObject?.rateLimit).toMatchObject({
+			limit: 5,
+			used: 2,
+			remaining: 3,
+			resetTime: expect.any(Date),
+		})
+		expect(savedRequestObject?.rateLimit.current).toBe(2)
 	})
 
 	it('should pass the number of hits and the limit to the next request handler with a custom property', async () => {
@@ -782,15 +792,23 @@ describe('middleware test', () => {
 		])
 
 		await request(app).get('/').expect(200)
-		expect(savedRequestObject).toBeTruthy()
-		expect(savedRequestObject.rateLimitInfo).toBeTruthy()
-		expect(savedRequestObject.rateLimitInfo.limit).toEqual(5)
-		expect(savedRequestObject.rateLimitInfo.remaining).toEqual(4)
+		expect(savedRequestObject?.rateLimitInfo).toMatchObject({
+			limit: 5,
+			used: 1,
+			remaining: 4,
+			resetTime: expect.any(Date),
+		})
+		expect(savedRequestObject?.rateLimitInfo.current).toBe(1)
 
 		savedRequestObject = undefined
 		await request(app).get('/').expect(200)
-		expect(savedRequestObject.rateLimitInfo.limit).toEqual(5)
-		expect(savedRequestObject.rateLimitInfo.remaining).toEqual(3)
+		expect(savedRequestObject?.rateLimitInfo).toMatchObject({
+			limit: 5,
+			used: 2,
+			remaining: 3,
+			resetTime: expect.any(Date),
+		})
+		expect(savedRequestObject?.rateLimitInfo.current).toBe(2)
 	})
 
 	it('should handle two rate-limiters with different `requestPropertyNames` operating independently', async () => {
