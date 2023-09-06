@@ -422,6 +422,20 @@ describe('middleware test', () => {
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
+	])('should call `get` on the store (%s store)', async (name, store) => {
+		const limiter = rateLimit({
+			store,
+		})
+
+		limiter.getKey('key')
+
+		expect(store.getWasCalled).toEqual(true)
+	})
+
+	it.each([
+		['modern', new MockStore()],
+		['legacy', new MockLegacyStore()],
+		['compat', new MockBackwardCompatibleStore()],
 	])(
 		'should decrement hits when requests succeed and `skipSuccessfulRequests` is set to true (%s store)',
 		async (name, store) => {

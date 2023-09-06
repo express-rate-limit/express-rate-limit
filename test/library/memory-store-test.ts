@@ -17,6 +17,20 @@ describe.only('memory store test', () => {
 		jest.restoreAllMocks()
 	})
 
+	it('returns the current hit count and reset time for a key', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: minute } as Options)
+		const key = 'test-store'
+
+		await store.increment(key)
+
+		const response = await store.get(key)
+		expect(response).toMatchObject({
+			totalHits: 1,
+			resetTime: expect.any(Date),
+		})
+	})
+
 	it('sets the value to 1 on first call to `increment`', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: minute } as Options)
