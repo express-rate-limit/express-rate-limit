@@ -175,6 +175,12 @@ export type Store = {
 
 export type DraftHeadersVersion = 'draft-6' | 'draft-7'
 
+// Ideally, this should be:
+//   import type { Validations } from './validations.js'
+//   export type ValidationsEnabled = { [key in keyof Validations]: boolean }
+// But that causes a circular reference between the Validations and ValidationsEnabled types, so it doesn't work.
+export type ValidationsEnabled = { [key: string]: boolean }
+
 /**
  * The configuration options for the rate limiter.
  */
@@ -291,7 +297,7 @@ export type Options = {
 	/**
 	 * Whether or not the validation checks should run.
 	 */
-	validate: boolean
+	validate: boolean | ValidationsEnabled
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number

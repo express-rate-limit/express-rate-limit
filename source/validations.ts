@@ -3,7 +3,7 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
-import type { Store } from './types'
+import type { Store, ValidationsEnabled } from './types.js'
 
 /**
  * An error thrown/returned when a validation error occurs.
@@ -53,10 +53,13 @@ const singleCountKeys = new WeakMap<Request, Map<Store | string, string[]>>()
  * The validations that can be run, as well as the methods to run them.
  */
 const validations = {
-	enabled: true,
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+	enabled: {
+		default: true,
+	} as ValidationsEnabled,
 
 	disable() {
-		this.enabled = false
+		for (const k of Object.keys(this.enabled)) this.enabled[k] = false
 	},
 
 	/**
@@ -250,7 +253,21 @@ export type Validations = typeof validations
  * @param enabled {boolean}
  * @returns {Validations}
  */
-export function getValidations(enabled: boolean): Validations {
+export function getValidations(
+	_enabled: boolean | ValidationsEnabled,
+): Validations {
+	let enabled: { [key: string]: boolean }
+	if (typeof _enabled === 'boolean') {
+		enabled = {
+			default: _enabled,
+		}
+	} else {
+		enabled = {
+			default: true,
+			..._enabled,
+		}
+	}
+
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 	const wrappedValidations = {
 		enabled,
@@ -261,7 +278,7 @@ export function getValidations(enabled: boolean): Validations {
 			(wrappedValidations as { [index: string]: any })[name] = (
 				...args: any[]
 			) => {
-				if (!wrappedValidations.enabled) {
+				if (!(enabled[name] ?? enabled.default)) {
 					return
 				}
 
