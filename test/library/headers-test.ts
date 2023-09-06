@@ -95,7 +95,7 @@ describe('headers test', () => {
 		} as any
 		const info: RateLimitInfo = {
 			limit: 5,
-			current: 1,
+			used: 1,
 			remaining: 4,
 			resetTime: new Date(),
 		}

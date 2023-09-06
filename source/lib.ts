@@ -338,12 +338,21 @@ const rateLimit = (
 			const limit = await retrieveLimit
 			config.validations.max(limit)
 
+			// Define the rate limit info for the client.
 			const info: RateLimitInfo = {
 				limit,
-				current: totalHits,
+				used: totalHits,
 				remaining: Math.max(limit - totalHits, 0),
 				resetTime,
 			}
+
+			// Set the `current` property on the object, but hide it from iteration
+			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
+			Object.defineProperty(info, 'current', {
+				configurable: false,
+				enumerable: false,
+				get: () => (this as unknown as RateLimitInfo).used,
+			})
 
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[config.requestPropertyName] = info
