@@ -38,38 +38,26 @@ class ValidationError extends Error {
 class ChangeWarning extends ValidationError {}
 
 /**
+ * Maps the key used in a store for a certain request, and ensures that the
+ * same key isn't used more than once per request.
+ *
+ * The store can be any one of the following:
+ *  - An instance, for stores like the MemoryStore where two instances do not
+ *    share state.
+ *  - A string (class name), for stores where multiple instances
+ *    typically share state, such as the Redis store.
+ */
+const singleCountKeys = new WeakMap<Request, Map<Store | string, string[]>>()
+
+/**
  * The validations that can be run, as well as the methods to run them.
  */
-export class Validations {
-	/**
-	 * Maps the key used in a store for a certain request, and ensures that the
-	 * same key isn't used more than once per request.
-	 *
-	 * The store can be any one of the following:
-	 *  - An instance, for stores like the MemoryStore where two instances do not
-	 *    share state.
-	 *  - A string (class name), for stores where multiple instances
-	 *    typically share state, such as the Redis store.
-	 */
-	private static readonly singleCountKeys = new WeakMap<
-		Request,
-		Map<Store | string, string[]>
-	>()
-
-	// eslint-disable-next-line @typescript-eslint/parameter-properties
-	enabled: boolean
-
-	constructor(enabled: boolean) {
-		this.enabled = enabled
-	}
-
-	enable() {
-		this.enabled = true
-	}
+const validations = {
+	enabled: true,
 
 	disable() {
 		this.enabled = false
-	}
+	},
 
 	/**
 	 * Checks whether the IP address is valid, and that it does not have a port
@@ -82,22 +70,20 @@ export class Validations {
 	 * @returns {void}
 	 */
 	ip(ip: string | undefined) {
-		this.wrap(() => {
-			if (ip === undefined) {
-				throw new ValidationError(
-					'ERR_ERL_UNDEFINED_IP_ADDRESS',
-					`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.`,
-				)
-			}
+		if (ip === undefined) {
+			throw new ValidationError(
+				'ERR_ERL_UNDEFINED_IP_ADDRESS',
+				`An undefined 'request.ip' was detected. This might indicate a misconfiguration or the connection being destroyed prematurely.`,
+			)
+		}
 
-			if (!isIP(ip)) {
-				throw new ValidationError(
-					'ERR_ERL_INVALID_IP_ADDRESS',
-					`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`,
-				)
-			}
-		})
-	}
+		if (!isIP(ip)) {
+			throw new ValidationError(
+				'ERR_ERL_INVALID_IP_ADDRESS',
+				`An invalid 'request.ip' (${ip}) was detected. Consider passing a custom 'keyGenerator' function to the rate limiter.`,
+			)
+		}
+	},
 
 	/**
 	 * Makes sure the trust proxy setting is not set to `true`.
@@ -109,15 +95,13 @@ export class Validations {
 	 * @returns {void}
 	 */
 	trustProxy(request: Request) {
-		this.wrap(() => {
-			if (request.app.get('trust proxy') === true) {
-				throw new ValidationError(
-					'ERR_ERL_PERMISSIVE_TRUST_PROXY',
-					`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting.`,
-				)
-			}
-		})
-	}
+		if (request.app.get('trust proxy') === true) {
+			throw new ValidationError(
+				'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+				`The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting.`,
+			)
+		}
+	},
 
 	/**
 	 * Makes sure the trust proxy setting is set in case the `X-Forwarded-For`
@@ -130,18 +114,16 @@ export class Validations {
 	 * @returns {void}
 	 */
 	xForwardedForHeader(request: Request) {
-		this.wrap(() => {
-			if (
-				request.headers['x-forwarded-for'] &&
-				request.app.get('trust proxy') === false
-			) {
-				throw new ValidationError(
-					'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
-					`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users.`,
-				)
-			}
-		})
-	}
+		if (
+			request.headers['x-forwarded-for'] &&
+			request.app.get('trust proxy') === false
+		) {
+			throw new ValidationError(
+				'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+				`The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users.`,
+			)
+		}
+	},
 
 	/**
 	 * Ensures totalHits value from store is a positive integer.
@@ -149,15 +131,13 @@ export class Validations {
 	 * @param hits {any} - The `totalHits` returned by the store.
 	 */
 	positiveHits(hits: any) {
-		this.wrap(() => {
-			if (typeof hits !== 'number' || hits < 1 || hits !== Math.round(hits)) {
-				throw new ValidationError(
-					'ERR_ERL_INVALID_HITS',
-					`The totalHits value returned from the store must be a positive integer, got ${hits}`,
-				)
-			}
-		})
-	}
+		if (typeof hits !== 'number' || hits < 1 || hits !== Math.round(hits)) {
+			throw new ValidationError(
+				'ERR_ERL_INVALID_HITS',
+				`The totalHits value returned from the store must be a positive integer, got ${hits}`,
+			)
+		}
+	},
 
 	/**
 	 * Ensures a given key is incremented only once per request.
@@ -169,30 +149,28 @@ export class Validations {
 	 * @returns {void}
 	 */
 	singleCount(request: Request, store: Store, key: string) {
-		this.wrap(() => {
-			let storeKeys = Validations.singleCountKeys.get(request)
-			if (!storeKeys) {
-				storeKeys = new Map()
-				Validations.singleCountKeys.set(request, storeKeys)
-			}
+		let storeKeys = singleCountKeys.get(request)
+		if (!storeKeys) {
+			storeKeys = new Map()
+			singleCountKeys.set(request, storeKeys)
+		}
 
-			const storeKey = store.localKeys ? store : store.constructor.name
-			let keys = storeKeys.get(storeKey)
-			if (!keys) {
-				keys = []
-				storeKeys.set(storeKey, keys)
-			}
+		const storeKey = store.localKeys ? store : store.constructor.name
+		let keys = storeKeys.get(storeKey)
+		if (!keys) {
+			keys = []
+			storeKeys.set(storeKey, keys)
+		}
 
-			if (keys.includes(key)) {
-				throw new ValidationError(
-					'ERR_ERL_DOUBLE_COUNT',
-					`The hit count for ${key} was incremented more than once for a single request.`,
-				)
-			}
+		if (keys.includes(key)) {
+			throw new ValidationError(
+				'ERR_ERL_DOUBLE_COUNT',
+				`The hit count for ${key} was incremented more than once for a single request.`,
+			)
+		}
 
-			keys.push(key)
-		})
-	}
+		keys.push(key)
+	},
 
 	/**
 	 * Warns the user that the behaviour for `max: 0` is changing in the next
@@ -203,15 +181,13 @@ export class Validations {
 	 * @returns {void}
 	 */
 	max(max: number) {
-		this.wrap(() => {
-			if (max === 0) {
-				throw new ChangeWarning(
-					'WRN_ERL_MAX_ZERO',
-					`Setting max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
-				)
-			}
-		})
-	}
+		if (max === 0) {
+			throw new ChangeWarning(
+				'WRN_ERL_MAX_ZERO',
+				`Setting max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
+			)
+		}
+	},
 
 	/**
 	 * Warns the user that the `draft_polli_ratelimit_headers` option is deprecated
@@ -222,15 +198,13 @@ export class Validations {
 	 * @returns {void}
 	 */
 	draftPolliHeaders(draft_polli_ratelimit_headers?: any) {
-		this.wrap(() => {
-			if (draft_polli_ratelimit_headers) {
-				throw new ChangeWarning(
-					'WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS',
-					`The draft_polli_ratelimit_headers configuration option is deprecated and has been removed in express-rate-limit v7, please set standardHeaders: 'draft-6' instead.`,
-				)
-			}
-		})
-	}
+		if (draft_polli_ratelimit_headers) {
+			throw new ChangeWarning(
+				'WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS',
+				`The draft_polli_ratelimit_headers configuration option is deprecated and has been removed in express-rate-limit v7, please set standardHeaders: 'draft-6' instead.`,
+			)
+		}
+	},
 
 	/**
 	 * Warns the user that the `onLimitReached` option is deprecated and will be removed in the next
@@ -241,15 +215,13 @@ export class Validations {
 	 * @returns {void}
 	 */
 	onLimitReached(onLimitReached?: any) {
-		this.wrap(() => {
-			if (onLimitReached) {
-				throw new ChangeWarning(
-					'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
-					`The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`,
-				)
-			}
-		})
-	}
+		if (onLimitReached) {
+			throw new ChangeWarning(
+				'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
+				`The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`,
+			)
+		}
+	},
 
 	/**
 	 * Warns the user when the selected headers option requires a reset time but
@@ -260,26 +232,50 @@ export class Validations {
 	 * @returns {void}
 	 */
 	headersResetTime(resetTime?: Date) {
-		this.wrap(() => {
-			if (!resetTime) {
-				throw new ValidationError(
-					'ERR_ERL_HEADERS_NO_RESET',
-					`standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`,
-				)
+		if (!resetTime) {
+			throw new ValidationError(
+				'ERR_ERL_HEADERS_NO_RESET',
+				`standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`,
+			)
+		}
+	},
+}
+
+export type Validations = typeof validations
+
+/**
+ * Creates a copy of the validations object where each method is wrapped to catch and log any thrown errors.
+ * Sets `enabled` to the provided value, allowing different instances of express-rate-limit to have different validations settings.
+ *
+ * @param enabled {boolean}
+ * @returns {Validations}
+ */
+export function getValidations(enabled: boolean): Validations {
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+	const wrappedValidations = {
+		enabled,
+	} as Validations
+	// Wrap all validations to handle disabling and thrown errors
+	for (const [name, validation] of Object.entries(validations)) {
+		if (typeof validation === 'function')
+			(wrappedValidations as { [index: string]: any })[name] = (
+				...args: any[]
+			) => {
+				if (!wrappedValidations.enabled) {
+					return
+				}
+
+				try {
+					;(validation as (...args: any[]) => void).apply(
+						wrappedValidations,
+						args,
+					)
+				} catch (error: any) {
+					if (error instanceof ChangeWarning) console.warn(error)
+					else console.error(error)
+				}
 			}
-		})
 	}
 
-	private wrap(validation: () => void) {
-		if (!this.enabled) {
-			return
-		}
-
-		try {
-			validation.call(this)
-		} catch (error: any) {
-			if (error instanceof ChangeWarning) console.warn(error)
-			else console.error(error)
-		}
-	}
+	return wrappedValidations
 }

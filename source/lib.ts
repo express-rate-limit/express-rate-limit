@@ -20,7 +20,7 @@ import {
 	setDraft7Headers,
 	setRetryAfterHeader,
 } from './headers.js'
-import { Validations } from './validations.js'
+import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
 
 /**
@@ -175,7 +175,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		omitUndefinedOptions(passedOptions)
 
 	// Create the validator before even parsing the rest of the options.
-	const validations = new Validations(notUndefinedOptions?.validate ?? true)
+	const validations = getValidations(notUndefinedOptions?.validate ?? true)
 
 	// Warn for the deprecated options. Note that these options have been removed
 	// from the type definitions in v7.

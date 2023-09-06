@@ -9,11 +9,11 @@ import {
 	beforeEach,
 	afterEach,
 } from '@jest/globals'
-import { Validations } from '../../source/validations.js'
+import { getValidations } from '../../source/validations.js'
 import type { Store } from '../../source/types'
 
 describe('validations tests', () => {
-	let validations = new Validations(true)
+	let validations = getValidations(true)
 
 	beforeEach(() => {
 		jest.spyOn(console, 'error').mockImplementation(() => {})
@@ -21,7 +21,7 @@ describe('validations tests', () => {
 	})
 	afterEach(() => {
 		jest.restoreAllMocks()
-		validations = new Validations(true)
+		validations = getValidations(true)
 	})
 
 	describe('ip', () => {
@@ -235,7 +235,7 @@ describe('validations tests', () => {
 
 	describe('disable', () => {
 		it('should initialize disabled when passed false', () => {
-			const disabledValidator = new Validations(false)
+			const disabledValidator = getValidations(false)
 			disabledValidator.ip('badip')
 			expect(console.error).not.toBeCalled()
 		})
@@ -244,12 +244,6 @@ describe('validations tests', () => {
 			validations.disable()
 			validations.ip('badip')
 			expect(console.error).not.toBeCalled()
-		})
-
-		it('should be enabled after enable() is called', () => {
-			validations.enable()
-			validations.ip('badip')
-			expect(console.error).toBeCalled()
 		})
 	})
 })
