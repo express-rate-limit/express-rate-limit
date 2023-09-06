@@ -1,7 +1,7 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import type { Store, Options, IncrementResponse } from './types.js'
+import type { Store, Options, ClientRateLimitInfo } from './types.js'
 
 /**
  * Calculates the time when all hit counters will be reset.
@@ -76,15 +76,33 @@ export default class MemoryStore implements Store {
 	}
 
 	/**
+	 * Method to fetch a client's hit count and reset time.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
+	 *
+	 * @public
+	 */
+	async get(key: string): Promise<ClientRateLimitInfo | undefined> {
+		if (this.hits[key] !== undefined)
+			return {
+				totalHits: this.hits[key]!,
+				resetTime: this.resetTime,
+			}
+		return undefined
+	}
+
+	/**
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client.
 	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
 	 *
 	 * @public
 	 */
-	async increment(key: string): Promise<IncrementResponse> {
+	async increment(key: string): Promise<ClientRateLimitInfo> {
 		const totalHits = (this.hits[key] ?? 0) + 1
 		this.hits[key] = totalHits
 

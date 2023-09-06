@@ -67,7 +67,7 @@ export type RateLimitReachedEventHandler = (
  * @property totalHits {number} - The number of hits for that client so far.
  * @property resetTime {Date | undefined} - The time when the counter resets.
  */
-export type IncrementResponse = {
+export type ClientRateLimitInfo = {
 	totalHits: number
 	resetTime: Date | undefined
 }
@@ -82,6 +82,20 @@ export type RateLimitRequestHandler = RequestHandler & {
 	 * @param key {string} - The identifier for a client.
 	 */
 	resetKey: (key: string) => void
+
+	/**
+	 * Method to fetch a client's hit count and reset time.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
+	 */
+	getKey?: (
+		key: string,
+	) =>
+		| Promise<ClientRateLimitInfo | undefined>
+		| ClientRateLimitInfo
+		| undefined
 }
 
 /**
@@ -131,13 +145,27 @@ export type Store = {
 	init?: (options: Options) => void
 
 	/**
+	 * Method to fetch a client's hit count and reset time.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
+	 */
+	get?: (
+		key: string,
+	) =>
+		| Promise<ClientRateLimitInfo | undefined>
+		| ClientRateLimitInfo
+		| undefined
+
+	/**
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client.
 	 *
-	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+	 * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
 	 */
-	increment: (key: string) => Promise<IncrementResponse> | IncrementResponse
+	increment: (key: string) => Promise<ClientRateLimitInfo> | ClientRateLimitInfo
 
 	/**
 	 * Method to decrement a client's hit counter.

@@ -119,8 +119,10 @@ describe('headers test', () => {
 					standardHeaders: false,
 				}),
 			)
+
 			const response = await request(app).get('/').expect(200)
 			const rateLimitDetails = parseRateLimit(response as any)
+
 			expect(rateLimitDetails).toMatchObject({
 				used: 1,
 				remaining: 4,
@@ -137,8 +139,10 @@ describe('headers test', () => {
 					standardHeaders: 'draft-6',
 				}),
 			)
+
 			const response = await request(app).get('/').expect(200)
 			const rateLimitDetails = parseRateLimit(response as any)
+
 			expect(rateLimitDetails).toMatchObject({
 				used: 1,
 				remaining: 4,
@@ -156,8 +160,10 @@ describe('headers test', () => {
 					standardHeaders: 'draft-7',
 				}),
 			)
+
 			const response = await request(app).get('/').expect(200)
 			const rateLimitDetails = parseRateLimit(response as any)
+
 			expect(rateLimitDetails).toMatchObject({
 				used: 1,
 				remaining: 4,

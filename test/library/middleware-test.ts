@@ -11,7 +11,7 @@ import rateLimit, {
 	type Store,
 	type Options,
 	type IncrementCallback,
-	type IncrementResponse,
+	type ClientRateLimitInfo,
 } from '../../source/index.js'
 import { createServer } from './helpers/create-server.js'
 
@@ -29,6 +29,7 @@ describe('middleware test', () => {
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
+		getWasCalled = false
 		resetAllWasCalled = false
 
 		counter = 0
@@ -37,7 +38,13 @@ describe('middleware test', () => {
 			this.initWasCalled = true
 		}
 
-		async increment(_key: string): Promise<IncrementResponse> {
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			this.getWasCalled = true
+
+			return { totalHits: this.counter, resetTime: undefined }
+		}
+
+		async increment(_key: string): Promise<ClientRateLimitInfo> {
 			this.counter += 1
 			this.incrementWasCalled = true
 
@@ -93,6 +100,7 @@ describe('middleware test', () => {
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
+		getWasCalled = false
 		resetAllWasCalled = false
 
 		counter = 0
@@ -104,7 +112,13 @@ describe('middleware test', () => {
 			callback(undefined, this.counter, undefined)
 		}
 
-		async increment(_key: string): Promise<IncrementResponse> {
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			this.getWasCalled = true
+
+			return { totalHits: this.counter, resetTime: undefined }
+		}
+
+		async increment(_key: string): Promise<ClientRateLimitInfo> {
 			this.counter += 1
 			this.incrementWasCalled = true
 
@@ -397,6 +411,33 @@ describe('middleware test', () => {
 
 		expect(store.resetKeyWasCalled).toEqual(true)
 	})
+
+	it.each([
+		['modern', new MockStore()],
+		['compat', new MockBackwardCompatibleStore()],
+	])('should call `get` on the store (%s store)', async (name, store) => {
+		const limiter = rateLimit({
+			store,
+		})
+
+		const response = await limiter.getKey!('key')
+
+		expect(store.getWasCalled).toEqual(true)
+		expect(typeof response?.totalHits).toBe('number')
+	})
+
+	it.each([['legacy', new MockLegacyStore()]])(
+		'should call `get` on the store (%s store)',
+		async (name, store) => {
+			const limiter = rateLimit({
+				store,
+			})
+
+			const response = await limiter.getKey!('key')
+			// The legacy stores are promisified and provided a stub `get` function.
+			expect(response).toBeUndefined()
+		},
+	)
 
 	it.each([
 		['modern', new MockStore()],

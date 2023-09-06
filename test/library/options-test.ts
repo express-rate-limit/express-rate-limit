@@ -4,7 +4,7 @@
 import rateLimit, {
 	type Store,
 	type Options,
-	type IncrementResponse,
+	type ClientRateLimitInfo,
 } from '../../source/index.js'
 
 describe('options test', () => {
@@ -30,7 +30,7 @@ describe('options test', () => {
 				this.options = options
 			}
 
-			async increment(_key: string): Promise<IncrementResponse> {
+			async increment(_key: string): Promise<ClientRateLimitInfo> {
 				return { totalHits: 1, resetTime: undefined }
 			}
 
@@ -57,7 +57,7 @@ describe('options test', () => {
 			// @ts-expect-error Check if the library can detect invalid stores without TSC's help
 			init = 'not-a-function'
 
-			async increment(_key: string): Promise<IncrementResponse> {
+			async increment(_key: string): Promise<ClientRateLimitInfo> {
 				return { totalHits: 1, resetTime: undefined }
 			}
 
