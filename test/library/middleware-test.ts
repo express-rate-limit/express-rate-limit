@@ -29,13 +29,19 @@ describe('middleware test', () => {
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
-		fetchKeyWasCalled = false
+		getWasCalled = false
 		resetAllWasCalled = false
 
 		counter = 0
 
 		init(_options: Options): void {
 			this.initWasCalled = true
+		}
+
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			this.getWasCalled = true
+
+			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		async increment(_key: string): Promise<ClientRateLimitInfo> {
@@ -52,12 +58,6 @@ describe('middleware test', () => {
 
 		async resetKey(_key: string): Promise<void> {
 			this.resetKeyWasCalled = true
-		}
-
-		async fetchKey(_key: string): Promise<ClientRateLimitInfo> {
-			this.fetchKeyWasCalled = true
-
-			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		async resetAll(): Promise<void> {
@@ -100,7 +100,7 @@ describe('middleware test', () => {
 		incrementWasCalled = false
 		decrementWasCalled = false
 		resetKeyWasCalled = false
-		fetchKeyWasCalled = false
+		getWasCalled = false
 		resetAllWasCalled = false
 
 		counter = 0
@@ -110,6 +110,12 @@ describe('middleware test', () => {
 			this.incrementWasCalled = true
 
 			callback(undefined, this.counter, undefined)
+		}
+
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			this.getWasCalled = true
+
+			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		async increment(_key: string): Promise<ClientRateLimitInfo> {
@@ -126,12 +132,6 @@ describe('middleware test', () => {
 
 		resetKey(_key: string): void {
 			this.resetKeyWasCalled = true
-		}
-
-		async fetchKey(_key: string): Promise<ClientRateLimitInfo> {
-			this.fetchKeyWasCalled = true
-
-			return { totalHits: this.counter, resetTime: undefined }
 		}
 
 		resetAll(): void {

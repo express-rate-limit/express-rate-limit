@@ -11,6 +11,13 @@ import rateLimit, {
 export class TestStore implements Store {
 	hits: Record<string, number> = {}
 
+	async get(key: string): Promise<ClientRateLimitInfo> {
+		return {
+			totalHits: this.hits[key],
+			resetTime: undefined,
+		}
+	}
+
 	async increment(key: string): Promise<ClientRateLimitInfo> {
 		if (!this.hits[key]) this.hits[key] = 0
 		this.hits[key] += 1
@@ -27,13 +34,6 @@ export class TestStore implements Store {
 
 	async resetKey(key: string): Promise<void> {
 		delete this.hits[key]
-	}
-
-	async fetchKey(key: string): Promise<ClientRateLimitInfo> {
-		return {
-			totalHits: this.hits[key],
-			resetTime: undefined,
-		}
 	}
 
 	async shutdown(): Promise<void> {

@@ -72,6 +72,19 @@ export default class MemoryStore implements Store {
 	}
 
 	/**
+	 * Method to fetch a client's hit count and reset time.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
+	 *
+	 * @public
+	 */
+	async get(key: string): Promise<ClientRateLimitInfo | undefined> {
+		return this.current.get(key) ?? this.previous.get(key)
+	}
+
+	/**
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client.
@@ -115,19 +128,6 @@ export default class MemoryStore implements Store {
 	async resetKey(key: string): Promise<void> {
 		this.current.delete(key)
 		this.previous.delete(key)
-	}
-
-	/**
-	 * Method to fetch a client's hit count and reset time.
-	 *
-	 * @param key {string} - The identifier for a client.
-	 *
-	 * @returns {ClientRateLimitInfo | undefined} - The number of hits and reset time for that client.
-	 *
-	 * @public
-	 */
-	async fetchKey(key: string): Promise<ClientRateLimitInfo | undefined> {
-		return this.current.get(key) ?? this.previous.get(key)
 	}
 
 	/**

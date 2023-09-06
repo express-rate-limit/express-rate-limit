@@ -90,7 +90,7 @@ export type RateLimitRequestHandler = RequestHandler & {
 	 *
 	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
 	 */
-	fetchKey: (
+	getKey?: (
 		key: string,
 	) =>
 		| Promise<ClientRateLimitInfo | undefined>
@@ -145,6 +145,20 @@ export type Store = {
 	init?: (options: Options) => void
 
 	/**
+	 * Method to fetch a client's hit count and reset time.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
+	 */
+	get?: (
+		key: string,
+	) =>
+		| Promise<ClientRateLimitInfo | undefined>
+		| ClientRateLimitInfo
+		| undefined
+
+	/**
 	 * Method to increment a client's hit counter.
 	 *
 	 * @param key {string} - The identifier for a client.
@@ -166,20 +180,6 @@ export type Store = {
 	 * @param key {string} - The identifier for a client.
 	 */
 	resetKey: (key: string) => Promise<void> | void
-
-	/**
-	 * Method to fetch a client's hit count and reset time.
-	 *
-	 * @param key {string} - The identifier for a client.
-	 *
-	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
-	 */
-	fetchKey: (
-		key: string,
-	) =>
-		| Promise<ClientRateLimitInfo | undefined>
-		| ClientRateLimitInfo
-		| undefined
 
 	/**
 	 * Method to reset everyone's hit counter.
