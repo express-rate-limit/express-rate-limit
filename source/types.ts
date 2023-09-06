@@ -365,7 +365,15 @@ export type AugmentedRequest = Request & {
  */
 export type RateLimitInfo = {
 	limit: number
-	current: number
+	used: number
 	remaining: number
 	resetTime: Date | undefined
+
+	/**
+	 * NOTE: The `current` field is deprecated and renamed to `used`. The library
+	 * will still set the `current` property, and you can still access it, but it
+	 * will be hidden from iteration and JSON.stringify calls. See:
+	 * https://github.com/express-rate-limit/express-rate-limit/discussions/372#discussioncomment-6915685
+	 */
+	// current: number
 }
