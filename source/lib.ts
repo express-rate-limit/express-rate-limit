@@ -351,7 +351,7 @@ const rateLimit = (
 			Object.defineProperty(info, 'current', {
 				configurable: false,
 				enumerable: false,
-				get: () => (this as unknown as RateLimitInfo).used,
+				value: totalHits,
 			})
 
 			// Set the rate limit information on the augmented request object
