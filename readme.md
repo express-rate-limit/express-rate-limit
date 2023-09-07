@@ -508,7 +508,7 @@ const limiter = rateLimit({
 
 ### `validate`
 
-> `boolean`
+> `boolean | Object`
 
 When enabled, a set of validation checks are run on the first request to detect
 common misconfigurations with proxies, etc. Prints an error to the console if
@@ -516,10 +516,29 @@ any issue is detected.
 
 Automatically disables after the first request is processed.
 
+If set to `true` or `false`, all validations are enabled or disabled.
+
+If set to an object, individual validations can be enabled or disabled by name,
+and the key `default` controls all unspecified validations. For example:
+
+```js
+const limiter = rateLimit({
+	validate: {
+		xForwardedForHeader: false,
+		default: true,
+	},
+	// ...
+})
+```
+
+Supported options are `ip`, `trustProxy`, `xForwardedForHeader`, `positiveHits`,
+`singleCount`, `max`, `draftPolliHeaders`, `onLimitReached`, `headersResetTime`,
+`validationsConfig`, and `default`.
+
 See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes
 for more info.
 
-Defaults to true.
+Defaults to `true`.
 
 ### `store`
 
