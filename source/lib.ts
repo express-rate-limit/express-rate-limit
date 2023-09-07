@@ -176,6 +176,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 	// Create the validator before even parsing the rest of the options.
 	const validations = getValidations(notUndefinedOptions?.validate ?? true)
+	validations.validationsConfig()
 
 	// Warn for the deprecated options. Note that these options have been removed
 	// from the type definitions in v7.

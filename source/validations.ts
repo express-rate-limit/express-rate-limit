@@ -242,6 +242,28 @@ const validations = {
 			)
 		}
 	},
+
+	/**
+	 * Checks the options.validate setting to ensure that only recognized validations are enabled or disabled.
+	 *
+	 * If any unrecognized values are found, an error is logged that includes the list of supported vaidations.
+	 */
+	validationsConfig() {
+		const supportedValidations = Object.keys(this).filter(
+			(k) => !['enabled', 'disable'].includes(k),
+		)
+		supportedValidations.push('default')
+		for (const key of Object.keys(this.enabled)) {
+			if (!supportedValidations.includes(key)) {
+				throw new ValidationError(
+					'ERR_ERL_UNKNOWN_VALIDATION',
+					`options.validate.${key} is not recognized. Supported validate options are: ${supportedValidations.join(
+						', ',
+					)}.`,
+				)
+			}
+		}
+	},
 }
 
 export type Validations = typeof validations
