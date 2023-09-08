@@ -177,7 +177,7 @@ export type Store = {
 export type DraftHeadersVersion = 'draft-6' | 'draft-7'
 
 /**
- * Validations configuration object for enabling or disabeling specific validations
+ * Validate configuration object for enabling or disabeling specific validations
  *
  * The keys must also be keys in the validations object (except `enabled` and `disable`), or `default`
  */
