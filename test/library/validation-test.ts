@@ -233,6 +233,57 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('validationsConfig', () => {
+		it('should log an error if an unknown validation is disabled', () => {
+			validations = getValidations({ invalid: false } as any)
+			validations.validationsConfig()
+			expect(console.error).toBeCalled()
+		})
+		it('should log an error if an unknown validation is enabled', () => {
+			validations = getValidations({ invalid: false } as any)
+			validations.validationsConfig()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_UNKNOWN_VALIDATION' }),
+			)
+		})
+		it('should not log an error if only valid keys are set', () => {
+			validations = getValidations({
+				ip: false,
+				positiveHits: true,
+				default: false,
+			})
+			validations.validationsConfig()
+			expect(console.error).not.toBeCalled()
+		})
+		it('should not run if disabled by config', () => {
+			validations = getValidations({
+				invalid: false,
+				validationsConfig: false,
+			} as any)
+			validations.validationsConfig()
+			expect(console.error).not.toBeCalled()
+		})
+		it('should not run if disabled by default', () => {
+			validations = getValidations({
+				invalid: true,
+				default: false,
+			} as any)
+			validations.validationsConfig()
+			expect(console.error).not.toBeCalled()
+		})
+		it('should run if enabled by config with default: false', () => {
+			validations = getValidations({
+				invalid: false,
+				validationsConfig: true,
+				default: false,
+			} as any)
+			validations.validationsConfig()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_UNKNOWN_VALIDATION' }),
+			)
+		})
+	})
+
 	describe('disable', () => {
 		it('should initialize disabled when passed false', () => {
 			const disabledValidator = getValidations(false)

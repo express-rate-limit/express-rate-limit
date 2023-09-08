@@ -193,7 +193,7 @@ describe('middleware test', () => {
 	})
 
 	it('should block all requests if max is set to 0', async () => {
-		const app = createServer(rateLimit({ max: 0 }))
+		const app = createServer(rateLimit({ max: 0, validate: { limit: false } }))
 
 		await request(app).get('/').expect(429)
 	})
