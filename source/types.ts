@@ -2,6 +2,7 @@
 // All the types used by this package
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
+import type { Validations } from './validations.js'
 
 /**
  * Callback that fires when a client's hit counter is incremented.
@@ -175,11 +176,14 @@ export type Store = {
 
 export type DraftHeadersVersion = 'draft-6' | 'draft-7'
 
-// Ideally, this should be:
-//   import type { Validations } from './validations.js'
-//   export type ValidationsEnabled = { [key in keyof Validations]: boolean }
-// But that causes a circular reference between the Validations and ValidationsEnabled types, so it doesn't work.
-export type ValidationsEnabled = { [key: string]: boolean }
+/**
+ * Validations configuration object for enabling or disabeling specific validations
+ *
+ * The keys must also be keys in the validations object (except `enabled` and `disable`), or `default`
+ */
+export type ValidationsEnabled = {
+	[key in keyof Omit<Validations, 'enabled' | 'disable'> | 'default']?: boolean
+}
 
 /**
  * The configuration options for the rate limiter.

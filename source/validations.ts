@@ -56,7 +56,7 @@ const validations = {
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 	enabled: {
 		default: true,
-	} as ValidationsEnabled,
+	} as { [key: string]: boolean }, // Should be ValidationsEnabled type, but that's a circular reference
 
 	disable() {
 		for (const k of Object.keys(this.enabled)) this.enabled[k] = false
