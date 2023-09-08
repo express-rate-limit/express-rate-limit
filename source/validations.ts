@@ -176,18 +176,18 @@ const validations = {
 	},
 
 	/**
-	 * Warns the user that the behaviour for `max: 0` is changing in the next
+	 * Warns the user that the behaviour for `max: 0` / `limit: 0` is changing in the next
 	 * major release.
 	 *
-	 * @param max {number} - The maximum number of hits per client.
+	 * @param limit {number} - The maximum number of hits per client.
 	 *
 	 * @returns {void}
 	 */
-	max(max: number) {
-		if (max === 0) {
+	limit(limit: number) {
+		if (limit === 0) {
 			throw new ChangeWarning(
 				'WRN_ERL_MAX_ZERO',
-				`Setting max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
+				`Setting limit or max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
 			)
 		}
 	},

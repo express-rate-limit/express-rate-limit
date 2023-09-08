@@ -532,8 +532,8 @@ const limiter = rateLimit({
 ```
 
 Supported options are `ip`, `trustProxy`, `xForwardedForHeader`, `positiveHits`,
-`singleCount`, `max`, `draftPolliHeaders`, `onLimitReached`, `headersResetTime`,
-`validationsConfig`, and `default`.
+`singleCount`, `limit`, `draftPolliHeaders`, `onLimitReached`,
+`headersResetTime`, `validationsConfig`, and `default`.
 
 See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes
 for more info.

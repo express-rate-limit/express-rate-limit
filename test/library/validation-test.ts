@@ -177,14 +177,14 @@ describe('validations tests', () => {
 		})
 	})
 
-	describe('max', () => {
+	describe('limit', () => {
 		it('should log a warning if max is set to 0', () => {
-			validations.max(0)
+			validations.limit(0)
 			expect(console.warn).toBeCalled()
 		})
 
 		it('should not log a warning if max is set to a non zero number', () => {
-			validations.max(3)
+			validations.limit(3)
 			expect(console.warn).not.toBeCalled()
 		})
 	})

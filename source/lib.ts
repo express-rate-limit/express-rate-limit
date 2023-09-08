@@ -338,7 +338,7 @@ const rateLimit = (
 					? config.limit(request, response)
 					: config.limit
 			const limit = await retrieveLimit
-			config.validations.max(limit)
+			config.validations.limit(limit)
 
 			const info: RateLimitInfo = {
 				limit,
