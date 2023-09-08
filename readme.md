@@ -510,9 +510,9 @@ const limiter = rateLimit({
 
 > `boolean | Object`
 
-When enabled, a set of validation checks are run on the first request to detect
-common misconfigurations with proxies, etc. Prints an error to the console if
-any issue is detected.
+When enabled, a set of validation checks are run at creation and on the first
+request to detect common misconfigurations with proxies, etc. Prints an error to
+the console if any issue is detected.
 
 Automatically disables after the first request is processed.
 
