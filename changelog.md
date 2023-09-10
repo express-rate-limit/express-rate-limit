@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.1)
+
+### Fixed
+
+- Check for prefixed keys when validating that the stores have single counted
+  keys (See
+  [#395](https://github.com/express-rate-limit/express-rate-limit/issues/395)).
+
 ## [6.11.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.0)
 
 ### Added
