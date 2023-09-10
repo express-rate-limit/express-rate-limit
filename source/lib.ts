@@ -13,6 +13,7 @@ import type {
 	RateLimitExceededEventHandler,
 	DraftHeadersVersion,
 	RateLimitInfo,
+	EnabledValidations,
 } from './types.js'
 import {
 	setLegacyHeaders,
@@ -20,7 +21,7 @@ import {
 	setDraft7Headers,
 	setRetryAfterHeader,
 } from './headers.js'
-import { Validations } from './validations.js'
+import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
 
 /**
@@ -136,7 +137,7 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 
 	return {
 		...directlyPassableEntries,
-		validate: validations.enabled,
+		validate: validations.enabled as EnabledValidations,
 	}
 }
 
@@ -182,7 +183,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		omitUndefinedOptions(passedOptions)
 
 	// Create the validator before even parsing the rest of the options.
-	const validations = new Validations(notUndefinedOptions?.validate ?? true)
+	const validations = getValidations(notUndefinedOptions?.validate ?? true)
+	validations.validationsConfig()
 
 	// Warn for the deprecated options. Note that these options have been removed
 	// from the type definitions in v7.
@@ -343,7 +345,7 @@ const rateLimit = (
 					? config.limit(request, response)
 					: config.limit
 			const limit = await retrieveLimit
-			config.validations.max(limit)
+			config.validations.limit(limit)
 
 			// Define the rate limit info for the client.
 			const info: RateLimitInfo = {

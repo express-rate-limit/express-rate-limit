@@ -2,6 +2,7 @@
 // All the types used by this package
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
+import type { Validations } from './validations.js'
 
 /**
  * Callback that fires when a client's hit counter is incremented.
@@ -213,6 +214,16 @@ export type Store = {
 export type DraftHeadersVersion = 'draft-6' | 'draft-7'
 
 /**
+ * Validate configuration object for enabling or disabling specific validations.
+ *
+ * The keys must also be keys in the validations object, except `enable`, `disable`,
+ * and `default`.
+ */
+export type EnabledValidations = {
+	[key in keyof Omit<Validations, 'enabled' | 'disable'> | 'default']?: boolean
+}
+
+/**
  * The configuration options for the rate limiter.
  */
 export type Options = {
@@ -326,9 +337,9 @@ export type Options = {
 	store: Store | LegacyStore
 
 	/**
-	 * Whether or not the validation checks should run.
+	 * The list of validation checks that should run.
 	 */
-	validate: boolean
+	validate: boolean | EnabledValidations
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
