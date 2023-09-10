@@ -130,7 +130,11 @@ describe('validations tests', () => {
 			validations.singleCount(request as any, store as Store, key)
 			expect(console.error).not.toBeCalled()
 			validations.singleCount(request as any, store as Store, key)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({
+					code: 'ERR_ERL_DOUBLE_COUNT',
+				}),
+			)
 		})
 
 		it('should log an error if a request is double-counted with an external store', () => {
@@ -141,7 +145,11 @@ describe('validations tests', () => {
 			validations.singleCount(request as any, store as Store, key)
 			expect(console.error).not.toBeCalled()
 			validations.singleCount(request as any, store as Store, key)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({
+					code: 'ERR_ERL_DOUBLE_COUNT',
+				}),
+			)
 		})
 
 		it('should not log an error if a request is double-counted with separate instances of MemoryStore', () => {
@@ -163,7 +171,11 @@ describe('validations tests', () => {
 
 			validations.singleCount(request as any, store1 as Store, key)
 			validations.singleCount(request as any, store2 as Store, key)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({
+					code: 'ERR_ERL_DOUBLE_COUNT',
+				}),
+			)
 		})
 
 		it('should not log an error for multiple requests from the same key', () => {
