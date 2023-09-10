@@ -199,6 +199,13 @@ export type Store = {
 	 * Used to help detect double-counting misconfigurations.
 	 */
 	localKeys?: boolean
+
+	/**
+	 * Optional value that the store prepends to keys
+	 *
+	 * Used by the double-count check to avoid false-positives when a key is counted twice, but with different prefixes
+	 */
+	prefix?: string
 }
 
 export type DraftHeadersVersion = 'draft-6' | 'draft-7'

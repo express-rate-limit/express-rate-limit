@@ -183,14 +183,16 @@ export class Validations {
 				storeKeys.set(storeKey, keys)
 			}
 
-			if (keys.includes(key)) {
+			const prefixedKey = `${store.prefix ?? ''}${key}`
+
+			if (keys.includes(prefixedKey)) {
 				throw new ValidationError(
 					'ERR_ERL_DOUBLE_COUNT',
 					`The hit count for ${key} was incremented more than once for a single request.`,
 				)
 			}
 
-			keys.push(key)
+			keys.push(prefixedKey)
 		})
 	}
 
