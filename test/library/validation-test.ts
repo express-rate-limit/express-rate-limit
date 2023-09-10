@@ -236,11 +236,13 @@ describe('validations tests', () => {
 	describe('validationsConfig', () => {
 		it('should log an error if an unknown validation is disabled', () => {
 			validations = getValidations({ invalid: false } as any)
+
 			validations.validationsConfig()
 			expect(console.error).toBeCalled()
 		})
 		it('should log an error if an unknown validation is enabled', () => {
 			validations = getValidations({ invalid: false } as any)
+
 			validations.validationsConfig()
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_UNKNOWN_VALIDATION' }),
@@ -252,6 +254,7 @@ describe('validations tests', () => {
 				positiveHits: true,
 				default: false,
 			})
+
 			validations.validationsConfig()
 			expect(console.error).not.toBeCalled()
 		})
@@ -260,6 +263,7 @@ describe('validations tests', () => {
 				invalid: false,
 				validationsConfig: false,
 			} as any)
+
 			validations.validationsConfig()
 			expect(console.error).not.toBeCalled()
 		})
@@ -268,6 +272,7 @@ describe('validations tests', () => {
 				invalid: true,
 				default: false,
 			} as any)
+
 			validations.validationsConfig()
 			expect(console.error).not.toBeCalled()
 		})
@@ -277,6 +282,7 @@ describe('validations tests', () => {
 				validationsConfig: true,
 				default: false,
 			} as any)
+
 			validations.validationsConfig()
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_UNKNOWN_VALIDATION' }),
@@ -287,12 +293,14 @@ describe('validations tests', () => {
 	describe('disable', () => {
 		it('should initialize disabled when passed false', () => {
 			const disabledValidator = getValidations(false)
+
 			disabledValidator.ip('badip')
 			expect(console.error).not.toBeCalled()
 		})
 
 		it('should do nothing after disable() is called', () => {
 			validations.disable()
+
 			validations.ip('badip')
 			expect(console.error).not.toBeCalled()
 		})

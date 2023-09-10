@@ -13,7 +13,7 @@ import type {
 	RateLimitExceededEventHandler,
 	DraftHeadersVersion,
 	RateLimitInfo,
-	ValidationsEnabled,
+	EnabledValidations,
 } from './types.js'
 import {
 	setLegacyHeaders,
@@ -130,7 +130,7 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 
 	return {
 		...directlyPassableEntries,
-		validate: validations.enabled as ValidationsEnabled,
+		validate: validations.enabled as EnabledValidations,
 	}
 }
 

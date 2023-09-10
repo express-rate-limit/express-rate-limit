@@ -3,7 +3,7 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
-import type { Store, ValidationsEnabled } from './types.js'
+import type { Store, EnabledValidations } from './types.js'
 
 /**
  * An error thrown/returned when a validation error occurs.
@@ -56,7 +56,7 @@ const validations = {
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 	enabled: {
 		default: true,
-	} as { [key: string]: boolean }, // Should be ValidationsEnabled type, but that's a circular reference
+	} as { [key: string]: boolean }, // Should be EnabledValidations type, but that's a circular reference
 
 	disable() {
 		for (const k of Object.keys(this.enabled)) this.enabled[k] = false
@@ -272,12 +272,13 @@ export type Validations = typeof validations
  * Creates a copy of the validations object where each method is wrapped to catch and log any thrown errors.
  * Sets `enabled` to the provided value, allowing different instances of express-rate-limit to have different validations settings.
  *
- * @param enabled {boolean}
- * @returns {Validations}
+ * @param enabled {boolean} - The list of enabled validations.
+ *
+ * @returns {Validations} - The validation functions.
  */
-export function getValidations(
-	_enabled: boolean | ValidationsEnabled,
-): Validations {
+export const getValidations = (
+	_enabled: boolean | EnabledValidations,
+): Validations => {
 	let enabled: { [key: string]: boolean }
 	if (typeof _enabled === 'boolean') {
 		enabled = {
