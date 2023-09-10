@@ -118,7 +118,9 @@ describe('validations tests', () => {
 	})
 
 	describe('singleCount', () => {
-		class TestExternalStore {} // eslint-disable-line @typescript-eslint/no-extraneous-class
+		class TestExternalStore {
+			prefix?: string
+		}
 
 		it('should log an error if a request is double-counted with a MemoryStore', () => {
 			const request = {}
@@ -173,6 +175,19 @@ describe('validations tests', () => {
 			validations.singleCount(request1 as any, store as Store, key)
 			expect(console.error).not.toBeCalled()
 			validations.singleCount(request2 as any, store as Store, key)
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should not log an error if a request is double-counted with separate instances of an external store with different prefixes', () => {
+			const request = {}
+			const store1 = new TestExternalStore()
+			store1.prefix = 's1'
+			const store2 = new TestExternalStore()
+			store2.prefix = 's2'
+			const key = '1.2.3.4'
+
+			validations.singleCount(request as any, store1 as Store, key)
+			validations.singleCount(request as any, store2 as Store, key)
 			expect(console.error).not.toBeCalled()
 		})
 	})
