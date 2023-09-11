@@ -565,9 +565,11 @@ if you wish to create your own store.
 ## Request API
 
 A `request.rateLimit` property is added to all requests with the `limit`,
-`current`, and `remaining` number of requests and, if the store provides it, a
+`used`, and `remaining` number of requests and, if the store provides it, a
 `resetTime` Date object. These may be used in your application code to take
 additional actions or inform the user of their status.
+
+Note that `used` includes the current request, so it should always be > 0.
 
 The property name can be configured with the configuration option
 `requestPropertyName`.
