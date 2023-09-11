@@ -6,11 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.0.0)
+
+### Breaking Changes
+
+- Changed behavior when `max` is set to 0:
+  - Previously express-rate-limit treated max=0 as a "disable" flag and would
+    allow all request through
+  - Starting with v7, express-rate-limit blocks all requests when max is 0
+  - To replicate the old behavior, use the
+    [skip](https://github.com/express-rate-limit/express-rate-limit#skip)
+    function instead
+- Renamed `req.rateLimit.current` to `req.rateLimit.used`
+  - `current` is now a hidden getter that will return the `used` value, but it
+    will not appear when iterating over the keys or calling `JSON.stringify()`
+- Removed `draft_polli_ratelimit_headers` option
+  - Use `standardHeaders='draft-6'` instead
+- Removed `onLimitReached` option
+  - [Example of how to replicate it's behavior with a custom `handler` option.](https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#wrn_erl_deprecated_on_limit_reached)
+- Changed minimum node.js version from v14 to v16
+  - express-rate-limit now targets ES2022 in TypeScript / esbuild
+- Bumped TypeScript from v4 to v5 and dts-bundle-generator from v7 to v8
+
+### Non-breaking changes
+
+- MemoryStore now uses precise, per-user reset times rather than a global window
+  that resets all users at once
+- `limit` configuration option is now prefered to `max`
+  - Same behavior, and `max` is still supported. Just trying to better align
+    with terminology used in the standard.
+
+### Added
+
+- `validate` config option can now be an object with keys to enable or disable
+  specific validation checks.
+  [More info](https://github.com/express-rate-limit/express-rate-limit#validate).
+
 ## [6.11.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.2)
 
 Fixed:
 
-- Restored `IncrementResponse ` TypeScript type (See
+- Restore `IncrementResponse ` TypeScript type (See
   [#397](https://github.com/express-rate-limit/express-rate-limit/pull/397))
 
 ## [6.11.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.1)
