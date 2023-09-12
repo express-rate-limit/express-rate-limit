@@ -28,11 +28,11 @@ Plays nice with
 Depending on your use case, you may want to switch to a different
 [store](#store).
 
-#### Abuse Prevention
+### Abuse Prevention
 
 The default `MemoryStore` is probably fine.
 
-#### API Rate Limit Enforcement
+### API Rate Limit Enforcement
 
 You may want to switch to a different [store](#store), especially if you have
 multiple servers or processes (for example, with the
@@ -109,8 +109,8 @@ import { rateLimit } from 'express-rate-limit'
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
 
@@ -128,7 +128,7 @@ import { rateLimit } from 'express-rate-limit'
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
@@ -145,8 +145,8 @@ import { rateLimit } from 'express-rate-limit'
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
 
@@ -157,8 +157,8 @@ const createAccountLimiter = rateLimit({
 	limit: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
 	message:
 		'Too many accounts created from this IP, please try again after an hour',
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
 app.post('/create-account', createAccountLimiter, (req, res) => {
@@ -177,8 +177,8 @@ const redisClient = new RedisClient()
 const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	store: new RedisStore({
 		/* ... */
 	}), // Use the external store
@@ -194,34 +194,9 @@ app.use(rateLimiter)
 
 ### Troubleshooting Proxy Issues
 
-If you are behind a proxy/load balancer (usually the case with most hosting
-services, e.g. Heroku, Bluemix, AWS ELB, Nginx, Cloudflare, Akamai, Fastly,
-Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of the
-request might be the IP of the load balancer/reverse proxy (making the rate
-limiter effectively a global one and blocking all requests once the limit is
-reached) or `undefined`. To solve this issue, add the following line to your
-code (right after you create the express application):
-
-```ts
-app.set('trust proxy', numberOfProxies)
-```
-
-Where `numberOfProxies` is the number of proxies between the user and the
-server. To find the correct number, create a test endpoint that returns the
-client IP:
-
-```ts
-app.set('trust proxy', 1)
-app.get('/ip', (req, res) => res.send(req.ip))
-```
-
-Go to `/ip` and see the IP address returned in the response. If it matches your
-public IP address, then the number of proxies is correct and the rate limiter
-should now work correctly. If not, then keep increasing the number until it
-does.
-
-For more information about the `trust proxy` setting, take a look at the
-[official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
+Please take a look at
+[the wiki page](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues)
+on this issue.
 
 ## Configuration
 
@@ -595,4 +570,5 @@ fix/implement it!
 
 ## License
 
-MIT © [Nathan Friedly](http://nfriedly.com/)
+MIT © [Nathan Friedly](http://nfriedly.com/),
+[Vedant K](https://github.com/gamemaker1)
