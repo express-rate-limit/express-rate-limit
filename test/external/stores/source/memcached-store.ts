@@ -9,7 +9,7 @@ import MemcachedStore from 'rate-limit-memcached'
 const app = createServer()
 app.use(
 	rateLimit({
-		max: 3,
+		limit: 3,
 		message: 'Thou must enhanceth thy peace',
 		store: new MemcachedStore(),
 	}),

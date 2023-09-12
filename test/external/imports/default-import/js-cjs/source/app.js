@@ -9,7 +9,7 @@ const app = createServer()
 
 app.use(
 	rateLimit({
-		max: 2,
+		limit: 2,
 		legacyHeaders: false,
 		standardHeaders: true,
 		store: new MemoryStore(),

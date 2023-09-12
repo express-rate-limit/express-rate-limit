@@ -11,9 +11,9 @@ import type {
 	ClientRateLimitInfo,
 	ValueDeterminingMiddleware,
 	RateLimitExceededEventHandler,
-	RateLimitReachedEventHandler,
 	DraftHeadersVersion,
 	RateLimitInfo,
+	EnabledValidations,
 } from './types.js'
 import {
 	setLegacyHeaders,
@@ -21,7 +21,7 @@ import {
 	setDraft7Headers,
 	setRetryAfterHeader,
 } from './headers.js'
-import { Validations } from './validations.js'
+import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
 
 /**
@@ -108,8 +108,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  */
 type Configuration = {
 	windowMs: number
-	max: number | ValueDeterminingMiddleware<number>
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	limit: number | ValueDeterminingMiddleware<number>
 	message: any | ValueDeterminingMiddleware<any>
 	statusCode: number
 	legacyHeaders: boolean
@@ -119,7 +118,6 @@ type Configuration = {
 	skipSuccessfulRequests: boolean
 	keyGenerator: ValueDeterminingMiddleware<string>
 	handler: RateLimitExceededEventHandler
-	onLimitReached: RateLimitReachedEventHandler
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
@@ -139,7 +137,7 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 
 	return {
 		...directlyPassableEntries,
-		validate: validations.enabled,
+		validate: validations.enabled as EnabledValidations,
 	}
 }
 
@@ -185,32 +183,29 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		omitUndefinedOptions(passedOptions)
 
 	// Create the validator before even parsing the rest of the options.
-	const validations = new Validations(notUndefinedOptions?.validate ?? true)
+	const validations = getValidations(notUndefinedOptions?.validate ?? true)
+	validations.validationsConfig()
 
-	// Warn for the deprecated options.
+	// Warn for the deprecated options. Note that these options have been removed
+	// from the type definitions in v7.
 	validations.draftPolliHeaders(
+		// @ts-expect-error see the note above.
 		notUndefinedOptions.draft_polli_ratelimit_headers,
 	)
+	// @ts-expect-error see the note above.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
-	// The default value for the `standardHeaders` option is `false`.
-	// If set to `true`, it resolve to `draft-6`.
-	// The deprecated `draft_polli_ratelimit_headers` option also resolves to `draft-6`.
-	// `draft-7` (recommended) is used only if explicitly set.
+	// The default value for the `standardHeaders` option is `false`. If set to
+	// `true`, it resolve to `draft-6`. `draft-7` (recommended) is used only if
+	// explicitly set.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
-	if (
-		standardHeaders === true ||
-		(standardHeaders === undefined &&
-			notUndefinedOptions.draft_polli_ratelimit_headers)
-	) {
-		standardHeaders = 'draft-6'
-	}
+	if (standardHeaders === true) standardHeaders = 'draft-6'
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const config: Configuration = {
 		windowMs: 60 * 1000,
-		max: 5,
+		limit: passedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
 		legacyHeaders: passedOptions.headers ?? true,
@@ -252,11 +247,6 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 				response.send(message)
 			}
 		},
-		onLimitReached(
-			_request: Request,
-			_response: Response,
-			_optionsUsed: Options,
-		): void {},
 		// Allow the default options to be overriden by the options passed to the middleware.
 		...notUndefinedOptions,
 		// `standardHeaders` is resolved into a draft version above, use that.
@@ -349,20 +339,29 @@ const rateLimit = (
 			config.validations.positiveHits(totalHits)
 			config.validations.singleCount(request, config.store, key)
 
-			// Get the quota (max number of hits) for each client
-			const retrieveQuota =
-				typeof config.max === 'function'
-					? config.max(request, response)
-					: config.max
-			const maxHits = await retrieveQuota
-			config.validations.max(maxHits)
+			// Get the limit (max number of hits) for each client.
+			const retrieveLimit =
+				typeof config.limit === 'function'
+					? config.limit(request, response)
+					: config.limit
+			const limit = await retrieveLimit
+			config.validations.limit(limit)
 
+			// Define the rate limit info for the client.
 			const info: RateLimitInfo = {
-				limit: maxHits,
-				current: totalHits,
-				remaining: Math.max(maxHits - totalHits, 0),
+				limit,
+				used: totalHits,
+				remaining: Math.max(limit - totalHits, 0),
 				resetTime,
 			}
+
+			// Set the `current` property on the object, but hide it from iteration
+			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
+			Object.defineProperty(info, 'current', {
+				configurable: false,
+				enumerable: false,
+				value: totalHits,
+			})
 
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[config.requestPropertyName] = info
@@ -415,19 +414,12 @@ const rateLimit = (
 				}
 			}
 
-			// Call the `onLimitReached` callback on the first request where client
-			// exceeds their rate limit
-			// TODO: `onLimitReached` is deprecated, this should be removed in v7.x
-			if (maxHits && totalHits === maxHits + 1) {
-				config.onLimitReached(request, response, options)
-			}
-
 			// Disable the validations, since they should have run at least once by now.
 			config.validations.disable()
 
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function.
-			if (maxHits && totalHits > maxHits) {
+			if (totalHits > limit) {
 				if (config.legacyHeaders || config.standardHeaders) {
 					setRetryAfterHeader(response, info, config.windowMs)
 				}

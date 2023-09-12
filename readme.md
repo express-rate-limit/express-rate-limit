@@ -25,31 +25,23 @@ Plays nice with
 
 ## Use Cases
 
-Depending on your use case, you may need to switch to a different
+Depending on your use case, you may want to switch to a different
 [store](#store).
 
-#### Abuse Prevention
+### Abuse Prevention
 
 The default `MemoryStore` is probably fine.
 
-#### API Rate Limit Enforcement
+### API Rate Limit Enforcement
 
-You likely want to switch to a different [store](#store). As a performance
-optimization, the default `MemoryStore` uses a global time window, so if your
-limit is 10 requests per minute, a single user might be able to get an initial
-burst of up to 20 requests in a row if they happen to get the first 10 in at the
-end of one minute and the next 10 in at the start of the next minute. (After the
-initial burst, they will be limited to the expected 10 requests per minute.) All
-other stores use per-user time windows, so a user will get exactly 10 requests
-regardless.
-
-Additionally, if you have multiple servers or processes (for example, with the
-[node:cluster](https://nodejs.org/api/cluster.html) module), you'll likely want
-to use an external data store to syhcnronize hits
+You may want to switch to a different [store](#store), especially if you have
+multiple servers or processes (for example, with the
+[node:cluster](https://nodejs.org/api/cluster.html) module). Using an external
+data store to syhcnronize hits
 ([redis](https://npmjs.com/package/rate-limit-redis),
 [memcached](https://npmjs.org/package/rate-limit-memcached), [etc.](#store))
-This will guarentee the expected result even if some requests get handled by
-different servers/processes.
+guarentees the expected result even if some requests get handled by different
+servers/processes or a server is restarted.
 
 ### Alternate Rate Limiters
 
@@ -91,7 +83,7 @@ Replace `{version}` with the version of the package that you want to your, e.g.:
 This library is provided in ESM as well as CJS forms, and works with both
 Javascript and Typescript projects.
 
-**This package requires you to use Node 14 or above.**
+**This package requires you to use Node 16 or above.**
 
 Import it in a CommonJS project (`type: commonjs` or no `type` field in
 `package.json`) as follows:
@@ -116,9 +108,9 @@ import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
 
@@ -135,8 +127,8 @@ import { rateLimit } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy`` headers
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: 'draft-7', // Set `RateLimit` and `RateLimit-Policy` headers
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
@@ -152,9 +144,9 @@ import { rateLimit } from 'express-rate-limit'
 
 const apiLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	// store: ... , // Use an external store for more precise rate limiting
 })
 
@@ -162,14 +154,14 @@ app.use('/api/', apiLimiter)
 
 const createAccountLimiter = rateLimit({
 	windowMs: 60 * 60 * 1000, // 1 hour
-	max: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
+	limit: 5, // Limit each IP to 5 create account requests per `window` (here, per hour)
 	message:
 		'Too many accounts created from this IP, please try again after an hour',
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
-app.post('/create-account', createAccountLimiter, (request, response) => {
+app.post('/create-account', createAccountLimiter, (req, res) => {
 	//...
 })
 ```
@@ -184,9 +176,9 @@ import RedisClient from 'ioredis'
 const redisClient = new RedisClient()
 const rateLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
-	legacyHeaders: false, // X-RateLimit-* headers
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 	store: new RedisStore({
 		/* ... */
 	}), // Use the external store
@@ -202,34 +194,9 @@ app.use(rateLimiter)
 
 ### Troubleshooting Proxy Issues
 
-If you are behind a proxy/load balancer (usually the case with most hosting
-services, e.g. Heroku, Bluemix, AWS ELB, Nginx, Cloudflare, Akamai, Fastly,
-Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of the
-request might be the IP of the load balancer/reverse proxy (making the rate
-limiter effectively a global one and blocking all requests once the limit is
-reached) or `undefined`. To solve this issue, add the following line to your
-code (right after you create the express application):
-
-```ts
-app.set('trust proxy', numberOfProxies)
-```
-
-Where `numberOfProxies` is the number of proxies between the user and the
-server. To find the correct number, create a test endpoint that returns the
-client IP:
-
-```ts
-app.set('trust proxy', 1)
-app.get('/ip', (request, response) => response.send(request.ip))
-```
-
-Go to `/ip` and see the IP address returned in the response. If it matches your
-public IP address, then the number of proxies is correct and the rate limiter
-should now work correctly. If not, then keep increasing the number until it
-does.
-
-For more information about the `trust proxy` setting, take a look at the
-[official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
+Please take a look at
+[the wiki page](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues)
+on this issue.
 
 ## Configuration
 
@@ -247,7 +214,7 @@ twice, once here and once on the store. In some cases the units also differ
 
 Defaults to `60000` ms (= 1 minute).
 
-### `max`
+### `limit`
 
 > `number | function`
 
@@ -255,9 +222,16 @@ The maximum number of connections to allow during the `window` before rate
 limiting the client.
 
 Can be the limit itself as a number or a (sync/async) function that accepts the
-Express `request` and `response` objects and then returns a number.
+Express `req` and `res` objects and then returns a number.
 
-Defaults to `5`. Set it to `0` to disable the rate limiter.
+~Set it to `0` to disable the rate limiter.~ As of version 7.0.0, setting `max`
+to zero will no longer disable the rate limiter - instead, it will 'block' all
+requests to that endpoint.
+
+Defaults to `5`.
+
+> Renamed in v7.x from `max` to `limit`. However, `max` will still be supported
+> for backwards-compatibility.
 
 An example of using a function:
 
@@ -268,8 +242,8 @@ const isPremium = async (user) => {
 
 const limiter = rateLimit({
 	// ...
-	max: async (request, response) => {
-		if (await isPremium(request.user)) return 10
+	limit: async (req, res) => {
+		if (await isPremium(req.user)) return 10
 		else return 5
 	},
 })
@@ -282,10 +256,10 @@ const limiter = rateLimit({
 The response body to send back when a client is rate limited.
 
 May be a `string`, JSON object, or any other value that Express's
-[`response.send`](https://expressjs.com/en/4x/api.html#res.send) method
-supports. It can also be a (sync/async) function that accepts the Express
-request and response objects and then returns a `string`, JSON object or any
-other value the Express `response.send` function accepts.
+[`res.send`](https://expressjs.com/en/4x/api.html#res.send) method supports. It
+can also be a (sync/async) function that accepts the Express request and
+response objects and then returns a `string`, JSON object or any other value the
+Express `res.send` function accepts.
 
 Defaults to `'Too many requests, please try again later.'`
 
@@ -298,8 +272,8 @@ const isPremium = async (user) => {
 
 const limiter = rateLimit({
 	// ...
-	message: async (request, response) => {
-		if (await isPremium(request.user))
+	message: async (req, res) => {
+		if (await isPremium(req.user))
 			return 'You can only make 10 requests every hour.'
 		else return 'You can only make 5 requests every hour.'
 	},
@@ -422,7 +396,7 @@ By default, the client's IP address is used:
 ```ts
 const limiter = rateLimit({
 	// ...
-	keyGenerator: (request, response) => request.ip,
+	keyGenerator: (req, res) => req.ip,
 })
 ```
 
@@ -443,8 +417,8 @@ similar to this:
 ```ts
 const limiter = rateLimit({
 	// ...
-	handler: (request, response, next, options) =>
-		response.status(options.statusCode).send(options.message),
+	handler: (req, res, next, options) =>
+		res.status(options.statusCode).send(options.message),
 })
 ```
 
@@ -452,9 +426,8 @@ const limiter = rateLimit({
 
 > `function`
 
-A (sync/async) function that accepts the Express `request` and `response`
-objects that is called the on the request where a client has just exceeded their
-rate limit.
+A (sync/async) function that accepts the Express `req` and `res` objects that is
+called the on the request where a client has just exceeded their rate limit.
 
 This method was
 [deprecated in v6](https://github.com/express-rate-limit/express-rate-limit/releases/v6.0.0) -
@@ -475,7 +448,7 @@ const allowlist = ['192.168.0.56', '192.168.0.21']
 
 const limiter = rateLimit({
 	// ...
-	skip: (request, response) => allowlist.includes(request.ip),
+	skip: (req, res) => allowlist.includes(req.ip),
 })
 ```
 
@@ -484,7 +457,7 @@ By default, it skips no requests:
 ```ts
 const limiter = rateLimit({
 	// ...
-	skip: (request, response) => false,
+	skip: (req, res) => false,
 })
 ```
 
@@ -494,8 +467,8 @@ const limiter = rateLimit({
 
 Method to determine whether or not the request counts as 'succesful'. Used when
 either `skipSuccessfulRequests` or `skipFailedRequests` is set to true. Should
-be a (sync/async) function that accepts the Express `request` and `response`
-objects and then returns `true` or `false`.
+be a (sync/async) function that accepts the Express `req` and `res` objects and
+then returns `true` or `false`.
 
 By default, requests with a response status code less than 400 are considered
 successful:
@@ -503,24 +476,43 @@ successful:
 ```ts
 const limiter = rateLimit({
 	// ...
-	requestWasSuccessful: (request, response) => response.statusCode < 400,
+	requestWasSuccessful: (req, res) => res.statusCode < 400,
 })
 ```
 
 ### `validate`
 
-> `boolean`
+> `boolean | Object`
 
-When enabled, a set of validation checks are run on the first request to detect
-common misconfigurations with proxies, etc. Prints an error to the console if
-any issue is detected.
+When enabled, a set of validation checks are run at creation and on the first
+request to detect common misconfigurations with proxies, etc. Prints an error to
+the console if any issue is detected.
 
 Automatically disables after the first request is processed.
+
+If set to `true` or `false`, all validations are enabled or disabled.
+
+If set to an object, individual validations can be enabled or disabled by name,
+and the key `default` controls all unspecified validations. For example:
+
+```js
+const limiter = rateLimit({
+	validate: {
+		xForwardedForHeader: false,
+		default: true,
+	},
+	// ...
+})
+```
+
+Supported options are `ip`, `trustProxy`, `xForwardedForHeader`, `positiveHits`,
+`singleCount`, `limit`, `draftPolliHeaders`, `onLimitReached`,
+`headersResetTime`, `validationsConfig`, and `default`.
 
 See https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes
 for more info.
 
-Defaults to true.
+Defaults to `true`.
 
 ### `store`
 
@@ -546,10 +538,12 @@ if you wish to create your own store.
 
 ## Request API
 
-A `request.rateLimit` property is added to all requests with the `limit`,
-`current`, and `remaining` number of requests and, if the store provides it, a
-`resetTime` Date object. These may be used in your application code to take
-additional actions or inform the user of their status.
+A `req.rateLimit` property is added to all requests with the `limit`, `used`,
+and `remaining` number of requests and, if the store provides it, a `resetTime`
+Date object. These may be used in your application code to take additional
+actions or inform the user of their status.
+
+Note that `used` includes the current request, so it should always be > 0.
 
 The property name can be configured with the configuration option
 `requestPropertyName`.
@@ -576,4 +570,5 @@ fix/implement it!
 
 ## License
 
-MIT © [Nathan Friedly](http://nfriedly.com/)
+MIT © [Nathan Friedly](http://nfriedly.com/),
+[Vedant K](https://github.com/gamemaker1)

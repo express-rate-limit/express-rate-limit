@@ -2,6 +2,7 @@
 // All the types used by this package
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
+import type { Validations } from './validations.js'
 
 /**
  * Callback that fires when a client's hit counter is incremented.
@@ -213,6 +214,16 @@ export type Store = {
 export type DraftHeadersVersion = 'draft-6' | 'draft-7'
 
 /**
+ * Validate configuration object for enabling or disabling specific validations.
+ *
+ * The keys must also be keys in the validations object, except `enable`, `disable`,
+ * and `default`.
+ */
+export type EnabledValidations = {
+	[key in keyof Omit<Validations, 'enabled' | 'disable'> | 'default']?: boolean
+}
+
+/**
  * The configuration options for the rate limiter.
  */
 export type Options = {
@@ -232,14 +243,13 @@ export type Options = {
 	 *
 	 * Defaults to `5`.
 	 */
-	max: number | ValueDeterminingMiddleware<number>
+	limit: number | ValueDeterminingMiddleware<number>
 
 	/**
 	 * The response body to send back when a client is rate limited.
 	 *
 	 * Defaults to `'Too many requests, please try again later.'`
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	message: any | ValueDeterminingMiddleware<any>
 
 	/**
@@ -303,15 +313,6 @@ export type Options = {
 	handler: RateLimitExceededEventHandler
 
 	/**
-	 * Express request handler that sends back a response when a client has
-	 * reached their rate limit, and will be rate limited on their next request.
-	 *
-	 * @deprecated 6.x - Please use a custom `handler` that checks the number of
-	 * hits instead.
-	 */
-	onLimitReached: RateLimitReachedEventHandler
-
-	/**
 	 * Method (in the form of middleware) to determine whether or not this request
 	 * counts towards a client's quota.
 	 *
@@ -336,9 +337,9 @@ export type Options = {
 	store: Store | LegacyStore
 
 	/**
-	 * Whether or not the validation checks should run.
+	 * The list of validation checks that should run.
 	 */
-	validate: boolean
+	validate: boolean | EnabledValidations
 
 	/**
 	 * Whether to send `X-RateLimit-*` headers with the rate limit and the number
@@ -349,12 +350,16 @@ export type Options = {
 	headers?: boolean
 
 	/**
-	 * Whether to send `RateLimit-*` headers with the rate limit and the number
-	 * of requests.
+	 * The maximum number of connections to allow during the `window` before
+	 * rate limiting the client.
 	 *
-	 * @deprecated 6.x - This option was renamed to `standardHeaders`.
+	 * Can be the limit itself as a number or express middleware that parses
+	 * the request and then figures out the limit.
+	 *
+	 * @deprecated 7.x - This option was renamed to `limit`. However, it will not
+	 * be removed from the library in the foreseeable future.
 	 */
-	draft_polli_ratelimit_headers?: boolean
+	max?: number | ValueDeterminingMiddleware<number>
 }
 
 /**
@@ -371,7 +376,15 @@ export type AugmentedRequest = Request & {
  */
 export type RateLimitInfo = {
 	limit: number
-	current: number
+	used: number
 	remaining: number
 	resetTime: Date | undefined
+
+	/**
+	 * NOTE: The `current` field is deprecated and renamed to `used`. The library
+	 * will still set the `current` property, and you can still access it, but it
+	 * will be hidden from iteration and JSON.stringify calls. See:
+	 * https://github.com/express-rate-limit/express-rate-limit/discussions/372#discussioncomment-6915685
+	 */
+	// current: number
 }

@@ -4,7 +4,6 @@
 node_modules/
 dist/
 coverage/
-test/external/**/package-lock.json
 
 .vscode/
 .idea/
@@ -13,3 +12,5 @@ test/external/**/package-lock.json
 *.tmp
 *.bak
 *.tgz
+
+test/external/imports/*/*/package-lock.json

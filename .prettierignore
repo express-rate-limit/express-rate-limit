@@ -1,6 +1,12 @@
 # /.prettierignore
 # Tells Prettier to ignore these files
 
+package.json
+package-lock.json
+pnpm-lock.yaml
+
+# The following is copied over from .gitignore
+
 node_modules/
 dist/
 coverage/

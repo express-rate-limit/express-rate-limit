@@ -6,9 +6,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.0.0)
+
+### Breaking
+
+- Changed behavior when `max` is set to 0:
+  - Previously, `max: 0` was treated as a 'disable' flag and would allow all
+    requests through.
+  - Starting with v7, all requests will be blocked when max is set to 0.
+  - To replicate the old behavior, use the
+    [skip](https://github.com/express-rate-limit/express-rate-limit#skip)
+    function instead.
+- Renamed `req.rateLimit.current` to `req.rateLimit.used`.
+  - `current` is now a hidden getter that will return the `used` value, but it
+    will not appear when iterating over the keys or calling `JSON.stringify()`.
+- Changed the minimum required Node version from v14 to v16.
+  - `express-rate-limit` now targets `es2022` in TypeScript/ESBuild.
+- Bumped TypeScript from v4 to v5 and `dts-bundle-generator` from v7 to v8.
+
+### Deprecated
+
+- Removed the `draft_polli_ratelimit_headers` option (it was deprecated in v6).
+  - Use `standardHeaders: 'draft-6'` instead.
+- Removed the `onLimitReached` option (it was deprecated in v6).
+  - [This](<(https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes#wrn_erl_deprecated_on_limit_reached)>)
+    is an example of how to replicate it's behavior with a custom `handler`
+    option.
+
+### Changed
+
+- The `MemoryStore` now uses precise, per-user reset times rather than a global
+  window that resets all users at once.
+- The `limit` configuration option is now prefered to `max`.
+  - It still shows the same behavior, and `max` is still supported. The change
+    was made to better align with terminology used in the IETF standard drafts.
+
+### Added
+
+- The `validate` config option can now be an object with keys to enable or
+  disable specific validation checks. For more information, see
+  [this](https://github.com/express-rate-limit/express-rate-limit#validate).
+
 ## [6.11.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.2)
 
-Fixed:
+### Fixed
 
 - Restored `IncrementResponse ` TypeScript type (See
   [#397](https://github.com/express-rate-limit/express-rate-limit/pull/397))
@@ -35,27 +76,27 @@ Fixed:
 
 - Support for combined `RateLimit` header from the
   [RateLimit header fields for HTTP standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers)
-  adopted by the IETF. Enable by setting `standardHeaders: 'draft-7'`
+  adopted by the IETF. Enable by setting `standardHeaders: 'draft-7'`.
 - New `standardHeaders: 'draft-6'` option, treated equivalent to
-  `standardHeaders: true` from previous releases. (`true` and `false` are still
-  supported.)
+  `standardHeaders: true` from previous releases. Note that `true` and `false`
+  are still supported.
 - New `RateLimit-Policy` header added when `standardHeaders` is set to
-  `'draft-6'`, `'draft-7'`, or `true`
-- Warning when using deprecated `draft_polli_ratelimit_headers` option
-- Warning when using deprecated `onLimitReached` option
-- Warning when `totalHits` value returned from Store is invalid
+  `'draft-6'`, `'draft-7'`, or `true`.
+- Warning when using deprecated `draft_polli_ratelimit_headers` option.
+- Warning when using deprecated `onLimitReached` option.
+- Warning when `totalHits` value returned from Store is invalid.
 
 ## [6.9.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.9.0)
 
 ### Added
 
-- New validaion check for double-counted requests
-- Added help link to each ValidationError, directing users to the appropriate
-  wiki page for more info
+- New validaion check for double-counted requests.
+- Added help link to each validation error, directing users to the appropriate
+  wiki page for more info.
 
 ### Changed
 
-- Miscaleanous documenation improvements
+- Miscellaneous documenation improvements.
 
 ## [6.8.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0) & [6.7.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0)
 
@@ -63,7 +104,7 @@ Fixed:
 
 - Revert 6.7.1 change that bumped typescript from 5.x to 4.x and
   dts-bundle-generator from 8.x to 7.x (See
-  [#360](https://github.com/express-rate-limit/express-rate-limit/issues/360))
+  [#360](https://github.com/express-rate-limit/express-rate-limit/issues/360)).
 
 ## [6.8.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.8.0)
 
@@ -73,7 +114,7 @@ Fixed:
   https://github.com/express-rate-limit/express-rate-limit/wiki/Error-Codes for
   a list of potential errors. Can be disabled by setting `validate: false` in
   the configuration. Automatically disables after the first request. (See
-  [#358](https://github.com/express-rate-limit/express-rate-limit/issues/358))
+  [#358](https://github.com/express-rate-limit/express-rate-limit/issues/358)).
 
 ## [6.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.7.1)
 
@@ -81,7 +122,7 @@ Fixed:
 
 - Fixed compatibility with TypeScript's TypeScript new `node16` module
   resolution strategy (See
-  [#355](https://github.com/express-rate-limit/express-rate-limit/issues/355))
+  [#355](https://github.com/express-rate-limit/express-rate-limit/issues/355)).
 
 ### Changed
 
