@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@types/rate-limit-redis':
-    specifier: ^1.7.4
-    version: 1.7.4
   express:
     specifier: ^4.18.2
     version: 4.18.2
@@ -1160,19 +1157,6 @@ packages:
       {
         integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==,
       }
-
-  /@types/rate-limit-redis@1.7.4:
-    resolution:
-      {
-        integrity: sha512-TDsh9CJHHhx+sGHlqF6MI+PgEv91o/wQ67e2IR02ebYPzWQ8Rk0pcVY+WBy2pjxa+cAkPwjcOFDd21VToKaOzQ==,
-      }
-    dependencies:
-      '@types/express-rate-limit': 3.3.5
-      '@types/ioredis': 5.0.0
-      '@types/redis': 2.8.32
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   /@types/redis@2.8.32:
     resolution:
