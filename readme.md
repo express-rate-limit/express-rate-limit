@@ -161,7 +161,7 @@ const createAccountLimiter = rateLimit({
 	legacyHeaders: false, // X-RateLimit-* headers
 })
 
-app.post('/create-account', createAccountLimiter, (request, response) => {
+app.post('/create-account', createAccountLimiter, (req, res) => {
 	//...
 })
 ```
@@ -212,7 +212,7 @@ client IP:
 
 ```ts
 app.set('trust proxy', 1)
-app.get('/ip', (request, response) => response.send(request.ip))
+app.get('/ip', (req, res) => res.send(req.ip))
 ```
 
 Go to `/ip` and see the IP address returned in the response. If it matches your
@@ -247,7 +247,7 @@ The maximum number of connections to allow during the `window` before rate
 limiting the client.
 
 Can be the limit itself as a number or a (sync/async) function that accepts the
-Express `request` and `response` objects and then returns a number.
+Express `req` and `res` objects and then returns a number.
 
 ~Set it to `0` to disable the rate limiter.~ As of version 7.0.0, setting `max`
 to zero will no longer disable the rate limiter - instead, it will 'block' all
@@ -267,8 +267,8 @@ const isPremium = async (user) => {
 
 const limiter = rateLimit({
 	// ...
-	limit: async (request, response) => {
-		if (await isPremium(request.user)) return 10
+	limit: async (req, res) => {
+		if (await isPremium(req.user)) return 10
 		else return 5
 	},
 })
@@ -281,10 +281,10 @@ const limiter = rateLimit({
 The response body to send back when a client is rate limited.
 
 May be a `string`, JSON object, or any other value that Express's
-[`response.send`](https://expressjs.com/en/4x/api.html#res.send) method
-supports. It can also be a (sync/async) function that accepts the Express
-request and response objects and then returns a `string`, JSON object or any
-other value the Express `response.send` function accepts.
+[`res.send`](https://expressjs.com/en/4x/api.html#res.send) method supports. It
+can also be a (sync/async) function that accepts the Express request and
+response objects and then returns a `string`, JSON object or any other value the
+Express `res.send` function accepts.
 
 Defaults to `'Too many requests, please try again later.'`
 
@@ -297,8 +297,8 @@ const isPremium = async (user) => {
 
 const limiter = rateLimit({
 	// ...
-	message: async (request, response) => {
-		if (await isPremium(request.user))
+	message: async (req, res) => {
+		if (await isPremium(req.user))
 			return 'You can only make 10 requests every hour.'
 		else return 'You can only make 5 requests every hour.'
 	},
@@ -421,7 +421,7 @@ By default, the client's IP address is used:
 ```ts
 const limiter = rateLimit({
 	// ...
-	keyGenerator: (request, response) => request.ip,
+	keyGenerator: (req, res) => req.ip,
 })
 ```
 
@@ -442,8 +442,8 @@ similar to this:
 ```ts
 const limiter = rateLimit({
 	// ...
-	handler: (request, response, next, options) =>
-		response.status(options.statusCode).send(options.message),
+	handler: (req, res, next, options) =>
+		res.status(options.statusCode).send(options.message),
 })
 ```
 
@@ -451,9 +451,8 @@ const limiter = rateLimit({
 
 > `function`
 
-A (sync/async) function that accepts the Express `request` and `response`
-objects that is called the on the request where a client has just exceeded their
-rate limit.
+A (sync/async) function that accepts the Express `req` and `res` objects that is
+called the on the request where a client has just exceeded their rate limit.
 
 This method was
 [deprecated in v6](https://github.com/express-rate-limit/express-rate-limit/releases/v6.0.0) -
@@ -474,7 +473,7 @@ const allowlist = ['192.168.0.56', '192.168.0.21']
 
 const limiter = rateLimit({
 	// ...
-	skip: (request, response) => allowlist.includes(request.ip),
+	skip: (req, res) => allowlist.includes(req.ip),
 })
 ```
 
@@ -483,7 +482,7 @@ By default, it skips no requests:
 ```ts
 const limiter = rateLimit({
 	// ...
-	skip: (request, response) => false,
+	skip: (req, res) => false,
 })
 ```
 
@@ -493,8 +492,8 @@ const limiter = rateLimit({
 
 Method to determine whether or not the request counts as 'succesful'. Used when
 either `skipSuccessfulRequests` or `skipFailedRequests` is set to true. Should
-be a (sync/async) function that accepts the Express `request` and `response`
-objects and then returns `true` or `false`.
+be a (sync/async) function that accepts the Express `req` and `res` objects and
+then returns `true` or `false`.
 
 By default, requests with a response status code less than 400 are considered
 successful:
@@ -502,7 +501,7 @@ successful:
 ```ts
 const limiter = rateLimit({
 	// ...
-	requestWasSuccessful: (request, response) => response.statusCode < 400,
+	requestWasSuccessful: (req, res) => res.statusCode < 400,
 })
 ```
 
@@ -564,10 +563,10 @@ if you wish to create your own store.
 
 ## Request API
 
-A `request.rateLimit` property is added to all requests with the `limit`,
-`used`, and `remaining` number of requests and, if the store provides it, a
-`resetTime` Date object. These may be used in your application code to take
-additional actions or inform the user of their status.
+A `req.rateLimit` property is added to all requests with the `limit`, `used`,
+and `remaining` number of requests and, if the store provides it, a `resetTime`
+Date object. These may be used in your application code to take additional
+actions or inform the user of their status.
 
 Note that `used` includes the current request, so it should always be > 0.
 
