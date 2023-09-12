@@ -422,17 +422,6 @@ const limiter = rateLimit({
 })
 ```
 
-### `onLimitReached`
-
-> `function`
-
-A (sync/async) function that accepts the Express `req` and `res` objects that is
-called the on the request where a client has just exceeded their rate limit.
-
-This method was
-[deprecated in v6](https://github.com/express-rate-limit/express-rate-limit/releases/v6.0.0) -
-Please use a custom `handler` that checks the number of hits instead.
-
 ### `skip`
 
 > `function`
