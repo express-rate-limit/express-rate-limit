@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.2)
+
+Fixed:
+
+- Restored `IncrementResponse ` TypeScript type (See
+  [#397](https://github.com/express-rate-limit/express-rate-limit/pull/397))
+
 ## [6.11.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v6.11.1)
 
 ### Fixed
