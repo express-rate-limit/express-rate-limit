@@ -542,8 +542,11 @@ The property name can be configured with the configuration option
 ### `resetKey(key)`
 
 Resets the rate limiting for a given key. An example use case is to allow users
-to complete a captcha or whatever to reset their rate limit, then call this
-method.
+to complete a captcha to reset their rate limit, then call this function.
+
+### `getKey(key)`
+
+Retrieves the hit count and reset time from the store for a given key.
 
 ## Issues and Contributing
 
