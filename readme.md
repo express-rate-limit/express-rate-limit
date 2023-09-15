@@ -520,6 +520,7 @@ Here is a list of external stores:
 | [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached)               | A [Memcached](https://memcached.org/)-backed store.                                                   | Legacy              |
 | [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo)                   | A [MongoDB](https://www.mongodb.com/)-backed store.                                                   | Legacy              |
 | [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.  | Modern as of v2.0.0 |
+| [`rate-limit-postgresql`](https://www.npmjs.com/package/@acpr/rate-limit-postgresql)   | A [PostgreSQL](https://www.postgresql.org/)-backed store.                                             | Modern as of v1.1.0 |
 
 Take a look at
 [this guide](https://github.com/express-rate-limit/express-rate-limit/wiki/Creating-Your-Own-Store)
