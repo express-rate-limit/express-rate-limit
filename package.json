@@ -83,7 +83,6 @@
 		"@types/jest": "29.5.4",
 		"@types/node": "20.5.9",
 		"@types/supertest": "2.0.12",
-		"cross-env": "7.0.3",
 		"del-cli": "5.1.0",
 		"dts-bundle-generator": "8.0.1",
 		"esbuild": "0.19.2",
