@@ -511,9 +511,6 @@ The `Store` to use to store the hit count for each client.
 
 By default, the [`memory-store`](source/memory-store.ts) is used.
 
-Legacy Stores do not return the reset time, and therfore Reset and Retry-After
-headers will be mising or less accurate.
-
 Here is a list of external stores:
 
 | Name                                                                                   | Description                                                                                           | Legacy/Modern       |
