@@ -362,6 +362,7 @@ Note: 6.5.0 was not released due to CI automation issues.
 
 ### Added
 
+- Support external stores (from version 2.3.0) onwards.
 - A `limiter.resetKey()` method to reset the hit counter for a particular client
 
 ### Changes
