@@ -35,13 +35,17 @@ The default `MemoryStore` is probably fine.
 ### API Rate Limit Enforcement
 
 You may want to switch to a different [store](#store), especially if you have
-multiple servers or processes (for example, with the
-[node:cluster](https://nodejs.org/api/cluster.html) module). Using an external
-data store to syhcnronize hits
-([redis](https://npmjs.com/package/rate-limit-redis),
-[memcached](https://npmjs.org/package/rate-limit-memcached), [etc.](#store))
-guarentees the expected result even if some requests get handled by different
-servers/processes or a server is restarted.
+multiple servers or processes.
+
+If you have multiple processes on a single server (via the
+[node:cluster](https://nodejs.org/api/cluster.html) module), the
+[`cluster-memory-store`](https://npmjs.com/package/@express-rate-limit/cluster-memory-store)
+will keep them all in sync without needing an external data store.
+
+If you have multiple servers, or want to maintain state across app restarts, use
+an external data store such as
+[redis](https://npmjs.com/package/rate-limit-redis),
+[memcached](https://npmjs.org/package/rate-limit-memcached), [etc.](#store).
 
 ### Alternate Rate Limiters
 
@@ -513,14 +517,15 @@ By default, the [`memory-store`](source/memory-store.ts) is used.
 
 Here is a list of external stores:
 
-| Name                                                                                   | Description                                                                                           | Legacy/Modern       |
-| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------- |
-| [`memory-store`](source/memory-store.ts)                                               | _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers. | Modern as of v6.0.0 |
-| [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis)                       | A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.           | Modern as of v3.0.0 |
-| [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached)               | A [Memcached](https://memcached.org/)-backed store.                                                   | Modern as of v1.0.0 |
-| [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo)                   | A [MongoDB](https://www.mongodb.com/)-backed store.                                                   | Legacy              |
-| [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit) | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.  | Modern as of v2.0.0 |
-| [`rate-limit-postgresql`](https://www.npmjs.com/package/@acpr/rate-limit-postgresql)   | A [PostgreSQL](https://www.postgresql.org/)-backed store.                                             | Modern as of v1.1.0 |
+| Name                                                                                         | Description                                                                                                                                   | Legacy/Modern       |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| [`memory-store`](source/memory-store.ts)                                                     | _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.                                         | Modern as of v6.0.0 |
+| [`cluster-memory-store`](https://npmjs.com/package/@express-rate-limit/cluster-memory-store) | A memory-store wrapper that shares state across all processes on a server via the [node:cluster](https://nodejs.org/api/cluster.html) module. | Modern              |
+| [`rate-limit-redis`](https://npmjs.com/package/rate-limit-redis)                             | A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.                                                   | Modern as of v3.0.0 |
+| [`rate-limit-memcached`](https://npmjs.org/package/rate-limit-memcached)                     | A [Memcached](https://memcached.org/)-backed store.                                                                                           | Modern as of v1.0.0 |
+| [`rate-limit-mongo`](https://www.npmjs.com/package/rate-limit-mongo)                         | A [MongoDB](https://www.mongodb.com/)-backed store.                                                                                           | Legacy              |
+| [`precise-memory-rate-limit`](https://www.npmjs.com/package/precise-memory-rate-limit)       | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.                                          | Modern as of v2.0.0 |
+| [`rate-limit-postgresql`](https://www.npmjs.com/package/@acpr/rate-limit-postgresql)         | A [PostgreSQL](https://www.postgresql.org/)-backed store.                                                                                     | Modern as of v1.1.0 |
 
 Take a look at
 [this guide](https://github.com/express-rate-limit/express-rate-limit/wiki/Creating-Your-Own-Store)
