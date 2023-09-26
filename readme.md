@@ -34,8 +34,8 @@ The default `MemoryStore` is probably fine.
 
 ### API Rate Limit Enforcement
 
-The default `MemoryStore` stores the hit counts for clients in memory, and is thus unsuitable for use when running
-multiple servers or processes.
+The default `MemoryStore` stores the hit counts for clients in memory, and is
+thus unsuitable for use when running multiple servers or processes.
 
 If you have multiple processes on a single server (via the
 [node:cluster](https://nodejs.org/api/cluster.html) module), the
