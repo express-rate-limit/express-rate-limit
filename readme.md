@@ -34,7 +34,7 @@ The default `MemoryStore` is probably fine.
 
 ### API Rate Limit Enforcement
 
-You may want to switch to a different [store](#store), especially if you have
+The default `MemoryStore` stores the hit counts for clients in memory, and is thus unsuitable for use when running
 multiple servers or processes.
 
 If you have multiple processes on a single server (via the
