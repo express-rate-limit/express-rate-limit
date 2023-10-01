@@ -554,6 +554,9 @@ to complete a captcha to reset their rate limit, then call this function.
 
 Retrieves the hit count and reset time from the store for a given key.
 
+Note: `getKey` depends on store support. It works with the MemoryStore, but may
+not work with other stores.
+
 ## Issues and Contributing
 
 If you encounter a bug or want to see something added/changed, please go ahead
