@@ -436,9 +436,13 @@ const rateLimit = (
 	// client based on their identifier.
 	;(middleware as RateLimitRequestHandler).resetKey =
 		config.store.resetKey.bind(config.store)
-	;(middleware as RateLimitRequestHandler).getKey = config.store.get?.bind(
-		config.store,
-	)
+	;(middleware as RateLimitRequestHandler).getKey =
+		config.store.get?.bind(config.store) ??
+		(() => {
+			throw new Error(
+				'The current store does not support the get/getKey method',
+			)
+		})
 
 	return middleware as RateLimitRequestHandler
 }
