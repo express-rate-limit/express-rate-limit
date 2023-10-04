@@ -425,17 +425,18 @@ const rateLimit = (
 		},
 	)
 
+	const getThrowFn = () => {
+		throw new Error('The current store does not support the get/getKey method')
+	}
+
 	// Export the store's function to reset and fetch the rate limit info for a
 	// client based on their identifier.
 	;(middleware as RateLimitRequestHandler).resetKey =
 		config.store.resetKey.bind(config.store)
 	;(middleware as RateLimitRequestHandler).getKey =
-		config.store.get?.bind(config.store) ??
-		(() => {
-			throw new Error(
-				'The current store does not support the get/getKey method',
-			)
-		})
+		typeof config.store.get === 'function'
+			? config.store.get.bind(config.store)
+			: getThrowFn
 
 	return middleware as RateLimitRequestHandler
 }
