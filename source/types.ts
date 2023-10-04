@@ -93,7 +93,7 @@ export type RateLimitRequestHandler = RequestHandler & {
 	 *
 	 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
 	 */
-	getKey?: (
+	getKey: (
 		key: string,
 	) =>
 		| Promise<ClientRateLimitInfo | undefined>

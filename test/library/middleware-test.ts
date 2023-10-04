@@ -426,22 +426,20 @@ describe('middleware test', () => {
 			store,
 		})
 
-		const response = await limiter.getKey!('key')
+		const response = await limiter.getKey('key')
 
 		expect(store.getWasCalled).toEqual(true)
 		expect(typeof response?.totalHits).toBe('number')
 	})
 
 	it.each([['legacy', new MockLegacyStore()]])(
-		'should call `get` on the store (%s store)',
+		'should throw an error if `get` does not exist on the store (%s store)',
 		async (name, store) => {
 			const limiter = rateLimit({
 				store,
 			})
 
-			const response = await limiter.getKey!('key')
-			// The legacy stores are promisified and provided a stub `get` function.
-			expect(response).toBeUndefined()
+			expect(limiter.getKey).toThrow()
 		},
 	)
 

@@ -54,13 +54,6 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 
 	// A promisified version of the store
 	class PromisifiedStore implements Store {
-		/* istanbul ignore next */
-		async get(key: string): Promise<ClientRateLimitInfo | undefined> {
-			// TODO: Add a validation check to tell the user that this function should
-			// never be called.
-			return undefined
-		}
-
 		async increment(key: string): Promise<ClientRateLimitInfo> {
 			return new Promise((resolve, reject) => {
 				legacyStore.incr(
@@ -432,13 +425,18 @@ const rateLimit = (
 		},
 	)
 
+	const getThrowFn = () => {
+		throw new Error('The current store does not support the get/getKey method')
+	}
+
 	// Export the store's function to reset and fetch the rate limit info for a
 	// client based on their identifier.
 	;(middleware as RateLimitRequestHandler).resetKey =
 		config.store.resetKey.bind(config.store)
-	;(middleware as RateLimitRequestHandler).getKey = config.store.get?.bind(
-		config.store,
-	)
+	;(middleware as RateLimitRequestHandler).getKey =
+		typeof config.store.get === 'function'
+			? config.store.get.bind(config.store)
+			: getThrowFn
 
 	return middleware as RateLimitRequestHandler
 }
