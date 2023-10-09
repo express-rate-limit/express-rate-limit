@@ -1,0 +1,56 @@
+---
+title: 'Usage'
+---
+
+### Importing the Library
+
+This library is provided in ESM as well as CJS forms, and works with both
+Javascript and Typescript projects. **This package requires you to use Node 14 or above.**
+
+Import it in a CommonJS project (`type: commonjs` or no `type` field in
+`package.json`) as follows:
+
+```ts
+// Import it using the default import style...
+const rateLimit = require('express-rate-limit')
+// ...or using the named import style
+const { rateLimit } = require('express-rate-limit')
+```
+
+Import it in a ESM project (`type: module` in `package.json`) as follows:
+
+```ts
+// Import it using the default import style...
+import rateLimit from 'express-rate-limit'
+// ...or using the named import style
+import { rateLimit } from 'express-rate-limit'
+```
+
+### Using the Library
+
+The default export is a function that accepts an options object and returns the rate limiting middleware.
+
+An example with the recommended configuration is as follows:
+
+```ts
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+```
+
+Then use it in your Express application as follows:
+
+```ts
+app.use(limiter)
+```
+
+To use it only for a certain path (e.g., limit only calls to the /auth/* endpoints), specify the url as the first parameter in `app.use`:
+
+```ts
+app.use('/auth', limiter)
+```
+
+Take a look at the [configuration page](https://github.com/nfriedly/express-rate-limit/wiki/Configuration) for a list of options you can use to change the behaviour of the limiter and a guide to using external stores.

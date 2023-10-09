@@ -1,0 +1,245 @@
+---
+title: 'Creating a Store'
+icon: 'database'
+---
+
+### Overview
+
+A custom store will internally track how many hits each identifier (IP address) has received and automatically reduce that hit count as time elapses.
+
+A `Store` **must** have the `increment`, `decrement`, and `resetKey` public methods. It may optionally have the `init` and `resetAll` public methods (for backwards compatibility with express-rate-limit versions prior to 6.0.0), as well as a `constructor` and any number of private methods.
+
+The `increment` method is the primary interface between the middleware and the store. It adds 1 to the internal count for a key and returns an object consisting of the new internal count (`totalHits`) and the time that the count will reach 0 (`resetTime`).
+
+The `decrement` method is used only to 'uncount' requests when one or both of the `skipSuccessfulRequests` or `skipFailedRequests` options are enabled.
+
+The `init` method allows the store to set itself up using the options passed to the middleware. The store can get the `windowMs` option from this method.
+
+In `package.json`, set `"peerDependencies": { "express-rate-limit": ">=6" }` if the store does not include `incr()`, or `>=2.3.0` if the store does have the `incr()` method. Also put `express-rate-limit` in the `devDependencies` with a more specific version for local testing and typescript definitions.
+
+Examples:
+
+- [TypeScript](#typescript)
+- [JavaScript](#javascript)
+
+### TypeScript
+
+To create your own store in TypeScript, you must implement the `Store` interface provided by the library. Here is an example to get you started:
+
+```ts
+import rateLimit, {
+	Store,
+	Options,
+	IncrementResponse,
+} from 'express-rate-limit'
+
+/**
+ * A `Store` that stores the hit count for each client.
+ *
+ * @public
+ */
+class SomeStore implements Store {
+	/**
+	 * Some store-specific parameter.
+	 */
+	customParam!: string
+
+	/**
+	 * The duration of time before which all hit counts are reset (in milliseconds).
+	 */
+	windowMs!: number
+
+	/**
+	 * @constructor for `SomeStore`. Only required if the user needs to pass
+	 * some store specific parameters. For example, in a Mongo Store, the user will
+	 * need to pass the URI, username and password for the Mongo database.
+	 *
+	 * @param customParam {string} - Some store-specific parameter.
+	 */
+	constructor(customParam: string) {
+		this.customParam = customParam
+	}
+
+	/**
+	 * Method that actually initializes the store. Must be synchronous.
+	 *
+	 * This method is optional, it will be called only if it exists.
+	 *
+	 * @param options {Options} - The options used to setup express-rate-limit.
+	 *
+	 * @public
+	 */
+	init(options: Options): void {
+		this.windowMs = options.windowMs
+		// ...
+	}
+
+	/**
+	 * Method to increment a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+	 *
+	 * @public
+	 */
+	async increment(key: string): Promise<IncrementResponse> {
+		// ...
+		return {
+			totalHits,
+			resetTime,
+		}
+	}
+
+	/**
+	 * Method to decrement a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @public
+	 */
+	async decrement(key: string): Promise<void> {
+		// ...
+	}
+
+	/**
+	 * Method to reset a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @public
+	 */
+	async resetKey(key: string): Promise<void> {
+		// ...
+	}
+
+	/**
+	 * Method to reset everyone's hit counter.
+	 *
+	 * This method is optional, it is never called by express-rate-limit.
+	 *
+	 * @public
+	 */
+	async resetAll(): Promise<void> {
+		// ...
+	}
+}
+
+// Export the store so others can use it
+export default SomeStore
+```
+
+You can then use the store as follows:
+
+```ts
+import rateLimit from 'express-rate-limit'
+import SomeStore from './some-store.js'
+
+const limiter = rateLimit({
+	store: new SomeStore(),
+})
+```
+
+### JavaScript
+
+```js
+/**
+ * A `Store` that stores the hit count for each client.
+ *
+ * @public
+ */
+class SomeStore {
+	/**
+	 * @constructor for `SomeStore`. Only required if the user needs to pass
+	 * some store specific parameters. For example, in a Mongo Store, the user will
+	 * need to pass the URI, username and password for the Mongo database.
+	 *
+	 * @param customParam {string} - Some store-specific parameter.
+	 */
+	 constructor(customParam) {
+	   this.customParam = customParam
+	 }
+
+	/**
+	 * Method that actually initializes the store. Must be synchronous.
+	 *
+	 * This method is optional, it will be called only if it exists.
+	 *
+	 * @param options {Options} - The options used to setup express-rate-limit.
+	 *
+	 * @public
+	 */
+	 init(options) {
+	   this.windowMs = options.windowMs
+	 }
+
+	/**
+	 * Method to increment a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+	 *
+	 * @public
+	 */
+	 async increment(key) {
+	   // ...
+
+	   return {
+	     totalHits, // A positive integer
+	     resetTime, // A JS `Date` object
+	   }
+	 }
+
+	/**
+	 * Method to decrement a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @public
+	 */
+	 async decrement(key) {
+	   // ...
+	 }
+
+	/**
+	 * Method to reset a client's hit counter.
+	 *
+	 * @param key {string} - The identifier for a client.
+	 *
+	 * @public
+	 */
+	 async resetKey(key) {
+	   // ...
+	 }
+
+	/**
+	 * Method to reset everyone's hit counter.
+	 *
+	 * This method is optional, it is never called by express-rate-limit.
+	 *
+	 * @public
+	 */
+	 async resetAll() {
+	   // ...
+	 }
+}
+
+// Export the store so others can use it
+// ...via the CommonJS style
+module.exports = SomeStore
+// ...or the ES Module style
+export default SomeStore
+```
+
+You can then use the store as follows:
+
+```ts
+// Use `const ... = require('...')` instead if you are using CommonJS
+import rateLimit from 'express-rate-limit'
+import SomeStore from './some-store.js'
+
+const limiter = rateLimit({
+	store: new SomeStore(),
+})
+```

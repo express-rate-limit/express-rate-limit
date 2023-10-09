@@ -1,0 +1,39 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "express-rate-limit",
+  "favicon": "docs/express-rate-limit-favicon.png",
+  "colors": {
+    "primary": "#9563FF",
+    "light": "#AE87FF",
+    "dark": "#0D001D",
+    "background": {
+      "dark": "#090014"
+    },
+    "anchors": {
+      "from": "#FF7F57",
+      "to": "#9563FF"
+    }
+  },
+  "topbarCtaButton": {
+    "type": "github",
+    "url": "https://github.com/express-rate-limit/express-rate-limit"
+  },
+  "navigation": [
+    {
+      "group": "",
+      "pages": ["docs/introduction"]
+    },
+
+    {
+      "group": "Get Started",
+      "pages": ["docs/get_started/installation", "docs/get_started/usage", "docs/get_started/configuration", "docs/get_started/error_codes"]
+    },
+    {
+      "group": "Guides",
+      "pages": ["docs/guides/troubleshooting", "docs/guides/creating_a_store", "docs/guides/contributing"]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/express-rate-limit/express-rate-limit"
+  }
+}

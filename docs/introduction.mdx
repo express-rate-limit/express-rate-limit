@@ -1,0 +1,61 @@
+---
+title: Introduction
+---
+
+Thanks to [Mintlify](https://www.mintlify.com) for generously hosting this documentation.
+
+
+# express-rate-limit
+Express-rate-limit is a basic rate-limiting middleware for [Express](http://expressjs.com/), used to
+limit repeated requests to public APIs and/or endpoints such as password reset.
+Plays nice with
+[express-slow-down](https://www.npmjs.com/package/express-slow-down). 
+
+## Use Cases
+
+### Abuse Prevention
+
+The default `MemoryStore` is probably fine.
+
+### API Rate Limit Enforcement
+
+The default `MemoryStore` stores the hit counts for clients in memory, and is
+thus unsuitable for use when running multiple servers or processes.
+
+If you have multiple processes on a single server (via the
+[node:cluster](https://nodejs.org/api/cluster.html) module), the
+[`cluster-memory-store`](https://npmjs.com/package/@express-rate-limit/cluster-memory-store)
+will keep them all in sync without needing an external data store.
+
+If you have multiple servers, or want to maintain state across app restarts, use
+an external data store such as
+[redis](https://npmjs.com/package/rate-limit-redis),
+[memcached](https://npmjs.org/package/rate-limit-memcached), [etc.](#store).
+
+### Alternate Rate Limiters
+
+This module was designed to only handle the basics and didn't even support
+external stores initially. These other options all are excellent pieces of
+software and may be more appropriate for some situations:
+
+- [`rate-limiter-flexible`](https://www.npmjs.com/package/rate-limiter-flexible)
+- [`express-brute`](https://www.npmjs.com/package/express-brute)
+- [`rate-limiter`](https://www.npmjs.com/package/express-limiter)
+
+
+## Issues and Contributing
+
+If you encounter a bug or want to see something added/changed, please go ahead
+and
+[open an issue](https://github.com/nfriexpress-rate-limitedly/express-rate-limit/issues/new)!
+If you need help with something, feel free to
+[start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
+
+If you wish to contribute to the library, thanks! First, please read
+[the contributing guide](/guides/contributing). Then you can pick up any issue and
+fix/implement it!
+
+## License
+
+MIT © [Nathan Friedly](http://nfriedly.com/),
+[Vedant K](https://github.com/gamemaker1)

@@ -1,0 +1,69 @@
+---
+title: 'Troubleshooting Proxy Issues'
+description: 'Display inline code and code blocks'
+icon: 'wrench'
+---
+
+**The rate limiter works as a global limiter**
+
+If you are behind a proxy/load balancer (usually the case with most hosting
+services, e.g. Heroku, Bluemix, AWS ELB, Nginx, Cloudflare, Akamai, Fastly,
+Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of the
+request might be the IP of the load balancer/reverse proxy (making the rate
+limiter effectively a global one and blocking all requests once the limit is
+reached) or `undefined`. To solve this issue, add the following line to your
+code (right after you create the express application):
+
+```ts
+app.set('trust proxy', numberOfProxies)
+```
+
+Where `numberOfProxies` is the number of proxies between the user and the
+server. To find the correct number, create a test endpoint that returns the
+client IP:
+
+```ts
+app.set('trust proxy', 1)
+app.get('/ip', (request, response) => response.send(request.ip))
+
+```
+
+Go to `/ip` and see the IP address returned in the response. If it matches your
+IP address (which you can get by going to http://ip.nfriedly.com/ or
+https://api.ipify.org/), then the number of proxies is correct and the rate
+limiter should now work correctly. If not, then keep increasing the number until
+it does.
+
+Additionally, you may add this endpoint:
+
+```js
+app.get('/x-forwarded-for', (request, response) => response.send(request.headers['x-forwarded-for']))
+```
+
+and then visit `/x-forwarded-for` to see the value of the X-Forwarded-For header.
+
+For more information about the `trust proxy` setting, take a look at the
+[official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
+
+---
+
+**The rate limiter can be bypassed easily if behind a reverse proxy that includes port numbers in `X-Forwarded-For` header**
+
+A problem arises because the format of the `X-Forwarded-For` header isn't standardized between every reverse proxy out there, and Express takes the trusted value verbatim and sets it as `request.ip`.
+
+While some reverse proxy pass a comma delimited list of IP address, some proxies (e.g., Azure's Application Gateway) will pass a comma delimited list of IP:PORT instead, where the port is the source port, which unfortunately can change with every request. Because of this, a user can simply close and re-open their browser to bypass the rate limit timer as their source port of their HTTP request will change, even if their IP is the same. This could also be automated in some kind of script for API abuse.
+
+As a workaround, you could strip the port number from the IP address by using a custom key generator function as follows:
+
+```ts
+keyGenerator(request: Request, _response: Response): string {
+	if (!request.ip) {
+		console.error('Warning: request.ip is missing!')
+		return req.socket.remoteAddress
+	}
+
+	return request.ip.replace(/:\d+[^:]*$/, '')
+}
+```
+
+See issue [#234](https://github.com/nfriedly/express-rate-limit/issues/234) for more info.
