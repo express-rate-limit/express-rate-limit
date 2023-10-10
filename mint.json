@@ -26,14 +26,69 @@
 
     {
       "group": "Get Started",
-      "pages": ["docs/get_started/installation", "docs/get_started/usage", "docs/get_started/configuration", "docs/get_started/error_codes"]
+      "pages": [
+        "docs/get_started/installation",
+        "docs/get_started/usage",
+        "docs/get_started/configuration",
+        "docs/get_started/error_codes"
+      ]
     },
     {
       "group": "Guides",
-      "pages": ["docs/guides/troubleshooting", "docs/guides/creating_a_store", "docs/guides/contributing"]
+      "pages": [
+        "docs/guides/troubleshooting",
+        "docs/guides/creating_a_store",
+        "docs/guides/contributing"
+      ]
     }
   ],
   "footerSocials": {
     "github": "https://github.com/express-rate-limit/express-rate-limit"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/docs/get_started/error_codes#err_erl_undefined_ip_address",
+      "destination": "/docs/get_started/error_codes#err-erl-undefined-ip-address"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_invalid_ip_address",
+      "destination": "/docs/get_started/error_codes#err-erl-invalid-ip-address"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_permissive_trust_proxy",
+      "destination": "/docs/get_started/error_codes#err-erl-permissive-trust-proxy"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_unexpected_x_forwarded_for",
+      "destination": "/docs/get_started/error_codes#err-erl-unexpected-x-forwarded-for"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_invalid_hits",
+      "destination": "/docs/get_started/error_codes#err-erl-invalid-hits"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_double_count",
+      "destination": "/docs/get_started/error_codes#err-erl-double-count"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_headers_no_reset",
+      "destination": "/docs/get_started/error_codes#err-erl-headers-no-reset"
+    },
+    {
+      "source": "/docs/get_started/error_codes#err_erl_unknown_validation",
+      "destination": "/docs/get_started/error_codes#err-erl-unknown-validation"
+    },
+    {
+      "source": "/docs/get_started/error_codes#wrn_erl_max_zero",
+      "destination": "/docs/get_started/error_codes#wrn-erl-max-zero"
+    },
+    {
+      "source": "/docs/get_started/error_codes#wrn_erl_deprecated_on_limit_reached",
+      "destination": "/docs/get_started/error_codes#wrn-erl-deprecated-on-limit-reached"
+    },
+    {
+      "source": "/docs/get_started/error_codes#wrn_erl_deprecated_draft_polli_headers",
+      "destination": "/docs/get_started/error_codes#wrn-erl-deprecated-draft-polli-headers"
+    }
+  ]
 }

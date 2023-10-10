@@ -1,8 +1,8 @@
 ---
-title: 'Error Codes'
+title: "Error Codes"
 ---
 
-By default, express-rate-limit runs a number of validation checks to look for common configuration issues. If a validation check fails, an error is logged to the console. 
+By default, express-rate-limit runs a number of validation checks to look for common configuration issues. If a validation check fails, an error is logged to the console.
 
 Validation checks may be disabled globally by passing `validate: false` in the options, or disabled individually with the settings documented below. Additionally, specific checks will be disabled in some circumstances, also discussed below. Finally, all validation checks are automatically disabled after the first request. (Note that if multiple requests come in simultaneously, validation checks may run more than once.)
 
@@ -18,7 +18,7 @@ Set `validate: {ip: false}` in the options to disable the check (express-rate-li
 
 ## `ERR_ERL_INVALID_IP_ADDRESS`
 
-This error is logged whenever the IP address is not a valid IPV4/IPV6 address, or when the IP address contains a port number. The port from which a request comes can be changed simply by opening or closing a browser, or when using an Azure proxy, thus opening up avenues for bypassing the rate limit. 
+This error is logged whenever the IP address is not a valid IPV4/IPV6 address, or when the IP address contains a port number. The port from which a request comes can be changed simply by opening or closing a browser, or when using an Azure proxy, thus opening up avenues for bypassing the rate limit.
 
 Consider using a custom `keyGenerator` function that strips out the port number (`request.ip.replace(/:\d+[^:]*$/, '')`, or that uses something like an API key or bearer token to count the hits against.
 
@@ -42,7 +42,7 @@ Set `validate: {trustProxy: false}` in the options to disable the check (express
 
 ## `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR`
 
-This error is logged when the `X-Forwarded-For` header is set (indicating use of a proxy), but the trust proxy setting is `false` (which is the default value). 
+This error is logged when the `X-Forwarded-For` header is set (indicating use of a proxy), but the trust proxy setting is `false` (which is the default value).
 
 This usually indicates a configuration issue that will cause express-rate-limit to apply it's limits global rather than on a per-user basis. Refer to the [Troubleshooting Proxy Issues](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues) page for a guide to set the `trust proxy` value correctly.
 
@@ -54,7 +54,7 @@ Set `validate: {xForwardedForHeader: false}` in the options to disable the check
 
 ## `ERR_ERL_INVALID_HITS`
 
-This indicates an issue with the Store and/or it's underlying data storage mechanism. 
+This indicates an issue with the Store and/or it's underlying data storage mechanism.
 
 Ensure the Store returns a positive integer for the `totalHits` value when `increment()` is called. If this is not possible, the store should throw an error.
 
@@ -96,13 +96,13 @@ To prevent the validation check that logs this error, set the `validate.validati
 
 ```js
 const limiter = rateLimit({
-	validate: {
-		validationsConfig: false,
-		// ...
-		default: true,
-	},
-	// ...
-})
+  validate: {
+    validationsConfig: false,
+    // ...
+    default: true,
+  },
+  // ...
+});
 ```
 
 Set `validate: {validationsConfig: false}` in the options to disable the check (express-rate-limit v7.0.0 or newer).
@@ -121,14 +121,14 @@ The `onLimitReached` configuration option was deprecated in express-rate-limit v
 
 ```js
 const limiter = rateLimit({
-	// ...
-	handler: (request, response, next, options) => {
-		if (request.rateLimit.current === request.rateLimit.limit + 1) {
-			// onLimitReached code here
-		}
-		response.status(options.statusCode).send(options.message)
-	},
-})
+  // ...
+  handler: (request, response, next, options) => {
+    if (request.rateLimit.current === request.rateLimit.limit + 1) {
+      // onLimitReached code here
+    }
+    response.status(options.statusCode).send(options.message);
+  },
+});
 ```
 
 Set `validate: {onLimitReached: false}` in the options to disable the check (express-rate-limit v7.0.0 or newer).

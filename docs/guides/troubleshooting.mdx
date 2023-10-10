@@ -1,7 +1,7 @@
 ---
-title: 'Troubleshooting Proxy Issues'
-description: 'Display inline code and code blocks'
-icon: 'wrench'
+title: "Troubleshooting Proxy Issues"
+description: "Display inline code and code blocks"
+icon: "wrench"
 ---
 
 **The rate limiter works as a global limiter**
@@ -15,7 +15,7 @@ reached) or `undefined`. To solve this issue, add the following line to your
 code (right after you create the express application):
 
 ```ts
-app.set('trust proxy', numberOfProxies)
+app.set("trust proxy", numberOfProxies);
 ```
 
 Where `numberOfProxies` is the number of proxies between the user and the
@@ -23,9 +23,8 @@ server. To find the correct number, create a test endpoint that returns the
 client IP:
 
 ```ts
-app.set('trust proxy', 1)
-app.get('/ip', (request, response) => response.send(request.ip))
-
+app.set("trust proxy", 1);
+app.get("/ip", (request, response) => response.send(request.ip));
 ```
 
 Go to `/ip` and see the IP address returned in the response. If it matches your
@@ -37,7 +36,9 @@ it does.
 Additionally, you may add this endpoint:
 
 ```js
-app.get('/x-forwarded-for', (request, response) => response.send(request.headers['x-forwarded-for']))
+app.get("/x-forwarded-for", (request, response) =>
+  response.send(request.headers["x-forwarded-for"]),
+);
 ```
 
 and then visit `/x-forwarded-for` to see the value of the X-Forwarded-For header.

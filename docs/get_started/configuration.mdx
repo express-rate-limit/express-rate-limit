@@ -1,5 +1,5 @@
 ---
-title: 'Configuration'
+title: "Configuration"
 ---
 
 ## Options
@@ -34,15 +34,15 @@ An example of using a function:
 
 ```ts
 const isPremium = async (user) => {
-	// ...
-}
+  // ...
+};
 const limiter = rateLimit({
-	// ...
-	max: async (request, response) => {
-		if (await isPremium(request.user)) return 10
-		else return 5
-	},
-})
+  // ...
+  max: async (request, response) => {
+    if (await isPremium(request.user)) return 10;
+    else return 5;
+  },
+});
 ```
 
 ### `message`
@@ -78,6 +78,7 @@ requests.
 Defaults to `true` (for backward compatibility).
 
 > Renamed in `6.x` from `headers` to `legacyHeaders`.
+
 ### `standardHeaders`
 
 > `boolean`
@@ -148,9 +149,9 @@ By default, the client's IP address is used:
 
 ```ts
 const limiter = rateLimit({
-	// ...
-	keyGenerator: (request, response) => request.ip,
-})
+  // ...
+  keyGenerator: (request, response) => request.ip,
+});
 ```
 
 ### `handler`
@@ -164,10 +165,10 @@ By default, sends back the `statusCode` and `message` set via the options:
 
 ```ts
 const limiter = rateLimit({
-	// ...
-	handler: (request, response, next, options) =>
-		response.status(options.statusCode).send(options.message),
-})
+  // ...
+  handler: (request, response, next, options) =>
+    response.status(options.statusCode).send(options.message),
+});
 ```
 
 ### ~`onLimitReached`~
@@ -193,20 +194,20 @@ quota. Should be a (sync/async) function that accepts the Express `request` and
 Could also act as an allowlist for certain keys:
 
 ```ts
-const allowlist = ['192.168.0.56', '192.168.0.21']
+const allowlist = ["192.168.0.56", "192.168.0.21"];
 const limiter = rateLimit({
-	// ...
-	skip: (request, response) => allowlist.includes(request.ip),
-})
+  // ...
+  skip: (request, response) => allowlist.includes(request.ip),
+});
 ```
 
 By default, it skips no requests:
 
 ```ts
 const limiter = rateLimit({
-	// ...
-	skip: (request, response) => false,
-})
+  // ...
+  skip: (request, response) => false,
+});
 ```
 
 ### `requestWasSuccessful`
@@ -223,9 +224,9 @@ successful:
 
 ```ts
 const limiter = rateLimit({
-	// ...
-	requestWasSuccessful: (request, response) => response.statusCode < 400,
-})
+  // ...
+  requestWasSuccessful: (request, response) => response.statusCode < 400,
+});
 ```
 
 ### `store`
