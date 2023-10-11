@@ -8,6 +8,14 @@ Gateway for developers. Add
 authentication and more to any API in minutes. Learn more at
 [zuplo.com](https://zuplo.link/express-rate-limit)
 
+Thanks to Mintlify for hosting the documentation at [express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app)
+
+<p align="center">
+	<a href="https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit">
+    	<img height="75" src="https://devmark-public-assets.s3.us-west-2.amazonaws.com/sponsorships/mintlify.svg" alt="Create your docs today">
+	</a>
+</p>
+
 ---
 
 <div align="center">
