@@ -1,4 +1,16 @@
-# <div align="center"> Express Rate Limit </div>
+<h1>
+
+<div align="center">
+
+Express Rate Limit
+
+[![tests](https://github.com/express-rate-limit/express-rate-limit/actions/workflows/ci.yaml/badge.svg)](https://github.com/express-rate-limit/express-rate-limit/actions/workflows/ci.yaml)
+[![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
+[![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
+
+</div>
+
+</h1>
 
 ---
 
@@ -10,18 +22,10 @@ authentication and more to any API in minutes. Learn more at
 
 ---
 
-<div align="center">
-
-[![tests](https://github.com/express-rate-limit/express-rate-limit/actions/workflows/ci.yaml/badge.svg)](https://github.com/express-rate-limit/express-rate-limit/actions/workflows/ci.yaml)
-[![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
-[![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
-
-Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
-limit repeated requests to public APIs and/or endpoints such as password reset.
-Plays nice with
-[express-slow-down](https://www.npmjs.com/package/express-slow-down).
-
-</div>
+> Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
+> limit repeated requests to public APIs and/or endpoints such as password
+> reset. Plays nice with
+> [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
 ## Use Cases
 
