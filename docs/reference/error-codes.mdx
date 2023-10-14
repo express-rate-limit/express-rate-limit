@@ -1,0 +1,241 @@
+---
+title: 'Error Codes'
+icon: 'triangle-exclamation'
+---
+
+The library runs a number of validation checks to look for common configuration
+issues. If a validation check fails, an error is logged to the console.
+
+Note that validation checks may be disabled globally by passing
+`validate: false` in the options, or disabled individually with the settings
+documented below. Additionally, specific checks will be disabled in some
+circumstances, also discussed below. Finally, all validation checks are
+automatically disabled after the first request. It is to be noted that if
+multiple 'first' requests come in simultaneously, the validation checks may run
+more than once.
+
+<Note>
+
+The ability to disable individual checks was added in version `7.0.0`.
+
+</Note>
+
+## Errors
+
+### `ERR_ERL_UNDEFINED_IP_ADDRESS`
+
+> Added in `6.8.0`.
+
+This error is logged whenever `request.ip` is undefined. It could indicate a
+misconfiguration in server settings, or that
+[the client disconnected](https://nodejs.org/api/net.html#net_socket_remoteaddress)
+before the request could be processed.
+
+It could also indicate that a server other than [Express](http://expressjs.com/)
+is being used, which is not a supported use-case.
+
+This check will be prevented if a custom `keyGenerator` is supplied.
+
+Set `validate: {ip: false}` in the options to disable the check.
+
+### `ERR_ERL_INVALID_IP_ADDRESS`
+
+> Added in `6.8.0`.
+
+This error is logged whenever the IP address is not a valid IPV4/IPV6 address,
+or when the IP address contains a port number. The port from which a request
+comes can be changed simply by opening or closing a browser, or when using an
+Azure proxy, thus opening up avenues for bypassing the rate limit.
+
+Consider using a custom `keyGenerator` function that strips out the port number
+(`request.ip.replace(/:\d+[^:]*$/, '')`, or that uses something like an API key
+or bearer token to count the hits against.
+
+See [#234](https://github.com/express-rate-limit/express-rate-limit/issues/234)
+for more information on this issue.
+
+This check will be prevented if a custom `keyGenerator` is supplied.
+
+Set `validate: {ip: false}` in the options to disable the check.
+
+### `ERR_ERL_PERMISSIVE_TRUST_PROXY`
+
+> Added in `6.8.0`.
+
+This error is logged when the trust proxy setting is set to `true`.
+
+If this is set to true, it will cause express to return the leftmost entry in
+the `X-Forwarded-For` header as the client's IP. This header could be set by the
+proxy or a malicious client, opening up avenues for bypassing the rate limiter.
+
+Refer to the
+[troubleshooting proxy issues](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues)
+page for a guide to set the `trust proxy` value correctly.
+
+This check will be prevented if a custom `keyGenerator` is supplied.
+
+Set `validate: {trustProxy: false}` in the options to disable the check.
+
+### `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR`
+
+> Added in `6.8.0`.
+
+This error is logged when the `X-Forwarded-For` header is set (indicating use of
+a proxy), but the trust proxy setting is `false` (which is the default value).
+
+This usually indicates a configuration issue that will cause express-rate-limit
+to apply it's limits global rather than on a per-user basis. Refer to the
+[troubleshooting proxy issues](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues)
+page for a guide to set the `trust proxy` value correctly.
+
+If this error occurs only rarely, and you do not have a reverse proxy, it may
+indicate a malicious user probing for vulnerabilities.
+
+This check will be prevented if a custom `keyGenerator` is supplied.
+
+Set `validate: {xForwardedForHeader: false}` in the options to disable the
+check.
+
+### `ERR_ERL_INVALID_HITS`
+
+> Added in `6.10.0`.
+
+This indicates an issue with the Store and/or it's underlying data storage
+mechanism.
+
+Ensure the Store returns a positive integer for the `totalHits` value when
+`increment()` is called. If this is not possible, the store should throw an
+error.
+
+Set `validate: {positiveHits: false}` in the options to disable the check.
+
+### `ERR_ERL_DOUBLE_COUNT`
+
+> Added in `6.9.0`.
+
+This indicates that the hit count for a given IP or key was incremented more
+than once for a single request. It could happen if the same instance of
+express-rate-limit is called more than once, or if multiple instances are called
+that use the same Store.
+
+If only a single rate limit is desired, find and remove the extra rateLimit
+call(s).
+
+If multiple rate limits are desired, consider setting a custom `keyGenerator`
+for each to prevent double-counting.
+
+In rare circumstances this error can be a false positive. This would include
+situations where multiple rate limiters are configured to use the same key but
+different backed databases. Setting a unique key per rate limiter would prevent
+this.
+
+<Warning>
+
+Prior to version `6.11.1`, the library did not take a store prefixes into
+account, and thus could log this incorrectly if two instances use different
+prefixes.
+
+</Warning>
+
+Set `validate: {singleCount: false}` in the options to disable the check.
+
+### `ERR_ERL_HEADERS_NO_RESET`
+
+> Added in `7.0.0`.
+
+The
+[seventh draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07)
+of the IETF RateLimit Headers specification makes `reset` a required field.
+However, the legacy `Store` API did not have a way for stores to provide this
+information.
+
+The library attempts to account for this by using the `windowMs` time, which has
+a default value of 60 seconds if not explicitly set.
+
+To resolve this, either change to a different headers version, such as
+`draft-6`, or a different
+[store](https://github.com/express-rate-limit/express-rate-limit#store).
+
+Set `validate: {headersResetTime: false}` in the options to disable the check.
+
+### `ERR_ERL_UNKNOWN_VALIDATION`
+
+> Added in `7.0.0`.
+
+The library allows for specific validation checks to be enabled or disabled, but
+only ones that it knows about. If an unknown validation check is referenced in
+the `validate` configuration object, this error will be logged.
+
+This could be due to a typo in the `validate` configuration, or the
+configuration could be intended for a different version of the library that
+includes the unrecognized validation check.
+
+To resolve this, remove the specified key from your configuration.
+
+To prevent the validation check that logs this error, set the
+`validate.validationsConfig` option to `false`:
+
+```js
+const limiter = rateLimit({
+	validate: {
+		validationsConfig: false,
+		// ...
+		default: true,
+	},
+	// ...
+})
+```
+
+Set `validate: {validationsConfig: false}` in the options to disable the check.
+
+## Warnings
+
+### `WRN_ERL_MAX_ZERO`
+
+> Added in `6.10.0`.
+
+In express-rate-limit version 6 and older, the rate limiter would be disabled
+upon passing `max: 0` as part of the options. Starting with version `7.0.0`,
+this is no longer the case - the rate limiting will apply from the very first
+request instead. See
+[#369](https://github.com/express-rate-limit/express-rate-limit/discussions/369)
+for more information.
+
+To recreate the original behavior of disabling the rate limiter entirely, use
+the [skip](https://github.com/express-rate-limit/express-rate-limit#skip)
+function instead.
+
+Set `validate: {limit: false}` in the options to disable the check.
+
+### `WRN_ERL_DEPRECATED_ON_LIMIT_REACHED`
+
+> Added in `6.10.0`.
+
+The `onLimitReached` configuration option was deprecated in express-rate-limit
+v6 and removed in version `7.0.0`. To replicate it's behavior, set a custom
+handler like so:
+
+```js
+const limiter = rateLimit({
+	// ...
+	handler: (request, response, next, options) => {
+		if (request.rateLimit.current === request.rateLimit.limit + 1) {
+			// onLimitReached code here
+		}
+		response.status(options.statusCode).send(options.message)
+	},
+})
+```
+
+Set `validate: {onLimitReached: false}` in the options to disable the check.
+
+### `WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS`
+
+> Added in `6.10.0`.
+
+The `draft_polli_ratelimit_headers` option was deprecated in express-rate-limit
+v6 and removed in version `7.0.0`. Please use the `standardHeaders: 'draft-6'`
+option to replicate its behaviour, or use the recommended
+`standardHeaders: 'draft-7'` option instead.
+
+Set `validate: {draftPolliHeaders: false}` in the options to disable the check.

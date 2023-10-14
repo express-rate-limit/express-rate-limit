@@ -1,0 +1,98 @@
+---
+title: 'Usage'
+icon: 'book'
+---
+
+### Importing the Library
+
+<Note>
+	This library requires [node](https://nodejs.org) version 16 or above.
+</Note>
+
+This library is provided in [esm](https://nodejs.org/api/esm.html) as well as
+[cjs](https://nodejs.org/api/modules.html) forms, and works with both Javascript
+and Typescript projects.
+
+<CodeGroup>
+
+```ts esm
+// Your code most likely uses the es module format if the `type` field in your
+// `package.json` is set to `module`.
+
+import { rateLimit } from 'express-rate-limit'
+```
+
+```ts commonjs
+// Your code most likely uses the commonjs module format if the `type` field in
+// your `package.json` is absent, or set to `commonjs`.
+
+const { rateLimit } = require('express-rate-limit')
+```
+
+</CodeGroup>
+
+### Using the Library
+
+The `rateLimit` function accepts an options object and returns the rate limiting
+middleware.
+
+An example with the recommended configuration is as follows:
+
+```ts
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+```
+
+Then use it in your Express application as follows:
+
+```ts
+app.use(limiter)
+```
+
+To use it only for a certain path (e.g., limit only calls to the `/auth/*`
+endpoints), specify the url as the first parameter in `app.use`:
+
+```ts
+app.use('/auth', limiter)
+```
+
+Take a look at the [configuration page](/docs/references/configuration) for a
+list of options you can use to change the behaviour of the limiter.
+
+<Warning>
+
+If your server runs behind a proxy/load balancer, the IP address of the request
+might be `undefined`, or the IP of the load balancer/reverse proxy (leading to
+the rate limiter blocking **all** requests once the limit is reached).
+
+To fix this, take a look at the
+[guide](/docs/guides/troubleshooting-proxy-issues) to troubleshooting proxy
+issues.
+
+</Warning>
+
+### Using External Stores
+
+A store is essentially a javascript/typescript class that allows the library to
+store hit counts and reset times for clients wherever you want, e.g., in an
+external database.
+
+To use an external store, pass an instance of the store to the `rateLimit`
+function, like so:
+
+```ts
+const limiter = rateLimit({
+	// ... other options,
+	store: new ExternalStore(),
+})
+```
+
+For a list of stores you can use, and for more information on the `store`
+option, take a look at the [config page](docs/references/configuration#store).
+
+For a tutorial on how to create your own store, see
+[this](/docs/guides/creating-a-store).

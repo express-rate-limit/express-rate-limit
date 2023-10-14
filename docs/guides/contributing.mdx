@@ -1,0 +1,209 @@
+---
+title: 'Contributing'
+icon: 'handshake'
+---
+
+Thanks for your interest in contributing to Express Rate Limit! This guide will
+show you how to set up your environment and contribute to this library.
+
+<Steps>
+<Step title="Setup your environment">
+
+First, you need to install and be familiar the following:
+
+1. `git`
+
+[Here](https://github.com/git-guides) is a great guide by GitHub on installing
+and getting started with Git.
+
+2. `node` and `npm`
+
+[This guide](https://nodejs.org/en/download/package-manager/) will help you
+install `node` and `npm`. The recommended method is using the `n` version
+manager if you are on MacOS or Linux. Make sure you are using the
+[active LTS version](https://github.com/nodejs/Release#release-schedule) of
+Node.
+
+</Step>
+<Step title="Fork the repository">
+
+Follow
+[these instructions](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+to
+[fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks)
+and [clone](https://github.com/git-guides/git-clone) the repository
+(`express-rate-limit/express-rate-limit`).
+
+Once you have forked and cloned the repository, you can
+[pick out an issue](https://github.com/express-rate-limit/express-rate-limit/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
+you want to fix/implement!
+
+</Step>
+<Step title="Create a branch">
+
+Once you have cloned the repository to your computer (say, in
+`~/Code/express-rate-limit`) and picked the issue you want to tackle, create a
+branch based off the `main` branch:
+
+```sh terminal
+> git switch main
+> git switch --create branch-name
+```
+
+While naming your branch, make sure the name is short and self explanatory.
+
+Once you have created a branch, you can start coding!
+
+</Step>
+<Step title="Writing code">
+
+The library is written in `typescript` and supports `node` versions 16, 18
+and 20. The code is arranged as follows:
+
+<Accordion title="Code Structure">
+
+```sh
+express-rate-limit/
+├── config/
+│  └── husky/
+│     └── pre-commit # runs the linter on staged files
+├── source/
+│  ├── headers.ts # header parsing functions
+│  ├── index.ts # exports the types and the middleware
+│  ├── lib.ts # option parser and the rate limiting middleware
+│  ├── memory-store.ts # the used-by-default memory store
+│  ├── types.ts # typescript type definitions, exported as public api
+│  └── validations.ts # validation checks built into library
+├── test/
+│  ├── external/
+│  │  ├── imports/ # ensures the function can be imported in diff envs
+│  │  ├── stores/ # ensures the library works with the store
+│  │  └── run-all-tests # runs all the external and store tests
+│  └── library
+│     ├── helpers
+│     │  └── create-server.ts # creates a test express server
+│     └── *-test.ts # tests for each file in the `source/` folder
+├── changelog.md # list of changes made in each version
+├── license.md # license info
+├── package-lock.json # npm lock file, do not modify manually
+├── package.json # node package info
+├── readme.md # project info
+├── jest.config.json # test runner config
+└── tsconfig.json # typescript config
+```
+
+</Accordion>
+
+<Note> Most files have a little description of what they do at the top. </Note>
+
+</Step>
+<Step title="Documentation and testing">
+
+When adding a new feature or fixing a bug, please update the documentation and
+changelog as well as add tests for the same. Also make sure the codebase passes
+the linter andd library tests by running `npm test`. Note that running
+`npm run format` will automatically resolve most style/lint issues.
+
+<Note>
+
+Note that the external tests require various datastores to be installed locally
+and take more time to execute. Typically they are run only on GitHub Actions.
+You may run these tests locally by running `npm run test:ext`.
+
+</Note>
+
+</Step>
+<Step title="Making a commit">
+
+Once you have made changes to the code, you will want to
+[commit](https://github.com/git-guides/git-commit) (basically, Git's version of
+save) the changes. To commit the changes you have made locally:
+
+```sh terminal
+> git add this/folder that-file.js
+> git commit --message 'commit-message'
+```
+
+While writing the `commit-message`, try to follow the below guidelines:
+
+1. Prefix the message with `type:`, where `type` is one of the following
+   dependending on what the commit does:
+   - `fix`: Introduces a bug fix.
+   - `feat`: Adds a new feature.
+   - `test`: Any change related to tests.
+   - `perf`: Any performance related change.
+   - `meta`: Any change related to the build process, workflows, issue
+     templates, etc.
+   - `refc`: Any refactoring work.
+   - `docs`: Any documentation related changes.
+2. Keep the first line brief, and less than 60 characters.
+3. Try describing the change in detail in a new paragraph (double newline after
+   the first line).
+
+When you commit files, `husky` and `lint-staged` will automatically lint the
+code and fix most issues. In case an error is not automatically fixable, they
+will cancel the commit. Please fix the errors before committing the changes. If
+you still wish to commit the changes, prefix the `git commit` command with
+`HUSKY=0`, like so:
+
+```sh terminal
+> HUSKY=0 git commit --message 'commit-message'
+```
+
+</Step>
+<Step title="Pushing your changes">
+
+Once you have committed your changes, you will want to
+[push](https://github.com/git-guides/git-push) your commits (basically, publish
+your changes to GitHub). To do so, run:
+
+```sh terminal
+> git push origin branch-name
+```
+
+If there are changes made to the `main` branch of the
+`express-rate-limit/express-rate-limit` repository, you may wish to merge those
+changes into your branch. To do so, run:
+
+```sh terminal
+> git fetch upstream main
+> git merge upstream/main
+```
+
+This will automatically add the changes from `main` branch of the
+`express-rate-limit/express-rate-limit` repository to the current branch. If you
+encounter any merge conflicts, follow
+[this guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-using-the-command-line)
+to resolve them.
+
+</Step>
+<Step title="Opening a pull request">
+
+Once you have pushed your changes to your fork, follow
+[these instructions](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+to open a
+[pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).
+
+</Step>
+</Steps>
+
+Once you have submitted a pull request, the maintainers of the repository will
+review your pull requests. Whenever a maintainer reviews a pull request they may
+request changes. These may be small, such as fixing a typo, or may involve
+substantive changes. Such requests are intended to be helpful, but at times may
+come across as abrupt or unhelpful, especially if they do not include concrete
+suggestions on how to change them. Try not to be discouraged. If you feel that a
+review is unfair, say so or seek the input of another project contributor. Often
+such comments are the result of a reviewer having taken insufficient time to
+review and are not ill-intended. Such difficulties can often be resolved with a
+bit of patience. That said, reviewers should be expected to provide helpful
+feedback.
+
+In order to land, a pull request needs to be reviewed and approved by at least
+one maintainer and pass CI. After that, if there are no objections from other
+contributors, the pull request can be merged.
+
+**Congratulations and thanks for your contribution!**
+
+> This contributing guide was inspired by the Electron project's contributing
+> guide.

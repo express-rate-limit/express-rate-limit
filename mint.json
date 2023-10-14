@@ -1,0 +1,92 @@
+{
+	"$schema": "https://mintlify.com/schema.json",
+	"name": "express-rate-limit",
+	"favicon": "docs/assets/icon.png",
+	"colors": {
+		"primary": "#9563FF",
+		"light": "#AE87FF",
+		"dark": "#0D001D",
+		"background": {
+			"dark": "#090014"
+		},
+		"anchors": {
+			"from": "#FF7F57",
+			"to": "#9563FF"
+		}
+	},
+	"topbarCtaButton": {
+		"type": "github",
+		"url": "https://github.com/express-rate-limit/express-rate-limit"
+	},
+	"navigation": [
+		{
+			"group": "",
+			"pages": ["docs/overview"]
+		},
+		{
+			"group": "Quickstart",
+			"pages": ["docs/quickstart/installation", "docs/quickstart/usage"]
+		},
+		{
+			"group": "Reference",
+			"pages": ["docs/reference/configuration", "docs/reference/error-codes"]
+		},
+		{
+			"group": "Guides",
+			"pages": [
+				"docs/guides/troubleshooting-proxy-issues",
+				"docs/guides/creating-a-store",
+				"docs/guides/contributing"
+			]
+		}
+	],
+	"footerSocials": {
+		"github": "https://github.com/express-rate-limit/express-rate-limit"
+	},
+	"redirects": [
+		{
+			"source": "/errors/err_erl_undefined_ip_address",
+			"destination": "/docs/reference/error-codes#err-erl-undefined-ip-address"
+		},
+		{
+			"source": "/errors/err_erl_invalid_ip_address",
+			"destination": "/docs/reference/error-codes#err-erl-invalid-ip-address"
+		},
+		{
+			"source": "/errors/err_erl_permissive_trust_proxy",
+			"destination": "/docs/reference/error-codes#err-erl-permissive-trust-proxy"
+		},
+		{
+			"source": "/errors/err_erl_unexpected_x_forwarded_for",
+			"destination": "/docs/reference/error-codes#err-erl-unexpected-x-forwarded-for"
+		},
+		{
+			"source": "/errors/err_erl_invalid_hits",
+			"destination": "/docs/reference/error-codes#err-erl-invalid-hits"
+		},
+		{
+			"source": "/errors/err_erl_double_count",
+			"destination": "/docs/reference/error-codes#err-erl-double-count"
+		},
+		{
+			"source": "/errors/err_erl_headers_no_reset",
+			"destination": "/docs/reference/error-codes#err-erl-headers-no-reset"
+		},
+		{
+			"source": "/errors/err_erl_unknown_validation",
+			"destination": "/docs/reference/error-codes#err-erl-unknown-validation"
+		},
+		{
+			"source": "/errors/wrn_erl_max_zero",
+			"destination": "/docs/reference/error-codes#wrn-erl-max-zero"
+		},
+		{
+			"source": "/errors/wrn_erl_deprecated_on_limit_reached",
+			"destination": "/docs/reference/error-codes#wrn-erl-deprecated-on-limit-reached"
+		},
+		{
+			"source": "/errors/wrn_erl_deprecated_draft_polli_headers",
+			"destination": "/docs/reference/error-codes#wrn-erl-deprecated-draft-polli-headers"
+		}
+	]
+}
