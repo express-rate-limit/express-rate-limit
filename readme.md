@@ -20,8 +20,8 @@ authentication and more to any API in minutes. Learn more at
 ---
 
 Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
-limit repeated requests to public APIs and/or endpoints such as password
-reset. Plays nice with
+limit repeated requests to public APIs and/or endpoints such as password reset.
+Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
 ## Use Cases
