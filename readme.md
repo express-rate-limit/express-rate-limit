@@ -567,8 +567,8 @@ If you need help with something, feel free to
 [start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
 
 If you wish to contribute to the library, thanks! First, please read
-[the contributing guide](contributing.md). Then you can pick up any issue and
-fix/implement it!
+[the contributing guide](docs/guides/contributing.mdx). Then you can pick up any
+issue and fix/implement it!
 
 ## License
 
