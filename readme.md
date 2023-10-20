@@ -22,14 +22,13 @@ authentication and more to any API in minutes. Learn more at
 Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
 limit repeated requests to public APIs and/or endpoints such as password reset.
 Plays nice with
-[express-slow-down](https://www.npmjs.com/package/express-slow-down).
+[express-slow-down](https://www.npmjs.com/package/express-slow-down) and
+[ratelimit-header-parser](https://www.npmjs.com/package/ratelimit-header-parser).
 
 ## Usage
 
-> The [full documentation](https://express-rate-limit.mintlify.app/overview) is
-> available on-line.
-
-A basic example is as follows:
+The [full documentation](https://express-rate-limit.mintlify.app/overview) is
+available on-line.
 
 ```ts
 import { rateLimit } from 'express-rate-limit'
