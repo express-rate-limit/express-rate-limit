@@ -60,7 +60,7 @@
 		"build:esm": "esbuild --platform=node --bundle --target=es2022 --format=esm --outfile=dist/index.mjs source/index.ts",
 		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && cp dist/index.d.ts dist/index.d.cts && cp dist/index.d.ts dist/index.d.mts",
 		"compile": "run-s clean build:*",
-		"docs": "mintlify dev",
+		"docs": "cd docs && mintlify dev",
 		"lint:code": "xo",
 		"lint:rest": "prettier --check .",
 		"lint": "run-s lint:*",
