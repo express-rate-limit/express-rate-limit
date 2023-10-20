@@ -32,9 +32,6 @@ Plays nice with
 A basic example is as follows:
 
 ```ts
-// Run `npm install express-rate-limit` to install the library.
-
-// Use `const { rateLimit } = require('express-rate-limit')` for commonjs.
 import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
