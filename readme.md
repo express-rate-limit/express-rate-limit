@@ -24,23 +24,14 @@ limit repeated requests to public APIs and/or endpoints such as password reset.
 Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
-## Quickstart
-
-From the `npm` registry:
-
-```sh
-# Using npm
-> npm install express-rate-limit
-# Using yarn or pnpm
-> yarn/pnpm add express-rate-limit
-```
-
-> Note that this library requires you to use `node` version 16 or above.
+## Usage
 
 An example of its use is as follows:
 
 ```ts
-// const { rateLimit } = require('express-rate-limit') // Use this for `commonjs` projects.
+// Run `npm install express-rate-limit` to install the library.
+
+// Use `const { rateLimit } = require('express-rate-limit')` for commonjs.
 import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
@@ -48,21 +39,15 @@ const limiter = rateLimit({
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	// store: ... , // Use an external store for more precise rate limiting.
+	// store: ... , // Use an external store for consistency across multiple server instances.
 })
 
-// Apply the rate limiting middleware to all requests
+// Apply the rate limiting middleware to all requests.
 app.use(limiter)
 ```
 
-> **Note:** most stores will require additional configuration, such as custom
-> prefixes, when using multiple instances. The default built-in memory store is
-> an exception to this rule.
-
 A more in-depth documentation is available on-line at
 [express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app/overview).
-If you are offline, you can view the documentation sources directly - they are
-written in `mdx` and stored in the `docs/` folder.
 
 > Thanks to
 > [Mintlify](https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit)
@@ -77,8 +62,8 @@ If you need help with something, feel free to
 [start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
 
 If you wish to contribute to the library, thanks! First, please read
-[the contributing guide](docs/guides/contributing.mdx). Then you can pick up any
-issue and fix/implement it!
+[the contributing guide](https://express-rate-limit.mintlify.app/docs/guides/contributing.mdx).
+Then you can pick up any issue and fix/implement it!
 
 ## License
 
