@@ -10,21 +10,24 @@ Express Rate Limit is a basic rate-limiting middleware for
 and/or endpoints such as password reset. Plays nice with
 [express-slow-down](https://www.npmjs.com/package/express-slow-down).
 
+- GitHub: https://github.com/express-rate-limit/express-rate-limit
+- npm: https://www.npmjs.com/package/express-rate-limit
+
 ## Use Cases
 
 This library uses 'stores', which allows for the hit count and reset time of all
 clients to be stored in an external database, or in-memory.
+
+<Warning>
+	The default `MemoryStore` stores the hit counts for clients in memory, and
+	thus produces inconsistent results when running multiple servers or processes.
+</Warning>
 
 ### Abuse Prevention
 
 The default
 [memory-store](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts)
 is probably fine.
-
-<Warning>
-	The default `MemoryStore` stores the hit counts for clients in memory, and is
-	thus unsuitable for use when running multiple servers or processes.
-</Warning>
 
 ### API Rate Limit Enforcement
 
