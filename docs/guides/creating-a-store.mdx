@@ -1,0 +1,336 @@
+---
+title: 'Creating a Store'
+icon: 'database'
+---
+
+### Overview
+
+A store tracks how many hits each client (identified via their IP address) has
+received and automatically reduce that hit count as time elapses.
+
+### The `Store` Interface
+
+A store **must** have the `increment`, `decrement`, and `resetKey` public
+methods. It may optionally have the `init`, `get` and `resetAll` public methods.
+For backwards compatibility with versions prior to `6.0.0`, it may also have the
+`incr` and `decr` public methods. It also may have a `constructor` and any
+number of private methods.
+
+The `increment` method is the primary interface between the middleware and the
+store. It adds 1 to the internal count for a key and returns an object
+consisting of the new internal count (`totalHits`) and the time that the count
+will reach 0 (`resetTime`).
+
+The `decrement` method is used only to 'uncount' requests when one or both of
+the `skipSuccessfulRequests` or `skipFailedRequests` options are enabled.
+
+The `init` method allows the store to set itself up using the options passed to
+the middleware. The store can get the `windowMs` option from this method.
+
+The `get` method takes a `string` argument (the key that identifies a client)
+and returns an object consisting of the internal hit count (`totalHits`) and the
+time that the count will reach 0 (`resetTime`) for the given client. It may
+return `undefined` if it cannot find the key.
+
+The `resetKey` method takes a `string` argument (the key that identifies a
+client) and sets the internal count for that key to zero.
+
+The `resetAll` method takes no arguments and sets the internal count for all
+keys to zero.
+
+The `get` and `resetKey` methods can be called from the middleware, like so:
+
+```ts
+// Create a rate limiter.
+const limiter = rateLimit({
+	/* ... */
+})
+
+// Fetch or reset the hit count for a key.
+limiter.get('1.2.3.4')
+limiter.resetKey('1.2.3.4')
+```
+
+### Tutorial
+
+A step-by-step guide to creating a store is as follows:
+
+<Steps>
+
+    <Step title="Configure dependencies">
+    	Add `express-rate-limit` as a peer dependency, and a development dependency to
+    	the package:
+
+    	```json package.json
+    	{
+    		"peerDependencies": {
+    			"express-rate-limit": ">= 6"
+    		},
+    		"devDependencies": {
+    			"express-rate-limit": "7"
+    		}
+    	}
+    	```
+
+    	<Note>
+
+    		If the store supports the `incr` method, replace `>= 6` with `>= 2.3.0`
+
+   		</Note>
+    </Step>
+
+    <Step title="Write the code for the store">
+    	<AccordionGroup>
+    		<Accordion title="Typescript">
+        		```ts typescript-store.ts
+        		import type {
+        			Store,
+        			Options,
+        			IncrementResponse,
+        			ClientRateLimitInfo,
+        		} from 'express-rate-limit'
+
+        		/**
+        		 * A `Store` that stores the hit count for each client.
+        		 *
+        		 * @public
+        		 */
+        		class SomeStore implements Store {
+        			/**
+        			 * Some store-specific parameter.
+        			 */
+        			customParam!: string
+
+        			/**
+        			 * The duration of time before which all hit counts are reset (in milliseconds).
+        			 */
+        			windowMs!: number
+
+        			/**
+        			 * @constructor for `SomeStore`. Only required if the user needs to pass
+        			 * some store specific parameters. For example, in a Mongo Store, the user will
+        			 * need to pass the URI, username and password for the Mongo database.
+        			 *
+        			 * @param customParam {string} - Some store-specific parameter.
+        			 */
+        			constructor(customParam: string) {
+        				this.customParam = customParam
+        			}
+
+        			/**
+        			 * Method that actually initializes the store. Must be synchronous.
+        			 *
+        			 * This method is optional, it will be called only if it exists.
+        			 *
+        			 * @param options {Options} - The options used to setup express-rate-limit.
+        			 *
+        			 * @public
+        			 */
+        			init(options: Options): void {
+        				this.windowMs = options.windowMs
+        				// ...
+        			}
+
+        			/**
+        			 * Method to fetch a client's hit count and reset time.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
+        			 *
+        			 * @public
+        			 */
+        			async get(key: string): Promise<ClientRateLimitInfo | undefined> {
+        				// ...
+        				return {
+        					totalHits,
+        					resetTime,
+        				}
+        			}
+
+        			/**
+        			 * Method to increment a client's hit counter.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+        			 *
+        			 * @public
+        			 */
+        			async increment(key: string): Promise<IncrementResponse> {
+        				// ...
+        				return {
+        					totalHits,
+        					resetTime,
+        				}
+        			}
+
+        			/**
+        			 * Method to decrement a client's hit counter.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @public
+        			 */
+        			async decrement(key: string): Promise<void> {
+        				// ...
+        			}
+
+        			/**
+        			 * Method to reset a client's hit counter.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @public
+        			 */
+        			async resetKey(key: string): Promise<void> {
+        				// ...
+        			}
+
+        			/**
+        			 * Method to reset everyone's hit counter.
+        			 *
+        			 * This method is optional, it is never called by express-rate-limit.
+        			 *
+        			 * @public
+        			 */
+        			async resetAll(): Promise<void> {
+        				// ...
+        			}
+        		}
+
+        		// Export the store so others can use it
+        		export default SomeStore
+        		```
+        	</Accordion>
+
+    			<Accordion title="Javascript">
+        		```js javascript-store.js
+        		/**
+        		 * A `Store` that stores the hit count for each client.
+        		 *
+        		 * @public
+        		 */
+        		class SomeStore {
+        			/**
+        			 * @constructor for `SomeStore`. Only required if the user needs to pass
+        			 * some store specific parameters. For example, in a Mongo Store, the user will
+        			 * need to pass the URI, username and password for the Mongo database.
+        			 *
+        			 * @param customParam {string} - Some store-specific parameter.
+        			 */
+        			constructor(customParam) {
+        				this.customParam = customParam
+        			}
+
+        			/**
+        			 * Method that actually initializes the store. Must be synchronous.
+        			 *
+        			 * This method is optional, it will be called only if it exists.
+        			 *
+        			 * @param options {Options} - The options used to setup express-rate-limit.
+        			 *
+        			 * @public
+        			 */
+        			init(options) {
+        				this.windowMs = options.windowMs
+        			}
+
+        			/**
+        			 * Method to fetch a client's hit count and reset time.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @returns {ClientRateLimitInfo} - The number of hits and reset time for that client.
+        			 *
+        			 * @public
+        			 */
+        			async get(key) {
+        				// ...
+        				return {
+        					totalHits,
+        					resetTime,
+        				}
+        			}
+
+        			/**
+        			 * Method to increment a client's hit counter.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @returns {IncrementResponse} - The number of hits and reset time for that client.
+        			 *
+        			 * @public
+        			 */
+        			async increment(key) {
+        				// ...
+
+        				return {
+        					totalHits, // A positive integer
+        					resetTime, // A JS `Date` object
+        				}
+        			}
+
+        			/**
+        			 * Method to decrement a client's hit counter.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @public
+        			 */
+        			async decrement(key) {
+        				// ...
+        			}
+
+        			/**
+        			 * Method to reset a client's hit counter.
+        			 *
+        			 * @param key {string} - The identifier for a client.
+        			 *
+        			 * @public
+        			 */
+        			async resetKey(key) {
+        				// ...
+        			}
+
+        			/**
+        			 * Method to reset everyone's hit counter.
+        			 *
+        			 * This method is optional, it is never called by express-rate-limit.
+        			 *
+        			 * @public
+        			 */
+        			async resetAll() {
+        				// ...
+        			}
+        		}
+
+        		// Export the store so others can use it
+        		// ...via the CommonJS style
+        		module.exports = SomeStore
+        		// ...or the ES Module style
+        		export default SomeStore
+        		```
+        	</Accordion>
+    	</AccordionGroup>
+    </Step>
+
+    <Step title="Use the store">
+    	```ts
+    	// Use `const ... = require('...')` instead if you are using CommonJS
+    	import rateLimit from 'express-rate-limit'
+    	import SomeStore from './some-store.js'
+
+    	const limiter = rateLimit({
+    		store: new SomeStore({ customParam: true }),
+    	})
+    	```
+    </Step>
+
+</Steps>
+
+If you encounter a bug or want to see something added/changed, please go ahead
+and
+[open an issue](https://github.com/nfriexpress-rate-limitedly/express-rate-limit/issues/new)!
+If you need help with something, feel free to
+[start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!

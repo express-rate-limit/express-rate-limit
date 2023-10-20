@@ -1,0 +1,377 @@
+---
+title: 'Configuration'
+icon: 'bars-staggered'
+---
+
+## `windowMs`
+
+> `number`
+
+Time frame for which requests are checked/remembered. Also used in the
+`Retry-After` header when the limit is reached.
+
+<Note>
+
+For stores that do not implement the `init` function (see the
+[stores table](#stores) below), you may need to configure this value twice, once
+here and once on the store. In some cases the units also differ (e.g. seconds vs
+miliseconds).
+
+</Note>
+
+Defaults to `60000` ms (= 1 minute).
+
+## `limit`
+
+> `number | function`
+>
+> Renamed in v7.x from `max` to `limit`. However, `max` will still be supported
+> for backwards-compatibility.
+
+The maximum number of connections to allow during the `window` before rate
+limiting the client.
+
+Can be the limit itself as a number or a (sync/async) function that accepts the
+Express `req` and `res` objects and then returns a number.
+
+<Warning>
+
+As of version 7.0.0, setting `max` to zero will no longer disable the rate
+limiter - instead, it will 'block' all requests to that endpoint.
+
+</Warning>
+
+Defaults to `5`.
+
+An example of using a function:
+
+```ts
+const isPremium = async (user) => {
+	// ...
+}
+
+const limiter = rateLimit({
+	// ...
+	limit: async (req, res) => {
+		if (await isPremium(req.user)) return 10
+		else return 5
+	},
+})
+```
+
+## `message`
+
+> `any`
+
+The response body to send back when a client is rate limited.
+
+May be a string, JSON object, or any other value that Express's
+[res.send](https://expressjs.com/en/4x/api.html#res.send) method supports. It
+can also be a (sync/async) function that accepts the Express request and
+response objects and then returns a `string`, JSON object or any other value the
+Express `res.send` function accepts.
+
+Defaults to `'Too many requests, please try again later.'`
+
+An example of using a function:
+
+```ts
+const isPremium = async (user) => {
+	// ...
+}
+
+const limiter = rateLimit({
+	// ...
+	message: async (req, res) => {
+		if (await isPremium(req.user))
+			return 'You can only make 10 requests every hour.'
+		else return 'You can only make 5 requests every hour.'
+	},
+})
+```
+
+## `statusCode`
+
+> `number`
+
+The HTTP status code to send back when a client is rate limited.
+
+Defaults to `429`.
+
+<Note>
+
+The HTTP status code `429` is defined in
+[section 4](https://datatracker.ietf.org/doc/html/rfc6585#section-4) of IETF's
+RFC 6585.
+
+</Note>
+
+## `legacyHeaders`
+
+> `boolean`
+>
+> Renamed in `6.x` from `headers` to `legacyHeaders`.
+
+Whether to send the legacy rate limit headers for the limit
+(`X-RateLimit-Limit`), current usage (`X-RateLimit-Remaining`) and reset time
+(if the store provides it) (`X-RateLimit-Reset`) on all responses. If set to
+`true`, the middleware also sends the `Retry-After` header on all blocked
+requests.
+
+Defaults to `true`.
+
+<Note>
+
+Note that this option only defaults to `true` for backward compatibility, and it
+is recommended to set it to `false` and use `standardHeaders` instead.
+
+</Note>
+
+## `standardHeaders`
+
+> `boolean` | `'draft-6'` | `'draft-7'`
+>
+> Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
+
+Whether to enable support for headers conforming to the
+[RateLimit header fields for HTTP standardization draft](https://github.com/ietf-wg-httpapi/ratelimit-headers)
+adopted by the IETF.
+
+If set to `draft-6`, separate `RateLimit-Policy` `RateLimit-Limit`,
+`RateLimit-Remaining`, and, if the store supports it, `RateLimit-Reset` headers
+are set on the response, in accordance with the
+[sixth draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-06)
+of the IETF rate limit header specification.
+
+If set to `draft-7`, a combined `RateLimit` header is set containing limit,
+remaining, and reset values, and a `RateLimit-Policy` header is set, in
+accordiance with the
+[seventh draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07)
+of the IETF rate limit header specification. `windowMs` is used for the reset
+value if the store does not provide a reset time.
+
+If set to `true`, it is treated as `draft-6`, however, this behavior may change
+in a future semver major release.
+
+If set to any truthy value, the middleware also sends the `Retry-After` header
+on all blocked requests.
+
+The `standardHeaders` option may be used in conjunction with, or instead of the
+`legacyHeaders` option.
+
+<Note>
+
+Tip: use the
+[ratelimit-header-parser](https://www.npmjs.com/package/ratelimit-header-parser)
+library in clients to read/parse any form of headers.
+
+</Note>
+
+Defaults to `false`.
+
+## `requestPropertyName`
+
+> `string`
+
+The name of the property on the Express `request` object to store the rate limit
+info.
+
+Defaults to `'rateLimit'`.
+
+## `skipFailedRequests`
+
+> `boolean`
+
+When set to `true`, failed requests won't be counted. Request considered failed
+when the `requestWasSuccessful` option returns `false`. By default, this means
+requests fail when:
+
+- the response status >= `400`
+- the request was cancelled before last chunk of data was sent (response `close`
+  event triggered)
+- the response `error` event was triggered by response
+
+<Note>
+
+Technically, the requests are counted and then un-counted, so a large number of
+slow requests all at once could still trigger a rate-limit. This may be fixed in
+a future release. PRs welcome!
+
+</Note>
+
+Defaults to `false`.
+
+## `skipSuccessfulRequests`
+
+> `boolean`
+
+If `true`, the library will (by default) skip all requests that are considered
+'failed' by the `requestWasSuccessful` function. By default, this means requests
+succeed when the response status code less than `400`.
+
+<Note>
+
+Technically, the requests are counted and then un-counted, so a large number of
+slow requests all at once could still trigger a rate-limit. This may be fixed in
+a future release. PRs welcome!
+
+</Note>
+
+Defaults to `false`.
+
+## `keyGenerator`
+
+> `function`
+
+Method to retrieve custom identifiers for clients, such as their IP address,
+username, or API Key.
+
+Should be a (sync/async) function that accepts the Express `request` and
+`response` objects and then returns a string.
+
+By default, the client's IP address is used:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	keyGenerator: (req, res) => req.ip,
+})
+```
+
+<Note>
+
+If a `keyGenerator` returns the same value for every user, it becomes a global
+rate limiter. This could be combined with a second instance of
+`express-rate-limit` to have both global and per-user limits.
+
+</Note>
+
+## `handler`
+
+> `function`
+
+Express request handler that sends back a response when a client is
+rate-limited.
+
+By default, sends back the `statusCode` and `message` set via the `options`,
+similar to this:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	handler: (req, res, next, options) =>
+		res.status(options.statusCode).send(options.message),
+})
+```
+
+## `skip`
+
+> `function`
+
+Function to determine whether or not this request counts towards a client's
+quota. Should be a (sync/async) function that accepts the Express `request` and
+`response` objects and then returns `true` or `false`.
+
+Could also act as an allowlist for certain keys:
+
+```ts
+const allowlist = ['192.168.0.56', '192.168.0.21']
+
+const limiter = rateLimit({
+	// ...
+	skip: (req, res) => allowlist.includes(req.ip),
+})
+```
+
+By default, it skips no requests:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	skip: (req, res) => false,
+})
+```
+
+## `requestWasSuccessful`
+
+> `function`
+
+Method to determine whether or not the request counts as 'succesful'. Used when
+either `skipSuccessfulRequests` or `skipFailedRequests` is set to true. Should
+be a (sync/async) function that accepts the Express `req` and `res` objects and
+then returns `true` or `false`.
+
+By default, requests with a response status code less than `400` are considered
+successful:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	requestWasSuccessful: (req, res) => res.statusCode < 400,
+})
+```
+
+## `validate`
+
+> `boolean | Object`
+
+When enabled, a set of validation checks are run at creation and on the first
+request to detect common misconfigurations with proxies, etc. Prints an error to
+the console if any issue is detected.
+
+Automatically disables after the first request is processed.
+
+If set to `true` or `false`, all validations are enabled or disabled.
+
+If set to an object, individual validations can be enabled or disabled by name,
+and the key `default` controls all unspecified validations. For example:
+
+```js
+const limiter = rateLimit({
+	validate: {
+		xForwardedForHeader: false,
+		default: true,
+	},
+	// ...
+})
+```
+
+Supported validations are:
+
+- [ip](/docs/reference/error-codes#ip)
+- [trustProxy](/docs/reference/error-codes#trustProxy)
+- [xForwardedForHeader](/docs/reference/error-codes#xForwardedForHeader)
+- [positiveHits](/docs/reference/error-codes#positiveHits)
+- [singleCount](/docs/reference/error-codes#singleCount)
+- [limit](/docs/reference/error-codes#limit)
+- [draftPolliHeaders](/docs/reference/error-codes#draftPolliHeaders)
+- [onLimitReached](/docs/reference/error-codes#onLimitReached)
+- [headersResetTime](/docs/reference/error-codes#headersResetTime)
+- [validationsConfig](/docs/reference/error-codes#validationsConfig)
+
+Defaults to `true`.
+
+## `store`
+
+> `Store`
+
+The `Store` to use to store the hit count for each client.
+
+By default, the
+[`memory-store`](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts)
+is used.
+
+Here is a list of external stores:
+
+| Name                                                                                                      | Description                                                                                                                                   | Legacy/Modern       |
+| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| [memory-store](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts) | _(default)_ Simple in-memory option. Does not share state when app has multiple processes or servers.                                         | Modern as of v6.0.0 |
+| [cluster-memory-store](https://npm.im/@express-rate-limit/cluster-memory-store)                           | A memory-store wrapper that shares state across all processes on a server via the [node:cluster](https://nodejs.org/api/cluster.html) module. | Modern              |
+| [rate-limit-redis](https://npm.im/rate-limit-redis)                                                       | A [Redis](http://redis.io/)-backed store, more suitable for large or demanding deployments.                                                   | Modern as of v3.0.0 |
+| [rate-limit-memcached](https://npmjs.org/package/rate-limit-memcached)                                    | A [Memcached](https://memcached.org/)-backed store.                                                                                           | Modern as of v1.0.0 |
+| [rate-limit-mongo](https://www.npm.im/rate-limit-mongo)                                                   | A [MongoDB](https://www.mongodb.com/)-backed store.                                                                                           | Legacy              |
+| [precise-memory-rate-limit](https://www.npm.im/precise-memory-rate-limit)                                 | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.                                          | Modern as of v2.0.0 |
+| [rate-limit-postgresql](https://www.npm.im/@acpr/rate-limit-postgresql)                                   | A [PostgreSQL](https://www.postgresql.org/)-backed store.                                                                                     | Modern as of v1.1.0 |
+
+Take a look at [this guide](/docs/guides/creating-a-store) if you wish to create
+your own store.

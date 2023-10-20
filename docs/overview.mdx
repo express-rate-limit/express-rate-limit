@@ -1,0 +1,64 @@
+---
+title: Overview
+---
+
+> Thanks to [Mintlify](https://www.mintlify.com), for generously hosting this
+> documentation.
+
+Express Rate Limit is a basic rate-limiting middleware for
+[Express](http://expressjs.com/), used to limit repeated requests to public APIs
+and/or endpoints such as password reset. Plays nice with
+[express-slow-down](https://www.npmjs.com/package/express-slow-down).
+
+## Use Cases
+
+This library uses 'stores', which allows for the hit count and reset time of all
+clients to be stored in an external database, or in-memory.
+
+### Abuse Prevention
+
+The default
+[memory-store](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts)
+is probably fine.
+
+<Warning>
+	The default `MemoryStore` stores the hit counts for clients in memory, and is
+	thus unsuitable for use when running multiple servers or processes.
+</Warning>
+
+### API Rate Limit Enforcement
+
+If you have multiple servers, or want to maintain state across app restarts, use
+an [external data store](/docs/reference/configuration#store).
+
+If you have multiple processes on a single server (via the
+[node:cluster](https://nodejs.org/api/cluster.html) module), you could use the
+[cluster-memory-store](https://npmjs.com/package/@express-rate-limit/cluster-memory-store)
+instead.
+
+## Alternate Rate Limiters
+
+This module was designed to only handle the basics and didn't even support
+external stores initially. These other options all are excellent pieces of
+software and may be more appropriate for some situations:
+
+- [rate-limiter-flexible](https://www.npmjs.com/package/rate-limiter-flexible)
+- [express-brute](https://www.npmjs.com/package/express-brute)
+- [rate-limiter](https://www.npmjs.com/package/express-limiter)
+
+## Issues and Contributing
+
+If you encounter a bug or want to see something added/changed, please go ahead
+and
+[open an issue](https://github.com/nfriexpress-rate-limitedly/express-rate-limit/issues/new)!
+If you need help with something, feel free to
+[start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
+
+If you wish to contribute to the library, thanks! First, please read
+[the contributing guide](/docs/guides/contributing). Then you can pick up any
+issue and fix/implement it!
+
+## License
+
+MIT © [Nathan Friedly](http://nfriedly.com/),
+[Vedant K](https://github.com/gamemaker1)
