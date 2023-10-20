@@ -49,9 +49,14 @@ app.use(limiter)
 A more in-depth documentation is available on-line at
 [express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app/overview).
 
-> Thanks to
-> [Mintlify](https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit)
-> for generously hosting the documentation!
+> Thanks to Mintlify for hosting the documentation at
+> [express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app)
+
+<p align="center">
+	<a href="https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit">
+		<img height="75" src="https://devmark-public-assets.s3.us-west-2.amazonaws.com/sponsorships/mintlify.svg" alt="Create your docs today">
+	</a>
+</p>
 
 ## Issues and Contributing
 
@@ -64,17 +69,6 @@ If you need help with something, feel free to
 If you wish to contribute to the library, thanks! First, please read
 [the contributing guide](https://express-rate-limit.mintlify.app/docs/guides/contributing.mdx).
 Then you can pick up any issue and fix/implement it!
-
-## Thank You
-
-Thanks to Mintlify for hosting the documentation at
-[express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app)
-
-<p align="center">
-	<a href="https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit">
-    	<img height="75" src="https://devmark-public-assets.s3.us-west-2.amazonaws.com/sponsorships/mintlify.svg" alt="Create your docs today">
-	</a>
-</p>
 
 ## License
 
