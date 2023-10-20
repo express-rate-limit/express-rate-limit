@@ -26,7 +26,10 @@ Plays nice with
 
 ## Usage
 
-An example of its use is as follows:
+> The [full documentation](https://express-rate-limit.mintlify.app/overview) is
+> available on-line.
+
+A basic example is as follows:
 
 ```ts
 // Run `npm install express-rate-limit` to install the library.
@@ -46,17 +49,18 @@ const limiter = rateLimit({
 app.use(limiter)
 ```
 
-A more in-depth documentation is available on-line at
-[express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app/overview).
+---
 
-> Thanks to Mintlify for hosting the documentation at
-> [express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app)
+Thanks to Mintlify for hosting the documentation at
+[express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app)
 
 <p align="center">
 	<a href="https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit">
 		<img height="75" src="https://devmark-public-assets.s3.us-west-2.amazonaws.com/sponsorships/mintlify.svg" alt="Create your docs today">
 	</a>
 </p>
+
+---
 
 ## Issues and Contributing
 
