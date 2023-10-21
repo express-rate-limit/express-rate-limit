@@ -60,6 +60,16 @@ endpoints), specify the url as the first parameter in `app.use`:
 app.use('/auth', limiter)
 ```
 
+To use it only for a certain endpoint (e.g., limit calls to
+`POST /reset_password`), add the limiter as a middle argument to
+`app.get`/`app.post`/etc.:
+
+```ts
+app.post('/reset_password', limiter, (req, res) => {
+	// ...
+})
+```
+
 Take a look at the [configuration page](/docs/references/configuration) for a
 list of options you can use to change the behaviour of the limiter.
 
