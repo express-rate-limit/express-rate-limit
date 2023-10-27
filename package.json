@@ -8,7 +8,10 @@
 	},
 	"license": "MIT",
 	"homepage": "https://github.com/express-rate-limit/express-rate-limit",
-	"repository": "https://github.com/express-rate-limit/express-rate-limit",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/express-rate-limit/express-rate-limit.git"
+	},
 	"keywords": [
 		"express-rate-limit",
 		"express",
