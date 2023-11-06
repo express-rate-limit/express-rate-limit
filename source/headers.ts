@@ -41,8 +41,8 @@ export const setLegacyHeaders = (
 ): void => {
 	if (response.headersSent) return
 
-	response.setHeader('X-RateLimit-Limit', info.limit)
-	response.setHeader('X-RateLimit-Remaining', info.remaining)
+	response.setHeader('X-RateLimit-Limit', info.limit.toString())
+	response.setHeader('X-RateLimit-Remaining', info.remaining.toString())
 
 	// If we have a resetTime, also provide the current date to help avoid
 	// issues with incorrect clocks.
@@ -50,7 +50,7 @@ export const setLegacyHeaders = (
 		response.setHeader('Date', new Date().toUTCString())
 		response.setHeader(
 			'X-RateLimit-Reset',
-			Math.ceil(info.resetTime.getTime() / 1000),
+			Math.ceil(info.resetTime.getTime() / 1000).toString(),
 		)
 	}
 }
@@ -74,11 +74,12 @@ export const setDraft6Headers = (
 	const resetSeconds = getResetSeconds(info.resetTime)
 
 	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
-	response.setHeader('RateLimit-Limit', info.limit)
-	response.setHeader('RateLimit-Remaining', info.remaining)
+	response.setHeader('RateLimit-Limit', info.limit.toString())
+	response.setHeader('RateLimit-Remaining', info.remaining.toString())
 
 	// Set this header only if the store returns a `resetTime`.
-	if (resetSeconds) response.setHeader('RateLimit-Reset', resetSeconds)
+	if (resetSeconds)
+		response.setHeader('RateLimit-Reset', resetSeconds.toString())
 }
 
 /**
@@ -121,5 +122,5 @@ export const setRetryAfterHeader = (
 	if (response.headersSent) return
 
 	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
-	response.setHeader('Retry-After', resetSeconds!)
+	response.setHeader('Retry-After', resetSeconds!.toString())
 }
