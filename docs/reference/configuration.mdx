@@ -338,16 +338,16 @@ const limiter = rateLimit({
 
 Supported validations are:
 
-- [ip](/docs/reference/error-codes#ip)
-- [trustProxy](/docs/reference/error-codes#trustProxy)
-- [xForwardedForHeader](/docs/reference/error-codes#xForwardedForHeader)
-- [positiveHits](/docs/reference/error-codes#positiveHits)
-- [singleCount](/docs/reference/error-codes#singleCount)
-- [limit](/docs/reference/error-codes#limit)
-- [draftPolliHeaders](/docs/reference/error-codes#draftPolliHeaders)
-- [onLimitReached](/docs/reference/error-codes#onLimitReached)
-- [headersResetTime](/docs/reference/error-codes#headersResetTime)
-- [validationsConfig](/docs/reference/error-codes#validationsConfig)
+- [ip](/reference/error-codes#ip)
+- [trustProxy](/reference/error-codes#trustProxy)
+- [xForwardedForHeader](/reference/error-codes#xForwardedForHeader)
+- [positiveHits](/reference/error-codes#positiveHits)
+- [singleCount](/reference/error-codes#singleCount)
+- [limit](/reference/error-codes#limit)
+- [draftPolliHeaders](/reference/error-codes#draftPolliHeaders)
+- [onLimitReached](/reference/error-codes#onLimitReached)
+- [headersResetTime](/reference/error-codes#headersResetTime)
+- [validationsConfig](/reference/error-codes#validationsConfig)
 
 Defaults to `true`.
 
@@ -373,5 +373,5 @@ Here is a list of external stores:
 | [precise-memory-rate-limit](https://www.npm.im/precise-memory-rate-limit)                                 | A memory store similar to the built-in one, except that it stores a distinct timestamp for each key.                                          | Modern as of v2.0.0 |
 | [rate-limit-postgresql](https://www.npm.im/@acpr/rate-limit-postgresql)                                   | A [PostgreSQL](https://www.postgresql.org/)-backed store.                                                                                     | Modern as of v1.1.0 |
 
-Take a look at [this guide](/docs/guides/creating-a-store) if you wish to create
+Take a look at [this guide](/guides/creating-a-store) if you wish to create
 your own store.

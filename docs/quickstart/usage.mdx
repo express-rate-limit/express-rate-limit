@@ -70,7 +70,7 @@ app.post('/reset_password', limiter, (req, res) => {
 })
 ```
 
-Take a look at the [configuration page](/docs/references/configuration) for a
+Take a look at the [configuration page](/references/configuration) for a
 list of options you can use to change the behaviour of the limiter.
 
 <Warning>
@@ -80,7 +80,7 @@ might be `undefined`, or the IP of the load balancer/reverse proxy (leading to
 the rate limiter blocking **all** requests once the limit is reached).
 
 To fix this, take a look at the
-[guide](/docs/guides/troubleshooting-proxy-issues) to troubleshooting proxy
+[guide](/guides/troubleshooting-proxy-issues) to troubleshooting proxy
 issues.
 
 </Warning>
@@ -102,7 +102,7 @@ const limiter = rateLimit({
 ```
 
 For a list of stores you can use, and for more information on the `store`
-option, take a look at the [config page](docs/references/configuration#store).
+option, take a look at the [config page](references/configuration#store).
 
 For a tutorial on how to create your own store, see
-[this](/docs/guides/creating-a-store).
+[this](/guides/creating-a-store).
