@@ -48,11 +48,7 @@
 	"types": "./dist/index.d.ts",
 	"files": [
 		"dist/",
-		"tsconfig.json",
-		"package.json",
-		"readme.md",
-		"license.md",
-		"changelog.md"
+		"tsconfig.json"
 	],
 	"engines": {
 		"node": ">= 16"

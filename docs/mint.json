@@ -29,7 +29,11 @@
 		},
 		{
 			"group": "Reference",
-			"pages": ["reference/configuration", "reference/error-codes"]
+			"pages": [
+				"reference/configuration",
+				"reference/error-codes",
+				"reference/changelog"
+			]
 		},
 		{
 			"group": "Guides",
