@@ -70,8 +70,8 @@ app.post('/reset_password', limiter, (req, res) => {
 })
 ```
 
-Take a look at the [configuration page](/references/configuration) for a
-list of options you can use to change the behaviour of the limiter.
+Take a look at the [configuration page](/references/configuration) for a list of
+options you can use to change the behaviour of the limiter.
 
 <Warning>
 
@@ -79,9 +79,8 @@ If your server runs behind a proxy/load balancer, the IP address of the request
 might be `undefined`, or the IP of the load balancer/reverse proxy (leading to
 the rate limiter blocking **all** requests once the limit is reached).
 
-To fix this, take a look at the
-[guide](/guides/troubleshooting-proxy-issues) to troubleshooting proxy
-issues.
+To fix this, take a look at the [guide](/guides/troubleshooting-proxy-issues) to
+troubleshooting proxy issues.
 
 </Warning>
 
