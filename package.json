@@ -12,6 +12,7 @@
 		"type": "git",
 		"url": "git+https://github.com/express-rate-limit/express-rate-limit.git"
 	},
+	"funding": "https://github.com/sponsors/express-rate-limit",
 	"keywords": [
 		"express-rate-limit",
 		"express",
