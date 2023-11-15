@@ -338,16 +338,17 @@ const limiter = rateLimit({
 
 Supported validations are:
 
-- [ip](/reference/error-codes#ip)
-- [trustProxy](/reference/error-codes#trustProxy)
-- [xForwardedForHeader](/reference/error-codes#xForwardedForHeader)
-- [positiveHits](/reference/error-codes#positiveHits)
-- [singleCount](/reference/error-codes#singleCount)
-- [limit](/reference/error-codes#limit)
-- [draftPolliHeaders](/reference/error-codes#draftPolliHeaders)
-- [onLimitReached](/reference/error-codes#onLimitReached)
-- [headersResetTime](/reference/error-codes#headersResetTime)
-- [validationsConfig](/reference/error-codes#validationsConfig)
+- [ip](/reference/error-codes#err-erl-undefined-ip-address)
+- [trustProxy](/reference/error-codes#err-erl-permissive-trust-proxy)
+- [xForwardedForHeader](/reference/error-codes#err-erl-unexpected-x-forwarded-for)
+- [positiveHits](/reference/error-codes#err-erl-invalid-hits)
+- [singleCount](/reference/error-codes#err-erl-double-count)
+- [limit](/reference/error-codes#wrn-erl-max-zero) (Note: the `limit` option was
+  renamed to `max`, but the validation name did not change.)
+- [draftPolliHeaders](/reference/error-codes#wrn-erl-deprecated-draft-polli-headers)
+- [onLimitReached](/reference/error-codes#wrn-erl-deprecated-on-limit-reached)
+- [headersResetTime](/reference/error-codes#err-erl-headers-no-reset)
+- [validationsConfig](/reference/error-codes#err-erl-unknown-validation)
 
 Defaults to `true`.
 
