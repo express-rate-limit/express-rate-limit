@@ -219,13 +219,15 @@ handler like so:
 const limiter = rateLimit({
 	// ...
 	handler: (request, response, next, options) => {
-		if (request.rateLimit.current === request.rateLimit.limit + 1) {
+		if (request.rateLimit.used === request.rateLimit.limit + 1) {
 			// onLimitReached code here
 		}
 		response.status(options.statusCode).send(options.message)
 	},
 })
 ```
+
+([Alternatives for `express-slow-down` users](https://github.com/express-rate-limit/express-slow-down/issues/45#issuecomment-1813098848))
 
 Set `validate: {onLimitReached: false}` in the options to disable the check.
 
