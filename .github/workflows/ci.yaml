@@ -96,4 +96,4 @@ jobs:
           files: express-rate-limit.tgz
           body:
             You can view the changelog
-            [here](https://github.com/express-rate-limit/express-rate-limit/blob/main/changelog.md).
+            [here](https://express-rate-limit.mintlify.app/reference/changelog).
