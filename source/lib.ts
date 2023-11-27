@@ -389,7 +389,7 @@ const rateLimit = (
 
 				if (config.skipFailedRequests) {
 					response.on('finish', async () => {
-						if (!config.requestWasSuccessful(request, response))
+						if (!(await config.requestWasSuccessful(request, response)))
 							await decrementKey()
 					})
 					response.on('close', async () => {
@@ -402,7 +402,7 @@ const rateLimit = (
 
 				if (config.skipSuccessfulRequests) {
 					response.on('finish', async () => {
-						if (config.requestWasSuccessful(request, response))
+						if (await config.requestWasSuccessful(request, response))
 							await decrementKey()
 					})
 				}
