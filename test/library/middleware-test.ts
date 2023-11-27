@@ -611,6 +611,26 @@ describe('middleware test', () => {
 		},
 	)
 
+	it.each([
+		['modern', new MockStore()],
+		['legacy', new MockLegacyStore()],
+		['compat', new MockBackwardCompatibleStore()],
+	])(
+		'should decrement hits when requests fail, `skipFailedRequests` is set to true and a custom `requestWasSuccessful` method used that returns a promise (%s store)',
+		async (name, store) => {
+			const app = createServer(
+				rateLimit({
+					skipFailedRequests: true,
+					requestWasSuccessful: async () => false,
+					store,
+				}),
+			)
+
+			await request(app).get('/').expect(200)
+			expect(store.decrementWasCalled).toEqual(true)
+		},
+	)
+
 	// FIXME: This test times out  _sometimes_ on MacOS and Windows, so it is disabled for now
 	/*
 	;(platform === 'darwin' ? it.skip : it).each([
