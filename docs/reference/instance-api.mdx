@@ -8,6 +8,31 @@ icon: 'rocket'
 Resets the rate limiting for a given key. An example use case is to allow users
 to complete a captcha to reset their rate limit, then call this function.
 
+Example:
+
+```ts
+import { rateLimit } from 'express-rate-limit'
+
+const limiter = rateLimit({
+    skip: (req) => req.url === '/reset', // Don't limit the reset url!
+	// ...
+})
+
+app.use(limiter)
+
+app.post('/reset', async (req, res) => {
+    if (/* Validate that they completed the captcha or whatever */) {
+        limiter.resetKey(req.ip);
+        res.send('Rate limit is reset!')
+    } else {
+        res.status(400).send("Wrong answer, try again.")
+    }
+})
+```
+
+If you use a custom [`keyGenerator`](/reference/configuration#keygenerator), be
+sure to replace `req.ip` with the correct key.
+
 ## `getKey(key)`
 
 Retrieves the hit count and reset time from the store for a given key.
