@@ -116,13 +116,19 @@ Set `validate: {positiveHits: false}` in the options to disable the check.
 This indicates that the hit count for a given IP or key was incremented more
 than once for a single request. It could happen if the same instance of
 express-rate-limit is called more than once, or if multiple instances are called
-that use the same Store.
+that use the same [Store](/reference/stores).
 
-If only a single rate limit is desired, find and remove the extra rateLimit
-call(s).
+- If only a single rate limit is desired, find and remove the extra rateLimit
+  call(s).
 
-If multiple rate limits are desired, consider setting a custom `keyGenerator`
-for each to prevent double-counting.
+- If multiple rate limits are desired, consider one of the following options: _
+  Set a custom `prefix` in the configuration for each store instance.
+  ([Redis](https://www.npmjs.com/package/rate-limit-redis#prefix),
+  [Memcached](https://www.npmjs.com/package/rate-limit-memcached#prefix),
+  [PostgreSQL](https://www.npmjs.com/package/@acpr/rate-limit-postgresql#constructor),
+  [Cluster](https://www.npmjs.com/package/@express-rate-limit/cluster-memory-store#prefix))
+  _ Set a custom [`keyGenerator`](/reference/configuration#keygenerator) in the
+  configuration for each express-rate-limit instance.
 
 In rare circumstances this error can be a false positive. This would include
 situations where multiple rate limiters are configured to use the same key but
