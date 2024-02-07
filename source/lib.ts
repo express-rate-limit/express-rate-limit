@@ -307,6 +307,8 @@ const rateLimit = (
 	const config = parseOptions(passedOptions ?? {})
 	const options = getOptionsFromConfig(config)
 
+	config.validations.middleware()
+
 	// Call the `init` method on the store, if it exists
 	if (typeof config.store.init === 'function') config.store.init(options)
 
