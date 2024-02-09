@@ -45,9 +45,9 @@ const limiter = rateLimit({
 app.use(limiter)
 ```
 
-### Data Store
+### Data Stores
 
-Express-rate-limit has a built-in memory store, and supports a variety of
+The rate limiter comes with a built-in memory store, and supports a variety of
 [external data stores](https://express-rate-limit.mintlify.app/reference/stores).
 
 ---
