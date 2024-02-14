@@ -9,6 +9,8 @@ import {
 	beforeEach,
 	afterEach,
 } from '@jest/globals'
+import express from 'express'
+import supertest from 'supertest'
 import { getValidations } from '../../source/validations.js'
 import type { Store } from '../../source/types'
 
@@ -330,6 +332,26 @@ describe('validations tests', () => {
 
 			validations.ip('badip')
 			expect(console.error).not.toBeCalled()
+		})
+	})
+
+	describe('creationStack', () => {
+		it('should log an error if called in an express request handler', async () => {
+			const app = express()
+			app.get('/', (request, response) => {
+				validations.creationStack()
+				response.send('hello')
+			})
+			await supertest(app).get('/').expect('hello')
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER' }),
+			)
+			expect(console.warn).not.toBeCalled()
+		})
+		it('should not log an error if called elsewhere', async () => {
+			validations.creationStack()
+			expect(console.error).not.toBeCalled()
+			expect(console.warn).not.toBeCalled()
 		})
 	})
 })
