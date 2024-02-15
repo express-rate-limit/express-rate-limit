@@ -219,6 +219,26 @@ To only apply the rate limit to some requests, use the
 [`skipSuccessfulRequests`](/reference/configuration#skipsuccessfulrequests), or
 [`skipFailedRequests`](/reference/configuration#skipfailedrequests) options.
 
+Example where the rate limit only applies to users who are not logged in:
+
+```js
+// first determine the user's logged-in status
+app.use((req, res, next) => {
+	if (/* user is logged in */) {
+		req.isLoggedIn = true
+	} else {
+		req.isLoggedIn = false
+	}
+	next()
+})
+
+// next configure express-rate-limit to skip logged in users
+app.use(rateLimit({
+	skip: (req, res) => req.isLoggedIn,
+	// ...
+}))
+```
+
 ## Warnings
 
 ### `WRN_ERL_MAX_ZERO`
