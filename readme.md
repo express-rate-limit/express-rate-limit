@@ -9,16 +9,6 @@
 
 </div>
 
----
-
-Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API
-Gateway for developers. Add
-[dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting),
-authentication and more to any API in minutes. Learn more at
-[zuplo.com](https://zuplo.link/express-rate-limit)
-
----
-
 Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
 limit repeated requests to public APIs and/or endpoints such as password reset.
 Plays nice with
@@ -87,6 +77,14 @@ default values.
 - [store](https://express-rate-limit.mintlify.app/reference/configuration#store) -
   `Store` - Use a custom store to share hit counts across multiple nodes.
 
+## Thank You
+
+Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API
+Gateway for developers. Add
+[dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting),
+authentication and more to any API in minutes. Learn more at
+[zuplo.com](https://zuplo.link/express-rate-limit)
+
 ---
 
 Thanks to Mintlify for hosting the documentation at
@@ -97,8 +95,6 @@ Thanks to Mintlify for hosting the documentation at
 		<img height="75" src="https://devmark-public-assets.s3.us-west-2.amazonaws.com/sponsorships/mintlify.svg" alt="Create your docs today">
 	</a>
 </p>
-
----
 
 ## Issues and Contributing
 
