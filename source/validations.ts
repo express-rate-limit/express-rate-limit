@@ -266,6 +266,21 @@ const validations = {
 			}
 		}
 	},
+
+	/**
+	 * Checks to see if the instance was created inside of a request handler, which would prevent it from working correctly.
+	 */
+	creationStack() {
+		const { stack } = new Error(
+			'express-rate-limit validation check (set options.validate.creationStack=false to disable)',
+		)
+		if (stack?.includes('Layer.handle [as handle_request]')) {
+			throw new ValidationError(
+				'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
+				`express-rate-limit instance should be created at app initialization, not when responding to a request.`,
+			)
+		}
+	},
 }
 
 export type Validations = typeof validations

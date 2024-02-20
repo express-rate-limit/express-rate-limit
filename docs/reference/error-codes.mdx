@@ -193,6 +193,58 @@ const limiter = rateLimit({
 
 Set `validate: {validationsConfig: false}` in the options to disable the check.
 
+### `ERR_ERL_CREATED_IN_REQUEST_HANDLER`
+
+Instances of express-rate-limit should be created before a request comes in, not
+in response to one.
+
+Incorrect example:
+
+```js
+import { rateLimit } from 'express-rate-limit'
+
+app.use((req, res, next) => {
+	// This won't work!
+	rateLimit({
+		/*...*/
+	})
+	next()
+})
+```
+
+Correct example:
+
+```js
+import { rateLimit } from 'express-rate-limit'
+
+app.use(rateLimit({/*...*/});
+```
+
+To only apply the rate limit to some requests, use the
+[`skip`](/reference/configuration#skip),
+[`skipSuccessfulRequests`](/reference/configuration#skipsuccessfulrequests), or
+[`skipFailedRequests`](/reference/configuration#skipfailedrequests) options.
+
+Example where the rate limit only applies to users who are not logged in:
+
+```js
+// first determine the user's logged-in status
+app.use((req, res, next) => {
+	if (/* user is logged in */) {
+		req.isLoggedIn = true
+	} else {
+		req.isLoggedIn = false
+	}
+	next()
+})
+
+// next configure express-rate-limit to skip logged in users
+app.use(rateLimit({
+	skip: (req, res) => req.isLoggedIn,
+	// ...
+}))
+```
+
 ## Warnings
 
 ### `WRN_ERL_MAX_ZERO`
