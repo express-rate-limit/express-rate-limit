@@ -96,6 +96,10 @@ Thanks to Mintlify for hosting the documentation at
 	</a>
 </p>
 
+---
+
+Finally, thank you to everyone who's contributed to this project in any way! 🫶
+
 ## Issues and Contributing
 
 If you encounter a bug or want to see something added/changed, please go ahead
