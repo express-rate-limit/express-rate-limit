@@ -46,7 +46,7 @@ hits per hour). Keys in the database should be prefixed with this value.
 validation check also takes the `prefix` field into account and does not report
 that a user is being double-counted if the stores have different prefixes.)
 
-The `localKeys` field is an alternative to `prefix` for Stores such as the
+The `localKeys` field is an alternative to `prefix` for stores such as the
 MemoryStore where two instances will automatically keep separate counts. Setting
 it to `true` will prevent false positives from the `singleCount` validation
 check.
@@ -365,7 +365,7 @@ export default SomeStore
 
 </CodeGroup>
 
-### Using a custom Store
+### Using a Custom Store
 
 ```ts
 // Use `const ... = require('...')` instead if you are using CommonJS
