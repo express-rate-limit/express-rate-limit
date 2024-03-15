@@ -90,7 +90,7 @@ Finally, thank you to everyone who's contributed to this project in any way! ðŸ«
 
 If you encounter a bug or want to see something added/changed, please go ahead
 and
-[open an issue](https://github.com/nfriexpress-rate-limitedly/express-rate-limit/issues/new)!
+[open an issue](https://github.com/express-rate-limit/express-rate-limit/issues/new)!
 If you need help with something, feel free to
 [start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
 
