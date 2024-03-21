@@ -327,109 +327,18 @@ const rateLimit = (
 				return
 			}
 
+			// Create an augmented request
+			const augmentedRequest = request as AugmentedRequest
+			// Get a unique key for the client
+			const key = await config.keyGenerator(request, response)
+			// Increment the client's hit counter by one.
+
+			let totalHits = 0
+			let resetTime
 			try {
-				// Create an augmented request
-				const augmentedRequest = request as AugmentedRequest
-				// Get a unique key for the client
-				const key = await config.keyGenerator(request, response)
-				// Increment the client's hit counter by one.
-				const { totalHits, resetTime } = await config.store.increment(key)
-				// Make sure that -
-				// - the hit count is incremented only by one.
-				// - the returned hit count is a positive integer.
-				config.validations.positiveHits(totalHits)
-				config.validations.singleCount(request, config.store, key)
-
-				// Get the limit (max number of hits) for each client.
-				const retrieveLimit =
-					typeof config.limit === 'function'
-						? config.limit(request, response)
-						: config.limit
-				const limit = await retrieveLimit
-				config.validations.limit(limit)
-
-				// Define the rate limit info for the client.
-				const info: RateLimitInfo = {
-					limit,
-					used: totalHits,
-					remaining: Math.max(limit - totalHits, 0),
-					resetTime,
-				}
-
-				// Set the `current` property on the object, but hide it from iteration
-				// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
-				Object.defineProperty(info, 'current', {
-					configurable: false,
-					enumerable: false,
-					value: totalHits,
-				})
-
-				// Set the rate limit information on the augmented request object
-				augmentedRequest[config.requestPropertyName] = info
-
-				// Set the `X-RateLimit` headers on the response object if enabled.
-				if (config.legacyHeaders && !response.headersSent) {
-					setLegacyHeaders(response, info)
-				}
-
-				// Set the standardized `RateLimit-*` headers on the response object if
-				// enabled.
-				if (config.standardHeaders && !response.headersSent) {
-					if (config.standardHeaders === 'draft-6') {
-						setDraft6Headers(response, info, config.windowMs)
-					} else if (config.standardHeaders === 'draft-7') {
-						config.validations.headersResetTime(info.resetTime)
-						setDraft7Headers(response, info, config.windowMs)
-					}
-				}
-
-				// If we are to skip failed/successfull requests, decrement the
-				// counter accordingly once we know the status code of the request
-				if (config.skipFailedRequests || config.skipSuccessfulRequests) {
-					let decremented = false
-					const decrementKey = async () => {
-						if (!decremented) {
-							await config.store.decrement(key)
-							decremented = true
-						}
-					}
-
-					if (config.skipFailedRequests) {
-						response.on('finish', async () => {
-							if (!(await config.requestWasSuccessful(request, response)))
-								await decrementKey()
-						})
-						response.on('close', async () => {
-							if (!response.writableEnded) await decrementKey()
-						})
-						response.on('error', async () => {
-							await decrementKey()
-						})
-					}
-
-					if (config.skipSuccessfulRequests) {
-						response.on('finish', async () => {
-							if (await config.requestWasSuccessful(request, response))
-								await decrementKey()
-						})
-					}
-				}
-
-				// Disable the validations, since they should have run at least once by now.
-				config.validations.disable()
-
-				// If the client has exceeded their rate limit, set the Retry-After header
-				// and call the `handler` function.
-				if (totalHits > limit) {
-					if (config.legacyHeaders || config.standardHeaders) {
-						setRetryAfterHeader(response, info, config.windowMs)
-					}
-
-					config.handler(request, response, next, options)
-					return
-				}
-
-				next()
+				const incrementResult = await config.store.increment(key)
+				totalHits = incrementResult.totalHits
+				resetTime = incrementResult.resetTime
 			} catch (error) {
 				if (config.passOnStoreError) {
 					next()
@@ -437,6 +346,103 @@ const rateLimit = (
 					throw error
 				}
 			}
+
+			// Make sure that -
+			// - the hit count is incremented only by one.
+			// - the returned hit count is a positive integer.
+			config.validations.positiveHits(totalHits)
+			config.validations.singleCount(request, config.store, key)
+
+			// Get the limit (max number of hits) for each client.
+			const retrieveLimit =
+				typeof config.limit === 'function'
+					? config.limit(request, response)
+					: config.limit
+			const limit = await retrieveLimit
+			config.validations.limit(limit)
+
+			// Define the rate limit info for the client.
+			const info: RateLimitInfo = {
+				limit,
+				used: totalHits,
+				remaining: Math.max(limit - totalHits, 0),
+				resetTime,
+			}
+
+			// Set the `current` property on the object, but hide it from iteration
+			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
+			Object.defineProperty(info, 'current', {
+				configurable: false,
+				enumerable: false,
+				value: totalHits,
+			})
+
+			// Set the rate limit information on the augmented request object
+			augmentedRequest[config.requestPropertyName] = info
+
+			// Set the `X-RateLimit` headers on the response object if enabled.
+			if (config.legacyHeaders && !response.headersSent) {
+				setLegacyHeaders(response, info)
+			}
+
+			// Set the standardized `RateLimit-*` headers on the response object if
+			// enabled.
+			if (config.standardHeaders && !response.headersSent) {
+				if (config.standardHeaders === 'draft-6') {
+					setDraft6Headers(response, info, config.windowMs)
+				} else if (config.standardHeaders === 'draft-7') {
+					config.validations.headersResetTime(info.resetTime)
+					setDraft7Headers(response, info, config.windowMs)
+				}
+			}
+
+			// If we are to skip failed/successfull requests, decrement the
+			// counter accordingly once we know the status code of the request
+			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
+				let decremented = false
+				const decrementKey = async () => {
+					if (!decremented) {
+						await config.store.decrement(key)
+						decremented = true
+					}
+				}
+
+				if (config.skipFailedRequests) {
+					response.on('finish', async () => {
+						if (!(await config.requestWasSuccessful(request, response)))
+							await decrementKey()
+					})
+					response.on('close', async () => {
+						if (!response.writableEnded) await decrementKey()
+					})
+					response.on('error', async () => {
+						await decrementKey()
+					})
+				}
+
+				if (config.skipSuccessfulRequests) {
+					response.on('finish', async () => {
+						if (await config.requestWasSuccessful(request, response))
+							await decrementKey()
+					})
+				}
+			}
+
+			// Disable the validations, since they should have run at least once by now.
+			config.validations.disable()
+
+			// If the client has exceeded their rate limit, set the Retry-After header
+			// and call the `handler` function.
+			if (totalHits > limit) {
+				if (config.legacyHeaders || config.standardHeaders) {
+					setRetryAfterHeader(response, info, config.windowMs)
+				}
+
+				config.handler(request, response, next, options)
+				return
+			}
+
+			next()
 		},
 	)
 
