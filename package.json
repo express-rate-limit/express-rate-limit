@@ -1,18 +1,16 @@
 {
 	"name": "express-rate-limit",
-	"version": "7.2.0",
+	"version": "6.14.18",
 	"description": "Basic IP rate-limiting middleware for Express. Use to limit repeated requests to public APIs and/or endpoints such as password reset.",
 	"author": {
-		"name": "Nathan Friedly",
-		"url": "http://nfriedly.com/"
+		"name": "Jeremy Kenny"
 	},
 	"license": "MIT",
-	"homepage": "https://github.com/express-rate-limit/express-rate-limit",
+	"homepage": "https://github.com/jeremykenny/express-rate-limit",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/express-rate-limit/express-rate-limit.git"
+		"url": "git+https://github.com/jeremykenny/express-rate-limit.git"
 	},
-	"funding": "https://github.com/sponsors/express-rate-limit",
 	"keywords": [
 		"express-rate-limit",
 		"express",
@@ -52,7 +50,7 @@
 		"tsconfig.json"
 	],
 	"engines": {
-		"node": ">= 16"
+		"node": ">= 14"
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
