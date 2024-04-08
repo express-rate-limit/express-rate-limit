@@ -245,6 +245,18 @@ app.use(rateLimit({
 }))
 ```
 
+If using a factory function to create express-rate-limit instances, ensure that
+it is called at app initialization, not in response to each request:
+
+```diff
+  function rateLimitFactory() {
+  	return rateLimit({/*...*/});
+  }
+
+- app.use(rateLimitFactory); // Broken
++ app.use(rateLimitFactory()); // Works
+```
+
 Set `validate: {creationStack: false}` in the options to disable the check.
 
 ## Warnings
