@@ -71,6 +71,15 @@ Gateway for developers. Add
 authentication and more to any API in minutes. Learn more at
 [zuplo.com](https://zuplo.link/express-rate-limit)
 
+<p align="center">
+<a href="https://zuplo.link/express-rate-limit">
+<picture width="322">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/express-rate-limit/express-rate-limit/assets/114976/2c06c6a0-db2d-4dea-88d8-ae5c380b4fb3">
+  <img alt="zuplo-logo" src="https://github.com/express-rate-limit/express-rate-limit/assets/114976/19f04bce-1aa8-40fe-8802-7d2c302a204d" width="322">
+</picture>
+</a>
+</p>
+
 ---
 
 Thanks to Mintlify for hosting the documentation at
