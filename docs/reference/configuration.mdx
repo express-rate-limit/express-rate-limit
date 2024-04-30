@@ -7,8 +7,11 @@ icon: 'bars-staggered'
 
 > `number`
 
-Time frame for which requests are checked/remembered. Also used in the
-`Retry-After` header when the limit is reached.
+Time frame for which requests are checked/remembered. The time window for each
+user starts at their first request. After it elapses, the user's hit count is
+reset to zero. A new time window is then started on their next request.
+
+Also used in the `Retry-After` header when the limit is reached.
 
 <Note>
 
