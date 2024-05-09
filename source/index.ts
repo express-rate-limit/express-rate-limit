@@ -11,3 +11,6 @@ export { default, default as rateLimit } from './lib.js'
 // Export the memory store in case someone wants to use or extend it
 // (see https://github.com/nfriedly/express-rate-limit/issues/289)
 export { default as MemoryStore } from './memory-store.js'
+
+// Export getValidations function
+export { getValidations } from './validations.js'
