@@ -38,6 +38,11 @@ class ValidationError extends Error {
 class ChangeWarning extends ValidationError {}
 
 /**
+ * List of store instances that have been used with any express-rate-limit instance
+ */
+const usedStores = new Set<Store>()
+
+/**
  * Maps the key used in a store for a certain request, and ensures that the
  * same key isn't used more than once per request.
  *
@@ -140,6 +145,23 @@ const validations = {
 				`The totalHits value returned from the store must be a positive integer, got ${hits}`,
 			)
 		}
+	},
+
+	/**
+	 * Ensures a single store instance is not used with multiple express-rate-limit instances
+	 */
+	storePerLimiter(store: Store) {
+		if (usedStores.has(store)) {
+			const maybeUniquePrefix = store?.localKeys
+				? ''
+				: ' (with a unique prefix)'
+			throw new ValidationError(
+				'ERR_ERL_STORE_REUSE',
+				`A Store instance must not be shared across multiple rate limiters. Create a new instance of ${store.constructor.name}${maybeUniquePrefix} for each limiter instead.`,
+			)
+		}
+
+		usedStores.add(store)
 	},
 
 	/**
