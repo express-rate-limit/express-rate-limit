@@ -380,9 +380,7 @@ describe('middleware test', () => {
 			.expect((response) => {
 				if ('retry-after' in response.headers) {
 					throw new Error(
-						`Expected no retry-after header, got ${
-							response.headers['retry-after'] as string
-						}`,
+						`Expected no retry-after header, got ${response.headers['retry-after']}`,
 					)
 				}
 			})
