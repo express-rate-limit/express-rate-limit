@@ -74,8 +74,8 @@ authentication and more to any API in minutes. Learn more at
 <p align="center">
 <a href="https://zuplo.link/express-rate-limit">
 <picture width="322">
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/express-rate-limit/express-rate-limit/assets/114976/2c06c6a0-db2d-4dea-88d8-ae5c380b4fb3">
-  <img alt="zuplo-logo" src="https://github.com/express-rate-limit/express-rate-limit/assets/114976/19f04bce-1aa8-40fe-8802-7d2c302a204d" width="322">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/express-rate-limit/express-rate-limit/assets/114976/cd2f6fa7-eae1-4fbb-be7d-b17df4c6f383">
+  <img alt="zuplo-logo" src="https://github.com/express-rate-limit/express-rate-limit/assets/114976/66fd75fa-b39e-4a8c-8d7a-52369bf244dc" width="322">
 </picture>
 </a>
 </p>
