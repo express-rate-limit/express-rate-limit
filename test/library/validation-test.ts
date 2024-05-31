@@ -119,13 +119,13 @@ describe('validations tests', () => {
 		})
 	})
 
-	describe('storePerLimiter', () => {
+	describe('unsharedStore', () => {
 		it('should log an error if a store instance is used in two limiters', () => {
 			const store = { localKeys: true }
 
-			validations.storePerLimiter(store as Store)
+			validations.unsharedStore(store as Store)
 			expect(console.error).not.toBeCalled()
-			validations.storePerLimiter(store as Store)
+			validations.unsharedStore(store as Store)
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_STORE_REUSE',
@@ -137,8 +137,8 @@ describe('validations tests', () => {
 			const store1 = { localKeys: true }
 			const store2 = { localKeys: true }
 
-			validations.storePerLimiter(store1 as Store)
-			validations.storePerLimiter(store2 as Store)
+			validations.unsharedStore(store1 as Store)
+			validations.unsharedStore(store2 as Store)
 			expect(console.error).not.toBeCalled()
 		})
 	})

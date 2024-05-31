@@ -150,7 +150,7 @@ const validations = {
 	/**
 	 * Ensures a single store instance is not used with multiple express-rate-limit instances
 	 */
-	storePerLimiter(store: Store) {
+	unsharedStore(store: Store) {
 		if (usedStores.has(store)) {
 			const maybeUniquePrefix = store?.localKeys
 				? ''

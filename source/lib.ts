@@ -310,7 +310,7 @@ const rateLimit = (
 	// The limiter shouldn't be created in response to a request
 	config.validations.creationStack()
 	// The store instance shouldn't be shared across multiple limiters
-	config.validations.storePerLimiter(config.store)
+	config.validations.unsharedStore(config.store)
 
 	// Call the `init` method on the store, if it exists
 	if (typeof config.store.init === 'function') config.store.init(options)
