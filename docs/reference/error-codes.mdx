@@ -109,6 +109,19 @@ error.
 
 Set `validate: {positiveHits: false}` in the options to disable the check.
 
+### `ERR_ERL_STORE_REUSE`
+
+> Added in `7.3.0`.
+
+This indicates that the single [Store](./stores) instance was used in more than
+one rate limiter. This can lead to problems such as initialization logic runing
+multiple times, and inconsistent reset times.
+
+Instead, create a new store instance for each rate limiter. (Generally with a
+unique `prefix` value for each one.)
+
+Set `validate: {unsharedStore: false}` in the options to disable the check.
+
 ### `ERR_ERL_DOUBLE_COUNT`
 
 > Added in `6.9.0`.

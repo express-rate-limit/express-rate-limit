@@ -119,6 +119,30 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('unsharedStore', () => {
+		it('should log an error if a store instance is used in two limiters', () => {
+			const store = { localKeys: true }
+
+			validations.unsharedStore(store as Store)
+			expect(console.error).not.toBeCalled()
+			validations.unsharedStore(store as Store)
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({
+					code: 'ERR_ERL_STORE_REUSE',
+				}),
+			)
+		})
+
+		it('should not log an error if multiple store instances are used', () => {
+			const store1 = { localKeys: true }
+			const store2 = { localKeys: true }
+
+			validations.unsharedStore(store1 as Store)
+			validations.unsharedStore(store2 as Store)
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
 	describe('singleCount', () => {
 		class TestExternalStore {
 			prefix?: string
