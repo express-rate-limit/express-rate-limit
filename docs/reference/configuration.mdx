@@ -3,6 +3,12 @@ title: 'Configuration'
 icon: 'bars-staggered'
 ---
 
+No configuration is required, all options have reasonable defaults.
+
+Any option that may be set to a function may also be set to an async function,
+or to a function that returns a promise. Async functions and promises will be
+awaited for the value.
+
 ## `windowMs`
 
 > `number`
@@ -13,12 +19,15 @@ reset to zero. A new time window is then started on their next request.
 
 Also used in the `Retry-After` header when the limit is reached.
 
+This value **cannot** be set to a function. If multiple time windows are needed,
+create multiple rate limiters.
+
 <Note>
 
-For stores that do not implement the `init` function (see the
-[data stores page](/reference/stores)), you may need to configure this value
-twice, once here and once on the store. In some cases the units also differ
-(e.g. seconds vs miliseconds).
+For stores that do not implement the `init` function (including all legacy
+stores - see the [data stores page](/reference/stores)), you may need to
+configure this value twice, once here and once on the store. In some cases the
+units also differ (e.g. seconds vs miliseconds).
 
 </Note>
 
@@ -71,8 +80,7 @@ The response body to send back when a client is rate limited.
 May be a string, JSON object, or any other value that Express's
 [res.send](https://expressjs.com/en/4x/api.html#res.send) method supports. It
 can also be a (sync/async) function that accepts the Express request and
-response objects and then returns a `string`, JSON object or any other value the
-Express `res.send` function accepts.
+response objects and then returns a `string`, JSON object, etc.
 
 Defaults to `'Too many requests, please try again later.'`
 
@@ -92,6 +100,10 @@ const limiter = rateLimit({
 	},
 })
 ```
+
+Set a custom [`handler`](#handler) for more advanced use-cases, such as using
+[`res.render()`](http://expressjs.com/en/4x/api.html#res.render) to send a
+templated response.
 
 ## `statusCode`
 
