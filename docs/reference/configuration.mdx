@@ -121,6 +121,24 @@ RFC 6585.
 
 </Note>
 
+## `handler`
+
+> `function`
+
+Express request handler that sends back a response when a client is
+rate-limited.
+
+By default, sends back the `statusCode` and `message` set via the `options`,
+similar to this:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	handler: (req, res, next, options) =>
+		res.status(options.statusCode).send(options.message),
+})
+```
+
 ## `legacyHeaders`
 
 > `boolean`
@@ -184,55 +202,18 @@ library in clients to read/parse any form of headers.
 
 Defaults to `false`.
 
-## `requestPropertyName`
+## `store`
 
-> `string`
+> `Store`
 
-The name of the property on the Express `request` object to store the rate limit
-info.
+The `Store` to use to store the hit count for each client.
 
-Defaults to `'rateLimit'`.
+By default, the
+[`memory-store`](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts)
+is used.
 
-## `skipFailedRequests`
-
-> `boolean`
-
-When set to `true`, failed requests won't be counted. Request considered failed
-when the `requestWasSuccessful` option returns `false`. By default, this means
-requests fail when:
-
-- the response status >= `400`
-- the request was cancelled before last chunk of data was sent (response `close`
-  event triggered)
-- the response `error` event was triggered by response
-
-<Note>
-
-Technically, the requests are counted and then un-counted, so a large number of
-slow requests all at once could still trigger a rate-limit. This may be fixed in
-a future release. PRs welcome!
-
-</Note>
-
-Defaults to `false`.
-
-## `skipSuccessfulRequests`
-
-> `boolean`
-
-If `true`, the library will (by default) skip all requests that are considered
-'failed' by the `requestWasSuccessful` function. By default, this means requests
-succeed when the response status code less than `400`.
-
-<Note>
-
-Technically, the requests are counted and then un-counted, so a large number of
-slow requests all at once could still trigger a rate-limit. This may be fixed in
-a future release. PRs welcome!
-
-</Note>
-
-Defaults to `false`.
+See [Data Stores](/reference/stores) for a list of avaliable stores and other
+information.
 
 ## `keyGenerator`
 
@@ -261,23 +242,14 @@ rate limiter. This could be combined with a second instance of
 
 </Note>
 
-## `handler`
+## `requestPropertyName`
 
-> `function`
+> `string`
 
-Express request handler that sends back a response when a client is
-rate-limited.
+The name of the property on the Express `request` object to store the rate limit
+info.
 
-By default, sends back the `statusCode` and `message` set via the `options`,
-similar to this:
-
-```ts
-const limiter = rateLimit({
-	// ...
-	handler: (req, res, next, options) =>
-		res.status(options.statusCode).send(options.message),
-})
-```
+Defaults to `'rateLimit'`.
 
 ## `skip`
 
@@ -306,6 +278,47 @@ const limiter = rateLimit({
 	skip: (req, res) => false,
 })
 ```
+
+## `skipSuccessfulRequests`
+
+> `boolean`
+
+If `true`, the library will (by default) skip all requests that are considered
+'failed' by the `requestWasSuccessful` function. By default, this means requests
+succeed when the response status code less than `400`.
+
+<Note>
+
+Technically, the requests are counted and then un-counted, so a large number of
+slow requests all at once could still trigger a rate-limit. This may be fixed in
+a future release. PRs welcome!
+
+</Note>
+
+Defaults to `false`.
+
+## `skipFailedRequests`
+
+> `boolean`
+
+When set to `true`, failed requests won't be counted. Request considered failed
+when the `requestWasSuccessful` option returns `false`. By default, this means
+requests fail when:
+
+- the response status >= `400`
+- the request was cancelled before last chunk of data was sent (response `close`
+  event triggered)
+- the response `error` event was triggered by response
+
+<Note>
+
+Technically, the requests are counted and then un-counted, so a large number of
+slow requests all at once could still trigger a rate-limit. This may be fixed in
+a future release. PRs welcome!
+
+</Note>
+
+Defaults to `false`.
 
 ## `requestWasSuccessful`
 
@@ -368,16 +381,3 @@ Supported validations are:
 - [validationsConfig](/reference/error-codes#err-erl-unknown-validation)
 
 Defaults to `true`.
-
-## `store`
-
-> `Store`
-
-The `Store` to use to store the hit count for each client.
-
-By default, the
-[`memory-store`](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts)
-is used.
-
-See [Data Stores](/reference/stores) for a list of avaliable stores and other
-information.

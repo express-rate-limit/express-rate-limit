@@ -45,23 +45,23 @@ The rate limiter comes with a built-in memory store, and supports a variety of
 All function options may be async. Click the name for additional info and
 default values.
 
-| Option                                                                                                             | Type                             | Remarks                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [`windowMs`](https://express-rate-limit.mintlify.app/reference/configuration#windowms)                             | `number`                         | How long to remember requests for, in milliseconds.                                             |
-| [`limit`](https://express-rate-limit.mintlify.app/reference/configuration#limit)                                   | `number` \| `function`           | How many requests to allow.                                                                     |
-| [`message`](https://express-rate-limit.mintlify.app/reference/configuration#message)                               | `string` \| `json` \| `function` | Response to return after limit is reached.                                                      |
-| [`statusCode`](https://express-rate-limit.mintlify.app/reference/configuration#statuscode)                         | `number`                         | HTTP status code after limit is reached (default is 429).                                       |
-| [`legacyHeaders`](https://express-rate-limit.mintlify.app/reference/configuration#legacyheaders)                   | `boolean`                        | Enable the `X-Rate-Limit` header.                                                               |
-| [`standardHeaders`](https://express-rate-limit.mintlify.app/reference/configuration#standardheaders)               | `'draft-6'` \| `'draft-7'`       | Enable the `Ratelimit` header.                                                                  |
-| [`requestPropertyName`](https://express-rate-limit.mintlify.app/reference/configuration#requestpropertyname)       | `string`                         | Add rate limit info to the `req` object.                                                        |
-| [`skipFailedRequests`](https://express-rate-limit.mintlify.app/reference/configuration#skipfailedrequests)         | `boolean`                        | Uncount 4xx/5xx responses.                                                                      |
-| [`skipSuccessfulRequests`](https://express-rate-limit.mintlify.app/reference/configuration#skipsuccessfulrequests) | `boolean`                        | Uncount 1xx/2xx/3xx responses.                                                                  |
-| [`keyGenerator`](https://express-rate-limit.mintlify.app/reference/configuration#keygenerator)                     | `function`                       | Identify users (defaults to IP address).                                                        |
-| [`handler`](https://express-rate-limit.mintlify.app/reference/configuration#handler)                               | `function`                       | Function to run after limit is reached (overrides `message` and `statusCode` settings, if set). |
-| [`skip`](https://express-rate-limit.mintlify.app/reference/configuration#skip)                                     | `function`                       | Return `true` to bypass the limiter for the given request.                                      |
-| [`requestWasSuccessful`](https://express-rate-limit.mintlify.app/reference/configuration#requestwassuccessful)     | `function`                       | Used by `skipFailedRequests` and `skipSuccessfulRequests`.                                      |
-| [`validate`](https://express-rate-limit.mintlify.app/reference/configuration#validate)                             | `boolean` \| `object`            | Enable or disable built-in validation checks.                                                   |
-| [`store`](https://express-rate-limit.mintlify.app/reference/configuration#store)                                   | `Store`                          | Use a custom store to share hit counts across multiple nodes.                                   |
+| Option                     | Type                             | Remarks                                                                                         |
+| -------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`windowMs`]               | `number`                         | How long to remember requests for, in milliseconds.                                             |
+| [`limit`]                  | `number` \| `function`           | How many requests to allow.                                                                     |
+| [`message`]                | `string` \| `json` \| `function` | Response to return after limit is reached.                                                      |
+| [`statusCode`]             | `number`                         | HTTP status code after limit is reached (default is 429).                                       |
+| [`handler`]                | `function`                       | Function to run after limit is reached (overrides `message` and `statusCode` settings, if set). |
+| [`legacyHeaders`]          | `boolean`                        | Enable the `X-Rate-Limit` header.                                                               |
+| [`standardHeaders`]        | `'draft-6'` \| `'draft-7'`       | Enable the `Ratelimit` header.                                                                  |
+| [`store`]                  | `Store`                          | Use a custom store to share hit counts across multiple nodes.                                   |
+| [`keyGenerator`]           | `function`                       | Identify users (defaults to IP address).                                                        |
+| [`requestPropertyName`]    | `string`                         | Add rate limit info to the `req` object.                                                        |
+| [`skip`]                   | `function`                       | Return `true` to bypass the limiter for the given request.                                      |
+| [`skipSuccessfulRequests`] | `boolean`                        | Uncount 1xx/2xx/3xx responses.                                                                  |
+| [`skipFailedRequests`]     | `boolean`                        | Uncount 4xx/5xx responses.                                                                      |
+| [`requestWasSuccessful`]   | `function`                       | Used by `skipSuccessfulRequests` and `skipFailedRequests`.                                      |
+| [`validate`]               | `boolean` \| `object`            | Enable or disable built-in validation checks.                                                   |
 
 ## Thank You
 
@@ -111,3 +111,31 @@ Then you can pick up any issue and fix/implement it!
 
 MIT © [Nathan Friedly](http://nfriedly.com/),
 [Vedant K](https://github.com/gamemaker1)
+
+[`windowMs`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#windowms
+[`limit`]: https://express-rate-limit.mintlify.app/reference/configuration#limit
+[`message`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#message
+[`statusCode`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#statuscode
+[`handler`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#handler
+[`legacyHeaders`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#legacyheaders
+[`standardHeaders`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#standardheaders
+[`store`]: https://express-rate-limit.mintlify.app/reference/configuration#store
+[`keyGenerator`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#keygenerator
+[`requestPropertyName`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#requestpropertyname
+[`skip`]: https://express-rate-limit.mintlify.app/reference/configuration#skip
+[`skipSuccessfulRequests`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#skipsuccessfulrequests
+[`skipFailedRequests`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#skipfailedrequests
+[`requestWasSuccessful`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#requestwassuccessful
+[`validate`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#validate
