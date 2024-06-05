@@ -270,7 +270,10 @@ it is called at app initialization, not in response to each request:
 + app.use(rateLimitFactory()); // Works
 ```
 
-Set `validate: {creationStack: false}` in the options to disable the check.
+Set `validate: {creationStack: false}` in the options to disable the check, only
+if you are sure that the rate limiter is working as intended, and is not facing
+performance problems (that may be caused by repeated initialization of an
+external data store).
 
 ## Warnings
 

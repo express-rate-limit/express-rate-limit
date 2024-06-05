@@ -307,8 +307,8 @@ const rateLimit = (
 	const config = parseOptions(passedOptions ?? {})
 	const options = getOptionsFromConfig(config)
 
-	// The limiter shouldn't be created in response to a request
-	config.validations.creationStack()
+	// The limiter shouldn't be created in response to a request (usually)
+	config.validations.creationStack(config.store)
 	// The store instance shouldn't be shared across multiple limiters
 	config.validations.unsharedStore(config.store)
 

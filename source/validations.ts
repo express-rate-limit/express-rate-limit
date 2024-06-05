@@ -200,8 +200,8 @@ const validations = {
 	},
 
 	/**
-	 * Warns the user that the behaviour for `max: 0` / `limit: 0` is changing in the next
-	 * major release.
+	 * Warns the user that the behaviour for `max: 0` / `limit: 0` is
+	 * changing in the next major release.
 	 *
 	 * @param limit {number} - The maximum number of hits per client.
 	 *
@@ -234,8 +234,8 @@ const validations = {
 	},
 
 	/**
-	 * Warns the user that the `onLimitReached` option is deprecated and will be removed in the next
-	 * major release.
+	 * Warns the user that the `onLimitReached` option is deprecated and
+	 * will be removed in the next major release.
 	 *
 	 * @param onLimitReached {any | undefined} - The maximum number of hits per client.
 	 *
@@ -268,9 +268,11 @@ const validations = {
 	},
 
 	/**
-	 * Checks the options.validate setting to ensure that only recognized validations are enabled or disabled.
+	 * Checks the options.validate setting to ensure that only recognized
+	 * validations are enabled or disabled.
 	 *
-	 * If any unrecognized values are found, an error is logged that includes the list of supported vaidations.
+	 * If any unrecognized values are found, an error is logged that
+	 * includes the list of supported vaidations.
 	 */
 	validationsConfig() {
 		const supportedValidations = Object.keys(this).filter(
@@ -290,13 +292,29 @@ const validations = {
 	},
 
 	/**
-	 * Checks to see if the instance was created inside of a request handler, which would prevent it from working correctly.
+	 * Checks to see if the instance was created inside of a request handler,
+	 * which would prevent it from working correctly, with the default memory
+	 * store (or any other store with localKeys.)
 	 */
-	creationStack() {
+	creationStack(store: Store) {
 		const { stack } = new Error(
 			'express-rate-limit validation check (set options.validate.creationStack=false to disable)',
 		)
+
 		if (stack?.includes('Layer.handle [as handle_request]')) {
+			if (!store.localKeys) {
+				// This means the user is using an external store, which may be safe.
+				// Print out an error anyways, to alert them of the possibility that
+				// the rate limiter may not work as intended.
+
+				// See the discussion here: https://github.com/express-rate-limit/express-rate-limit/pull/461#discussion_r1626940562.
+				throw new ValidationError(
+					'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
+					'Dynamically creating an express-rate-limit instance for every request may result in unexpected behaviour and unnecessary re-initialization of external stores. Make sure the same data store, prefix, etc. are used.',
+				)
+			}
+
+			// Otherwise, make sure they know not to do this.
 			throw new ValidationError(
 				'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
 				`express-rate-limit instance should be created at app initialization, not when responding to a request.`,
@@ -308,8 +326,10 @@ const validations = {
 export type Validations = typeof validations
 
 /**
- * Creates a copy of the validations object where each method is wrapped to catch and log any thrown errors.
- * Sets `enabled` to the provided value, allowing different instances of express-rate-limit to have different validations settings.
+ * Creates a copy of the validations object where each method is
+ * wrapped to catch and log any thrown errors. Sets `enabled` to the
+ * provided value, allowing different instances of express-rate-limit
+ * to have different validations settings.
  *
  * @param enabled {boolean} - The list of enabled validations.
  *
