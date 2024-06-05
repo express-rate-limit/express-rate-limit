@@ -290,9 +290,13 @@ const validations = {
 	},
 
 	/**
-	 * Checks to see if the instance was created inside of a request handler, which would prevent it from working correctly.
+	 * Checks to see if the instance was created inside of a request handler, which would prevent it from working correctly, with the default memory store (or any other store with localKeys.)
 	 */
-	creationStack() {
+	creationStack(store: Store) {
+		if (!store.localKeys) {
+			return // Using an external store. This should be safe, even if not ideal.
+		}
+
 		const { stack } = new Error(
 			'express-rate-limit validation check (set options.validate.creationStack=false to disable)',
 		)

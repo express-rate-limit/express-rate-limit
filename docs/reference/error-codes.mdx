@@ -270,6 +270,15 @@ it is called at app initialization, not in response to each request:
 + app.use(rateLimitFactory()); // Works
 ```
 
+<Note>
+
+Starting with version 7.3.1, the scope of this check was narrowed to only
+trigger when using a MemoryStore, in order to prevent false-positives in
+advanced use-cases, such as a serving multiple websites from a single app and
+loading their configuration dynamically.
+
+</Note>
+
 Set `validate: {creationStack: false}` in the options to disable the check.
 
 ## Warnings

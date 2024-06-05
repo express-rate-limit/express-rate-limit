@@ -13,6 +13,7 @@ import express from 'express'
 import supertest from 'supertest'
 import { getValidations } from '../../source/validations.js'
 import type { Store } from '../../source/types'
+import { MemoryStore } from '../../source/index.js'
 
 describe('validations tests', () => {
 	let validations = getValidations(true)
@@ -360,10 +361,11 @@ describe('validations tests', () => {
 	})
 
 	describe('creationStack', () => {
-		it('should log an error if called in an express request handler', async () => {
+		it('should log an error if called in an express request handler with a memory store', async () => {
 			const app = express()
+			const store = new MemoryStore()
 			app.get('/', (request, response) => {
-				validations.creationStack()
+				validations.creationStack(store)
 				response.send('hello')
 			})
 			await supertest(app).get('/').expect('hello')
@@ -373,7 +375,14 @@ describe('validations tests', () => {
 			expect(console.warn).not.toBeCalled()
 		})
 		it('should not log an error if called elsewhere', async () => {
-			validations.creationStack()
+			const store = new MemoryStore()
+			validations.creationStack(store)
+			expect(console.error).not.toBeCalled()
+			expect(console.warn).not.toBeCalled()
+		})
+		it('should not log an error when used with an external store', () => {
+			const store: Store = { localKeys: false } as any
+			validations.creationStack(store)
 			expect(console.error).not.toBeCalled()
 			expect(console.warn).not.toBeCalled()
 		})
