@@ -310,7 +310,7 @@ const validations = {
 				// See the discussion here: https://github.com/express-rate-limit/express-rate-limit/pull/461#discussion_r1626940562.
 				throw new ValidationError(
 					'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
-					'Dynamically creating an express-rate-limit instance for every request may result in unexpected behaviour and unnecessary re-initialization of external stores. Make sure the same data store, prefix, etc. are used.',
+					'express-rate-limit instance should *usually* be created at app initialization, not when responding to a request.',
 				)
 			}
 
