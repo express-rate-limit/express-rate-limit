@@ -13,22 +13,23 @@ and this project adheres to
 
 ### Fixed
 
-- Narrowed the scope of the `creationStack` validation check in order to prevent
-  false-positives
+- Changed error displayed for the `creationStack` validation check when a store
+  with `localKeys` set to false is used.
+- Improved documentation for the `creationStack` check.
 
 ## [7.3.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.3.0)
 
 ### Added
 
-- New `unsharedStore` validation check that identifies cases where a single
-  store instance is shared across multiple limiters
+- Added a new `unsharedStore` validation check that identifies cases where a
+  single store instance is shared across multiple limiters.
 
 ## [7.2.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.2.0)
 
 ### Added
 
-- New `creationStack` validation check that looks for instances created in a
-  request handler
+- Added a new `creationStack` validation check that looks for instances created
+  in a request handler.
 
 ## [7.1.5](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.1.5)
 
@@ -41,7 +42,7 @@ and this project adheres to
 ### Fixed
 
 - Ensure header values are strings rather than numbers, for compatibility with
-  [Bun](https://bun.sh/)
+  [Bun](https://bun.sh/).
 
 ## [7.1.3](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.1.3)
 
