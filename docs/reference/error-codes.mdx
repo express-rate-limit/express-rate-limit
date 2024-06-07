@@ -270,6 +270,13 @@ it is called at app initialization, not in response to each request:
 + app.use(rateLimitFactory()); // Works
 ```
 
+In certain advanced use cases, such as serving multiple websites from a single
+app, it may be necessary to dynamically create a rate limiter in response to a
+request. In this case the validation check may be disabled, but care should be
+taken to ensure everything works as expected. Consider caching the limiter after
+it's first usage to avoid repeating the initialization cost and any background
+work the store may require.
+
 Set `validate: {creationStack: false}` in the options to disable the check.
 
 ## Warnings
