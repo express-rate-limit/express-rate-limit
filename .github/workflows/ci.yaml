@@ -1,5 +1,5 @@
 # /.github/workflows/ci.yaml
-# GitHub actions workflow
+# GitHub actions workflow to run tests on each commit, and publish new tags.
 
 name: CI
 

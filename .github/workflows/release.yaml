@@ -1,0 +1,39 @@
+# /.github/workflows/release.yaml
+# GitHub actions workflow to prepare a release.
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: |
+          The new version to bump the package to; any value accepted by the
+          `npm version` command.
+        default: 'patch'
+
+jobs:
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org/
+      - name: Bump version
+        run: npm version "${{ github.event.inputs.version }}"
+      - name: Upload git tags
+        run: |
+          git push
+          git push --tags
