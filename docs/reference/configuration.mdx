@@ -27,7 +27,7 @@ create multiple rate limiters.
 For stores that do not implement the `init` function (including all legacy
 stores - see the [data stores page](/reference/stores)), you may need to
 configure this value twice, once here and once on the store. In some cases the
-units also differ (e.g. seconds vs miliseconds).
+units also differ (e.g. seconds vs milliseconds).
 
 </Note>
 
@@ -212,7 +212,7 @@ By default, the
 [`memory-store`](https://github.com/express-rate-limit/express-rate-limit/blob/main/source/memory-store.ts)
 is used.
 
-See [Data Stores](/reference/stores) for a list of avaliable stores and other
+See [Data Stores](/reference/stores) for a list of avalliable stores and other
 information.
 
 ## `keyGenerator`
@@ -324,7 +324,7 @@ Defaults to `false`.
 
 > `function`
 
-Method to determine whether or not the request counts as 'succesful'. Used when
+Method to determine whether or not the request counts as 'successful'. Used when
 either `skipSuccessfulRequests` or `skipFailedRequests` is set to true. Should
 be a (sync/async) function that accepts the Express `req` and `res` objects and
 then returns `true` or `false`.

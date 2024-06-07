@@ -114,7 +114,7 @@ Set `validate: {positiveHits: false}` in the options to disable the check.
 > Added in `7.3.0`.
 
 This indicates that the single [Store](./stores) instance was used in more than
-one rate limiter. This can lead to problems such as initialization logic runing
+one rate limiter. This can lead to problems such as initialization logic running
 multiple times, and inconsistent reset times.
 
 Instead, create a new store instance for each rate limiter. (Generally with a

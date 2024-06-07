@@ -18,9 +18,8 @@ and/or endpoints such as password reset. Plays nice with
 ## Use Cases
 
 This library uses 'stores', which allows for the hit count and reset time of all
-clients to be stored or in-memory or in an external database. Depending on the use
-case, an external store may be needed.
-
+clients to be stored or in-memory or in an external database. Depending on the
+use case, an external store may be needed.
 
 ### Abuse Prevention
 
@@ -29,11 +28,15 @@ The default
 is probably fine.
 
 <Warning>
-	The default `MemoryStore` keeps the hit counts for clients in memory, and
-	thus produces inconsistent results when running multiple servers or processes.
-	However it will allways allow *at least* the configured number of hits through,
-        and *at most* the configured number multiplied by the number of instances.
+	The default `MemoryStore` keeps the hit counts for clients in memory, and thus
+	produces inconsistent results when running multiple servers or processes.
 </Warning>
+
+When running multiple instances of the memory store, the ratelimiter will always
+allow _at least_ the configured `max` number of hits through, and _at most_ the
+configured `max` multiplied by the number of instances. Depending on how
+requests are routed in your stack, requests may be intermittently allowed or
+blocked after reaching `max`.
 
 ### API Rate Limit Enforcement
 
