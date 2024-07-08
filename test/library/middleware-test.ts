@@ -803,26 +803,27 @@ describe('middleware test', () => {
 			saveRequestObject,
 			rateLimit({
 				legacyHeaders: false,
+				limit: 6,
 			}),
 		])
 
 		await request(app).get('/').expect(200)
 		expect(savedRequestObject?.rateLimit).toMatchObject({
-			limit: 5,
+			limit: 6,
 			used: 1,
-			remaining: 4,
+			remaining: 5,
 			resetTime: expect.any(Date),
 		})
 
-		// Make sure the hidden proerty is also set.
+		// Make sure the hidden property is also set.
 		expect(savedRequestObject?.rateLimit.current).toBe(1)
 
 		savedRequestObject = undefined
 		await request(app).get('/').expect(200)
 		expect(savedRequestObject?.rateLimit).toMatchObject({
-			limit: 5,
+			limit: 6,
 			used: 2,
-			remaining: 3,
+			remaining: 4,
 			resetTime: expect.any(Date),
 		})
 		expect(savedRequestObject?.rateLimit.current).toBe(2)

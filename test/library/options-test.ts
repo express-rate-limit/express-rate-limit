@@ -49,6 +49,16 @@ describe('options test', () => {
 		expect(store.options.limit).toEqual(7)
 	})
 
+	it('should allow the use of the `limit` option', async () => {
+		const store = new MockStore()
+		rateLimit({
+			store,
+			limit: 7,
+		})
+
+		expect(store.options.limit).toEqual(7)
+	})
+
 	it('should not allow the use of an invalid store', async () => {
 		class InvalidStore {
 			invalid = true
