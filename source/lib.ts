@@ -341,6 +341,10 @@ const rateLimit = (
 				resetTime = incrementResult.resetTime
 			} catch (error) {
 				if (config.passOnStoreError) {
+					console.error(
+						'express-rate-limit: error from store, allowing request without rate-limiting.',
+						error,
+					)
 					next()
 				} else {
 					throw error
