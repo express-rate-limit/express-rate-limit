@@ -43,7 +43,7 @@ The rate limiter comes with a built-in memory store, and supports a variety of
 ### Configuration
 
 All function options may be async. Click the name for additional info and
-default values. passOnStoreError
+default values.
 
 | Option                     | Type                             | Remarks                                                                                         |
 | -------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |

@@ -329,10 +329,11 @@ const rateLimit = (
 
 			// Create an augmented request
 			const augmentedRequest = request as AugmentedRequest
+
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
-			// Increment the client's hit counter by one.
 
+			// Increment the client's hit counter by one.
 			let totalHits = 0
 			let resetTime
 			try {
