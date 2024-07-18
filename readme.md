@@ -43,7 +43,7 @@ The rate limiter comes with a built-in memory store, and supports a variety of
 ### Configuration
 
 All function options may be async. Click the name for additional info and
-default values.
+default values. passOnStoreError
 
 | Option                     | Type                             | Remarks                                                                                         |
 | -------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -55,6 +55,7 @@ default values.
 | [`legacyHeaders`]          | `boolean`                        | Enable the `X-Rate-Limit` header.                                                               |
 | [`standardHeaders`]        | `'draft-6'` \| `'draft-7'`       | Enable the `Ratelimit` header.                                                                  |
 | [`store`]                  | `Store`                          | Use a custom store to share hit counts across multiple nodes.                                   |
+| [`passOnStoreError`]       | `boolean`                        | Allow (`true`) or block (`false`, default) traffic if the store becomes unavailable.            |
 | [`keyGenerator`]           | `function`                       | Identify users (defaults to IP address).                                                        |
 | [`requestPropertyName`]    | `string`                         | Add rate limit info to the `req` object.                                                        |
 | [`skip`]                   | `function`                       | Return `true` to bypass the limiter for the given request.                                      |
@@ -126,6 +127,8 @@ MIT © [Nathan Friedly](http://nfriedly.com/),
 [`standardHeaders`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#standardheaders
 [`store`]: https://express-rate-limit.mintlify.app/reference/configuration#store
+[`passOnStoreError`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#passOnStoreError
 [`keyGenerator`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#keygenerator
 [`requestPropertyName`]:

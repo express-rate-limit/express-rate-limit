@@ -215,6 +215,16 @@ is used.
 See [Data Stores](/reference/stores) for a list of avalliable stores and other
 information.
 
+## `passOnStoreError`
+
+By default, this is `false` and express-rate-limit will call the
+[express error handler](http://expressjs.com/en/guide/error-handling.html#error-handling)
+in the event of a store error. In other words, the default is to "fail closed"
+and block all requests in the event of a store.
+
+Set this to `true` to "fail open" allow the request(s) through without rate
+limiting. The error will be logged in this case.
+
 ## `keyGenerator`
 
 > `function`
