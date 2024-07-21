@@ -286,7 +286,7 @@ Set `validate: {creationStack: false}` in the options to disable the check.
 > Added in `6.10.0`.
 
 In express-rate-limit version 6 and older, the rate limiter would be disabled
-when setting `limit` to `0` in the options. Starting with version
+when setting `limit` (previously `max` until version `7.0.0`) to `0` in the options. Starting with version
 `7.0.0`, this is no longer the case - the rate limiting will apply from the very
 first request instead. See
 [#369](https://github.com/express-rate-limit/express-rate-limit/discussions/369)
