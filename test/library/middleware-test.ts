@@ -139,6 +139,24 @@ describe('middleware test', () => {
 		}
 	}
 
+	class StoreThrowingErrors implements Store {
+		init(_options: Options): void {}
+
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			throw new Error('Mock error')
+		}
+
+		async increment(_key: string): Promise<ClientRateLimitInfo> {
+			throw new Error('Mock error')
+		}
+
+		async decrement(_key: string): Promise<void> {}
+
+		async resetKey(_key: string): Promise<void> {}
+
+		async resetAll(): Promise<void> {}
+	}
+
 	it('should not modify the options object passed', () => {
 		const options = {}
 		rateLimit(options)
@@ -941,5 +959,26 @@ describe('middleware test', () => {
 			.expect(429, 'Too many requests')
 		expect(savedRequestObject.rateLimitKey.remaining).toEqual(0)
 		expect(savedRequestObject.rateLimitGlobal.remaining).toEqual(0)
+	})
+
+	it('should not pass if the store throws an error by default', async () => {
+		const app = createServer(
+			rateLimit({
+				limit: 1,
+				store: new StoreThrowingErrors(),
+			}),
+		)
+		await request(app).get('/').expect(500)
+	})
+
+	it('should pass if the store throws an error and passOnStoreError is true', async () => {
+		const app = createServer(
+			rateLimit({
+				limit: 1,
+				store: new StoreThrowingErrors(),
+				passOnStoreError: true,
+			}),
+		)
+		await request(app).get('/').expect(200)
 	})
 })
