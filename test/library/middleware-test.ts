@@ -972,6 +972,7 @@ describe('middleware test', () => {
 	})
 
 	it('should pass if the store throws an error and passOnStoreError is true', async () => {
+		jest.spyOn(console, 'error').mockImplementation(() => {})
 		const app = createServer(
 			rateLimit({
 				limit: 1,
@@ -980,5 +981,31 @@ describe('middleware test', () => {
 			}),
 		)
 		await request(app).get('/').expect(200)
+		expect(console.error).toHaveBeenCalledTimes(1)
+		expect(console.error).toHaveBeenCalledWith(
+			expect.stringContaining('allowing'),
+			expect.any(Error),
+		)
+	})
+
+	it('should only call next once when passOnStoreError causes it to skip limiting', async () => {
+		jest.spyOn(console, 'error').mockImplementation(() => {})
+		const limiter = rateLimit({
+			limit: 1,
+			store: new StoreThrowingErrors(),
+			passOnStoreError: true,
+			validate: false,
+		})
+		const request = {}
+		const response = {}
+		const next: NextFunction = jest.fn() as NextFunction
+		// eslint-disable-next-line @typescript-eslint/await-thenable
+		await limiter(request as Request, response as Response, next)
+		expect(next).toHaveBeenCalledTimes(1)
+		expect(console.error).toHaveBeenCalledTimes(1)
+		expect(console.error).toHaveBeenCalledWith(
+			expect.stringContaining('allowing'),
+			expect.any(Error),
+		)
 	})
 })

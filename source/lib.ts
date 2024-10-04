@@ -347,9 +347,10 @@ const rateLimit = (
 						error,
 					)
 					next()
-				} else {
-					throw error
+					return
 				}
+
+				throw error
 			}
 
 			// Make sure that -
