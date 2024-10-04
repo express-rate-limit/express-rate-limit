@@ -988,7 +988,7 @@ describe('middleware test', () => {
 		)
 	})
 
-	it('should should only call next once when passOnStoreError causes it to skip limiting', async () => {
+	it('should only call next once when passOnStoreError causes it to skip limiting', async () => {
 		jest.spyOn(console, 'error').mockImplementation(() => {})
 		const limiter = rateLimit({
 			limit: 1,
