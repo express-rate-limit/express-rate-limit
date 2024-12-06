@@ -19,6 +19,7 @@ import {
 	setLegacyHeaders,
 	setDraft6Headers,
 	setDraft7Headers,
+	setDraft8Headers,
 	setRetryAfterHeader,
 } from './headers.js'
 import { getValidations, type Validations } from './validations.js'
@@ -373,11 +374,23 @@ const rateLimit = (
 			// Set the standardized `RateLimit-*` headers on the response object if
 			// enabled.
 			if (config.standardHeaders && !response.headersSent) {
-				if (config.standardHeaders === 'draft-6') {
-					setDraft6Headers(response, info, config.windowMs)
-				} else if (config.standardHeaders === 'draft-7') {
-					config.validations.headersResetTime(info.resetTime)
-					setDraft7Headers(response, info, config.windowMs)
+				switch (config.standardHeaders) {
+					case 'draft-7': {
+						config.validations.headersResetTime(info.resetTime)
+						setDraft7Headers(response, info, config.windowMs)
+						break
+					}
+
+					case 'draft-8': {
+						config.validations.headersResetTime(info.resetTime)
+						setDraft8Headers(response, info, config.windowMs, key)
+						break
+					}
+
+					default: {
+						setDraft6Headers(response, info, config.windowMs)
+						break
+					}
 				}
 			}
 

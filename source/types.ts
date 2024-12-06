@@ -211,7 +211,7 @@ export type Store = {
 	prefix?: string
 }
 
-export type DraftHeadersVersion = 'draft-6' | 'draft-7'
+export type DraftHeadersVersion = 'draft-6' | 'draft-7' | 'draft-8'
 
 /**
  * Validate configuration object for enabling or disabling specific validations.

@@ -76,6 +76,22 @@ describe('headers test', () => {
 			.expect(200, 'Hi there!')
 	})
 
+	it('should send correct headers for the standard draft 8', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 5,
+				standardHeaders: 'draft-8',
+			}),
+		)
+
+		await request(app)
+			.get('/')
+			.expect('ratelimit-policy', '"rl-5-in-1min";q=5;w=60;pk=3e48ef9d22e096da')
+			.expect('ratelimit', '"rl-5-in-1min";r=4;t=60')
+			.expect(200, 'Hi there!')
+	})
+
 	it('should return the `retry-after` header once IP has reached the max', async () => {
 		const app = createServer(
 			rateLimit({
