@@ -37,7 +37,7 @@ const getResetSeconds = (
  *
  * @param windowMs {number} - The window length.
  */
-const getDurationInWords = (windowMs: number): string | undefined => {
+const getDurationInWords = (windowMs: number): string => {
 	const seconds = windowMs / 1000
 	const minutes = windowMs / (1000 * 60)
 	const hours = windowMs / (1000 * 60 * 60)
