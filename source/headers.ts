@@ -1,6 +1,7 @@
 // /source/headers.ts
 // The header setting functions
 
+import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import type { Response } from 'express'
 import type { RateLimitInfo } from './types.js'
@@ -50,17 +51,18 @@ const getDurationInWords = (windowMs: number): string | undefined => {
 }
 
 /**
- * Returns the hash of the identifier, truncated to 16 letters, so it can be
- * used as a partition key. The 16-letter limit is arbitrary, and folllows from
- * the examples given in the 8th draft.
+ * Returns the hash of the identifier, truncated to 12 bytes, and then converted
+ * to base64 so that it can be used as a 16 byte partition key. The 16-byte limit
+ * is arbitrary, and folllows from the examples given in the 8th draft.
  *
  * @param key {string} - The identifier to hash.
  */
 const getPartitionKey = (key: string): string => {
 	const hash = createHash('sha256')
-
 	hash.update(key)
-	return hash.digest('hex').slice(0, 16)
+
+	const partitionKey = hash.digest('hex').slice(0, 12)
+	return Buffer.from(partitionKey).toString('base64')
 }
 
 /**
@@ -164,7 +166,7 @@ export const setDraft8Headers = (
 	const partitionKey = getPartitionKey(key)
 
 	const name = `rl-${info.limit}-in-${duration}`
-	const policy = `q=${info.limit}; w=${windowSeconds}; pk=${partitionKey}`
+	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
 	const header = `r=${info.remaining}; t=${resetSeconds!}`
 
 	response.setHeader('RateLimit-Policy', `"${name}"; ${policy}`)

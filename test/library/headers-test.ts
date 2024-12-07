@@ -87,8 +87,11 @@ describe('headers test', () => {
 
 		await request(app)
 			.get('/')
-			.expect('ratelimit-policy', '"rl-5-in-1min";q=5;w=60;pk=3e48ef9d22e096da')
-			.expect('ratelimit', '"rl-5-in-1min";r=4;t=60')
+			.expect(
+				'ratelimit-policy',
+				'"rl-5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
+			)
+			.expect('ratelimit', '"rl-5-in-1min"; r=4; t=60')
 			.expect(200, 'Hi there!')
 	})
 
