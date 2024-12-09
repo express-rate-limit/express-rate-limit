@@ -172,8 +172,8 @@ export const setDraft8Headers = (
 	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
 	const header = `r=${info.remaining}; t=${resetSeconds!}`
 
-	response.setHeader('RateLimit-Policy', `"${name}"; ${policy}`)
-	response.setHeader('RateLimit', `"${name}"; ${header}`)
+	response.append('RateLimit-Policy', `"${name}"; ${policy}`)
+	response.append('RateLimit', `"${name}"; ${header}`)
 }
 
 /**

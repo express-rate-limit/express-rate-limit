@@ -79,7 +79,7 @@ describe('headers test', () => {
 	it('should send correct headers for the standard draft 8', async () => {
 		const app = createServer(
 			rateLimit({
-				windowMs: 60 * 1000,
+				windowMs: 2 * 60 * 60 * 1000,
 				limit: 5,
 				standardHeaders: 'draft-8',
 			}),
@@ -89,9 +89,39 @@ describe('headers test', () => {
 			.get('/')
 			.expect(
 				'ratelimit-policy',
-				'"rl-5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
+				'"rl-5-in-2hrs"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:',
 			)
-			.expect('ratelimit', '"rl-5-in-1min"; r=4; t=60')
+			.expect('ratelimit', '"rl-5-in-2hrs"; r=4; t=7200')
+			.expect(200, 'Hi there!')
+	})
+
+	it('should send multiple headers correctly for the standard draft 8', async () => {
+		const app = createServer([
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 5,
+				standardHeaders: 'draft-8',
+			}),
+			rateLimit({
+				windowMs: 2 * 24 * 60 * 60 * 1000,
+				limit: 8,
+				standardHeaders: 'draft-8',
+			}),
+		])
+
+		const policies = [
+			'"rl-5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
+			'"rl-8-in-2day"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
+		]
+		const limits = [
+			'"rl-5-in-1min"; r=4; t=60',
+			'"rl-8-in-2day"; r=7; t=172800',
+		]
+
+		await request(app)
+			.get('/')
+			.expect('ratelimit-policy', policies.join(', '))
+			.expect('ratelimit', limits.join(', '))
 			.expect(200, 'Hi there!')
 	})
 
