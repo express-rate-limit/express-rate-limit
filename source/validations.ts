@@ -4,6 +4,7 @@
 import { isIP } from 'node:net'
 import type { Request } from 'express'
 import type { Store, EnabledValidations } from './types.js'
+import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 
 /**
  * An error thrown/returned when a validation error occurs.
@@ -246,6 +247,26 @@ const validations = {
 			throw new ChangeWarning(
 				'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
 				`The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`,
+			)
+		}
+	},
+
+	/**
+	 * Warns the user when an invalid/unsupported version of the draft spec is passed.
+	 *
+	 * @param version {any | undefined} - The version passed by the user.
+	 *
+	 * @returns {void}
+	 */
+	headersDraftVersion(version?: any) {
+		if (
+			typeof version !== 'string' ||
+			!SUPPORTED_DRAFT_VERSIONS.includes(version)
+		) {
+			const versionString = SUPPORTED_DRAFT_VERSIONS.join(', ')
+			throw new ValidationError(
+				'ERR_ERL_HEADERS_UNSUPPORTED_DRAFT_VERSION',
+				`standardHeaders: only the following versions of the IETF draft specification are supported: ${versionString}.`,
 			)
 		}
 	},

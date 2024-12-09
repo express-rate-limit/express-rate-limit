@@ -190,8 +190,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
 	// The default value for the `standardHeaders` option is `false`. If set to
-	// `true`, it resolve to `draft-6`. `draft-7` (recommended) is used only if
-	// explicitly set.
+	// `true`, it resolve to `draft-6`. `draft-7` and draft-8` (recommended) are
+	// used only if explicitly set.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (standardHeaders === true) standardHeaders = 'draft-6'
 
@@ -375,6 +375,11 @@ const rateLimit = (
 			// enabled.
 			if (config.standardHeaders && !response.headersSent) {
 				switch (config.standardHeaders) {
+					case 'draft-6': {
+						setDraft6Headers(response, info, config.windowMs)
+						break
+					}
+
 					case 'draft-7': {
 						config.validations.headersResetTime(info.resetTime)
 						setDraft7Headers(response, info, config.windowMs)
@@ -388,7 +393,7 @@ const rateLimit = (
 					}
 
 					default: {
-						setDraft6Headers(response, info, config.windowMs)
+						config.validations.headersDraftVersion(config.standardHeaders)
 						break
 					}
 				}
