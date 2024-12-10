@@ -125,6 +125,26 @@ describe('headers test', () => {
 			.expect(200, 'Hi there!')
 	})
 
+	it('should override the quota name if specified for the standard draft 8', async () => {
+		const app = createServer(
+			rateLimit({
+				identifier: 'keep-kalm',
+				windowMs: 2 * 60 * 60 * 1000,
+				limit: 5,
+				standardHeaders: 'draft-8',
+			}),
+		)
+
+		await request(app)
+			.get('/')
+			.expect(
+				'ratelimit-policy',
+				'"keep-kalm"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:',
+			)
+			.expect('ratelimit', '"keep-kalm"; r=4; t=7200')
+			.expect(200, 'Hi there!')
+	})
+
 	it('should return the `retry-after` header once IP has reached the max', async () => {
 		const app = createServer(
 			rateLimit({

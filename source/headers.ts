@@ -153,12 +153,14 @@ export const setDraft7Headers = (
  * @param response {Response} - The express response object to set headers on.
  * @param info {RateLimitInfo} - The rate limit info, used to set the headers.
  * @param windowMs {number} - The window length.
+ * @param identifier {string} - The name of the quota policy.
  * @param key {string} - The unique string identifying the client.
  */
 export const setDraft8Headers = (
 	response: Response,
 	info: RateLimitInfo,
 	windowMs: number,
+	id: string,
 	key: string,
 ): void => {
 	if (response.headersSent) return
@@ -168,7 +170,7 @@ export const setDraft8Headers = (
 	const duration = getDurationInWords(windowMs)
 	const partitionKey = getPartitionKey(key)
 
-	const name = `rl-${info.limit}-in-${duration}`
+	const name = id === 'rl' ? `rl-${info.limit}-in-${duration}` : id
 	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
 	const header = `r=${info.remaining}; t=${resetSeconds!}`
 

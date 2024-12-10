@@ -276,6 +276,14 @@ export type Options = {
 	standardHeaders: boolean | DraftHeadersVersion
 
 	/**
+	 * The name used to identify the quota policy in the `RateLimit` headers as per
+	 * the 8th draft of the IETF specification.
+	 *
+	 * Defaults to `rl-{limit}-in-{window}`.
+	 */
+	identifier: string
+
+	/**
 	 * The name of the property on the request object to store the rate limit info.
 	 *
 	 * Defaults to `rateLimit`.
