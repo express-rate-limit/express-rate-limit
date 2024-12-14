@@ -225,7 +225,11 @@ The name associated with the quota policy that this instance of the rate limiter
 enforces. It is used in the `RateLimit` and `RateLimit-Policy` headers when
 `standardHeaders` is set to `draft-8`, and ignored otherwise.
 
-Defaults to `{limit}-in-{window}`, e.g., `7-in-1.5sec`
+Can be the identifier itself as a string or a (sync/async) function that accepts
+the Express `req` and `res` objects and then returns a string.
+
+Defaults to a function that returns a string of the format
+`{limit}-in-{window}`, e.g., `7-in-1.5sec`.
 
 ## `store`
 
