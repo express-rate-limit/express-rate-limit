@@ -48,9 +48,9 @@ const getDurationInWords = (windowMs: number): string => {
 
 	if (seconds < 60) return `${seconds}sec`
 	if (minutes < 60) return `${minutes}min`
-	if (hours < 24) return `${hours}hrs`
+	if (hours < 24) return `${hours}hr${hours > 1 ? 's' : ''}`
 
-	return `${days}day`
+	return `${days}day${days > 1 ? 's' : ''}`
 }
 
 /**
