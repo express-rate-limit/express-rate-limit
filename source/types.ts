@@ -279,7 +279,7 @@ export type Options = {
 	 * The name used to identify the quota policy in the `RateLimit` headers as per
 	 * the 8th draft of the IETF specification.
 	 *
-	 * Defaults to `rl-{limit}-in-{window}`.
+	 * Defaults to `{limit}-in-{window}`.
 	 */
 	identifier: string
 

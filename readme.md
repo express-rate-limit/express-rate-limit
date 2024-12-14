@@ -26,7 +26,7 @@ import { rateLimit } from 'express-rate-limit'
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
 	// store: ... , // Redis, Memcached, etc. See below.
 })
@@ -45,23 +45,24 @@ The rate limiter comes with a built-in memory store, and supports a variety of
 All function options may be async. Click the name for additional info and
 default values.
 
-| Option                     | Type                             | Remarks                                                                                         |
-| -------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [`windowMs`]               | `number`                         | How long to remember requests for, in milliseconds.                                             |
-| [`limit`]                  | `number` \| `function`           | How many requests to allow.                                                                     |
-| [`message`]                | `string` \| `json` \| `function` | Response to return after limit is reached.                                                      |
-| [`statusCode`]             | `number`                         | HTTP status code after limit is reached (default is 429).                                       |
-| [`handler`]                | `function`                       | Function to run after limit is reached (overrides `message` and `statusCode` settings, if set). |
-| [`legacyHeaders`]          | `boolean`                        | Enable the `X-Rate-Limit` header.                                                               |
-| [`standardHeaders`]        | `'draft-6'` \| `'draft-7'`       | Enable the `Ratelimit` header.                                                                  |
-| [`store`]                  | `Store`                          | Use a custom store to share hit counts across multiple nodes.                                   |
-| [`keyGenerator`]           | `function`                       | Identify users (defaults to IP address).                                                        |
-| [`requestPropertyName`]    | `string`                         | Add rate limit info to the `req` object.                                                        |
-| [`skip`]                   | `function`                       | Return `true` to bypass the limiter for the given request.                                      |
-| [`skipSuccessfulRequests`] | `boolean`                        | Uncount 1xx/2xx/3xx responses.                                                                  |
-| [`skipFailedRequests`]     | `boolean`                        | Uncount 4xx/5xx responses.                                                                      |
-| [`requestWasSuccessful`]   | `function`                       | Used by `skipSuccessfulRequests` and `skipFailedRequests`.                                      |
-| [`validate`]               | `boolean` \| `object`            | Enable or disable built-in validation checks.                                                   |
+| Option                     | Type                                      | Remarks                                                                                         |
+| -------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`windowMs`]               | `number`                                  | How long to remember requests for, in milliseconds.                                             |
+| [`limit`]                  | `number` \| `function`                    | How many requests to allow.                                                                     |
+| [`message`]                | `string` \| `json` \| `function`          | Response to return after limit is reached.                                                      |
+| [`statusCode`]             | `number`                                  | HTTP status code after limit is reached (default is 429).                                       |
+| [`handler`]                | `function`                                | Function to run after limit is reached (overrides `message` and `statusCode` settings, if set). |
+| [`legacyHeaders`]          | `boolean`                                 | Enable the `X-Rate-Limit` header.                                                               |
+| [`standardHeaders`]        | `'draft-6'` \| `'draft-7'` \| `'draft-8'` | Enable the `Ratelimit` header.                                                                  |
+| [`identifier`]             | `string` \| `function`                    | Name associated with the quota policy enforced by this rate limiter.                            |
+| [`store`]                  | `Store`                                   | Use a custom store to share hit counts across multiple nodes.                                   |
+| [`keyGenerator`]           | `function`                                | Identify users (defaults to IP address).                                                        |
+| [`requestPropertyName`]    | `string`                                  | Add rate limit info to the `req` object.                                                        |
+| [`skip`]                   | `function`                                | Return `true` to bypass the limiter for the given request.                                      |
+| [`skipSuccessfulRequests`] | `boolean`                                 | Uncount 1xx/2xx/3xx responses.                                                                  |
+| [`skipFailedRequests`]     | `boolean`                                 | Uncount 4xx/5xx responses.                                                                      |
+| [`requestWasSuccessful`]   | `function`                                | Used by `skipSuccessfulRequests` and `skipFailedRequests`.                                      |
+| [`validate`]               | `boolean` \| `object`                     | Enable or disable built-in validation checks.                                                   |
 
 ## Thank You
 
@@ -125,6 +126,8 @@ MIT © [Nathan Friedly](http://nfriedly.com/),
 	https://express-rate-limit.mintlify.app/reference/configuration#legacyheaders
 [`standardHeaders`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#standardheaders
+[`identifier`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#identifier
 [`store`]: https://express-rate-limit.mintlify.app/reference/configuration#store
 [`keyGenerator`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#keygenerator

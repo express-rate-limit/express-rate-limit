@@ -217,6 +217,14 @@ library in clients to read/parse any form of headers.
 
 Defaults to `false`.
 
+## `identifier`
+
+> `string | function`
+
+The name associated with the quota policy that this instance of the rate limiter enforces. It is used in the `RateLimit` and `RateLimit-Policy` headers when `standardHeaders` is set to `draft-8`, and ignored otherwise.
+
+Defaults to `{limit}-in-{window}`, e.g., `7-in-1.5sec`
+
 ## `store`
 
 > `Store`
@@ -391,6 +399,7 @@ Supported validations are:
   renamed to `max`, but the validation name did not change.)
 - [draftPolliHeaders](/reference/error-codes#wrn-erl-deprecated-draft-polli-headers)
 - [onLimitReached](/reference/error-codes#wrn-erl-deprecated-on-limit-reached)
+- [headersDraftVersion](/reference/error-codes#err-erl-headers-unsupported-draft-version)
 - [headersResetTime](/reference/error-codes#err-erl-headers-no-reset)
 - [creationStack](/reference/error-codes#err-erl-created-in-request-handler)
 - [validationsConfig](/reference/error-codes#err-erl-unknown-validation)

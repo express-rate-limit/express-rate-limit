@@ -158,13 +158,19 @@ prefixes.
 
 Set `validate: {singleCount: false}` in the options to disable the check.
 
+### `ERR_ERL_HEADERS_UNSUPPORTED_DRAFT_VERSION`
+
+> Added in `7.4.0`
+
+The library only implements the [sixth](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-06), [seventh](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07) and [eighth](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-08) drafts of the IETF RateLimit headers specification. If draft version other than `draft-6`, `draft-7`, or `draft-8` is passed to the `standardHeaders` option, this error is raised.
+
 ### `ERR_ERL_HEADERS_NO_RESET`
 
 > Added in `7.0.0`.
 
 The
 [seventh draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07)
-of the IETF RateLimit Headers specification makes `reset` a required field.
+of the IETF RateLimit headers specification makes `reset` a required field.
 However, the legacy `Store` API did not have a way for stores to provide this
 information.
 
