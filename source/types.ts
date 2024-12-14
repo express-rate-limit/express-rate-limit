@@ -281,7 +281,7 @@ export type Options = {
 	 *
 	 * Defaults to `{limit}-in-{window}`.
 	 */
-	identifier: string
+	identifier: string | ValueDeterminingMiddleware<string>
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.

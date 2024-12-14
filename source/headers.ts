@@ -35,25 +35,6 @@ const getResetSeconds = (
 }
 
 /**
- * Returns a humanised version of the duration of the window, to be used to name
- * the rate limiter in the policy header.
- *
- * @param windowMs {number} - The window length.
- */
-const getDurationInWords = (windowMs: number): string => {
-	const seconds = windowMs / 1000
-	const minutes = windowMs / (1000 * 60)
-	const hours = windowMs / (1000 * 60 * 60)
-	const days = windowMs / (1000 * 60 * 60 * 24)
-
-	if (seconds < 60) return `${seconds}sec`
-	if (minutes < 60) return `${minutes}min`
-	if (hours < 24) return `${hours}hr${hours > 1 ? 's' : ''}`
-
-	return `${days}day${days > 1 ? 's' : ''}`
-}
-
-/**
  * Returns the hash of the identifier, truncated to 12 bytes, and then converted
  * to base64 so that it can be used as a 16 byte partition key. The 16-byte limit
  * is arbitrary, and folllows from the examples given in the 8th draft.
@@ -153,24 +134,22 @@ export const setDraft7Headers = (
  * @param response {Response} - The express response object to set headers on.
  * @param info {RateLimitInfo} - The rate limit info, used to set the headers.
  * @param windowMs {number} - The window length.
- * @param identifier {string} - The name of the quota policy.
+ * @param name {string} - The name of the quota policy.
  * @param key {string} - The unique string identifying the client.
  */
 export const setDraft8Headers = (
 	response: Response,
 	info: RateLimitInfo,
 	windowMs: number,
-	id: string,
+	name: string,
 	key: string,
 ): void => {
 	if (response.headersSent) return
 
 	const windowSeconds = Math.ceil(windowMs / 1000)
 	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
-	const duration = getDurationInWords(windowMs)
 	const partitionKey = getPartitionKey(key)
 
-	const name = id === 'rl' ? `rl-${info.limit}-in-${duration}` : id
 	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
 	const header = `r=${info.remaining}; t=${resetSeconds!}`
 

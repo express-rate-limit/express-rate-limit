@@ -85,13 +85,13 @@ describe('headers test', () => {
 			}),
 		)
 
+		const policy = '"5-in-2hrs"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:'
+		const limit = '"5-in-2hrs"; r=4; t=7200'
+
 		await request(app)
 			.get('/')
-			.expect(
-				'ratelimit-policy',
-				'"rl-5-in-2hrs"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:',
-			)
-			.expect('ratelimit', '"rl-5-in-2hrs"; r=4; t=7200')
+			.expect('ratelimit-policy', policy)
+			.expect('ratelimit', limit)
 			.expect(200, 'Hi there!')
 	})
 
@@ -110,13 +110,10 @@ describe('headers test', () => {
 		])
 
 		const policies = [
-			'"rl-5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
-			'"rl-8-in-2day"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
+			'"5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
+			'"8-in-2days"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
 		]
-		const limits = [
-			'"rl-5-in-1min"; r=4; t=60',
-			'"rl-8-in-2day"; r=7; t=172800',
-		]
+		const limits = ['"5-in-1min"; r=4; t=60', '"8-in-2days"; r=7; t=172800']
 
 		await request(app)
 			.get('/')
