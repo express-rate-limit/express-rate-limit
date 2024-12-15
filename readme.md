@@ -56,6 +56,7 @@ default values.
 | [`standardHeaders`]        | `'draft-6'` \| `'draft-7'` \| `'draft-8'` | Enable the `Ratelimit` header.                                                                  |
 | [`identifier`]             | `string` \| `function`                    | Name associated with the quota policy enforced by this rate limiter.                            |
 | [`store`]                  | `Store`                                   | Use a custom store to share hit counts across multiple nodes.                                   |
+| [`passOnStoreError`]       | `boolean`                                 | Allow (`true`) or block (`false`, default) traffic if the store becomes unavailable.            |
 | [`keyGenerator`]           | `function`                                | Identify users (defaults to IP address).                                                        |
 | [`requestPropertyName`]    | `string`                                  | Add rate limit info to the `req` object.                                                        |
 | [`skip`]                   | `function`                                | Return `true` to bypass the limiter for the given request.                                      |
