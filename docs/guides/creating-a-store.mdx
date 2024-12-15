@@ -40,7 +40,7 @@ The `resetAll` method takes no arguments and sets the internal count for all
 keys to zero.
 
 The `prefix` field is used to avoid conflicts when the user creates multiple
-instances of the store for multple rate limits (e.g. 10 hits per minute and 60
+instances of the store for multiple rate limits (e.g. 10 hits per minute and 60
 hits per hour). Keys in the database should be prefixed with this value.
 `prefix` is generally passed as an option to the constructor. (The `singleCount`
 validation check also takes the `prefix` field into account and does not report

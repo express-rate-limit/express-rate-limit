@@ -369,6 +369,11 @@ export type Options = {
 	 * be removed from the library in the foreseeable future.
 	 */
 	max?: number | ValueDeterminingMiddleware<number>
+
+	/**
+	 * If the Store generates an error, allow the request to pass.
+	 */
+	passOnStoreError: boolean
 }
 
 /**

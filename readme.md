@@ -129,6 +129,8 @@ MIT © [Nathan Friedly](http://nfriedly.com/),
 [`identifier`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#identifier
 [`store`]: https://express-rate-limit.mintlify.app/reference/configuration#store
+[`passOnStoreError`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#passOnStoreError
 [`keyGenerator`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#keygenerator
 [`requestPropertyName`]:

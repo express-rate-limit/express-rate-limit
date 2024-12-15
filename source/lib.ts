@@ -117,6 +117,7 @@ type Configuration = {
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
 	store: Store
 	validations: Validations
+	passOnStoreError: boolean
 }
 
 /**
@@ -260,6 +261,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 				response.send(message)
 			}
 		},
+		passOnStoreError: false,
 		// Allow the default options to be overriden by the passed options.
 		...notUndefinedOptions,
 		// `standardHeaders` is resolved into a draft version above, use that.
@@ -349,8 +351,27 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
+
 			// Increment the client's hit counter by one.
-			const { totalHits, resetTime } = await config.store.increment(key)
+			let totalHits = 0
+			let resetTime
+			try {
+				const incrementResult = await config.store.increment(key)
+				totalHits = incrementResult.totalHits
+				resetTime = incrementResult.resetTime
+			} catch (error) {
+				if (config.passOnStoreError) {
+					console.error(
+						'express-rate-limit: error from store, allowing request without rate-limiting.',
+						error,
+					)
+					next()
+					return
+				}
+
+				throw error
+			}
+
 			// Make sure that -
 			// - the hit count is incremented only by one.
 			// - the returned hit count is a positive integer.

@@ -139,6 +139,24 @@ describe('middleware test', () => {
 		}
 	}
 
+	class StoreThrowingErrors implements Store {
+		init(_options: Options): void {}
+
+		async get(_key: string): Promise<ClientRateLimitInfo> {
+			throw new Error('Mock error')
+		}
+
+		async increment(_key: string): Promise<ClientRateLimitInfo> {
+			throw new Error('Mock error')
+		}
+
+		async decrement(_key: string): Promise<void> {}
+
+		async resetKey(_key: string): Promise<void> {}
+
+		async resetAll(): Promise<void> {}
+	}
+
 	it('should not modify the options object passed', () => {
 		const options = {}
 		rateLimit(options)
@@ -803,26 +821,27 @@ describe('middleware test', () => {
 			saveRequestObject,
 			rateLimit({
 				legacyHeaders: false,
+				limit: 6,
 			}),
 		])
 
 		await request(app).get('/').expect(200)
 		expect(savedRequestObject?.rateLimit).toMatchObject({
-			limit: 5,
+			limit: 6,
 			used: 1,
-			remaining: 4,
+			remaining: 5,
 			resetTime: expect.any(Date),
 		})
 
-		// Make sure the hidden proerty is also set.
+		// Make sure the hidden property is also set.
 		expect(savedRequestObject?.rateLimit.current).toBe(1)
 
 		savedRequestObject = undefined
 		await request(app).get('/').expect(200)
 		expect(savedRequestObject?.rateLimit).toMatchObject({
-			limit: 5,
+			limit: 6,
 			used: 2,
-			remaining: 3,
+			remaining: 4,
 			resetTime: expect.any(Date),
 		})
 		expect(savedRequestObject?.rateLimit.current).toBe(2)
@@ -940,5 +959,53 @@ describe('middleware test', () => {
 			.expect(429, 'Too many requests')
 		expect(savedRequestObject.rateLimitKey.remaining).toEqual(0)
 		expect(savedRequestObject.rateLimitGlobal.remaining).toEqual(0)
+	})
+
+	it('should not pass if the store throws an error by default', async () => {
+		const app = createServer(
+			rateLimit({
+				limit: 1,
+				store: new StoreThrowingErrors(),
+			}),
+		)
+		await request(app).get('/').expect(500)
+	})
+
+	it('should pass if the store throws an error and passOnStoreError is true', async () => {
+		jest.spyOn(console, 'error').mockImplementation(() => {})
+		const app = createServer(
+			rateLimit({
+				limit: 1,
+				store: new StoreThrowingErrors(),
+				passOnStoreError: true,
+			}),
+		)
+		await request(app).get('/').expect(200)
+		expect(console.error).toHaveBeenCalledTimes(1)
+		expect(console.error).toHaveBeenCalledWith(
+			expect.stringContaining('allowing'),
+			expect.any(Error),
+		)
+	})
+
+	it('should only call next once when passOnStoreError causes it to skip limiting', async () => {
+		jest.spyOn(console, 'error').mockImplementation(() => {})
+		const limiter = rateLimit({
+			limit: 1,
+			store: new StoreThrowingErrors(),
+			passOnStoreError: true,
+			validate: false,
+		})
+		const request = {}
+		const response = {}
+		const next: NextFunction = jest.fn() as NextFunction
+		// eslint-disable-next-line @typescript-eslint/await-thenable
+		await limiter(request as Request, response as Response, next)
+		expect(next).toHaveBeenCalledTimes(1)
+		expect(console.error).toHaveBeenCalledTimes(1)
+		expect(console.error).toHaveBeenCalledWith(
+			expect.stringContaining('allowing'),
+			expect.any(Error),
+		)
 	})
 })

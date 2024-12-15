@@ -62,15 +62,15 @@ Set `validate: {ip: false}` in the options to disable the check.
 
 > Added in `6.8.0`.
 
-This error is logged when the trust proxy setting is set to `true`.
+This error is logged when the `trust proxy` setting is set to `true`.
 
 If this is set to true, it will cause express to return the leftmost entry in
 the `X-Forwarded-For` header as the client's IP. This header could be set by the
 proxy or a malicious client, opening up avenues for bypassing the rate limiter.
 
 Refer to the
-[troubleshooting proxy issues](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues)
-page for a guide to set the `trust proxy` value correctly.
+[troubleshooting proxy issues](/guides/troubleshooting-proxy-issues) page for a
+guide to set the `trust proxy` value correctly.
 
 This check will be prevented if a custom `keyGenerator` is supplied.
 
@@ -81,12 +81,12 @@ Set `validate: {trustProxy: false}` in the options to disable the check.
 > Added in `6.8.0`.
 
 This error is logged when the `X-Forwarded-For` header is set (indicating use of
-a proxy), but the trust proxy setting is `false` (which is the default value).
+a proxy), but the `trust proxy` setting is `false` (which is the default value).
 
 This usually indicates a configuration issue that will cause express-rate-limit
 to apply it's limits global rather than on a per-user basis. Refer to the
-[troubleshooting proxy issues](https://github.com/express-rate-limit/express-rate-limit/wiki/Troubleshooting-Proxy-Issues)
-page for a guide to set the `trust proxy` value correctly.
+[troubleshooting proxy issues](/guides/troubleshooting-proxy-issues) page for a
+guide to set the `trust proxy` value correctly.
 
 If this error occurs only rarely, and you do not have a reverse proxy, it may
 indicate a malicious user probing for vulnerabilities.
@@ -114,7 +114,7 @@ Set `validate: {positiveHits: false}` in the options to disable the check.
 > Added in `7.3.0`.
 
 This indicates that the single [Store](./stores) instance was used in more than
-one rate limiter. This can lead to problems such as initialization logic runing
+one rate limiter. This can lead to problems such as initialization logic running
 multiple times, and inconsistent reset times.
 
 Instead, create a new store instance for each rate limiter. (Generally with a
@@ -299,9 +299,9 @@ Set `validate: {creationStack: false}` in the options to disable the check.
 > Added in `6.10.0`.
 
 In express-rate-limit version 6 and older, the rate limiter would be disabled
-when setting `limit` (now `max`) to `0` in the options. Starting with version
-`7.0.0`, this is no longer the case - the rate limiting will apply from the very
-first request instead. See
+when setting `limit` (previously `max` until version `7.0.0`) to `0` in the
+options. Starting with version `7.0.0`, this is no longer the case - the rate
+limiting will apply from the very first request instead. See
 [#369](https://github.com/express-rate-limit/express-rate-limit/discussions/369)
 for more information.
 
