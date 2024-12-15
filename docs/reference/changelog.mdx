@@ -9,6 +9,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.5.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.5.0)
+
+### Added
+
+- Implemented the combined `RateLimit` header according to the eighth draft of
+  the
+  [IETF RateLimit header specificiation](https://github.com/ietf-wg-httpapi/ratelimit-headers).
+  Enable by setting `standardHeaders: 'draft-8'`.
+- Added a new `identifier` option, used as the name for the quota policy in the
+  `draft-8` headers.
+- Added a new `headersDraftVersion` validation check to identifies cases where
+  an unsupported version string is passed to the `standardHeaders` option.
+
 ## [7.4.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.4.1)
 
 ### Fixed
