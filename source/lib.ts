@@ -19,6 +19,7 @@ import {
 	setLegacyHeaders,
 	setDraft6Headers,
 	setDraft7Headers,
+	setDraft8Headers,
 	setRetryAfterHeader,
 } from './headers.js'
 import { getValidations, type Validations } from './validations.js'
@@ -106,6 +107,7 @@ type Configuration = {
 	statusCode: number
 	legacyHeaders: boolean
 	standardHeaders: false | DraftHeadersVersion
+	identifier: string | ValueDeterminingMiddleware<string>
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
@@ -190,8 +192,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
 	// The default value for the `standardHeaders` option is `false`. If set to
-	// `true`, it resolve to `draft-6`. `draft-7` (recommended) is used only if
-	// explicitly set.
+	// `true`, it resolve to `draft-6`. `draft-7` and draft-8` (recommended) are
+	// used only if explicitly set.
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (standardHeaders === true) standardHeaders = 'draft-6'
 
@@ -203,6 +205,23 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
 		legacyHeaders: passedOptions.headers ?? true,
+		identifier(request: Request, _response: Response): string {
+			let duration = ''
+			const property = config.requestPropertyName
+
+			const { limit } = (request as AugmentedRequest)[property]
+			const seconds = config.windowMs / 1000
+			const minutes = config.windowMs / (1000 * 60)
+			const hours = config.windowMs / (1000 * 60 * 60)
+			const days = config.windowMs / (1000 * 60 * 60 * 24)
+
+			if (seconds < 60) duration = `${seconds}sec`
+			else if (minutes < 60) duration = `${minutes}min`
+			else if (hours < 24) duration = `${hours}hr${hours > 1 ? 's' : ''}`
+			else duration = `${days}day${days > 1 ? 's' : ''}`
+
+			return `${limit}-in-${duration}`
+		},
 		requestPropertyName: 'rateLimit',
 		skipFailedRequests: false,
 		skipSuccessfulRequests: false,
@@ -243,7 +262,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			}
 		},
 		passOnStoreError: false,
-		// Allow the default options to be overriden by the options passed to the middleware.
+		// Allow the default options to be overriden by the passed options.
 		...notUndefinedOptions,
 		// `standardHeaders` is resolved into a draft version above, use that.
 		standardHeaders,
@@ -394,11 +413,34 @@ const rateLimit = (
 			// Set the standardized `RateLimit-*` headers on the response object if
 			// enabled.
 			if (config.standardHeaders && !response.headersSent) {
-				if (config.standardHeaders === 'draft-6') {
-					setDraft6Headers(response, info, config.windowMs)
-				} else if (config.standardHeaders === 'draft-7') {
-					config.validations.headersResetTime(info.resetTime)
-					setDraft7Headers(response, info, config.windowMs)
+				switch (config.standardHeaders) {
+					case 'draft-6': {
+						setDraft6Headers(response, info, config.windowMs)
+						break
+					}
+
+					case 'draft-7': {
+						config.validations.headersResetTime(info.resetTime)
+						setDraft7Headers(response, info, config.windowMs)
+						break
+					}
+
+					case 'draft-8': {
+						const retrieveName =
+							typeof config.identifier === 'function'
+								? config.identifier(request, response)
+								: config.identifier
+						const name = await retrieveName
+
+						config.validations.headersResetTime(info.resetTime)
+						setDraft8Headers(response, info, config.windowMs, name, key)
+						break
+					}
+
+					default: {
+						config.validations.headersDraftVersion(config.standardHeaders)
+						break
+					}
 				}
 			}
 

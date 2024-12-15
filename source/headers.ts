@@ -1,8 +1,13 @@
 // /source/headers.ts
 // The header setting functions
 
+import { Buffer } from 'node:buffer'
+import { createHash } from 'node:crypto'
 import type { Response } from 'express'
 import type { RateLimitInfo } from './types.js'
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const SUPPORTED_DRAFT_VERSIONS = ['draft-6', 'draft-7', 'draft-8']
 
 /**
  * Returns the number of seconds left for the window to reset. Uses `windowMs`
@@ -27,6 +32,21 @@ const getResetSeconds = (
 	}
 
 	return resetSeconds
+}
+
+/**
+ * Returns the hash of the identifier, truncated to 12 bytes, and then converted
+ * to base64 so that it can be used as a 16 byte partition key. The 16-byte limit
+ * is arbitrary, and folllows from the examples given in the 8th draft.
+ *
+ * @param key {string} - The identifier to hash.
+ */
+const getPartitionKey = (key: string): string => {
+	const hash = createHash('sha256')
+	hash.update(key)
+
+	const partitionKey = hash.digest('hex').slice(0, 12)
+	return Buffer.from(partitionKey).toString('base64')
 }
 
 /**
@@ -105,6 +125,36 @@ export const setDraft7Headers = (
 		'RateLimit',
 		`limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds!}`,
 	)
+}
+
+/**
+ * Sets `RateLimit` & `RateLimit-Policy` headers based on the eighth draft of the spec.
+ * See https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-08.
+ *
+ * @param response {Response} - The express response object to set headers on.
+ * @param info {RateLimitInfo} - The rate limit info, used to set the headers.
+ * @param windowMs {number} - The window length.
+ * @param name {string} - The name of the quota policy.
+ * @param key {string} - The unique string identifying the client.
+ */
+export const setDraft8Headers = (
+	response: Response,
+	info: RateLimitInfo,
+	windowMs: number,
+	name: string,
+	key: string,
+): void => {
+	if (response.headersSent) return
+
+	const windowSeconds = Math.ceil(windowMs / 1000)
+	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
+	const partitionKey = getPartitionKey(key)
+
+	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
+	const header = `r=${info.remaining}; t=${resetSeconds!}`
+
+	response.append('RateLimit-Policy', `"${name}"; ${policy}`)
+	response.append('RateLimit', `"${name}"; ${header}`)
 }
 
 /**

@@ -3,6 +3,7 @@
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import type { Validations } from './validations.js'
+import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 
 /**
  * Callback that fires when a client's hit counter is incremented.
@@ -211,7 +212,7 @@ export type Store = {
 	prefix?: string
 }
 
-export type DraftHeadersVersion = 'draft-6' | 'draft-7'
+export type DraftHeadersVersion = (typeof SUPPORTED_DRAFT_VERSIONS)[number]
 
 /**
  * Validate configuration object for enabling or disabling specific validations.
@@ -273,6 +274,14 @@ export type Options = {
 	 * Defaults to `false` (for backward compatibility, but its use is recommended).
 	 */
 	standardHeaders: boolean | DraftHeadersVersion
+
+	/**
+	 * The name used to identify the quota policy in the `RateLimit` headers as per
+	 * the 8th draft of the IETF specification.
+	 *
+	 * Defaults to `{limit}-in-{window}`.
+	 */
+	identifier: string | ValueDeterminingMiddleware<string>
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.

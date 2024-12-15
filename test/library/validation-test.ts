@@ -275,6 +275,18 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('headersDraftVersion', () => {
+		it('should log an error if standardHeaders is an unsupported version', () => {
+			validations.headersDraftVersion('draft-2')
+			expect(console.error).toBeCalled()
+		})
+
+		it('should not log an error a valid version is passed as standardHeaders', () => {
+			validations.headersDraftVersion('draft-8')
+			expect(console.error).not.toBeCalled()
+		})
+	})
+
 	describe('headersResetTime', () => {
 		it('should log an error if resetTime is omitted', () => {
 			validations.headersResetTime(undefined)

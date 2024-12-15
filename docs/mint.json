@@ -76,6 +76,10 @@
 			"destination": "/reference/error-codes#err-erl-double-count"
 		},
 		{
+			"source": "/errors/err_erl_headers_unsupported_draft_version",
+			"destination": "/reference/error-codes#err-erl-headers-unsupported-draft-version"
+		},
+		{
 			"source": "/errors/err_erl_headers_no_reset",
 			"destination": "/reference/error-codes#err-erl-headers-no-reset"
 		},

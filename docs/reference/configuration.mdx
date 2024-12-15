@@ -162,7 +162,7 @@ is recommended to set it to `false` and use `standardHeaders` instead.
 
 ## `standardHeaders`
 
-> `boolean` | `'draft-6'` | `'draft-7'`
+> `boolean` | `'draft-6'` | `'draft-7'` | `'draft-8'`
 >
 > Renamed in `6.x` from `draft_polli_ratelimit_headers` to `standardHeaders`.
 
@@ -178,10 +178,25 @@ of the IETF rate limit header specification.
 
 If set to `draft-7`, a combined `RateLimit` header is set containing limit,
 remaining, and reset values, and a `RateLimit-Policy` header is set, in
-accordiance with the
+accordance with the
 [seventh draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07)
 of the IETF rate limit header specification. `windowMs` is used for the reset
 value if the store does not provide a reset time.
+
+If set to `draft-8`, a combined `RateLimit` header is set containing the
+remaining and reset values, along with a `RateLimit-Policy` header, is set for
+each rate limiter defined, in accordance with the
+[eigth draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-08)
+of the IETF rate limit header specification. The value of `windowMs` is used for
+the reset parameter if the store does not provide a reset time.
+
+<Warning>
+
+If set to generate `draft-7` or `draft-8` headers, make sure that you are using
+Express `v4.11` or later, as the implementation of these two drafts requires the
+`response.append` function.
+
+</Warning>
 
 If set to `true`, it is treated as `draft-6`, however, this behavior may change
 in a future semver major release.
@@ -201,6 +216,20 @@ library in clients to read/parse any form of headers.
 </Note>
 
 Defaults to `false`.
+
+## `identifier`
+
+> `string | function`
+
+The name associated with the quota policy that this instance of the rate limiter
+enforces. It is used in the `RateLimit` and `RateLimit-Policy` headers when
+`standardHeaders` is set to `draft-8`, and ignored otherwise.
+
+Can be the identifier itself as a string or a (sync/async) function that accepts
+the Express `req` and `res` objects and then returns a string.
+
+Defaults to a function that returns a string of the format
+`{limit}-in-{window}`, e.g., `7-in-1.5sec`.
 
 ## `store`
 
@@ -386,6 +415,7 @@ Supported validations are:
   renamed to `max`, but the validation name did not change.)
 - [draftPolliHeaders](/reference/error-codes#wrn-erl-deprecated-draft-polli-headers)
 - [onLimitReached](/reference/error-codes#wrn-erl-deprecated-on-limit-reached)
+- [headersDraftVersion](/reference/error-codes#err-erl-headers-unsupported-draft-version)
 - [headersResetTime](/reference/error-codes#err-erl-headers-no-reset)
 - [creationStack](/reference/error-codes#err-erl-created-in-request-handler)
 - [validationsConfig](/reference/error-codes#err-erl-unknown-validation)

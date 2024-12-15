@@ -76,6 +76,72 @@ describe('headers test', () => {
 			.expect(200, 'Hi there!')
 	})
 
+	it('should send correct headers for the standard draft 8', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 2 * 60 * 60 * 1000,
+				limit: 5,
+				standardHeaders: 'draft-8',
+			}),
+		)
+
+		const policy = '"5-in-2hrs"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:'
+		const limit = '"5-in-2hrs"; r=4; t=7200'
+
+		await request(app)
+			.get('/')
+			.expect('ratelimit-policy', policy)
+			.expect('ratelimit', limit)
+			.expect(200, 'Hi there!')
+	})
+
+	it('should send multiple headers correctly for the standard draft 8', async () => {
+		const app = createServer([
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 5,
+				standardHeaders: 'draft-8',
+			}),
+			rateLimit({
+				windowMs: 2 * 24 * 60 * 60 * 1000,
+				limit: 8,
+				standardHeaders: 'draft-8',
+			}),
+		])
+
+		const policies = [
+			'"5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
+			'"8-in-2days"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
+		]
+		const limits = ['"5-in-1min"; r=4; t=60', '"8-in-2days"; r=7; t=172800']
+
+		await request(app)
+			.get('/')
+			.expect('ratelimit-policy', policies.join(', '))
+			.expect('ratelimit', limits.join(', '))
+			.expect(200, 'Hi there!')
+	})
+
+	it('should override the quota name if specified for the standard draft 8', async () => {
+		const app = createServer(
+			rateLimit({
+				identifier: 'keep-kalm',
+				windowMs: 2 * 60 * 60 * 1000,
+				limit: 5,
+				standardHeaders: 'draft-8',
+			}),
+		)
+
+		await request(app)
+			.get('/')
+			.expect(
+				'ratelimit-policy',
+				'"keep-kalm"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:',
+			)
+			.expect('ratelimit', '"keep-kalm"; r=4; t=7200')
+			.expect(200, 'Hi there!')
+	})
+
 	it('should return the `retry-after` header once IP has reached the max', async () => {
 		const app = createServer(
 			rateLimit({
