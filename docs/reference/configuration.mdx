@@ -84,6 +84,17 @@ response objects and then returns a `string`, JSON object, etc.
 
 Defaults to `'Too many requests, please try again later.'`
 
+An example of sending a JSON object:
+
+```js
+app.use(
+	rateLimit({
+		message: { error: 'Too many requests, please try again later.' },
+		// ...
+	}),
+)
+```
+
 An example of using a function:
 
 ```ts
