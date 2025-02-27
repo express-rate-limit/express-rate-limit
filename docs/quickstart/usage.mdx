@@ -31,7 +31,7 @@ const { rateLimit } = require('express-rate-limit')
 
 </CodeGroup>
 
-### Using the Library
+### Using the Library in Express
 
 The `rateLimit` function accepts an options object and returns the rate limiting
 middleware.
@@ -47,7 +47,7 @@ const limiter = rateLimit({
 })
 ```
 
-Then use it in your Express application as follows:
+Then use it in your [Express](https://expressjs.com/) application as follows:
 
 ```ts
 app.use(limiter)
@@ -83,6 +83,15 @@ To fix this, take a look at the [guide](/guides/troubleshooting-proxy-issues) to
 troubleshooting proxy issues.
 
 </Warning>
+
+### Using the library in Next.js
+
+Although not officially supported, several individuals have been able to
+successfully use express-rate-limit in [Next.js](https://nextjs.org/) by
+defining a custom [`keyGenerator`](/reference/configuration#keygenerator) to
+return the user's IP (or some other identifier). However, additional changes
+changes are sometimes needed, such as
+[handling schema migrations with rate-limit-postgresql](https://github.com/express-rate-limit/rate-limit-postgresql/issues/36).
 
 ### Using External Stores
 
