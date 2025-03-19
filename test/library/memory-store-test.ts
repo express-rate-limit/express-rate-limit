@@ -64,6 +64,24 @@ describe.only('memory store test', () => {
 		expect(totalHits).toEqual(2)
 	})
 
+	test('resetKey should remove the key from storage', async () => {
+	const store = new MemoryStore()
+
+	// Increment the test key
+	await store.increment('test-key')
+
+	// Ensure the key exists before reset
+	let client = await store.get('test-key')
+	expect(client).toBeDefined()
+
+	// Reset the key
+	await store.resetKey('test-key')
+
+	// Ensure the key is removed after reset
+	client = await store.get('test-key')
+	expect(client).toBeUndefined()
+})
+
 	it('resets the count for a key in the store when `resetKey` is called', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: minute } as Options)
@@ -184,20 +202,4 @@ describe.only('memory store test', () => {
 	})
 })
 
-test('resetKey should remove the key from storage', async () => {
-	const store = new MemoryStore()
 
-	// Increment the test key
-	await store.increment('test-key')
-
-	// Ensure the key exists before reset
-	let client = await store.get('test-key')
-	expect(client).toBeDefined()
-
-	// Reset the key
-	await store.resetKey('test-key')
-
-	// Ensure the key is removed after reset
-	client = await store.get('test-key')
-	expect(client).toBeUndefined()
-})
