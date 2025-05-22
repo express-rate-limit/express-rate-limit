@@ -74,7 +74,7 @@
 		"prepare": "run-s compile && husky install config/husky"
 	},
 	"peerDependencies": {
-		"express": "^4.11 || 5 || ^5.0.0-beta.1"
+		"express": ">= 4.11"
 	},
 	"devDependencies": {
 		"@express-rate-limit/prettier": "1.1.1",
