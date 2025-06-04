@@ -236,6 +236,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.xForwardedForHeader(request)
 
 			// By default, use the IP address to rate limit users.
+			// note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			return request.ip!
 		},
 		async handler(
@@ -252,7 +254,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					? await (config.message as ValueDeterminingMiddleware<any>)(
 							request,
 							response,
-						)
+					  )
 					: config.message
 
 			// Send the response if writable.
@@ -261,12 +263,12 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			}
 		},
 		passOnStoreError: false,
-		// Allow the default options to be overriden by the passed options.
+		// Allow the default options to be overridden by the passed options.
 		...notUndefinedOptions,
 		// `standardHeaders` is resolved into a draft version above, use that.
 		standardHeaders,
 		// Note that this field is declared after the user's options are spread in,
-		// so that this field doesn't get overriden with an un-promisified store!
+		// so that this field doesn't get overridden with an un-promisified store!
 		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
 		// Print an error to the console if a few known misconfigurations are detected.
 		validations,
