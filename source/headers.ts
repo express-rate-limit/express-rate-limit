@@ -143,6 +143,7 @@ export const setDraft8Headers = (
 	windowMs: number,
 	name: string,
 	key: string,
+	// eslint-disable-next-line max-params
 ): void => {
 	if (response.headersSent) return
 
