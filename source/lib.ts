@@ -236,7 +236,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.xForwardedForHeader(request)
 
 			// By default, use the IP address to rate limit users.
-			return request.ip
+			// note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			return request.ip!
 		},
 		async handler(
 			request: Request,
