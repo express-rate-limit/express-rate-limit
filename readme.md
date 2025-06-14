@@ -59,7 +59,7 @@ default values.
 | [`store`]                  | `Store`                                   | Use a custom store to share hit counts across multiple nodes.                                   |
 | [`passOnStoreError`]       | `boolean`                                 | Allow (`true`) or block (`false`, default) traffic if the store becomes unavailable.            |
 | [`keyGenerator`]           | `function`                                | Identify users (defaults to IP address).                                                        |
-| [`ipv6Subnet`]             | `number` (32-64) \| `function`            | How many bits of IPv6 addresses to use in default `keyGenerator`                                |
+| [`ipv6Subnet`]             | `number` (32-64) \| `function` \| `false` | How many bits of IPv6 addresses to use in default `keyGenerator`                                |
 | [`requestPropertyName`]    | `string`                                  | Add rate limit info to the `req` object.                                                        |
 | [`skip`]                   | `function`                                | Return `true` to bypass the limiter for the given request.                                      |
 | [`skipSuccessfulRequests`] | `boolean`                                 | Uncount 1xx/2xx/3xx responses.                                                                  |
