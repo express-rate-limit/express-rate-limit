@@ -28,6 +28,7 @@ const limiter = rateLimit({
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
 	// store: ... , // Redis, Memcached, etc. See below.
 })
 
@@ -58,6 +59,7 @@ default values.
 | [`store`]                  | `Store`                                   | Use a custom store to share hit counts across multiple nodes.                                   |
 | [`passOnStoreError`]       | `boolean`                                 | Allow (`true`) or block (`false`, default) traffic if the store becomes unavailable.            |
 | [`keyGenerator`]           | `function`                                | Identify users (defaults to IP address).                                                        |
+| [`ipv6Subnet`]             | `number` (32-64) \| `function`            | How many bits of IPv6 addresses to use in default `keyGenerator`                                |
 | [`requestPropertyName`]    | `string`                                  | Add rate limit info to the `req` object.                                                        |
 | [`skip`]                   | `function`                                | Return `true` to bypass the limiter for the given request.                                      |
 | [`skipSuccessfulRequests`] | `boolean`                                 | Uncount 1xx/2xx/3xx responses.                                                                  |
