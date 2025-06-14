@@ -243,9 +243,12 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.trustProxy(request)
 			validations.xForwardedForHeader(request)
 
+			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			const ip: string = request.ip!
 			let subnet: number | false = 64
 
-			if (isIPv6(request.ip)) {
+			if (isIPv6(ip)) {
 				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
 				subnet =
 					typeof config.ipv6Subnet === 'function'
@@ -256,9 +259,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 				validations.ipv6Subnet(subnet)
 			}
 
-			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-			return ipKeyGenerator(request.ip!, subnet)
+			return ipKeyGenerator(ip, subnet)
 		},
 		ipv6Subnet: 56,
 		async handler(
