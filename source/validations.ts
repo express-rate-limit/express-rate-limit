@@ -3,7 +3,11 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
-import type { Store, EnabledValidations } from './types.js'
+import type {
+	Store,
+	EnabledValidations,
+	ValueDeterminingMiddleware,
+} from './types.js'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 
 /**
@@ -31,6 +35,11 @@ class ValidationError extends Error {
 		this.help = url
 	}
 }
+
+/**
+ * A warning logged for things that are unlikely but could be correct.
+ */
+class ValidationWarning extends ValidationError {}
 
 /**
  * A warning logged when the configuration used will/has been changed by a
@@ -343,6 +352,36 @@ const validations = {
 			)
 		}
 	},
+
+	ipv6Subnet(ipv6Subnet?: any) {
+		if (ipv6Subnet === false) {
+			return // Explicitly disabled
+		}
+
+		if (!Number.isInteger(ipv6Subnet) || ipv6Subnet < 32 || ipv6Subnet > 64) {
+			throw new ValidationError(
+				'ERR_ERL_INVALID_IPV6_SUBNET',
+				`Unexpected ipv6Subnet value: ${ipv6Subnet}. Expected an integer between 32 and 64 (usually 48-64).`,
+			)
+		}
+	},
+
+	keyGeneratorIpFallback(keyGenerator?: ValueDeterminingMiddleware<string>) {
+		if (!keyGenerator) {
+			return
+		}
+
+		const src = keyGenerator.toString()
+		if (
+			(src.includes('req.ip') || src.includes('request.ip')) &&
+			!src.includes('ipKeyGenerator')
+		) {
+			throw new ValidationWarning(
+				'WRN_ERL_KEY_GEN_IPV6',
+				`Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits.`,
+			)
+		}
+	},
 }
 
 export type Validations = typeof validations
@@ -392,7 +431,11 @@ export const getValidations = (
 						args,
 					)
 				} catch (error: any) {
-					if (error instanceof ChangeWarning) console.warn(error)
+					if (
+						error instanceof ChangeWarning ||
+						error instanceof ValidationWarning
+					)
+						console.warn(error)
 					else console.error(error)
 				}
 			}
