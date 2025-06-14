@@ -1,6 +1,7 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
+import { isIPv6 } from 'node:net'
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import type {
 	Options,
@@ -24,6 +25,7 @@ import {
 } from './headers.js'
 import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
+import { ipKeyGenerator } from './ip-key-generator.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -112,6 +114,7 @@ type Configuration = {
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
 	keyGenerator: ValueDeterminingMiddleware<string>
+	ipv6Subnet: number | ValueDeterminingMiddleware<number> | false
 	handler: RateLimitExceededEventHandler
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
@@ -191,6 +194,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// @ts-expect-error see the note above.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
+	// Warn for custom keyGenerator that uses req.ip without the ipKeyGenerator helper
+	validations.keyGeneratorIpFallback(notUndefinedOptions.keyGenerator)
+
 	// The default value for the `standardHeaders` option is `false`. If set to
 	// `true`, it resolve to `draft-6`. `draft-7` and draft-8` (recommended) are
 	// used only if explicitly set.
@@ -228,18 +234,33 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		requestWasSuccessful: (_request: Request, response: Response): boolean =>
 			response.statusCode < 400,
 		skip: (_request: Request, _response: Response): boolean => false,
-		keyGenerator(request: Request, _response: Response): string {
+		async keyGenerator(request: Request, response: Response): Promise<string> {
+			// By default, use the IP address (for IPv4) or subnet (for IPv6) to rate limit users.
+
 			// Run the validation checks on the IP and headers to make sure everything
 			// is working as intended.
 			validations.ip(request.ip)
 			validations.trustProxy(request)
 			validations.xForwardedForHeader(request)
 
-			// By default, use the IP address to rate limit users.
-			// note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
+			let subnet: number | false = 64
+
+			if (isIPv6(request.ip)) {
+				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
+				subnet =
+					typeof config.ipv6Subnet === 'function'
+						? await config.ipv6Subnet(request, response)
+						: config.ipv6Subnet
+
+				// Check that it's a valid subnet (1-128), warn if it's not in the normal range (32-64)
+				validations.ipv6Subnet(subnet)
+			}
+
+			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-			return request.ip!
+			return ipKeyGenerator(request.ip!, subnet)
 		},
+		ipv6Subnet: 56,
 		async handler(
 			request: Request,
 			response: Response,
@@ -393,6 +414,7 @@ const rateLimit = (
 				used: totalHits,
 				remaining: Math.max(limit - totalHits, 0),
 				resetTime,
+				key,
 			}
 
 			// Set the `current` property on the object, but hide it from iteration

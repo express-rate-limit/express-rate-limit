@@ -314,6 +314,41 @@ export type Options = {
 	keyGenerator: ValueDeterminingMiddleware<string>
 
 	/**
+	 * IPv6 subnet mask applied to IPv6 addresses in the default keyGenerator.
+	 *
+	 * Generally, ISPs that support IPv6 give each of their customers a range of IPv6 addresses, whereas they usually provide only a single IPv4 address per customer.
+	 * A malicious user could iterate through their range of IPv6 addresses and bypass simple IP-based ratel imiting.
+	 * This setting counteracts that by allowing the rate-limiter to block an entire range of IPv6 addresses at once.
+	 *
+	 * The default value is 56, corresponding to a /56 subnet.
+	 *
+	 * The valid range is 1-128, but typically ISPs assign subnets in the range of 32-64, with 64 being the most common. The validation check will warn for values outside the 32-64 range, (but can be disabled).
+	 *
+	 * In a 128 bit IPv6 address, the number of bits in this setting will be kept, and the rest will be ignored when determining the user's IP address.
+	 * A smaller number means the ISP is reserving fewer bits for their control and allowing a larger portion of the address to be in the customer's control, thereby allowing the customer to have a greater number of unique IPs.
+	 *
+	 * 56 is a moderately aggressive default. It may be increased to if users are being incorrectly blocked (try 60 or 64), or decreased if you are seeing evidence of abuse.
+	 * 64, 60 ([Comcast][1]), 56, and 48 are all common values used by various ISPs.
+	 *
+	 * The option may also be set to a function that returns the value if you want to apply different subnets to different different users.
+	 *
+	 * Set to false to disable and always use the IP without masking.
+	 *
+	 * [1]: https://news.ycombinator.com/item?id=44228908
+	 */
+	ipv6Subnet:
+		| 64 // A few common values, followed by number as a catch-all
+		| 60 // Apparently comcast allows customers to request up to a /60, which is effectively 16 /64s
+		| 56
+		| 52
+		| 50
+		| 48
+		| 32
+		| number // Todo: figure out how to do a "range type" to replace `number` with "1-128". (The validator limits to 32-64, but typescript should probably allow the whole range.)
+		| ValueDeterminingMiddleware<number>
+		| false
+
+	/**
 	 * Express request handler that sends back a response when a client is
 	 * rate-limited.
 	 *
@@ -330,7 +365,7 @@ export type Options = {
 	skip: ValueDeterminingMiddleware<boolean>
 
 	/**
-	 * Method to determine whether or not the request counts as 'succesful'. Used
+	 * Method to determine whether or not the request counts as 'successful'. Used
 	 * when either `skipSuccessfulRequests` or `skipFailedRequests` is set to true.
 	 *
 	 * By default, requests with a response status code less than 400 are considered
@@ -393,6 +428,7 @@ export type RateLimitInfo = {
 	used: number
 	remaining: number
 	resetTime: Date | undefined
+	key: string // IP address, etc.
 
 	/**
 	 * NOTE: The `current` field is deprecated and renamed to `used`. The library
