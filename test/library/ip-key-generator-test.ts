@@ -12,9 +12,9 @@ describe('ipKeyGenerator', () => {
 		).toBe('0123:4567:89ab:cdef:0123:4567:89ab:cdef')
 	})
 
-	it('should apply a default /64 netmask to an IPv6 address', () => {
+	it('should apply a default /56 netmask to an IPv6 address', () => {
 		expect(ipKeyGenerator('0123:4567:89ab:cdef:0123:4567:89ab:cdef')).toBe(
-			'123:4567:89ab:cdef::/64',
+			'123:4567:89ab:cd00::/56',
 		)
 	})
 
@@ -25,7 +25,7 @@ describe('ipKeyGenerator', () => {
 	})
 
 	it('should accept abbreviated IPv6 addresses', () => {
-		expect(ipKeyGenerator('123:ABC::89')).toBe('123:abc::/64')
+		expect(ipKeyGenerator('123:ABC::89')).toBe('123:abc::/56')
 	})
 
 	it('should return an IPv6 address normalized but otherwise unchanged with a /128 netmask', () => {
