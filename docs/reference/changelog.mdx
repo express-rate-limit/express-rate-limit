@@ -20,12 +20,12 @@ and this project adheres to
 
 - `ipKeyGenerator(ip, ipv6Subnet)` helper method to apply the desired subnet to
   IPv6 addresses (returns IPv4 unchanged).
-- `ipv6Subnet` configuration option used by the default `keyGenerator`, which
-  defaults to `56`.
+- `ipv6Subnet` configuration option used by the default `keyGenerator`, defaults
+  to `56`
 - `ipv6Subnet` validation check on above configuration option's value (allowed
-  range is 32-64).
+  range is 32-64)
 - `keyGeneratorIpFallback` validation check on custom `keyGenerator`s to ensure
-  they're using `ipKeyGenerator` if they reference `req.ip` or `request.ip`.
+  they're using `ipKeyGenerator` if they reference `req.ip` or `request.ip`
 
 ## [7.5.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.5.1)
 
