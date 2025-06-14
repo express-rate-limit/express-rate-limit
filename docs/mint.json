@@ -32,6 +32,7 @@
 			"pages": [
 				"reference/configuration",
 				"reference/stores",
+				"reference/helpers",
 				"reference/instance-api",
 				"reference/request-api",
 				"reference/error-codes",

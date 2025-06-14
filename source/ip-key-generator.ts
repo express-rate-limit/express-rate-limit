@@ -11,7 +11,7 @@ import iptools from 'ip'
  * @param ip request.ip
  * @param [ipv6Subnet=64] subnet mask for IPv6 addresses
  */
-export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 64) {
+export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 	if (ipv6Subnet && isIPv6(ip)) {
 		// For IPv6, return the network address of the subnet in CIDR format
 		return `${iptools.mask(

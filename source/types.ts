@@ -317,7 +317,7 @@ export type Options = {
 	 * IPv6 subnet mask applied to IPv6 addresses in the default keyGenerator.
 	 *
 	 * Generally, ISPs that support IPv6 give each of their customers a range of IPv6 addresses, whereas they usually provide only a single IPv4 address per customer.
-	 * A malicious user could iterate through their range of IPv6 addresses and bypass simple IP-based ratel imiting.
+	 * A malicious user could iterate through their range of IPv6 addresses and bypass simple IP-based rate limiting.
 	 * This setting counteracts that by allowing the rate-limiter to block an entire range of IPv6 addresses at once.
 	 *
 	 * The default value is 56, corresponding to a /56 subnet.

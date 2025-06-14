@@ -1,0 +1,32 @@
+---
+title: 'Helpers'
+icon: 'puzzle-piece'
+---
+
+## `ipKeyGenerator(ip, ipv6Subnet=56)`
+
+**Params:**
+*  `ip` (string) An IPv4 or IPv6 IP address
+* `ipv6Subnet` (number|false) Subnet mask to apply to IPv6 addresses. Valid range is 1-120, recommend range is 48-64.
+
+**Returns:** (string) IPv4 address unchanged, or IPv6 network address in CIDR notation. (Unless second parameter is `false`, then IPv6 is also returned unchanged).
+
+This method is used by the default [`keyGenerator`](./configuration#keygenerator) to apply the configured [`ipv6Subnet`](./configuration#ipv6subnet), in order to properly rate-limit IPv6 users.
+
+When using a custom [`keyGenerator`](./configuration#keygenerator) that uses the user's IP for rate-limiting (even as a fallback), return the result of this method rather than the IP address itself.
+
+```ts
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit
+const limiter = rateLimit({
+	// ...
+	keyGenerator: (req, res) => {
+        // use userID for authenticated users
+        if (userIsAuthenticate(req)) {
+            return req.userId
+        }
+        // fall back to IP address for unauthenticated users
+        // use ipKeyGenerator to apply a /56 subnet to IPv6 users (IPv4 returned unchanged)
+        return ipKeyGenerator(req.ip, 56)
+    },
+})
+```
