@@ -488,10 +488,10 @@ describe('validations tests', () => {
 			): string {
 				return (request.params.apikey || request.ip) as string
 			})
-			expect(console.warn).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'WRN_ERL_KEY_GEN_IPV6' }),
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_KEY_GEN_IPV6' }),
 			)
-			expect(console.error).not.toBeCalled()
 		})
 
 		it('should warn on a keyGenerator that uses request.ip', () => {
@@ -501,10 +501,10 @@ describe('validations tests', () => {
 			) {
 				return (request.params.apikey || request.ip) as string
 			})
-			expect(console.warn).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'WRN_ERL_KEY_GEN_IPV6' }),
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_KEY_GEN_IPV6' }),
 			)
-			expect(console.error).not.toBeCalled()
 		})
 
 		it('should not warn on a keyGenerator that uses request.ip and ipKeyGenerator', () => {
