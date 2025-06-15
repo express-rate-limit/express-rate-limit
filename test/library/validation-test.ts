@@ -43,7 +43,7 @@ describe('validations tests', () => {
 			expect(console.error).toBeCalled()
 		})
 
-		it('shoud log an error for an undefined IP', () => {
+		it('should log an error for an undefined IP', () => {
 			validations.ip(undefined)
 			expect(console.error).toBeCalled()
 		})
