@@ -37,11 +37,6 @@ class ValidationError extends Error {
 }
 
 /**
- * A warning logged for things that are unlikely but could be correct.
- */
-class ValidationWarning extends ValidationError {}
-
-/**
  * A warning logged when the configuration used will/has been changed by a
  * newly released version of the library.
  */
@@ -376,8 +371,8 @@ const validations = {
 			(src.includes('req.ip') || src.includes('request.ip')) &&
 			!src.includes('ipKeyGenerator')
 		) {
-			throw new ValidationWarning(
-				'WRN_ERL_KEY_GEN_IPV6',
+			throw new ValidationError(
+				'ERR_ERL_KEY_GEN_IPV6',
 				`Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits.`,
 			)
 		}
@@ -431,11 +426,7 @@ export const getValidations = (
 						args,
 					)
 				} catch (error: any) {
-					if (
-						error instanceof ChangeWarning ||
-						error instanceof ValidationWarning
-					)
-						console.warn(error)
+					if (error instanceof ChangeWarning) console.warn(error)
 					else console.error(error)
 				}
 			}
