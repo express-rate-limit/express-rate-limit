@@ -11,6 +11,14 @@ and this project adheres to
 
 ## [7.6.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.6.0)
 
+Note: a semver-patch version increment was chosen for this release when it could
+have been considered a minor or arguably even a major version change because we
+believe that the core issue is a bug in the library, and the changes are in
+service of fixing that bug. Additionally, there is evidence of a similar
+vulnerability being exploited in the wild, and precident for similar fixes being
+provide in patch releases for other software, e.g. Nextcloud server:
+https://www.cve.org/CVERecord?id=CVE-2021-22915
+
 ### Fixed
 
 - Fixed a vulnerability where IPv6 users could bypass rate limiting by
@@ -18,10 +26,10 @@ and this project adheres to
 
 ### Added
 
-- `ipKeyGenerator(ip, ipv6Subnet)` helper method to apply the desired subnet to
-  IPv6 addresses (returns IPv4 unchanged).
 - `ipv6Subnet` configuration option used by the default `keyGenerator`, defaults
   to `56`
+- `ipKeyGenerator(ip, ipv6Subnet)` helper method to apply the desired subnet to
+  IPv6 addresses (returns IPv4 unchanged)
 - `ipv6Subnet` validation check on above configuration option's value (allowed
   range is 32-64)
 - `keyGeneratorIpFallback` validation check on custom `keyGenerator`s to ensure
