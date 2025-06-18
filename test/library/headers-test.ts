@@ -82,10 +82,11 @@ describe('headers test', () => {
 				windowMs: 2 * 60 * 60 * 1000,
 				limit: 5,
 				standardHeaders: 'draft-8',
+				keyGenerator: (request, response) => 'foo', // Pk param is generated from this
 			}),
 		)
 
-		const policy = '"5-in-2hrs"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:'
+		const policy = '"5-in-2hrs"; q=5; w=7200; pk=:MmMyNmI0NmI2OGZm:'
 		const limit = '"5-in-2hrs"; r=4; t=7200'
 
 		await request(app)
@@ -101,17 +102,19 @@ describe('headers test', () => {
 				windowMs: 60 * 1000,
 				limit: 5,
 				standardHeaders: 'draft-8',
+				keyGenerator: (request, response) => 'foo', // Pk param is generated from this
 			}),
 			rateLimit({
 				windowMs: 2 * 24 * 60 * 60 * 1000,
 				limit: 8,
 				standardHeaders: 'draft-8',
+				keyGenerator: (request, response) => 'bar', // Alternate pk
 			}),
 		])
 
 		const policies = [
-			'"5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
-			'"8-in-2days"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
+			'"5-in-1min"; q=5; w=60; pk=:MmMyNmI0NmI2OGZm:',
+			'"8-in-2days"; q=8; w=172800; pk=:ZmNkZTJiMmVkYmE1:',
 		]
 		const limits = ['"5-in-1min"; r=4; t=60', '"8-in-2days"; r=7; t=172800']
 
@@ -129,6 +132,7 @@ describe('headers test', () => {
 				windowMs: 2 * 60 * 60 * 1000,
 				limit: 5,
 				standardHeaders: 'draft-8',
+				keyGenerator: (request, response) => 'foo', // Pk param is generated from this
 			}),
 		)
 
@@ -136,7 +140,7 @@ describe('headers test', () => {
 			.get('/')
 			.expect(
 				'ratelimit-policy',
-				'"keep-kalm"; q=5; w=7200; pk=:M2U0OGVmOWQyMmUw:',
+				'"keep-kalm"; q=5; w=7200; pk=:MmMyNmI0NmI2OGZm:',
 			)
 			.expect('ratelimit', '"keep-kalm"; r=4; t=7200')
 			.expect(200, 'Hi there!')
@@ -164,6 +168,7 @@ describe('headers test', () => {
 			used: 1,
 			remaining: 4,
 			resetTime: new Date(),
+			key: 'foo',
 		}
 		const windowMs = 60 * 1000
 
