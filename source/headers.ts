@@ -7,7 +7,11 @@ import type { Response } from 'express'
 import type { RateLimitInfo } from './types.js'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const SUPPORTED_DRAFT_VERSIONS = ['draft-6', 'draft-7', 'draft-8']
+export const SUPPORTED_DRAFT_VERSIONS = [
+	'draft-6',
+	'draft-7',
+	'draft-8',
+] as const
 
 /**
  * Returns the number of seconds left for the window to reset. Uses `windowMs`

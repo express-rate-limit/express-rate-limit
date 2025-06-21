@@ -261,6 +261,7 @@ const validations = {
 	headersDraftVersion(version?: any) {
 		if (
 			typeof version !== 'string' ||
+			// @ts-expect-error This is fine. If version is not in the array, it will just return false.
 			!SUPPORTED_DRAFT_VERSIONS.includes(version)
 		) {
 			const versionString = SUPPORTED_DRAFT_VERSIONS.join(', ')

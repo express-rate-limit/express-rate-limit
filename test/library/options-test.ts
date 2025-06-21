@@ -95,4 +95,11 @@ describe('options test', () => {
 			})
 		}).toThrowError(/store/)
 	})
+
+	it('should not allow an invalid standardHeaders option', async () => {
+		rateLimit({
+			// @ts-expect-error Check correct typing of standardHeaders
+			standardHeaders: 'not-a-valid-draft',
+		})
+	})
 })
