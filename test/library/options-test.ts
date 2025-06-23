@@ -98,7 +98,8 @@ describe('options test', () => {
 
 	it('should not allow an invalid standardHeaders option', async () => {
 		rateLimit({
-			// @ts-expect-error Check correct typing of standardHeaders
+			// @ts-expect-error Check if TSC can detect an invalid value for this option. If not, it
+			// will report that this is an unnecessary annotation.
 			standardHeaders: 'not-a-valid-draft',
 		})
 	})
