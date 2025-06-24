@@ -97,7 +97,6 @@
   },
   "prettier": "@express-rate-limit/prettier",
   "lint-staged": {
-    "*.{js,ts,json}": "biome check --write",
-    "*.{yaml,md}": "prettier --write"
+    "*.{js,ts,json,yaml,md}": "biome check --write"
   }
 }
