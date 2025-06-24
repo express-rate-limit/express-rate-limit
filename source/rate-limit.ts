@@ -1,29 +1,29 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
-import type { Request, Response, NextFunction, RequestHandler } from 'express'
-import type {
-	Options,
-	AugmentedRequest,
-	RateLimitRequestHandler,
-	LegacyStore,
-	Store,
-	ClientRateLimitInfo,
-	ValueDeterminingMiddleware,
-	RateLimitExceededEventHandler,
-	DraftHeadersVersion,
-	RateLimitInfo,
-	EnabledValidations,
-} from './types.js'
+import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import {
-	setLegacyHeaders,
 	setDraft6Headers,
 	setDraft7Headers,
 	setDraft8Headers,
+	setLegacyHeaders,
 	setRetryAfterHeader,
 } from './headers.js'
-import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
+import type {
+	AugmentedRequest,
+	ClientRateLimitInfo,
+	DraftHeadersVersion,
+	EnabledValidations,
+	LegacyStore,
+	Options,
+	RateLimitExceededEventHandler,
+	RateLimitInfo,
+	RateLimitRequestHandler,
+	Store,
+	ValueDeterminingMiddleware,
+} from './types.js'
+import { getValidations, type Validations } from './validations.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -139,8 +139,9 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 
 /**
  *
- * Remove any options where their value is set to undefined. This avoids overwriting defaults
- * in the case a user passes undefined instead of simply omitting the key.
+ * Remove any options where their value is set to undefined. This avoids
+ * overwriting defaults in the case a user passes undefined instead of simply
+ * omitting the key.
  *
  * @param passedOptions {Options} - The options to omit.
  *
@@ -155,9 +156,7 @@ const omitUndefinedOptions = (
 
 	for (const k of Object.keys(passedOptions)) {
 		const key = k as keyof Options
-
 		if (passedOptions[key] !== undefined) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			omittedOptions[key] = passedOptions[key]
 		}
 	}
@@ -236,8 +235,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.xForwardedForHeader(request)
 
 			// By default, use the IP address to rate limit users.
-			// note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			// biome-ignore lint/style/noNonNullAssertion: validations.ip is called above
 			return request.ip!
 		},
 		async handler(
@@ -254,7 +252,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					? await (config.message as ValueDeterminingMiddleware<any>)(
 							request,
 							response,
-					  )
+						)
 					: config.message
 
 			// Send the response if writable.

@@ -3,15 +3,15 @@
 
 // import { platform } from 'node:process'
 
-import { jest } from '@jest/globals'
-import type { Request, Response, NextFunction } from 'express'
+import { describe, expect, it, jest } from '@jest/globals'
+import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
 import rateLimit, {
-	type LegacyStore,
-	type Store,
-	type Options,
-	type IncrementCallback,
 	type ClientRateLimitInfo,
+	type IncrementCallback,
+	type LegacyStore,
+	type Options,
+	type Store,
 } from '../../source/index.js'
 import { createServer } from './helpers/create-server.js'
 
@@ -999,7 +999,6 @@ describe('middleware test', () => {
 		const request = {}
 		const response = {}
 		const next: NextFunction = jest.fn() as NextFunction
-		// eslint-disable-next-line @typescript-eslint/await-thenable
 		await limiter(request as Request, response as Response, next)
 		expect(next).toHaveBeenCalledTimes(1)
 		expect(console.error).toHaveBeenCalledTimes(1)
