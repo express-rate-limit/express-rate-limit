@@ -19,23 +19,23 @@ color_normal="\033[0m"
 # Define output helper functions
 # Print functions with different colors
 function print_success {
-	echo -e "${color_green}=> $1${color_normal}\n"
+	echo -e "${color_green}=> $1${color_normal}"
 }
 function print_warning {
-	echo -e "${color_yellow}=> $1${color_normal}\n"
+	echo -e "${color_yellow}=> $1${color_normal}"
 }
 function print_error {
-	echo -e "${color_red}=> $1${color_normal}\n"
+	echo -e "${color_red}=> $1${color_normal}"
 }
 function print_info {
-	echo -e "${color_cyan}=> $1${color_normal}\n"
+	echo -e "${color_cyan}=> $1${color_normal}"
 }
 
 # -- Utility Functions --
 
 # Recreates the docker containers needed for the external store tests. 
 function start_docker {
-	print_info "stopping docker containers"
+	print_info "stopping docker containers\n"
 	# Stop and delete any existing containers
 	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
@@ -43,7 +43,7 @@ function start_docker {
 	# Database directory for the mongo container
 	data_dir=$(mktemp -d 2>/dev/null || mktemp -d -t 'rate-limit-mongo-database')
 
-	print_info "restarting docker containers"
+	print_info "restarting docker containers\n"
 	# Start all the containers
 	docker run --name rate-limit-memcached -p 11211:11211 -d memcached
 	docker run --name rate-limit-mongo -p 27017:27017 -v $data_dir:/data/db -d mongo
@@ -52,6 +52,7 @@ function start_docker {
 	# Wait for a few seconds
 	sleep 10
 
+	echo
 	print_success "successfully started docker containers"
 }
 
@@ -68,7 +69,7 @@ function run_import_tests {
 		cd "$type-import"
 		
 		for dir in `ls -d */`; do
-			print_info "running $dir variation for $type imports (express 5)"
+			print_info "running $dir variation for $type imports (express 5)\n"
 			# cd into the example project
 			cd $dir
 
@@ -80,7 +81,7 @@ function run_import_tests {
 			echo
 			print_success "sucessfully ran $dir variation for $type imports (express 5)"
 
-			print_info "running $dir variation for $type imports (express 4)"
+			print_info "running $dir variation for $type imports (express 4)\n"
 			# Install Express v4
 			pnpm install express@4
 			# Run the tests with this version
@@ -157,7 +158,7 @@ function upgrade_dependencies {
 		for dir in `ls -d */`; do
 			print_info "upgrading dependencies of $type-import/$dir"
 			# cd into the example project
-			cd $dir
+			cd $dir; echo
 
 			# Get a fresh install of all node modules
 			rm -rf node_modules
