@@ -1,13 +1,20 @@
 // /test/memory-store-test.ts
 // Tests the built in memory store
 
-import { jest } from '@jest/globals'
-import MemoryStore from '../../source/memory-store.js'
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	jest,
+} from '@jest/globals'
 import type { Options } from '../../source/index.js'
+import MemoryStore from '../../source/memory-store.js'
 
 const minute = 60 * 1000
 
-describe.only('memory store test', () => {
+describe('memory store test', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
 		jest.spyOn(global, 'clearInterval')

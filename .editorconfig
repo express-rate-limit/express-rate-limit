@@ -17,4 +17,4 @@ tab_width = 2
 indent_style = tab
 
 [*.yaml]
-indent_style = spaces
+indent_style = space

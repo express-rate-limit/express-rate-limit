@@ -3,13 +3,13 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
-import type {
-	Store,
-	EnabledValidations,
-	ValueDeterminingMiddleware,
-	Options,
-} from './types.js'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
+import type {
+	EnabledValidations,
+	Options,
+	Store,
+	ValueDeterminingMiddleware,
+} from './types.js'
 
 /**
  * An error thrown/returned when a validation error occurs.
@@ -64,7 +64,6 @@ const singleCountKeys = new WeakMap<Request, Map<Store | string, string[]>>()
  * The validations that can be run, as well as the methods to run them.
  */
 const validations = {
-	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 	enabled: {
 		default: true,
 	} as { [key: string]: boolean }, // Should be EnabledValidations type, but that's a circular reference
@@ -328,7 +327,10 @@ const validations = {
 			'express-rate-limit validation check (set options.validate.creationStack=false to disable)',
 		)
 
-		if (stack?.includes('Layer.handle [as handle_request]')) {
+		if (
+			stack?.includes('Layer.handle [as handle_request]') || // express v4
+			stack?.includes('Layer.handleRequest') // express v5
+		) {
 			if (!store.localKeys) {
 				// This means the user is using an external store, which may be safe.
 				// Print out an error anyways, to alert them of the possibility that
@@ -417,10 +419,7 @@ export const getValidations = (
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-	const wrappedValidations = {
-		enabled,
-	} as Validations
+	const wrappedValidations = { enabled } as Validations
 	// Wrap all validations to handle disabling and thrown errors
 	for (const [name, validation] of Object.entries(validations)) {
 		if (typeof validation === 'function')

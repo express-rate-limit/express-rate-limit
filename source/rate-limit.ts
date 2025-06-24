@@ -1,32 +1,30 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
-import { isIPv6 } from 'node:net'
-import type { Request, Response, NextFunction, RequestHandler } from 'express'
-import type {
-	Options,
-	AugmentedRequest,
-	RateLimitRequestHandler,
-	LegacyStore,
-	Store,
-	ClientRateLimitInfo,
-	ValueDeterminingMiddleware,
-	RateLimitExceededEventHandler,
-	DraftHeadersVersion,
-	RateLimitInfo,
-	EnabledValidations,
-} from './types.js'
-import { omitUndefinedProperties } from './utils.js'
+import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import {
-	setLegacyHeaders,
 	setDraft6Headers,
 	setDraft7Headers,
 	setDraft8Headers,
+	setLegacyHeaders,
 	setRetryAfterHeader,
 } from './headers.js'
-import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
-import { ipKeyGenerator } from './ip-key-generator.js'
+import type {
+	AugmentedRequest,
+	ClientRateLimitInfo,
+	DraftHeadersVersion,
+	EnabledValidations,
+	LegacyStore,
+	Options,
+	RateLimitExceededEventHandler,
+	RateLimitInfo,
+	RateLimitRequestHandler,
+	Store,
+	ValueDeterminingMiddleware,
+} from './types.js'
+import { omitUndefinedProperties } from './utils.js'
+import { getValidations, type Validations } from './validations.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -228,24 +226,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.trustProxy(request)
 			validations.xForwardedForHeader(request)
 
-			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-			const ip: string = request.ip!
-			let subnet: number | false = 56
-
-			if (isIPv6(ip)) {
-				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
-				subnet =
-					typeof config.ipv6Subnet === 'function'
-						? await config.ipv6Subnet(request, response)
-						: config.ipv6Subnet
-
-				// If it was a function, check the output now (otherwise it got checked earlier)
-				if (typeof config.ipv6Subnet === 'function')
-					validations.ipv6Subnet(subnet)
-			}
-
-			return ipKeyGenerator(ip, subnet)
+			// By default, use the IP address to rate limit users.
+			// biome-ignore lint/style/noNonNullAssertion: validations.ip is called above
+			return request.ip!
 		},
 		ipv6Subnet: 56,
 		async handler(
@@ -262,7 +245,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					? await (config.message as ValueDeterminingMiddleware<any>)(
 							request,
 							response,
-					  )
+						)
 					: config.message
 
 			// Send the response if writable.

@@ -3,10 +3,10 @@
 
 import createServer from 'express'
 import {
-	rateLimit,
-	MemoryStore,
-	Store,
 	ClientRateLimitInfo,
+	MemoryStore,
+	rateLimit,
+	Store,
 } from 'express-rate-limit'
 
 export class TestStore implements Store {
