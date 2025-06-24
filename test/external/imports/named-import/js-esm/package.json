@@ -1,5 +1,5 @@
 {
-  "name": "express-rate-limit-example-js-esm",
+  "name": "express-rate-limit-example-named-import-js-esm",
   "version": "1.0.0",
   "description": "A minimal example (JS-ESM) of a project using the express-rate-limit package.",
   "type": "module",

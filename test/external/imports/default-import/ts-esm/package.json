@@ -1,5 +1,5 @@
 {
-  "name": "express-rate-limit-example-ts-esm",
+  "name": "express-rate-limit-example-default-import-ts-esm",
   "version": "1.0.0",
   "description": "A minimal example (TS-ESM) of a project using the express-rate-limit package.",
   "type": "module",

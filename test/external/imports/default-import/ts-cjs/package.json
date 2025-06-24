@@ -1,5 +1,5 @@
 {
-  "name": "express-rate-limit-example-ts-cjs",
+  "name": "express-rate-limit-example-default-import-ts-cjs",
   "version": "1.0.0",
   "description": "A minimal example (TS-CJS) of a project using the express-rate-limit package.",
   "scripts": {
