@@ -4,6 +4,6 @@
   "exclude": ["node_modules/"],
   "compilerOptions": {
     "target": "es2019",
-    "module": "nodenext"
+    "module": "es2022"
   }
 }
