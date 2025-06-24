@@ -56,4 +56,6 @@ app.use(
 	}),
 )
 
-app.get('/', (request, response) => response.send('Hello!'))
+app.get('/', (request, response) => {
+	response.send('Hello!')
+})

@@ -68,7 +68,7 @@ function run_import_tests {
 		cd "$type-import"
 		
 		for dir in `ls -d */`; do
-			print_info "running $dir variation for $type imports (express 4)"
+			print_info "running $dir variation for $type imports (express 5)"
 			# cd into the example project
 			cd $dir
 
@@ -78,18 +78,18 @@ function run_import_tests {
 			pnpm lint
 			pnpm test
 			echo
-			print_success "sucessfully ran $dir variation for $type imports (express 4)"
+			print_success "sucessfully ran $dir variation for $type imports (express 5)"
 
-			print_info "running $dir variation for $type imports (express 5)"
-			# Install Express v5
-			pnpm install express@5.0.0-beta.1
+			print_info "running $dir variation for $type imports (express 4)"
+			# Install Express v4
+			pnpm install express@4
 			# Run the tests with this version
 			pnpm lint
 			pnpm test
 			# Restore the version
 			git restore package.json pnpm-lock.yaml
 			echo
-			print_success "sucessfully ran $dir variation for $type imports (express 5)"
+			print_success "sucessfully ran $dir variation for $type imports (express 4)"
 
 			# Go back into the next variation
 			cd ../
@@ -118,16 +118,16 @@ function run_store_tests {
 	# Get a fresh install of all the node modules
 	pnpm install
 
-	print_info "running store tests (express 4)"
-	# Run the tests with Express v4
+	print_info "running store tests (express 5)"
+	# Run the tests with Express v5
 	pnpm test
 
 	# Restart the containers
 	start_docker
 
-	print_info "running store tests (express 5)"
-	# Install Express v5
-	pnpm install express@5.0.0-beta.1
+	print_info "running store tests (express 4)"
+	# Install Express v4
+	pnpm install express@4
 	# Run the tests with this version
 	pnpm test
 	# Restore the version
