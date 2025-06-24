@@ -20,10 +20,10 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 10
+      - name: Install dependencies
+        run: pnpm install
       - name: Check for lint/formatting errors
-        run: |
-          pnpm install
-          pnpm run lint
+        run: pnpm run lint
   test-library:
     name: Test (Library)
     strategy:
@@ -42,10 +42,10 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 10
+      - name: Install dependencies
+        run: pnpm install
       - name: Run library tests
-        run: |
-          pnpm install
-          pnpm run test:lib
+        run: pnpm run test:lib
   test-external:
     name: Test (External)
     strategy:
@@ -64,11 +64,12 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 10
+      - name: Install dependencies
+        run: pnpm install
+      - name: Package the library
+        run: pnpm pack
       - name: Run import and external store usage tests
-        run: |
-          pnpm install
-          pnpm pack
-          pnpm test:ext
+        run: pnpm test:ext
   publish:
     name: Publish
     needs: [lint, test-library, test-external]
