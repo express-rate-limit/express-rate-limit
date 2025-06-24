@@ -33,6 +33,9 @@ importers:
       '@types/express':
         specifier: ^5.0.3
         version: 5.0.3
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
       '@types/node':
         specifier: ^24.0.4
         version: 24.0.4
@@ -461,6 +464,9 @@ packages:
 
   '@types/istanbul-reports@3.0.4':
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
+
+  '@types/jest@30.0.0':
+    resolution: {integrity: sha512-XTYugzhuwqWjws0CVz8QpM36+T+Dz5mTEBKhNs/esGLnCIlGdRy+Dq78NRjd7ls7r8BC8ZRMOrKlkO1hU0JOwA==}
 
   '@types/memcached@2.2.7':
     resolution: {integrity: sha512-ImJbz1i8pl+OnyhYdIDnHe8jAuM8TOwM/7VsciqhYX3IL0jPPUToAtVxklfcWFGYckahEYZxhd9FS0z3MM1dpA==}
@@ -962,7 +968,7 @@ packages:
 
   express-rate-limit@file:../../..:
     resolution: {directory: ../../.., type: directory}
-    engines: {node: '>= 16'}
+    engines: {node: '>= 20'}
     peerDependencies:
       express: '>= 4.11'
 
@@ -2512,6 +2518,11 @@ snapshots:
   '@types/istanbul-reports@3.0.4':
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
+
+  '@types/jest@30.0.0':
+    dependencies:
+      expect: 30.0.2
+      pretty-format: 30.0.2
 
   '@types/memcached@2.2.7':
     dependencies:
