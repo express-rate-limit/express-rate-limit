@@ -9,7 +9,7 @@ import {
 	setLegacyHeaders,
 	setRetryAfterHeader,
 } from './headers.js'
-import MemoryStore from './memory-store.js'
+import { MemoryStore } from './memory-store.js'
 import type {
 	AugmentedRequest,
 	ClientRateLimitInfo,
