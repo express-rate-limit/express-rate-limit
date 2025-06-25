@@ -67,7 +67,7 @@
 		"test:ext": "cd test/external/ && bash run-all-tests",
 		"test": "run-s lint test:lib",
 		"pre-commit": "lint-staged",
-		"prepare": "run-s compile && husky install config/husky"
+		"prepare": "run-s compile && husky"
 	},
 	"peerDependencies": {
 		"express": ">= 4.11"
