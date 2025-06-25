@@ -217,7 +217,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.xForwardedForHeader(request)
 
 			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
-
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			const ip: string = request.ip!
 			let subnet: number | false = 56
 
@@ -249,7 +249,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					? await (config.message as ValueDeterminingMiddleware<any>)(
 							request,
 							response,
-						)
+					  )
 					: config.message
 
 			// Send the response if writable.
