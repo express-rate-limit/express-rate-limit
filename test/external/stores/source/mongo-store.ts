@@ -4,7 +4,7 @@
 import createServer from 'express'
 import rateLimit from 'express-rate-limit'
 
-// @ts-expect-error
+// @ts-expect-error - no type definitions
 import MongoStore from 'rate-limit-mongo'
 
 const app = createServer()
