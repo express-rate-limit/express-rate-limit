@@ -317,25 +317,32 @@ A malicious user could iterate through their range of IPv6 addresses and bypass
 simple IP-based rate limiting. This setting counteracts that by allowing the
 rate-limiter to block an entire range of IPv6 addresses at once.
 
-The default value is 56, corresponding to a /56 subnet. This means that in a
-128-bit IPv6 address, only the first 56 bits are considered for rate limiting.
-The remaining 72 bits are assumed to be under the end user's control and
-ignored.
+The default value is 56, corresponding to a /56 subnet.
 
-Technically the valid range is 1-128, but typically ISPs assign subnets in the
-range of 48-64, with 64 being the most common. A validation check will warn for
-values outside the 32-64 range, (but can be disabled).
+The valid range is 1-128, but typically ISPs assign subnets in the range of
+32-64, with 64 being the most common. The validation check (which can be
+disabled) will warn for values outside the 32-64 range.
 
-56 is a moderately aggressive default. If users are being incorrectly blocked,
-try 60 or 64. Alternatively, if you're seeing evidence of abuse, try 52 or 48.
+In a 128 bit IPv6 address, the number of bits in this setting will be kept, and
+the rest will be ignored when determining the user's IP address. A smaller
+number means the ISP is reserving fewer bits for their control and allowing a
+larger portion of the address to be in the customer's control, thereby allowing
+the customer to have a greater number of unique IPs.
+
+56 is the moderately aggressive default. It may be increased to if users are
+being incorrectly blocked (try 60 or 64), or decreased if you are seeing
+evidence of abuse.
+
+64, 60 ([Comcast](https://news.ycombinator.com/item?id=44228908)), 56, and 48
+are all common values used by various ISPs.
+
+The option may also be set to a function that returns the value if you want to
+apply different subnets to different users.
 
 Set to false to disable and always use the IP without masking.
 
-The option may also be set to a function that returns the value if you want to
-apply different subnets to different different users.
-
 This example uses the node.js built-in
-[net.BlockList](https://nodejs.org/api/net.html#class-netblocklist) to apply
+[`net.BlockList`](https://nodejs.org/api/net.html#class-netblocklist) to apply
 different subnets to different IP ranges:
 
 ```js
@@ -343,29 +350,24 @@ import { BlockList } from 'node:net'
 // or
 // const { BlockList } = require('node:net')
 
-const networks_60 = new BlockList()
-// comcast defaults to /64 but allows customers to request /60
-// non-exhaustive list, there are many more
-networks_60.addSubnet('2a0c:93c0:10::', 44, 'ipv6')
-networks_60.addSubnet('2a0c:93c0:6000::', 48, 'ipv6')
-networks_60.addSubnet('2a0c:93c0:6002::', 48, 'ipv6')
+// Comcast defaults to /64 but allows customers to request /60
+// (note that this is a non-exhaustive list, there are many more)
+const networks60 = new BlockList()
+networks60.addSubnet('2a0c:93c0:10::', 44, 'ipv6')
+networks60.addSubnet('2a0c:93c0:6000::', 48, 'ipv6')
+networks60.addSubnet('2a0c:93c0:6002::', 48, 'ipv6')
 
 // AWS allows customers to request up to a /44!
-// full list at https://ip-ranges.amazonaws.com/ip-ranges.json
-const networks_44 = new BlockList()
-networks_44.addSubnet('2600:1f69:7400::', 40, 'ipv6')
+// (the full list is at https://ip-ranges.amazonaws.com/ip-ranges.json)
+const networks44 = new BlockList()
+networks44.addSubnet('2600:1f69:7400::', 40, 'ipv6')
 
 app.use(
 	rateLimit({
 		ipv6Subnet: function (req, res) {
-			if (networks_60.check(req.ip, 'ipv6')) {
-				return 60
-			}
-			if (networks_44.check(req.ip, 'ipv6')) {
-				return 44
-			}
-			// fallback
-			return 56
+			if (networks60.check(req.ip, 'ipv6')) return 60
+			if (networks44.check(req.ip, 'ipv6')) return 44
+			return 56 // fallback
 		},
 		// ...
 	}),
