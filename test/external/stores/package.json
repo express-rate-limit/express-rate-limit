@@ -1,36 +1,36 @@
 {
-  "name": "express-rate-limit-example-stores",
-  "version": "1.0.0",
-  "description": "A minimal example project using external stores for the express-rate-limit package.",
-  "type": "module",
-  "scripts": {
-    "start": "node --loader ts-node/esm source/index.ts",
-    "lint": "eslint source/**/*.ts",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --forceExit"
-  },
-  "dependencies": {
-    "express": "5.1.0",
-    "express-rate-limit": "file:../../../",
-    "precise-memory-rate-limit": "latest",
-    "rate-limit-memcached": "latest",
-    "rate-limit-mongo": "latest",
-    "rate-limit-redis": "latest",
-    "redis": "latest"
-  },
-  "devDependencies": {
-    "@eslint/js": "9.29.0",
-    "@types/express": "5.0.3",
-    "@types/jest": "30.0.0",
-    "@types/node": "24.0.4",
-    "@types/supertest": "6.0.3",
-    "cross-env": "7.0.3",
-    "eslint": "9.29.0",
-    "globals": "16.2.0",
-    "jest": "30.0.2",
-    "supertest": "7.1.1",
-    "ts-jest": "29.4.0",
-    "ts-node": "10.9.2",
-    "typescript": "5.8.3",
-    "typescript-eslint": "8.35.0"
-  }
+	"name": "express-rate-limit-example-stores",
+	"version": "1.0.0",
+	"description": "A minimal example project using external stores for the express-rate-limit package.",
+	"type": "module",
+	"scripts": {
+		"start": "node --loader ts-node/esm source/index.ts",
+		"lint": "eslint source/**/*.ts",
+		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --forceExit"
+	},
+	"dependencies": {
+		"express": "5.1.0",
+		"express-rate-limit": "file:../../../",
+		"precise-memory-rate-limit": "latest",
+		"rate-limit-memcached": "latest",
+		"rate-limit-mongo": "latest",
+		"rate-limit-redis": "latest",
+		"redis": "latest"
+	},
+	"devDependencies": {
+		"@eslint/js": "9.29.0",
+		"@types/express": "5.0.3",
+		"@types/jest": "30.0.0",
+		"@types/node": "24.0.4",
+		"@types/supertest": "6.0.3",
+		"cross-env": "7.0.3",
+		"eslint": "9.29.0",
+		"globals": "16.2.0",
+		"jest": "30.0.2",
+		"supertest": "7.1.1",
+		"ts-jest": "29.4.0",
+		"ts-node": "10.9.2",
+		"typescript": "5.8.3",
+		"typescript-eslint": "8.35.0"
+	}
 }
