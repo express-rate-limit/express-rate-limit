@@ -8,11 +8,16 @@ import { agent as request } from 'supertest'
 import {
 	setDraft6Headers,
 	setDraft7Headers,
+	setDraft8Headers,
 	setLegacyHeaders,
 	setRetryAfterHeader,
 } from '../../source/headers.js'
 import rateLimit from '../../source/index.js'
-import type { RateLimitInfo } from '../../source/types.js'
+import type {
+	ClientRateLimitInfo,
+	RateLimitInfo,
+	Store,
+} from '../../source/types.js'
 import { createServer } from './helpers/create-server.js'
 
 describe('headers test', () => {
@@ -97,26 +102,39 @@ describe('headers test', () => {
 	})
 
 	it('should send multiple headers correctly for the standard draft 8', async () => {
+		const fiveSeconds = 5 * 1000
+		const oneMinute = 60 * 1000
+		const oneHour = 60 * 60 * 1000
+		const oneDay = 1 * 24 * 60 * 60 * 1000
+		const twoDays = 2 * 24 * 60 * 60 * 1000
+
 		const app = createServer([
 			rateLimit({
-				windowMs: 60 * 1000,
-				limit: 5,
-				standardHeaders: 'draft-8',
-				keyGenerator: (request, response) => 'foo', // Pk param is generated from this
-			}),
-			rateLimit({
-				windowMs: 2 * 24 * 60 * 60 * 1000,
-				limit: 8,
+				windowMs: fiveSeconds,
+				limit: 1,
 				standardHeaders: 'draft-8',
 				keyGenerator: (request, response) => 'bar', // Alternate pk
 			}),
+			rateLimit({ windowMs: oneMinute, limit: 5, standardHeaders: 'draft-8' }),
+			rateLimit({ windowMs: oneHour, limit: 6, standardHeaders: 'draft-8' }),
+			rateLimit({ windowMs: oneDay, limit: 7, standardHeaders: 'draft-8' }),
+			rateLimit({ windowMs: twoDays, limit: 8, standardHeaders: 'draft-8' }),
 		])
 
 		const policies = [
-			'"5-in-1min"; q=5; w=60; pk=:MmMyNmI0NmI2OGZm:',
-			'"8-in-2days"; q=8; w=172800; pk=:ZmNkZTJiMmVkYmE1:',
+			'"1-in-5sec"; q=1; w=5; pk=:M2U0OGVmOWQyMmUw:',
+			'"5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
+			'"6-in-1hr"; q=6; w=3600; pk=:M2U0OGVmOWQyMmUw:',
+			'"7-in-1day"; q=7; w=86400; pk=:M2U0OGVmOWQyMmUw:',
+			'"8-in-2days"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
 		]
-		const limits = ['"5-in-1min"; r=4; t=60', '"8-in-2days"; r=7; t=172800']
+		const limits = [
+			'"1-in-5sec"; r=0; t=5',
+			'"5-in-1min"; r=4; t=60',
+			'"6-in-1hr"; r=5; t=3600',
+			'"7-in-1day"; r=6; t=86400',
+			'"8-in-2days"; r=7; t=172800',
+		]
 
 		await request(app)
 			.get('/')
@@ -158,6 +176,22 @@ describe('headers test', () => {
 		await request(app).get('/').expect(429).expect('retry-after', '60')
 	})
 
+	it('should not set the `retry-after` header if all headers have been disabled', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				legacyHeaders: false,
+				standardHeaders: false,
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+
+		const response = await request(app).get('/').expect(429)
+		expect(response.get('retry-after')).toBeUndefined()
+	})
+
 	it('should not attempt to set headers if request.headersSent is true', () => {
 		const response: Response = {
 			headersSent: true,
@@ -171,13 +205,71 @@ describe('headers test', () => {
 			key: 'foo',
 		}
 		const windowMs = 60 * 1000
+		const name = 'test-quota'
+		const key = 'foo'
 
 		setLegacyHeaders(response, info)
 		setDraft6Headers(response, info, windowMs)
 		setDraft7Headers(response, info, windowMs)
+		setDraft8Headers(response, info, windowMs, name, key)
 		setRetryAfterHeader(response, info, windowMs)
 
 		expect(response.setHeader).not.toHaveBeenCalled()
+	})
+
+	it('should not send headers for an incorrect draft number', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 2 * 60 * 60 * 1000,
+				limit: 5,
+				// @ts-expect-error Check if the library ignores invalid draft numbers.
+				standardHeaders: 'invalid-draft',
+				validate: { headersDraftVersion: false },
+			}),
+		)
+
+		const response = await request(app).get('/').expect(200, 'Hi there!')
+		expect(response.get('ratelimit')).toBeUndefined()
+		expect(response.get('ratelimit-policy')).toBeUndefined()
+	})
+
+	describe('support for stores that do not provide reset time', () => {
+		class MockStore implements Store {
+			hits: Map<string, number> = new Map()
+
+			async get(key: string): Promise<ClientRateLimitInfo> {
+				return {
+					totalHits: this.hits.get(key) ?? 0,
+					resetTime: undefined,
+				}
+			}
+
+			async increment(key: string): Promise<ClientRateLimitInfo> {
+				const count = (this.hits.get(key) ?? 0) + 1
+				this.hits.set(key, count)
+
+				return { totalHits: count, resetTime: undefined }
+			}
+
+			async decrement(_key: string): Promise<void> {}
+
+			async resetKey(_key: string): Promise<void> {}
+		}
+
+		it('should set the `retry-after` header to the value of `windowMs` in seconds instead', async () => {
+			const app = createServer(
+				rateLimit({
+					windowMs: 60 * 1000,
+					limit: 1,
+					store: new MockStore(),
+					legacyHeaders: true,
+					standardHeaders: true,
+				}),
+			)
+
+			await request(app).get('/').expect(200)
+			await request(app).get('/').expect(429).expect('retry-after', '60')
+		})
 	})
 
 	describe('ratelimit-header-parser compatibility', () => {

@@ -29,6 +29,20 @@ describe('options test', () => {
 		async resetKey(_key: string): Promise<void> {}
 	}
 
+	it('should allow an empty options object', async () => {
+		expect(rateLimit()).not.toThrow()
+	})
+
+	it('should ignore options that are set to `undefined`', async () => {
+		const store = new MockStore()
+		rateLimit({
+			store,
+			limit: undefined,
+		})
+
+		expect(store.options.limit).toEqual(5)
+	})
+
 	// TODO: Update in v7.
 	it('should allow the use of pre-6.x headers options', async () => {
 		const store = new MockStore()
