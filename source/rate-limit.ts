@@ -1,29 +1,29 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
-import type { Request, Response, NextFunction, RequestHandler } from 'express'
-import type {
-	Options,
-	AugmentedRequest,
-	RateLimitRequestHandler,
-	LegacyStore,
-	Store,
-	ClientRateLimitInfo,
-	ValueDeterminingMiddleware,
-	RateLimitExceededEventHandler,
-	DraftHeadersVersion,
-	RateLimitInfo,
-	EnabledValidations,
-} from './types.js'
+import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import {
-	setLegacyHeaders,
 	setDraft6Headers,
 	setDraft7Headers,
 	setDraft8Headers,
+	setLegacyHeaders,
 	setRetryAfterHeader,
 } from './headers.js'
+import { MemoryStore } from './memory-store.js'
+import type {
+	AugmentedRequest,
+	ClientRateLimitInfo,
+	DraftHeadersVersion,
+	EnabledValidations,
+	LegacyStore,
+	Options,
+	RateLimitExceededEventHandler,
+	RateLimitInfo,
+	RateLimitRequestHandler,
+	Store,
+	ValueDeterminingMiddleware,
+} from './types.js'
 import { getValidations, type Validations } from './validations.js'
-import MemoryStore from './memory-store.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -64,6 +64,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 						totalHits: number,
 						resetTime: Date | undefined,
 					) => {
+						/* istanbul ignore if */
 						if (error) reject(error)
 						resolve({ totalHits, resetTime })
 					},
@@ -139,8 +140,9 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 
 /**
  *
- * Remove any options where their value is set to undefined. This avoids overwriting defaults
- * in the case a user passes undefined instead of simply omitting the key.
+ * Remove any options where their value is set to undefined. This avoids
+ * overwriting defaults in the case a user passes undefined instead of simply
+ * omitting the key.
  *
  * @param passedOptions {Options} - The options to omit.
  *
@@ -155,9 +157,7 @@ const omitUndefinedOptions = (
 
 	for (const k of Object.keys(passedOptions)) {
 		const key = k as keyof Options
-
 		if (passedOptions[key] !== undefined) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			omittedOptions[key] = passedOptions[key]
 		}
 	}
@@ -236,8 +236,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.xForwardedForHeader(request)
 
 			// By default, use the IP address to rate limit users.
-			// note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+			// biome-ignore lint/style/noNonNullAssertion: validations.ip is called above
 			return request.ip!
 		},
 		async handler(
@@ -254,13 +253,12 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					? await (config.message as ValueDeterminingMiddleware<any>)(
 							request,
 							response,
-					  )
+						)
 					: config.message
 
 			// Send the response if writable.
-			if (!response.writableEnded) {
-				response.send(message)
-			}
+			/* istanbul ignore else */
+			if (!response.writableEnded) response.send(message)
 		},
 		passOnStoreError: false,
 		// Allow the default options to be overridden by the passed options.
@@ -308,7 +306,7 @@ const handleAsyncErrors =
 			await Promise.resolve(fn(request, response, next)).catch(next)
 		} catch (error: unknown) {
 			/* istanbul ignore next */
-			next(error)
+			if (next) next(error)
 		}
 	}
 
@@ -450,6 +448,9 @@ const rateLimit = (
 			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
 				let decremented = false
 				const decrementKey = async () => {
+					// This could have been tested properly if the response.on('error') test
+					// worked as well, leaving it as a todo.
+					/* istanbul ignore else */
 					if (!decremented) {
 						await config.store.decrement(key)
 						decremented = true
@@ -461,9 +462,19 @@ const rateLimit = (
 						if (!(await config.requestWasSuccessful(request, response)))
 							await decrementKey()
 					})
+
+					// NOTE: A test in library/middleware-test.ts tests this, but it was
+					// disabled for being too flaky.
+					/* istanbul ignore next */
 					response.on('close', async () => {
 						if (!response.writableEnded) await decrementKey()
 					})
+
+					// NOTE: this may not be useful. None of the tests can trigger this
+					// callback (see `/crash` endpoint in test/library/helpers/create-server).
+					// Perhaps it is similar to the case described in this issue comment:
+					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
+					/* istanbul ignore next */
 					response.on('error', async () => {
 						await decrementKey()
 					})

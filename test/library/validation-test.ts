@@ -2,18 +2,18 @@
 // Tests the validation functions
 
 import {
-	expect,
-	jest,
-	describe,
-	it,
-	beforeEach,
 	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	jest,
 } from '@jest/globals'
 import express from 'express'
 import supertest from 'supertest'
-import { getValidations } from '../../source/validations.js'
-import type { Store } from '../../source/types'
 import { MemoryStore } from '../../source/index.js'
+import type { Store } from '../../source/types'
+import { getValidations } from '../../source/validations.js'
 
 describe('validations tests', () => {
 	let validations = getValidations(true)
@@ -30,39 +30,39 @@ describe('validations tests', () => {
 	describe('ip', () => {
 		it('should allow a valid IPv4', () => {
 			validations.ip('1.2.3.4')
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should allow a valid IPv6', () => {
 			validations.ip('1200:0000:AB00:1234:0000:2552:7777:1313')
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should log an error for an invalid IP', () => {
 			validations.ip('badip')
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('shoud log an error for an undefined IP', () => {
 			validations.ip(undefined)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should log an error for an IPv4 with a port', () => {
 			validations.ip('1.2.3.4:1234')
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should log an error for an IPv6 with a port', () => {
 			validations.ip('[1200:0000:AB00:1234:0000:2552:7777:1313]:1234')
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 	})
 
 	describe('trustProxy', () => {
 		it('should log an error on "trust proxy" = true', () => {
 			validations.trustProxy({ app: { get: () => true } } as any)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should not log an error on "trust proxy" != true', () => {
@@ -70,7 +70,7 @@ describe('validations tests', () => {
 			validations.trustProxy({ app: { get: () => '1.2.3.4' } } as any)
 			validations.trustProxy({ app: { get: () => /1.2.3.4/ } } as any)
 			validations.trustProxy({ app: { get: () => ['1.2.3.4'] } } as any)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
@@ -88,35 +88,35 @@ describe('validations tests', () => {
 				app: { get: () => false },
 				headers: {},
 			} as any)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 
 			validations.xForwardedForHeader({
 				app: { get: () => false },
 				headers: { 'x-forwarded-for': '1.2.3.4' },
 			} as any)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 	})
 
 	describe('positiveHits', () => {
 		it('should log an error if hits is non-numeric', () => {
 			validations.positiveHits(true)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should log an error if hits is less than 1', () => {
 			validations.positiveHits(0)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should log an error if hits is not an integer', () => {
 			validations.positiveHits(1.5)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should not log an error if hits is a positive integer', () => {
 			validations.positiveHits(1)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
@@ -125,11 +125,25 @@ describe('validations tests', () => {
 			const store = { localKeys: true }
 
 			validations.unsharedStore(store as Store)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 			validations.unsharedStore(store as Store)
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_STORE_REUSE',
+				}),
+			)
+		})
+
+		it('should log a different error for stores without local keys', () => {
+			const store = { localKeys: false }
+
+			validations.unsharedStore(store as Store)
+			expect(console.error).not.toHaveBeenCalled()
+			validations.unsharedStore(store as Store)
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({
+					code: 'ERR_ERL_STORE_REUSE',
+					message: expect.stringContaining('unique prefix'),
 				}),
 			)
 		})
@@ -140,7 +154,7 @@ describe('validations tests', () => {
 
 			validations.unsharedStore(store1 as Store)
 			validations.unsharedStore(store2 as Store)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
@@ -155,7 +169,7 @@ describe('validations tests', () => {
 			const key = '1.2.3.4'
 
 			validations.singleCount(request as any, store as Store, key)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 			validations.singleCount(request as any, store as Store, key)
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -170,7 +184,7 @@ describe('validations tests', () => {
 			const key = '1.2.3.4'
 
 			validations.singleCount(request as any, store as Store, key)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 			validations.singleCount(request as any, store as Store, key)
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -187,7 +201,7 @@ describe('validations tests', () => {
 
 			validations.singleCount(request as any, store1 as Store, key)
 			validations.singleCount(request as any, store2 as Store, key)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should log an error if a request is double-counted with separate instances of an external store', () => {
@@ -212,9 +226,9 @@ describe('validations tests', () => {
 			const key = '1.2.3.4'
 
 			validations.singleCount(request1 as any, store as Store, key)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 			validations.singleCount(request2 as any, store as Store, key)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should not log an error if a request is double-counted with separate instances of an external store with different prefixes', () => {
@@ -227,75 +241,75 @@ describe('validations tests', () => {
 
 			validations.singleCount(request as any, store1 as Store, key)
 			validations.singleCount(request as any, store2 as Store, key)
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('limit', () => {
 		it('should log a warning if max is set to 0', () => {
 			validations.limit(0)
-			expect(console.warn).toBeCalled()
+			expect(console.warn).toHaveBeenCalled()
 		})
 
 		it('should not log a warning if max is set to a non zero number', () => {
 			validations.limit(3)
-			expect(console.warn).not.toBeCalled()
+			expect(console.warn).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('onLimitReached', () => {
 		it('should log a warning if onLimitReached is set', () => {
 			validations.onLimitReached(() => {})
-			expect(console.warn).toBeCalled()
-			expect(console.error).not.toBeCalled()
+			expect(console.warn).toHaveBeenCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should not log a warning if onLimitReached is unset', () => {
 			validations.onLimitReached(undefined)
-			expect(console.warn).not.toBeCalled()
-			expect(console.error).not.toBeCalled()
+			expect(console.warn).not.toHaveBeenCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('draft_polli_ratelimit_headers', () => {
 		it('should log a warning if draft_polli_ratelimit_headers is set', () => {
 			validations.draftPolliHeaders(true)
-			expect(console.warn).toBeCalled()
-			expect(console.error).not.toBeCalled()
+			expect(console.warn).toHaveBeenCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should not log a warning if draft_polli_ratelimit_headers is unset or false', () => {
 			validations.draftPolliHeaders(false)
-			expect(console.warn).not.toBeCalled()
-			expect(console.error).not.toBeCalled()
+			expect(console.warn).not.toHaveBeenCalled()
+			expect(console.error).not.toHaveBeenCalled()
 
 			validations.draftPolliHeaders(undefined)
-			expect(console.warn).not.toBeCalled()
-			expect(console.error).not.toBeCalled()
+			expect(console.warn).not.toHaveBeenCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('headersDraftVersion', () => {
 		it('should log an error if standardHeaders is an unsupported version', () => {
 			validations.headersDraftVersion('draft-2')
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should not log an error a valid version is passed as standardHeaders', () => {
 			validations.headersDraftVersion('draft-8')
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('headersResetTime', () => {
 		it('should log an error if resetTime is omitted', () => {
 			validations.headersResetTime(undefined)
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 
 		it('should not log an error if resetTime is set', () => {
 			validations.headersResetTime(new Date())
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
@@ -304,7 +318,7 @@ describe('validations tests', () => {
 			validations = getValidations({ invalid: false } as any)
 
 			validations.validationsConfig()
-			expect(console.error).toBeCalled()
+			expect(console.error).toHaveBeenCalled()
 		})
 		it('should log an error if an unknown validation is enabled', () => {
 			validations = getValidations({ invalid: false } as any)
@@ -322,7 +336,7 @@ describe('validations tests', () => {
 			})
 
 			validations.validationsConfig()
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 		it('should not run if disabled by config', () => {
 			validations = getValidations({
@@ -331,7 +345,7 @@ describe('validations tests', () => {
 			} as any)
 
 			validations.validationsConfig()
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 		it('should not run if disabled by default', () => {
 			validations = getValidations({
@@ -340,7 +354,7 @@ describe('validations tests', () => {
 			} as any)
 
 			validations.validationsConfig()
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 		it('should run if enabled by config with default: false', () => {
 			validations = getValidations({
@@ -361,14 +375,14 @@ describe('validations tests', () => {
 			const disabledValidator = getValidations(false)
 
 			disabledValidator.ip('badip')
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 
 		it('should do nothing after disable() is called', () => {
 			validations.disable()
 
 			validations.ip('badip')
-			expect(console.error).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
@@ -386,7 +400,7 @@ describe('validations tests', () => {
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER' }),
 			)
-			expect(console.warn).not.toBeCalled()
+			expect(console.warn).not.toHaveBeenCalled()
 		})
 
 		it('should log a different error when used with an external store', async () => {
@@ -402,15 +416,15 @@ describe('validations tests', () => {
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER' }),
 			)
-			expect(console.warn).not.toBeCalled()
+			expect(console.warn).not.toHaveBeenCalled()
 		})
 
 		it('should not log an error if called elsewhere', async () => {
 			const store = new MemoryStore()
 
 			validations.creationStack(store)
-			expect(console.error).not.toBeCalled()
-			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toHaveBeenCalled()
+			expect(console.warn).not.toHaveBeenCalled()
 		})
 	})
 })

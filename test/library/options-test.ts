@@ -1,10 +1,11 @@
 // /test/options-test.ts
 // Tests parsing/handling of options passed in by the user
 
+import { describe, expect, it } from '@jest/globals'
 import rateLimit, {
-	type Store,
-	type Options,
 	type ClientRateLimitInfo,
+	type Options,
+	type Store,
 } from '../../source/index.js'
 
 describe('options test', () => {
@@ -27,6 +28,20 @@ describe('options test', () => {
 
 		async resetKey(_key: string): Promise<void> {}
 	}
+
+	it('should allow an empty options object', async () => {
+		expect(rateLimit()).not.toThrow()
+	})
+
+	it('should ignore options that are set to `undefined`', async () => {
+		const store = new MockStore()
+		rateLimit({
+			store,
+			limit: undefined,
+		})
+
+		expect(store.options.limit).toEqual(5)
+	})
 
 	// TODO: Update in v7.
 	it('should allow the use of pre-6.x headers options', async () => {
@@ -69,7 +84,7 @@ describe('options test', () => {
 				// @ts-expect-error Check if the library can detect invalid stores without TSC's help
 				store: new InvalidStore(),
 			})
-		}).toThrowError(/store/)
+		}).toThrow(/store/)
 	})
 
 	it('should not call `init` if it is not a function', async () => {
@@ -93,7 +108,7 @@ describe('options test', () => {
 				// @ts-expect-error Check if the library can detect invalid stores without TSC's help
 				store: new InvalidStore(),
 			})
-		}).toThrowError(/store/)
+		}).toThrow(/store/)
 	})
 
 	it('should not allow an invalid standardHeaders option', async () => {
