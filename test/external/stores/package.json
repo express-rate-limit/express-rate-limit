@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --loader ts-node/esm source/index.ts",
     "lint": "eslint source/**/*.ts",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --forceExit"
   },
   "dependencies": {
     "express": "5.1.0",
