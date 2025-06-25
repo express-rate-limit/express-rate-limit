@@ -316,21 +316,33 @@ export type Options = {
 	/**
 	 * IPv6 subnet mask applied to IPv6 addresses in the default keyGenerator.
 	 *
-	 * Generally, ISPs that support IPv6 give each of their customers a range of IPv6 addresses, whereas they usually provide only a single IPv4 address per customer.
-	 * A malicious user could iterate through their range of IPv6 addresses and bypass simple IP-based rate limiting.
-	 * This setting counteracts that by allowing the rate-limiter to block an entire range of IPv6 addresses at once.
+	 * Generally, ISPs that support IPv6 give each of their customers a range of
+	 * IPv6 addresses, whereas they usually provide only a single IPv4 address
+	 * per customer. A malicious user could iterate through their range of IPv6
+	 * addresses and bypass simple IP-based rate limiting. This setting counteracts
+	 * that by allowing the rate-limiter to block an entire range of IPv6 addresses
+	 * at once.
 	 *
 	 * The default value is 56, corresponding to a /56 subnet.
 	 *
-	 * The valid range is 1-128, but typically ISPs assign subnets in the range of 32-64, with 64 being the most common. The validation check will warn for values outside the 32-64 range, (but can be disabled).
+	 * The valid range is 1-128, but typically ISPs assign subnets in the range of
+	 * 32-64, with 64 being the most common. The validation check (which can be
+	 * disabled) will warn for values outside the 32-64 range.
 	 *
-	 * In a 128 bit IPv6 address, the number of bits in this setting will be kept, and the rest will be ignored when determining the user's IP address.
-	 * A smaller number means the ISP is reserving fewer bits for their control and allowing a larger portion of the address to be in the customer's control, thereby allowing the customer to have a greater number of unique IPs.
+	 * In a 128 bit IPv6 address, the number of bits in this setting will be kept,
+	 * and the rest will be ignored when determining the user's IP address. A smaller
+	 * number means the ISP is reserving fewer bits for their control and allowing a
+	 * larger portion of the address to be in the customer's control, thereby allowing
+	 * the customer to have a greater number of unique IPs.
 	 *
-	 * 56 is a moderately aggressive default. It may be increased to if users are being incorrectly blocked (try 60 or 64), or decreased if you are seeing evidence of abuse.
+	 * 56 is the moderately aggressive default. It may be increased to if users are
+	 * being incorrectly blocked (try 60 or 64), or decreased if you are seeing
+	 * evidence of abuse.
+	 *
 	 * 64, 60 ([Comcast][1]), 56, and 48 are all common values used by various ISPs.
 	 *
-	 * The option may also be set to a function that returns the value if you want to apply different subnets to different different users.
+	 * The option may also be set to a function that returns the value if you want
+	 * to apply different subnets to different users.
 	 *
 	 * Set to false to disable and always use the IP without masking.
 	 *

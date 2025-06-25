@@ -16,6 +16,7 @@ import type {
 	RateLimitInfo,
 	EnabledValidations,
 } from './types.js'
+import { omitUndefinedProperties } from './utils.js'
 import {
 	setLegacyHeaders,
 	setDraft6Headers,
@@ -141,34 +142,6 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 }
 
 /**
- *
- * Remove any options where their value is set to undefined. This avoids overwriting defaults
- * in the case a user passes undefined instead of simply omitting the key.
- *
- * @param passedOptions {Options} - The options to omit.
- *
- * @returns {Options} - The same options, but with all undefined fields omitted.
- *
- * @private
- */
-const omitUndefinedOptions = (
-	passedOptions: Partial<Options>,
-): Partial<Options> => {
-	const omittedOptions: Partial<Options> = {}
-
-	for (const k of Object.keys(passedOptions)) {
-		const key = k as keyof Options
-
-		if (passedOptions[key] !== undefined) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			omittedOptions[key] = passedOptions[key]
-		}
-	}
-
-	return omittedOptions
-}
-
-/**
  * Type-checks and adds the defaults for options the user has not specified.
  *
  * @param options {Options} - The options the user specifies.
@@ -179,7 +152,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Passing undefined should be equivalent to not passing an option at all, so we'll
 	// omit all fields where their value is undefined.
 	const notUndefinedOptions: Partial<Options> =
-		omitUndefinedOptions(passedOptions)
+		omitUndefinedProperties<Partial<Options>>(passedOptions)
 
 	// Create the validator before even parsing the rest of the options.
 	const validations = getValidations(notUndefinedOptions?.validate ?? true)
@@ -244,9 +217,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.xForwardedForHeader(request)
 
 			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
 			const ip: string = request.ip!
-			let subnet: number | false = 64
+			let subnet: number | false = 56
 
 			if (isIPv6(ip)) {
 				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
@@ -276,7 +249,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					? await (config.message as ValueDeterminingMiddleware<any>)(
 							request,
 							response,
-					  )
+						)
 					: config.message
 
 			// Send the response if writable.

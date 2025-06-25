@@ -2,14 +2,19 @@ import { isIPv6 } from 'node:net'
 import iptools from 'ip'
 
 /**
- * Returns the IP address itself for IPv4, or a CIDR-notation subnet for IPv6 (e.g. '1234:abcd::/64')
+ * Returns the IP address itself for IPv4, or a CIDR-notation subnet for IPv6.
  *
- * If you write a custom keyGenerator that allows a fallback to IP address for unauthenticated users, return ipKeyGenerator(req.ip) rather than just req.ip.
+ * If you write a custom keyGenerator that allows a fallback to IP address for
+ * unauthenticated users, return ipKeyGenerator(req.ip) rather than just req.ip.
  *
- * See [Options.ipv6Subnet] for more info.
+ * For more infomration, {@see Options.ipv6Subnet}.
  *
- * @param ip request.ip
- * @param [ipv6Subnet=64] subnet mask for IPv6 addresses
+ * @param ip {string} - The IP address to process, usually request.ip.
+ * @param ipv6Subnet {number | false} - The subnet mask for IPv6 addresses.
+ *
+ * @returns {string} - The key generated from the IP address
+ *
+ * @public
  */
 export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 	if (ipv6Subnet && isIPv6(ip)) {
