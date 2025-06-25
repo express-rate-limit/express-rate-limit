@@ -122,7 +122,7 @@ function run_store_tests {
 	pnpm install
 	echo
 
-	print_info "running store tests (express 5)\n"
+	print_info "running store tests (express 5)"
 	# Run the tests with Express v5
 	pnpm test
 	echo
