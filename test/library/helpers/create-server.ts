@@ -32,8 +32,9 @@ export const createServer = (
 		response.sendStatus(400)
 	})
 	app.post('/crash', (_request: Request, response: Response) => {
-		response.emit('error', new Error('Oops!'))
-		response.end()
+		const error = new Error('Oops!')
+		response.destroy(error)
+		response.emit('error', error)
 	})
 
 	// Return the application instance

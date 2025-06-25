@@ -647,7 +647,9 @@ describe('middleware test', () => {
 		},
 	)
 
-	// FIXME: This test times out  _sometimes_ on MacOS and Windows, so it is disabled for now
+	// FIXME: This test is flaky and times out  _sometimes_ on MacOS and Windows,
+	// so it is disabled for now.
+
 	/*
 	;(platform === 'darwin' ? it.skip : it).each([
 		['modern', new MockStore()],

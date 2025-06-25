@@ -134,6 +134,20 @@ describe('validations tests', () => {
 			)
 		})
 
+		it('should log a different error for stores without local keys', () => {
+			const store = { localKeys: false }
+
+			validations.unsharedStore(store as Store)
+			expect(console.error).not.toHaveBeenCalled()
+			validations.unsharedStore(store as Store)
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({
+					code: 'ERR_ERL_STORE_REUSE',
+					message: expect.stringContaining('unique prefix'),
+				}),
+			)
+		})
+
 		it('should not log an error if multiple store instances are used', () => {
 			const store1 = { localKeys: true }
 			const store2 = { localKeys: true }

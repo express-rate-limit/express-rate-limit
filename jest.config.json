@@ -1,7 +1,7 @@
 {
 	"preset": "ts-jest/presets/default-esm",
 	"collectCoverage": true,
-	"collectCoverageFrom": ["source/**/*.ts"],
+	"collectCoverageFrom": ["source/**/*.ts", "!source/index.ts"],
 	"testTimeout": 30000,
 	"testMatch": ["**/test/library/**/*-test.[jt]s?(x)"],
 	"moduleFileExtensions": ["js", "jsx", "json", "ts", "tsx"],
