@@ -43,6 +43,7 @@ function start_docker {
 	# Database directory for the mongo container
 	data_dir=$(mktemp -d 2>/dev/null || mktemp -d -t 'rate-limit-mongo-database')
 
+	echo
 	print_info "restarting docker containers\n"
 	# Start all the containers
 	docker run --name rate-limit-memcached -p 11211:11211 -d memcached
@@ -117,31 +118,36 @@ function run_store_tests {
 	start_docker
 
 	# Get a fresh install of all the node modules
+	echo
 	pnpm install
+	echo
 
-	print_info "running store tests (express 5)"
+	print_info "running store tests (express 5)\n"
 	# Run the tests with Express v5
 	pnpm test
+	echo
 
 	# Restart the containers
 	start_docker
 
-	print_info "running store tests (express 4)"
+	print_info "running store tests (express 4)\n"
 	# Install Express v4
 	pnpm install express@4
 	# Run the tests with this version
 	pnpm test
+	echo
 	# Restore the version
 	git restore package.json pnpm-lock.yaml
 
 	# Go back
 	cd ../
 
-	print_info "stopping docker containers"
+	print_info "stopping docker containers\n"
 	# Stop and delete any existing containers
 	docker stop rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 	docker rm rate-limit-memcached rate-limit-mongo rate-limit-redis || true
 
+	echo
 	print_success "successfully ran all store tests"
 }
 
