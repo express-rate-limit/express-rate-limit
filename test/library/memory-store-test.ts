@@ -10,7 +10,7 @@ import {
 	jest,
 } from '@jest/globals'
 import type { Options } from '../../source/index.js'
-import MemoryStore from '../../source/memory-store.js'
+import { MemoryStore } from '../../source/memory-store.js'
 
 const minute = 60 * 1000
 
