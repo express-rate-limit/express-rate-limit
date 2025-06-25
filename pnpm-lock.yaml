@@ -56,6 +56,9 @@ importers:
       npm-run-all:
         specifier: 4.1.5
         version: 4.1.5
+      prettier:
+        specifier: 3.6.1
+        version: 3.6.1
       ratelimit-header-parser:
         specifier: 0.1.0
         version: 0.1.0
@@ -3690,6 +3693,11 @@ packages:
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
+
+  prettier@3.6.1:
+    resolution: {integrity: sha512-5xGWRa90Sp2+x1dQtNpIpeOQpTDBs9cZDmA/qs2vDNN2i18PdapqY7CmBeyLlMuGqXJRIOPaCaVZTLNQRWUH/A==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   pretty-format@30.0.2:
     resolution: {integrity: sha512-yC5/EBSOrTtqhCKfLHqoUIAXVRZnukHPwWBJWR7h84Q3Be1DRQZLncwcfLoPA5RPQ65qfiCMqgYwdUuQ//eVpg==}
@@ -9341,6 +9349,8 @@ snapshots:
   pony-cause@1.1.1: {}
 
   possible-typed-array-names@1.1.0: {}
+
+  prettier@3.6.1: {}
 
   pretty-format@30.0.2:
     dependencies:
