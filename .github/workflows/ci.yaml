@@ -28,8 +28,14 @@ jobs:
     name: Test (Library)
     strategy:
       matrix:
-        node-version: [lts/iron, lts/*, latest]
+        node-version: [lts/gallium, lts/hydrogen, lts/*, latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - pnpm-version: 10
+          - node-version: lts/gallium
+            pnpm-version: 8
+          - node-version: lts/hydrogen
+            pnpm-version: 8
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
@@ -41,7 +47,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 10
+          version: ${{ matrix.pnpm-version }}
       - name: Install dependencies
         run: pnpm install
       - name: Run library tests
