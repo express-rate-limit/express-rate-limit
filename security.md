@@ -7,7 +7,6 @@ receive security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 8.x.x   | :white_check_mark: |
 | 7.x.x   | :white_check_mark: |
 | 6.x.x   | :white_check_mark: |
 | 5.x.x   | :x:                |
