@@ -15,7 +15,7 @@
 export const omitUndefinedProperties = <T extends { [key: string]: any }>(
 	passedOptions: T,
 ): T => {
-	// TSC forces the `as T` instead of `const ommittedOptions: T = {}`.
+	// TSC forces the `as T` instead of `const omittedOptions: T = {}`.
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 	const omittedOptions = {} as T
 

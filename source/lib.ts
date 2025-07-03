@@ -170,6 +170,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Warn for custom keyGenerator that uses req.ip without the ipKeyGenerator helper
 	validations.keyGeneratorIpFallback(notUndefinedOptions.keyGenerator)
 
+	// Warn for incompatible settings
+	validations.ipv6SubnetOrKeyGenerator(notUndefinedOptions)
+
 	// The default value for the `standardHeaders` option is `false`. If set to
 	// `true`, it resolve to `draft-6`. `draft-7` and draft-8` (recommended) are
 	// used only if explicitly set.

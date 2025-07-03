@@ -463,6 +463,40 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('ipv6SubnetOrKeyGenerator', () => {
+		it('should allow one or the other (or none)', () => {
+			validations.ipv6SubnetOrKeyGenerator({})
+			validations.ipv6SubnetOrKeyGenerator({ ipv6Subnet: 64 })
+			validations.ipv6SubnetOrKeyGenerator({
+				keyGenerator: (request, response) => 'global',
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should warn on both', () => {
+			validations.ipv6SubnetOrKeyGenerator({
+				ipv6Subnet: 64,
+				keyGenerator: (request, response) => 'global',
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR' }),
+			)
+		})
+
+		it('should warn on both when ipv6Subnet is false', () => {
+			validations.ipv6SubnetOrKeyGenerator({
+				ipv6Subnet: false,
+				keyGenerator: (request, response) => 'global',
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR' }),
+			)
+		})
+	})
+
 	describe('keyGeneratorIpFallback', () => {
 		it('should skip on undefined keyGenerator', () => {
 			validations.keyGeneratorIpFallback(undefined)

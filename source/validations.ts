@@ -7,6 +7,7 @@ import type {
 	Store,
 	EnabledValidations,
 	ValueDeterminingMiddleware,
+	Options,
 } from './types.js'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 
@@ -357,6 +358,16 @@ const validations = {
 			throw new ValidationError(
 				'ERR_ERL_INVALID_IPV6_SUBNET',
 				`Unexpected ipv6Subnet value: ${ipv6Subnet}. Expected an integer between 32 and 64 (usually 48-64).`,
+			)
+		}
+	},
+
+	ipv6SubnetOrKeyGenerator(options: Partial<Options>) {
+		// Note: false is a valid option for ipv6Subnet
+		if (options.ipv6Subnet !== undefined && options.keyGenerator) {
+			throw new ValidationError(
+				'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR',
+				'Incompatible options: ipv6Subnet setting is ignored when a custom keygenerator is also set.',
 			)
 		}
 	},
