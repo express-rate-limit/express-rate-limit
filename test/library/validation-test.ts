@@ -434,7 +434,7 @@ describe('validations tests', () => {
 			validations.ipv6Subnet(31)
 			expect(console.warn).not.toBeCalled()
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_INVALID_IPV6_SUBNET' }),
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
 			)
 		})
 
@@ -442,7 +442,7 @@ describe('validations tests', () => {
 			validations.ipv6Subnet(65)
 			expect(console.warn).not.toBeCalled()
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_INVALID_IPV6_SUBNET' }),
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
 			)
 		})
 
@@ -450,7 +450,7 @@ describe('validations tests', () => {
 			validations.ipv6Subnet(48.5)
 			expect(console.warn).not.toBeCalled()
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_INVALID_IPV6_SUBNET' }),
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
 			)
 		})
 
@@ -458,7 +458,7 @@ describe('validations tests', () => {
 			validations.ipv6Subnet(undefined)
 			expect(console.warn).not.toBeCalled()
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_INVALID_IPV6_SUBNET' }),
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
 			)
 		})
 	})

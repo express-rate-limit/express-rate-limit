@@ -356,7 +356,7 @@ const validations = {
 
 		if (!Number.isInteger(ipv6Subnet) || ipv6Subnet < 32 || ipv6Subnet > 64) {
 			throw new ValidationError(
-				'ERR_ERL_INVALID_IPV6_SUBNET',
+				'ERR_ERL_IPV6_SUBNET',
 				`Unexpected ipv6Subnet value: ${ipv6Subnet}. Expected an integer between 32 and 64 (usually 48-64).`,
 			)
 		}

@@ -89,8 +89,8 @@
 			"destination": "/reference/error-codes#err-erl-unknown-validation"
 		},
 		{
-			"source": "/errors/err_erl_invalid_ipv6_subnet",
-			"destination": "/reference/error-codes#err-erl-invalid-ipv6-subnet"
+			"source": "/errors/err_erl_ipv6_subnet",
+			"destination": "/reference/error-codes#err-erl-ipv6-subnet"
 		},
 		{
 			"source": "/errors/err_erl_ipv6subnet_or_keygenerator",
