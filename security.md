@@ -2,15 +2,8 @@
 
 ## Supported Versions
 
-The following versions of `express-rate-limit` are currently supported and will
-receive security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 7.x.x   | :white_check_mark: |
-| 6.x.x   | :white_check_mark: |
-| 5.x.x   | :x:                |
-| < 5.0   | :x:                |
+Generally, fixes are applied only to the current release of `express-rate-limit`,
+but we may choose to backport to older releases in some circumstances.
 
 ## Reporting a Vulnerability
 
