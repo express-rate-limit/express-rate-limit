@@ -367,7 +367,7 @@ const validations = {
 		if (options.ipv6Subnet !== undefined && options.keyGenerator) {
 			throw new ValidationError(
 				'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR',
-				'Incompatible options: ipv6Subnet setting is ignored when a custom keygenerator is also set.',
+				`Incompatible options: the 'ipv6Subnet' option is ignored when a custom 'keyGenerator' function is also set.`,
 			)
 		}
 	},
