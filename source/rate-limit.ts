@@ -79,7 +79,6 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 			return legacyStore.resetKey(key)
 		}
 
-		/* istanbul ignore next */
 		async resetAll(): Promise<void> {
 			if (typeof legacyStore.resetAll === 'function')
 				return legacyStore.resetAll()
@@ -256,9 +255,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 					: config.message
 
 			// Send the response if writable.
-			if (!response.writableEnded) {
-				response.send(message)
-			}
+			if (!response.writableEnded) response.send(message)
 		},
 		passOnStoreError: false,
 		// Allow the default options to be overridden by the passed options.
@@ -305,8 +302,7 @@ const handleAsyncErrors =
 		try {
 			await Promise.resolve(fn(request, response, next)).catch(next)
 		} catch (error: unknown) {
-			/* istanbul ignore next */
-			next(error)
+			next?.(error)
 		}
 	}
 
@@ -448,6 +444,8 @@ const rateLimit = (
 			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
 				let decremented = false
 				const decrementKey = async () => {
+					// This could have been tested properly if the response.on('error') test
+					// worked as well, leaving it as a todo.
 					if (!decremented) {
 						await config.store.decrement(key)
 						decremented = true
@@ -459,9 +457,17 @@ const rateLimit = (
 						if (!(await config.requestWasSuccessful(request, response)))
 							await decrementKey()
 					})
+
+					// NOTE: A test in library/middleware-test.ts tests this, but it was
+					// disabled for being too flaky.
 					response.on('close', async () => {
 						if (!response.writableEnded) await decrementKey()
 					})
+
+					// NOTE: this may not be useful. None of the tests can trigger this
+					// callback (see `/crash` endpoint in test/library/helpers/create-server).
+					// Perhaps it is similar to the case described in this issue comment:
+					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
 					response.on('error', async () => {
 						await decrementKey()
 					})

@@ -68,7 +68,7 @@ export class MemoryStore implements Store {
 		}, this.windowMs)
 
 		// Cleaning up the interval will be taken care of by the `shutdown` method.
-		if (this.interval.unref) this.interval.unref()
+		this.interval.unref?.()
 	}
 
 	/**

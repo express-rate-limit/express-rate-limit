@@ -71,6 +71,20 @@ describe('memory store test', () => {
 		expect(totalHits).toEqual(2)
 	})
 
+	it('does not decrement the key below 0 when `decrement` is called', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: minute } as Options)
+		const key = 'test-store'
+
+		await store.increment(key)
+		await store.decrement(key)
+		await store.decrement(key)
+
+		const client = await store.get(key)
+		expect(client).toBeDefined()
+		expect(client?.totalHits).toEqual(0)
+	})
+
 	test('resetKey should remove the key from storage', async () => {
 		const store = new MemoryStore()
 
@@ -121,6 +135,7 @@ describe('memory store test', () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: minute } as Options)
 		expect(store.interval).toBeDefined()
+
 		store.shutdown()
 		expect(clearInterval).toHaveBeenCalledWith(store.interval)
 	})
@@ -164,17 +179,26 @@ describe('memory store test', () => {
 		}
 	})
 
+	it('should automatically clear previously set intervals', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: minute } as Options)
+		const previousInterval = store.interval
+
+		store.init({ windowMs: minute } as Options)
+		expect(clearInterval).toHaveBeenCalledWith(previousInterval)
+	})
+
 	it('should move clients from previous to current', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: 100 } as Options)
 
 		await store.increment('key1')
-		// Key1 is now in current
+		// `key1` is now in current
 		expect(store.current.has('key1')).toBe(true)
 		expect(store.previous.has('key1')).toBe(false)
 
 		jest.advanceTimersByTime(100)
-		// Key1 is now in previous, current is empty
+		// `key1` is now in previous, current is empty
 		expect(store.current.has('key1')).toBe(false)
 		expect(store.previous.has('key1')).toBe(true)
 
@@ -188,13 +212,13 @@ describe('memory store test', () => {
 	it('does not allow a Client object to be assigned to two keys', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: 100 } as Options)
-		await store.increment('key1') // Key1 is now in current
+		await store.increment('key1') // `key1` is now in current
 
-		jest.advanceTimersByTime(100) // Key1 is now in previous. Target pool size is 1, but it's empty.
-		await store.increment('key1') // Key1 is now in current again. If it's also in previous, that's a bug!
+		jest.advanceTimersByTime(100) // `key1` is now in previous. Target pool size is 1, but it's empty.
+		await store.increment('key1') // `key1` is now in current again. If it's also in previous, that's a bug!
 		await store.increment('key2') // Need 1 new client to keep the pool size target at 1
 
-		jest.advanceTimersByTime(100) // Key1 and key2 are now in previous. Target pool size is 1, but it should be empty.
+		jest.advanceTimersByTime(100) // `key1` and `key2` are now in previous. Target pool size is 1, but it should be empty.
 		await store.increment('key1') // Move it from previous to current
 		await store.increment('key1')
 		let returnValue1 = await store.increment('key1')
