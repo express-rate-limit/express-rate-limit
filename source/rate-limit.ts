@@ -306,7 +306,7 @@ const handleAsyncErrors =
 			await Promise.resolve(fn(request, response, next)).catch(next)
 		} catch (error: unknown) {
 			/* istanbul ignore next */
-			if (next) next(error)
+			next?.(error)
 		}
 	}
 
