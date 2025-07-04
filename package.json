@@ -52,7 +52,7 @@
 		"tsconfig.json"
 	],
 	"engines": {
-		"node": ">= 20"
+		"node": ">= 16"
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
