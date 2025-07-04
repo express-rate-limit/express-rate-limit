@@ -3,9 +3,9 @@
 
 import createServer from 'express'
 import rateLimit, {
+	ClientRateLimitInfo,
 	MemoryStore,
 	Store,
-	ClientRateLimitInfo,
 } from 'express-rate-limit'
 
 export class TestStore implements Store {
@@ -56,4 +56,6 @@ app.use(
 	}),
 )
 
-app.get('/', (request, response) => response.send('Hello!'))
+app.get('/', (request, response) => {
+	response.send('Hello!')
+})

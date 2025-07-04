@@ -1,9 +1,9 @@
 // /source/types.ts
 // All the types used by this package
 
-import type { Request, Response, NextFunction, RequestHandler } from 'express'
-import type { Validations } from './validations.js'
+import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
+import type { Validations } from './validations.js'
 
 /**
  * Callback that fires when a client's hit counter is incremented.

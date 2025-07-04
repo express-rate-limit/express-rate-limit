@@ -4,8 +4,8 @@
 import createApp, {
 	type Application,
 	type Request,
-	type Response,
 	type RequestHandler,
+	type Response,
 } from 'express'
 
 /**
@@ -25,12 +25,12 @@ export const createServer = (
 	app.use(middleware)
 
 	// Register test routes
-	app.all('/', (_request: Request, response: Response) =>
-		response.send('Hi there!'),
-	)
-	app.get('/error', (_request: Request, response: Response) =>
-		response.sendStatus(400),
-	)
+	app.all('/', (_request: Request, response: Response) => {
+		response.send('Hi there!')
+	})
+	app.get('/error', (_request: Request, response: Response) => {
+		response.sendStatus(400)
+	})
 	app.post('/crash', (_request: Request, response: Response) => {
 		response.emit('error', new Error('Oops!'))
 		response.end()
