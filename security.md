@@ -2,8 +2,9 @@
 
 ## Supported Versions
 
-Generally, fixes are applied only to the current release of `express-rate-limit`,
-but we may choose to backport to older releases in some circumstances.
+Generally, fixes are applied only to the current release of
+`express-rate-limit`, but we may choose to backport to older releases in some
+circumstances.
 
 ## Reporting a Vulnerability
 
