@@ -11,13 +11,11 @@ and this project adheres to
 
 ## [7.6.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.6.0)
 
-Note: a semver-patch version increment was chosen for this release when it could
-have been considered a minor or arguably even a major version change because we
-believe that the core issue is a bug in the library, and the changes are in
-service of fixing that bug. Additionally, there is evidence of a similar
-vulnerability being exploited in the wild, and precident for similar fixes being
-provide in patch releases for other software, e.g. Nextcloud server:
-https://www.cve.org/CVERecord?id=CVE-2021-22915
+Note: There are reasonable arguments for why this release could have been
+considered a semver-patch (because this is probably the behavior it should have
+had all along) or, alternatively a semver-major change (because of the /56
+default value). But, we chose semver-patch because a) it _is_ a new feature and
+b) we want to be able to backport it to earlier major versions.
 
 ### Fixed
 
@@ -32,6 +30,8 @@ https://www.cve.org/CVERecord?id=CVE-2021-22915
   IPv6 addresses (returns IPv4 unchanged)
 - `ipv6Subnet` validation check on above configuration option's value (allowed
   range is 32-64)
+- `ipv6SubnetOrKeyGenerator` validation check to warn of an incompatible
+  combination of `ipv6Subnet` and `keyGenerator` settings.
 - `keyGeneratorIpFallback` validation check on custom `keyGenerator`s to ensure
   they're using `ipKeyGenerator` if they reference `req.ip` or `request.ip`
 
