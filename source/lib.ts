@@ -167,6 +167,15 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// @ts-expect-error see the note above.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
 
+	// If ipv6Subnet is set to anything other than a function, check it now
+	// (if it's a function, we'll check the output value later)
+	if (
+		notUndefinedOptions.ipv6Subnet !== undefined &&
+		typeof notUndefinedOptions.ipv6Subnet !== 'function'
+	) {
+		validations.ipv6Subnet(notUndefinedOptions.ipv6Subnet)
+	}
+
 	// Warn for custom keyGenerator that uses req.ip without the ipKeyGenerator helper
 	validations.keyGeneratorIpFallback(notUndefinedOptions.keyGenerator)
 
@@ -231,8 +240,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 						? await config.ipv6Subnet(request, response)
 						: config.ipv6Subnet
 
-				// Check that it's a valid subnet (1-128), warn if it's not in the normal range (32-64)
-				validations.ipv6Subnet(subnet)
+				// If it was a function, check the output now (otherwise it got checked earlier)
+				if (typeof config.ipv6Subnet === 'function')
+					validations.ipv6Subnet(subnet)
 			}
 
 			return ipKeyGenerator(ip, subnet)
