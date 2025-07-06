@@ -282,14 +282,14 @@ Should be a (sync/async) function that accepts the Express `request` and
 
 By default, the client's IP address is used with the
 [`ipKeyGenerator`](./helpers#ipkeygenerator) method to apply the configured
-[`ipv6Subnet`](#ipv6subnet).
+[`ipv6Subnet`](#ipv6subnet) to IPv6 addresses.
 
 Custom `keyGenerator`s that fall back to IP addresses should use the provided
 [`ipKeyGenerator`](./helpers#ipkeygenerator) method and a chosen subnet for IPv6
 addresses (see [ipv6Subnet](#ipv6subnet) discussion below.)
 
 ```ts
-import { rateLimit, ipKeyGenerator } from 'express-rate-limit
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
 const limiter = rateLimit({
 	// ...
 	keyGenerator: (req, res) => ipKeyGenerator(req.ip),
@@ -312,10 +312,14 @@ IPv6 subnet mask applied to IPv6 addresses in the default
 [`keyGenerator`](#keygenerator).
 
 Generally, ISPs that support IPv6 give each of their customers a range of IPv6
-addresses, whereas they usually provide only a single IPv4 address per customer.
-A malicious user could iterate through their range of IPv6 addresses and bypass
-simple IP-based rate limiting. This setting counteracts that by allowing the
-rate-limiter to block an entire range of IPv6 addresses at once.
+addresses via a subnet mask, whereas they usually provide only a single IPv4
+address per customer. A malicious user could iterate through their range of IPv6
+addresses and bypass simple IP-based rate limiting. This setting counteracts
+that by allowing the rate-limiter to block an entire range of IPv6 addresses at
+once.
+
+It's generally not possible to know what subnet an ISP has assigned to a user,
+so we have to make an educuated guess.
 
 The default value is 56, corresponding to a /56 subnet.
 
@@ -323,15 +327,9 @@ The valid range is 1-128, but typically ISPs assign subnets in the range of
 32-64, with 64 being the most common. The validation check (which can be
 disabled) will warn for values outside the 32-64 range.
 
-In a 128 bit IPv6 address, the number of bits in this setting will be kept, and
-the rest will be ignored when determining the user's IP address. A smaller
-number means the ISP is reserving fewer bits for their control and allowing a
-larger portion of the address to be in the customer's control, thereby allowing
-the customer to have a greater number of unique IPs.
-
-56 is the moderately aggressive default. It may be increased to if users are
-being incorrectly blocked (try 60 or 64), or decreased if you are seeing
-evidence of abuse.
+Smaller values block larger ranges of IPs at once. 56 is a moderately aggressive
+default. It may be increased to if users are being incorrectly blocked (try 60
+or 64), or decreased if you are seeing evidence of abuse.
 
 64, 60 ([Comcast](https://news.ycombinator.com/item?id=44228908)), 56, and 48
 are all common values used by various ISPs.
