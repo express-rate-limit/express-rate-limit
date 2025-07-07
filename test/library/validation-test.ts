@@ -13,7 +13,7 @@ import express from 'express'
 import supertest from 'supertest'
 import { getValidations } from '../../source/validations.js'
 import type { Store } from '../../source/types'
-import { MemoryStore } from '../../source/index.js'
+import { MemoryStore, ipKeyGenerator } from '../../source/index.js'
 
 describe('validations tests', () => {
 	let validations = getValidations(true)
@@ -43,7 +43,7 @@ describe('validations tests', () => {
 			expect(console.error).toBeCalled()
 		})
 
-		it('shoud log an error for an undefined IP', () => {
+		it('should log an error for an undefined IP', () => {
 			validations.ip(undefined)
 			expect(console.error).toBeCalled()
 		})
@@ -411,6 +411,145 @@ describe('validations tests', () => {
 			validations.creationStack(store)
 			expect(console.error).not.toBeCalled()
 			expect(console.warn).not.toBeCalled()
+		})
+	})
+
+	describe('ipv6Subnet', () => {
+		it('should allow numbers in the 32-64 range', () => {
+			for (let i = 32; i <= 64; i++) {
+				validations.ipv6Subnet(i)
+			}
+
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should allow false', () => {
+			validations.ipv6Subnet(false)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should error on numbers below 32', () => {
+			validations.ipv6Subnet(31)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
+			)
+		})
+
+		it('should error on numbers above 64', () => {
+			validations.ipv6Subnet(65)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
+			)
+		})
+
+		it('should error on non-integer numbers', () => {
+			validations.ipv6Subnet(48.5)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
+			)
+		})
+
+		it('should error on undefined (return value from configured function)', () => {
+			validations.ipv6Subnet(undefined)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
+			)
+		})
+	})
+
+	describe('ipv6SubnetOrKeyGenerator', () => {
+		it('should allow one or the other (or none)', () => {
+			validations.ipv6SubnetOrKeyGenerator({})
+			validations.ipv6SubnetOrKeyGenerator({ ipv6Subnet: 64 })
+			validations.ipv6SubnetOrKeyGenerator({
+				keyGenerator: (request, response) => 'global',
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should warn on both', () => {
+			validations.ipv6SubnetOrKeyGenerator({
+				ipv6Subnet: 64,
+				keyGenerator: (request, response) => 'global',
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR' }),
+			)
+		})
+
+		it('should warn on both when ipv6Subnet is false', () => {
+			validations.ipv6SubnetOrKeyGenerator({
+				ipv6Subnet: false,
+				keyGenerator: (request, response) => 'global',
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR' }),
+			)
+		})
+	})
+
+	describe('keyGeneratorIpFallback', () => {
+		it('should skip on undefined keyGenerator', () => {
+			validations.keyGeneratorIpFallback(undefined)
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should not warn on a keyGenerator that does not use req.ip or request.ip', () => {
+			validations.keyGeneratorIpFallback(function (
+				request: any,
+				response: any,
+			): string {
+				return request.params.apikey as string
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
+		})
+
+		it('should warn on a keyGenerator that uses req.ip', () => {
+			validations.keyGeneratorIpFallback(function (
+				request: any,
+				response: any,
+			): string {
+				return (request.params.apikey || request.ip) as string
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_KEY_GEN_IPV6' }),
+			)
+		})
+
+		it('should warn on a keyGenerator that uses request.ip', () => {
+			validations.keyGeneratorIpFallback(function (
+				request: any,
+				response: any,
+			) {
+				return (request.params.apikey || request.ip) as string
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_KEY_GEN_IPV6' }),
+			)
+		})
+
+		it('should not warn on a keyGenerator that uses request.ip and ipKeyGenerator', () => {
+			validations.keyGeneratorIpFallback(function (
+				request: any,
+				response: any,
+			): string {
+				return (request.params.apikey as string) || ipKeyGenerator(request.ip)
+			})
+			expect(console.warn).not.toBeCalled()
+			expect(console.error).not.toBeCalled()
 		})
 	})
 })

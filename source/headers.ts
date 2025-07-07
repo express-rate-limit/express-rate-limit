@@ -41,7 +41,7 @@ const getResetSeconds = (
 /**
  * Returns the hash of the identifier, truncated to 12 bytes, and then converted
  * to base64 so that it can be used as a 16 byte partition key. The 16-byte limit
- * is arbitrary, and folllows from the examples given in the 8th draft.
+ * is arbitrary, and follows from the examples given in the 8th draft.
  *
  * @param key {string} - The identifier to hash.
  */
