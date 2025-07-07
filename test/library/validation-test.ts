@@ -425,7 +425,6 @@ describe('validations tests', () => {
 			validations.creationStack(store)
 			expect(console.error).not.toHaveBeenCalled()
 			expect(console.warn).not.toHaveBeenCalled()
-<<<<<<< HEAD
 		})
 	})
 
@@ -557,8 +556,6 @@ describe('validations tests', () => {
 			)
 			expect(console.warn).not.toHaveBeenCalled()
 			expect(console.error).not.toHaveBeenCalled()
-=======
->>>>>>> a9f2296 (chore!: replace linter, upgrade all deps to latest)
 		})
 	})
 })
