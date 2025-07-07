@@ -87,7 +87,7 @@ describe('headers test', () => {
 				windowMs: 2 * 60 * 60 * 1000,
 				limit: 5,
 				standardHeaders: 'draft-8',
-				keyGenerator: (request, response) => 'foo', // Pk param is generated from this
+				keyGenerator: (request, response) => 'foo', // the partition key is generated using this
 			}),
 		)
 
@@ -113,7 +113,6 @@ describe('headers test', () => {
 				windowMs: fiveSeconds,
 				limit: 1,
 				standardHeaders: 'draft-8',
-				keyGenerator: (request, response) => 'bar', // Alternate pk
 			}),
 			rateLimit({ windowMs: oneMinute, limit: 5, standardHeaders: 'draft-8' }),
 			rateLimit({ windowMs: oneHour, limit: 6, standardHeaders: 'draft-8' }),
