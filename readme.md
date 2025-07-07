@@ -133,9 +133,11 @@ MIT © [Nathan Friedly](http://nfriedly.com/),
 	https://express-rate-limit.mintlify.app/reference/configuration#identifier
 [`store`]: https://express-rate-limit.mintlify.app/reference/configuration#store
 [`passOnStoreError`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#passOnStoreError
+	https://express-rate-limit.mintlify.app/reference/configuration#passonstoreerror
 [`keyGenerator`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#keygenerator
+[`ipv6Subnet`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#ipv6subnet
 [`requestPropertyName`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#requestpropertyname
 [`skip`]: https://express-rate-limit.mintlify.app/reference/configuration#skip
