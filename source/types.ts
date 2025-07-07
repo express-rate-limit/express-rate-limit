@@ -207,7 +207,8 @@ export type Store = {
 	/**
 	 * Optional value that the store prepends to keys
 	 *
-	 * Used by the double-count check to avoid false-positives when a key is counted twice, but with different prefixes
+	 * Used by the double-count check to avoid false-positives when a key is counted
+	 * twice, but with different prefixes.
 	 */
 	prefix?: string
 }
@@ -316,13 +317,16 @@ export type Options = {
 	/**
 	 * IPv6 subnet mask applied to IPv6 addresses in the default keyGenerator.
 	 *
-	 * Default is 56. The valid range is technically 1-128 but the value should generally be in the 32-64 range.
+	 * Default is 56. The valid range is technically 1-128 but the value should
+	 * generally be in the 32-64 range.
 	 *
-	 * Smaller numbers are more aggressive, larger numbers are more lenient. Try bumping to 60 or 64 if you see evidence of users being blocked incorrectly.
+	 * Smaller numbers are more aggressive, larger numbers are more lenient. Try
+	 * bumping to 60 or 64 if you see evidence of users being blocked incorrectly.
 	 *
 	 * May also be set to a function that returns a number based on the request.
 	 *
-	 * See the documentation for more info: https://express-rate-limit.mintlify.app/reference/configuration#ipv6subnet
+	 * See the documentation for more info:
+	 * https://express-rate-limit.mintlify.app/reference/configuration#ipv6subnet.
 	 */
 	ipv6Subnet:
 		| 64 // A few common values, followed by number as a catch-all
@@ -332,7 +336,7 @@ export type Options = {
 		| 50
 		| 48
 		| 32
-		| number // Todo: figure out how to do a "range type" to replace `number` with "1-128". (The validator limits to 32-64, but typescript should probably allow the whole range.)
+		| number // TODO: figure out how to do a "range type" to replace `number` with "1-128". (The validator limits to 32-64, but typescript should probably allow the whole range.)
 		| ValueDeterminingMiddleware<number>
 		| false
 
