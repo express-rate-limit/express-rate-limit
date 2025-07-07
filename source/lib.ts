@@ -1,6 +1,7 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
+import { isIPv6 } from 'node:net'
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import type {
 	Options,
@@ -15,6 +16,7 @@ import type {
 	RateLimitInfo,
 	EnabledValidations,
 } from './types.js'
+import { omitUndefinedProperties } from './utils.js'
 import {
 	setLegacyHeaders,
 	setDraft6Headers,
@@ -24,6 +26,7 @@ import {
 } from './headers.js'
 import { getValidations, type Validations } from './validations.js'
 import MemoryStore from './memory-store.js'
+import { ipKeyGenerator } from './ip-key-generator.js'
 
 /**
  * Type guard to check if a store is legacy store.
@@ -112,6 +115,7 @@ type Configuration = {
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
 	keyGenerator: ValueDeterminingMiddleware<string>
+	ipv6Subnet: number | ValueDeterminingMiddleware<number> | false
 	handler: RateLimitExceededEventHandler
 	skip: ValueDeterminingMiddleware<boolean>
 	requestWasSuccessful: ValueDeterminingMiddleware<boolean>
@@ -138,34 +142,6 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 }
 
 /**
- *
- * Remove any options where their value is set to undefined. This avoids overwriting defaults
- * in the case a user passes undefined instead of simply omitting the key.
- *
- * @param passedOptions {Options} - The options to omit.
- *
- * @returns {Options} - The same options, but with all undefined fields omitted.
- *
- * @private
- */
-const omitUndefinedOptions = (
-	passedOptions: Partial<Options>,
-): Partial<Options> => {
-	const omittedOptions: Partial<Options> = {}
-
-	for (const k of Object.keys(passedOptions)) {
-		const key = k as keyof Options
-
-		if (passedOptions[key] !== undefined) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			omittedOptions[key] = passedOptions[key]
-		}
-	}
-
-	return omittedOptions
-}
-
-/**
  * Type-checks and adds the defaults for options the user has not specified.
  *
  * @param options {Options} - The options the user specifies.
@@ -176,7 +152,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// Passing undefined should be equivalent to not passing an option at all, so we'll
 	// omit all fields where their value is undefined.
 	const notUndefinedOptions: Partial<Options> =
-		omitUndefinedOptions(passedOptions)
+		omitUndefinedProperties<Partial<Options>>(passedOptions)
 
 	// Create the validator before even parsing the rest of the options.
 	const validations = getValidations(notUndefinedOptions?.validate ?? true)
@@ -190,6 +166,21 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	)
 	// @ts-expect-error see the note above.
 	validations.onLimitReached(notUndefinedOptions.onLimitReached)
+
+	// If ipv6Subnet is set to anything other than a function, check it now
+	// (if it's a function, we'll check the output value later)
+	if (
+		notUndefinedOptions.ipv6Subnet !== undefined &&
+		typeof notUndefinedOptions.ipv6Subnet !== 'function'
+	) {
+		validations.ipv6Subnet(notUndefinedOptions.ipv6Subnet)
+	}
+
+	// Warn for custom keyGenerator that uses req.ip without the ipKeyGenerator helper
+	validations.keyGeneratorIpFallback(notUndefinedOptions.keyGenerator)
+
+	// Warn for incompatible settings
+	validations.ipv6SubnetOrKeyGenerator(notUndefinedOptions)
 
 	// The default value for the `standardHeaders` option is `false`. If set to
 	// `true`, it resolve to `draft-6`. `draft-7` and draft-8` (recommended) are
@@ -228,18 +219,35 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		requestWasSuccessful: (_request: Request, response: Response): boolean =>
 			response.statusCode < 400,
 		skip: (_request: Request, _response: Response): boolean => false,
-		keyGenerator(request: Request, _response: Response): string {
+		async keyGenerator(request: Request, response: Response): Promise<string> {
+			// By default, use the IP address (for IPv4) or subnet (for IPv6) to rate limit users.
+
 			// Run the validation checks on the IP and headers to make sure everything
 			// is working as intended.
 			validations.ip(request.ip)
 			validations.trustProxy(request)
 			validations.xForwardedForHeader(request)
 
-			// By default, use the IP address to rate limit users.
-			// note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
+			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-			return request.ip!
+			const ip: string = request.ip!
+			let subnet: number | false = 56
+
+			if (isIPv6(ip)) {
+				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
+				subnet =
+					typeof config.ipv6Subnet === 'function'
+						? await config.ipv6Subnet(request, response)
+						: config.ipv6Subnet
+
+				// If it was a function, check the output now (otherwise it got checked earlier)
+				if (typeof config.ipv6Subnet === 'function')
+					validations.ipv6Subnet(subnet)
+			}
+
+			return ipKeyGenerator(ip, subnet)
 		},
+		ipv6Subnet: 56,
 		async handler(
 			request: Request,
 			response: Response,
@@ -393,6 +401,7 @@ const rateLimit = (
 				used: totalHits,
 				remaining: Math.max(limit - totalHits, 0),
 				resetTime,
+				key,
 			}
 
 			// Set the `current` property on the object, but hide it from iteration
