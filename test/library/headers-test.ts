@@ -15,6 +15,7 @@ import {
 import rateLimit from '../../source/index.js'
 import type {
 	ClientRateLimitInfo,
+	Options,
 	RateLimitInfo,
 	Store,
 } from '../../source/types.js'
@@ -108,24 +109,25 @@ describe('headers test', () => {
 		const oneDay = 1 * 24 * 60 * 60 * 1000
 		const twoDays = 2 * 24 * 60 * 60 * 1000
 
+		const options: Partial<Options> = {
+			standardHeaders: 'draft-8',
+			keyGenerator: (request, response) => 'foo',
+		}
+
 		const app = createServer([
-			rateLimit({
-				windowMs: fiveSeconds,
-				limit: 1,
-				standardHeaders: 'draft-8',
-			}),
-			rateLimit({ windowMs: oneMinute, limit: 5, standardHeaders: 'draft-8' }),
-			rateLimit({ windowMs: oneHour, limit: 6, standardHeaders: 'draft-8' }),
-			rateLimit({ windowMs: oneDay, limit: 7, standardHeaders: 'draft-8' }),
-			rateLimit({ windowMs: twoDays, limit: 8, standardHeaders: 'draft-8' }),
+			rateLimit({ ...options, windowMs: fiveSeconds, limit: 1 }),
+			rateLimit({ ...options, windowMs: oneMinute, limit: 5 }),
+			rateLimit({ ...options, windowMs: oneHour, limit: 6 }),
+			rateLimit({ ...options, windowMs: oneDay, limit: 7 }),
+			rateLimit({ ...options, windowMs: twoDays, limit: 8 }),
 		])
 
 		const policies = [
-			'"1-in-5sec"; q=1; w=5; pk=:M2U0OGVmOWQyMmUw:',
-			'"5-in-1min"; q=5; w=60; pk=:M2U0OGVmOWQyMmUw:',
-			'"6-in-1hr"; q=6; w=3600; pk=:M2U0OGVmOWQyMmUw:',
-			'"7-in-1day"; q=7; w=86400; pk=:M2U0OGVmOWQyMmUw:',
-			'"8-in-2days"; q=8; w=172800; pk=:M2U0OGVmOWQyMmUw:',
+			'"1-in-5sec"; q=1; w=5; pk=:MmMyNmI0NmI2OGZm:',
+			'"5-in-1min"; q=5; w=60; pk=:MmMyNmI0NmI2OGZm:',
+			'"6-in-1hr"; q=6; w=3600; pk=:MmMyNmI0NmI2OGZm:',
+			'"7-in-1day"; q=7; w=86400; pk=:MmMyNmI0NmI2OGZm:',
+			'"8-in-2days"; q=8; w=172800; pk=:MmMyNmI0NmI2OGZm:',
 		]
 		const limits = [
 			'"1-in-5sec"; r=0; t=5',
@@ -149,7 +151,7 @@ describe('headers test', () => {
 				windowMs: 2 * 60 * 60 * 1000,
 				limit: 5,
 				standardHeaders: 'draft-8',
-				keyGenerator: (request, response) => 'foo', // Pk param is generated from this
+				keyGenerator: (request, response) => 'foo',
 			}),
 		)
 
