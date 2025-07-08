@@ -1,6 +1,7 @@
 // /source/lib.ts
 // The option parser and rate limiting middleware
 
+import { isIPv6 } from 'node:net'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import {
 	setDraft6Headers,
@@ -9,6 +10,7 @@ import {
 	setLegacyHeaders,
 	setRetryAfterHeader,
 } from './headers.js'
+import { ipKeyGenerator } from './ip-key-generator.js'
 import { MemoryStore } from './memory-store.js'
 import type {
 	AugmentedRequest,
@@ -226,9 +228,24 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.trustProxy(request)
 			validations.xForwardedForHeader(request)
 
-			// By default, use the IP address to rate limit users.
+			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
 			// biome-ignore lint/style/noNonNullAssertion: validations.ip is called above
-			return request.ip!
+			const ip: string = request.ip!
+			let subnet: number | false = 56
+
+			if (isIPv6(ip)) {
+				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
+				subnet =
+					typeof config.ipv6Subnet === 'function'
+						? await config.ipv6Subnet(request, response)
+						: config.ipv6Subnet
+
+				// If it was a function, check the output now (otherwise it got checked earlier)
+				if (typeof config.ipv6Subnet === 'function')
+					validations.ipv6Subnet(subnet)
+			}
+
+			return ipKeyGenerator(ip, subnet)
 		},
 		ipv6Subnet: 56,
 		async handler(
