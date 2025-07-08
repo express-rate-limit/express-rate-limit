@@ -82,6 +82,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 			return legacyStore.resetKey(key)
 		}
 
+		/* istanbul ignore next */
 		async resetAll(): Promise<void> {
 			if (typeof legacyStore.resetAll === 'function')
 				return legacyStore.resetAll()

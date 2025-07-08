@@ -172,6 +172,5 @@ export const setRetryAfterHeader = (
 	if (response.headersSent) return
 
 	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
-
 	response.setHeader('Retry-After', resetSeconds.toString())
 }
