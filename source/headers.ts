@@ -16,18 +16,15 @@ export const SUPPORTED_DRAFT_VERSIONS = [
  * Returns the number of seconds left for the window to reset. Uses `windowMs`
  * in case the store doesn't return a `resetTime`.
  *
- * @param resetTime {Date | undefined} - The timestamp at which the store window resets.
  * @param windowMs {number | undefined} - The window length.
+ * @param resetTime {Date | undefined} - The timestamp at which the store window resets.
  */
-const getResetSeconds = (
-	resetTime?: Date,
-	windowMs?: number,
-): number | undefined => {
-	let resetSeconds: number | undefined
+const getResetSeconds = (windowMs: number, resetTime?: Date): number => {
+	let resetSeconds: number
 	if (resetTime) {
 		const deltaSeconds = Math.ceil((resetTime.getTime() - Date.now()) / 1000)
 		resetSeconds = Math.max(0, deltaSeconds)
-	} else if (windowMs) {
+	} else {
 		// This isn't really correct, but the field is required by the spec in `draft-7`,
 		// so this is the best we can do. The validator should have already logged a
 		// warning by this point.
@@ -94,7 +91,7 @@ export const setDraft6Headers = (
 	if (response.headersSent) return
 
 	const windowSeconds = Math.ceil(windowMs / 1000)
-	const resetSeconds = getResetSeconds(info.resetTime)
+	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
 
 	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
 	response.setHeader('RateLimit-Limit', info.limit.toString())
@@ -121,12 +118,12 @@ export const setDraft7Headers = (
 	if (response.headersSent) return
 
 	const windowSeconds = Math.ceil(windowMs / 1000)
-	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
+	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
 
 	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
 	response.setHeader(
-		'RateLimit', // biome-ignore lint/style/noNonNullAssertion: resetSeconds will fallback to windowMs
-		`limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds!}`,
+		'RateLimit',
+		`limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds}`,
 	)
 }
 
@@ -150,11 +147,10 @@ export const setDraft8Headers = (
 	if (response.headersSent) return
 
 	const windowSeconds = Math.ceil(windowMs / 1000)
-	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
+	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
 	const partitionKey = getPartitionKey(key)
 
-	// biome-ignore lint/style/noNonNullAssertion: resetSeconds will fallback to windowMs
-	const header = `r=${info.remaining}; t=${resetSeconds!}`
+	const header = `r=${info.remaining}; t=${resetSeconds}`
 	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
 
 	response.append('RateLimit', `"${name}"; ${header}`)
@@ -175,8 +171,6 @@ export const setRetryAfterHeader = (
 ): void => {
 	if (response.headersSent) return
 
-	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
-
-	// biome-ignore lint/style/noNonNullAssertion: resetSeconds will fallback to windowMs
-	response.setHeader('Retry-After', resetSeconds!.toString())
+	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
+	response.setHeader('Retry-After', resetSeconds.toString())
 }
