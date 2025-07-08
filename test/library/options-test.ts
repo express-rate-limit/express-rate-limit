@@ -30,7 +30,7 @@ describe('options test', () => {
 	}
 
 	it('should allow an empty options object', async () => {
-		expect(rateLimit()).not.toThrow()
+		expect(rateLimit).not.toThrow()
 	})
 
 	it('should ignore options that are set to `undefined`', async () => {

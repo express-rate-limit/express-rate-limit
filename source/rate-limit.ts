@@ -312,7 +312,7 @@ const handleAsyncErrors =
 		try {
 			await Promise.resolve(fn(request, response, next)).catch(next)
 		} catch (error: unknown) {
-			next?.(error)
+			next(error)
 		}
 	}
 
