@@ -6,7 +6,6 @@ import { createHash } from 'node:crypto'
 import type { Response } from 'express'
 import type { RateLimitInfo } from './types.js'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export const SUPPORTED_DRAFT_VERSIONS = [
 	'draft-6',
 	'draft-7',
@@ -24,7 +23,7 @@ const getResetSeconds = (
 	resetTime?: Date,
 	windowMs?: number,
 ): number | undefined => {
-	let resetSeconds: number | undefined = undefined // eslint-disable-line no-undef-init
+	let resetSeconds: number | undefined
 	if (resetTime) {
 		const deltaSeconds = Math.ceil((resetTime.getTime() - Date.now()) / 1000)
 		resetSeconds = Math.max(0, deltaSeconds)
@@ -126,7 +125,7 @@ export const setDraft7Headers = (
 
 	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
 	response.setHeader(
-		'RateLimit',
+		'RateLimit', // biome-ignore lint/style/noNonNullAssertion: resetSeconds will fallback to windowMs
 		`limit=${info.limit}, remaining=${info.remaining}, reset=${resetSeconds!}`,
 	)
 }
@@ -147,7 +146,6 @@ export const setDraft8Headers = (
 	windowMs: number,
 	name: string,
 	key: string,
-	// eslint-disable-next-line max-params
 ): void => {
 	if (response.headersSent) return
 
@@ -155,11 +153,12 @@ export const setDraft8Headers = (
 	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
 	const partitionKey = getPartitionKey(key)
 
-	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
+	// biome-ignore lint/style/noNonNullAssertion: resetSeconds will fallback to windowMs
 	const header = `r=${info.remaining}; t=${resetSeconds!}`
+	const policy = `q=${info.limit}; w=${windowSeconds}; pk=:${partitionKey}:`
 
-	response.append('RateLimit-Policy', `"${name}"; ${policy}`)
 	response.append('RateLimit', `"${name}"; ${header}`)
+	response.append('RateLimit-Policy', `"${name}"; ${policy}`)
 }
 
 /**
@@ -177,5 +176,7 @@ export const setRetryAfterHeader = (
 	if (response.headersSent) return
 
 	const resetSeconds = getResetSeconds(info.resetTime, windowMs)
+
+	// biome-ignore lint/style/noNonNullAssertion: resetSeconds will fallback to windowMs
 	response.setHeader('Retry-After', resetSeconds!.toString())
 }

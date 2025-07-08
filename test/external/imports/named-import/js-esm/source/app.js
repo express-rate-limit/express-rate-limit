@@ -2,7 +2,7 @@
 // Create a basic server that uses express-rate-limit to rate limit requests
 
 import createServer from 'express'
-import { rateLimit, MemoryStore } from 'express-rate-limit'
+import { MemoryStore, rateLimit } from 'express-rate-limit'
 
 const app = createServer()
 

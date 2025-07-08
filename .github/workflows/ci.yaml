@@ -3,32 +3,32 @@
 
 name: CI
 
-on: [push, pull_request]
+on: push
 
 jobs:
   lint:
     name: Lint
-    strategy:
-      matrix:
-        node-version: [lts/*]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-      - name: Use Node ${{ matrix.node-version }}
+      - name: Use Node LTS
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: lts/*
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
       - name: Check for lint/formatting errors
-        run: |
-          npm ci
-          npm run lint
+        run: pnpm run lint
   test-library:
     name: Test (Library)
     strategy:
       matrix:
-        node-version: [lts/gallium, lts/*, latest]
+        node-version: [lts/hydrogen, lts/*, latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -38,10 +38,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
       - name: Run library tests
-        run: |
-          npm ci
-          npm run test:lib
+        run: pnpm run test:lib
   test-external:
     name: Test (External)
     strategy:
@@ -59,12 +63,13 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
+      - name: Package the library
+        run: pnpm pack
       - name: Run import and external store usage tests
-        run: |
-          pnpm install
-          pnpm pack
-          pnpm test:ext
+        run: pnpm test:ext
   publish:
     name: Publish
     needs: [lint, test-library, test-external]
@@ -76,19 +81,24 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install
       - name: Publish package to NPM
         run: npm publish --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Build package to upload to GitHub releases
         run: |
-          npm pack
+          pnpm pack
           mv express-rate-limit-*.tgz express-rate-limit.tgz
       - name: Create a Github release
         uses: softprops/action-gh-release@v1

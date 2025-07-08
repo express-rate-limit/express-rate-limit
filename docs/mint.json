@@ -32,7 +32,6 @@
 			"pages": [
 				"reference/configuration",
 				"reference/stores",
-				"reference/helpers",
 				"reference/instance-api",
 				"reference/request-api",
 				"reference/error-codes",
@@ -87,18 +86,6 @@
 		{
 			"source": "/errors/err_erl_unknown_validation",
 			"destination": "/reference/error-codes#err-erl-unknown-validation"
-		},
-		{
-			"source": "/errors/err_erl_ipv6_subnet",
-			"destination": "/reference/error-codes#err-erl-ipv6-subnet"
-		},
-		{
-			"source": "/errors/err_erl_ipv6subnet_or_keygenerator",
-			"destination": "/reference/error-codes#err-erl-ipv6subnet-or-keygenerator"
-		},
-		{
-			"source": "/errors/err_erl_key_gen_ipv6",
-			"destination": "/reference/error-codes#err-erl-key-gen-ipv6"
 		},
 		{
 			"source": "/errors/wrn_erl_max_zero",

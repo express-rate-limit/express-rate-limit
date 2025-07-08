@@ -1,18 +1,18 @@
 // /test/headers-test.ts
 // Tests whether the headers sent back by the middleware
 
+import { describe, expect, it, jest } from '@jest/globals'
 import type { Response } from 'express'
-import { jest } from '@jest/globals'
-import { agent as request } from 'supertest'
 import { parseRateLimit } from 'ratelimit-header-parser'
-import rateLimit from '../../source/index.js'
-import type { RateLimitInfo } from '../../source/types.js'
+import { agent as request } from 'supertest'
 import {
-	setLegacyHeaders,
 	setDraft6Headers,
 	setDraft7Headers,
+	setLegacyHeaders,
 	setRetryAfterHeader,
 } from '../../source/headers.js'
+import rateLimit from '../../source/index.js'
+import type { RateLimitInfo } from '../../source/types.js'
 import { createServer } from './helpers/create-server.js'
 
 describe('headers test', () => {
@@ -177,7 +177,7 @@ describe('headers test', () => {
 		setDraft7Headers(response, info, windowMs)
 		setRetryAfterHeader(response, info, windowMs)
 
-		expect(response.setHeader).not.toBeCalled()
+		expect(response.setHeader).not.toHaveBeenCalled()
 	})
 
 	describe('ratelimit-header-parser compatibility', () => {

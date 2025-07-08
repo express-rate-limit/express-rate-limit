@@ -1,7 +1,7 @@
 // /source/memory-store.ts
 // A memory store for hit counts
 
-import type { Store, Options, ClientRateLimitInfo } from './types.js'
+import type { ClientRateLimitInfo, Options, Store } from './types.js'
 
 /**
  * The record that stores information about a client - namely, how many times
@@ -19,7 +19,7 @@ type Client = {
  *
  * @public
  */
-export default class MemoryStore implements Store {
+export class MemoryStore implements Store {
 	/**
 	 * The duration of time before which all hit counts are reset (in milliseconds).
 	 */
@@ -180,11 +180,13 @@ export default class MemoryStore implements Store {
 	 */
 	private getClient(key: string): Client {
 		// If we already have a client for that key in the `current` map, return it.
+		// biome-ignore lint/style/noNonNullAssertion: we're checking that it exists
 		if (this.current.has(key)) return this.current.get(key)!
 
 		let client
 		if (this.previous.has(key)) {
 			// If it's in the `previous` map, take it out
+			// biome-ignore lint/style/noNonNullAssertion: we're checking that it exists
 			client = this.previous.get(key)!
 			this.previous.delete(key)
 		} else {

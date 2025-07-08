@@ -16,7 +16,7 @@ app.use(
 		limit: 3,
 		message: 'Thou must enhanceth thy peace',
 		store: new RedisStore({
-			sendCommand: (...args: string[]) => client.sendCommand(args),
+			sendCommand: (...args) => client.sendCommand(args),
 		}),
 	}),
 )

@@ -4,7 +4,7 @@
 import createServer from 'express'
 import rateLimit from 'express-rate-limit'
 
-import MemcachedStore from 'rate-limit-memcached'
+import { MemcachedStore } from 'rate-limit-memcached'
 
 const app = createServer()
 app.use(
