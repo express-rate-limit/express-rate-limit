@@ -14,3 +14,6 @@ coverage/
 *.tgz
 
 test/external/imports/*/*/package-lock.json
+
+# breaks CI, apparently https://github.com/express-rate-limit/express-rate-limit/pull/518
+pnpm-workspace.yaml
