@@ -16,13 +16,15 @@ First, you need to install and be familiar the following:
 [Here](https://github.com/git-guides) is a great guide by GitHub on installing
 and getting started with Git.
 
-2. `node` and `npm`
+2. `node` and `pnpm`
 
 [This guide](https://nodejs.org/en/download/package-manager/) will help you
 install `node` and `npm`. The recommended method is using the `n` version
 manager if you are on MacOS or Linux. Make sure you are using the
 [active LTS version](https://github.com/nodejs/Release#release-schedule) of
 Node.
+
+Next [install pnpm](https://pnpm.io/installation).
 
 </Step>
 <Step title="Fork the repository">
@@ -37,6 +39,14 @@ and [clone](https://github.com/git-guides/git-clone) the repository
 Once you have forked and cloned the repository, you can
 [pick out an issue](https://github.com/express-rate-limit/express-rate-limit/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
 you want to fix/implement!
+
+</Step>
+<Step title="Install the dependencies">
+
+Run `pnpm install --frozen-lockfile` to install the JavaScript dependencies.
+
+If there are errors, try deleting the `node_modules` folder first, then re-run
+the install command.
 
 </Step>
 <Step title="Create a branch">
@@ -72,9 +82,11 @@ express-rate-limit/
 ├── source/
 │  ├── headers.ts # header parsing functions
 │  ├── index.ts # exports the types and the middleware
-│  ├── lib.ts # option parser and the rate limiting middleware
+|  ├── ip-key-generator.ts # helper function for IPv6
+│  ├── rate-limit.ts # option parser and the rate limiting middleware
 │  ├── memory-store.ts # the used-by-default memory store
 │  ├── types.ts # typescript type definitions, exported as public api
+│  ├── utils.ts # utility functions that don't belong elsewhere
 │  └── validations.ts # validation checks built into library
 ├── test/
 │  ├── external/
@@ -86,11 +98,12 @@ express-rate-limit/
 │     │  └── create-server.ts # creates a test express server
 │     └── *-test.ts # tests for each file in the `source/` folder
 ├── license.md # license info
-├── package-lock.json # npm lock file, do not modify manually
+├── pnpm-lock.yml # pnpm lock file, do not modify manually
 ├── package.json # node package info
 ├── readme.md # project info
 ├── jest.config.json # test runner config
 └── tsconfig.json # typescript config
+└── ... # misclaneous other configuration files
 ```
 
 </Accordion>
@@ -128,7 +141,7 @@ save) the changes. To commit the changes you have made locally:
 While writing the `commit-message`, try to follow the below guidelines:
 
 1. Prefix the message with `type:`, where `type` is one of the following
-   dependending on what the commit does:
+   depending on what the commit does:
    - `fix`: Introduces a bug fix.
    - `feat`: Adds a new feature.
    - `test`: Any change related to tests.
