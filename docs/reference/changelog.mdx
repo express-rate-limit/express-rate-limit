@@ -12,12 +12,13 @@ and this project adheres to
 ## [8.0.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.0.0)
 
 ### Breaking
+
 - IPv6 addresses are now grouped with a /56 subnet by default and rate-limited
-  together. For example, the following two IP addresses will now be considered to
-  be the same user in the default configuration (both would be normalized to 
+  together. For example, the following two IP addresses will now be considered
+  to be the same user in the default configuration (both would be normalized to
   `123:4567:89ab:cd00::/56`):
-    * `0123:4567:89ab:cd11:1111:1111:1111:1111`
-    * `0123:4567:89ab:cd22:2222:2222:2222:2222`
+  - `0123:4567:89ab:cd11:1111:1111:1111:1111`
+  - `0123:4567:89ab:cd22:2222:2222:2222:2222`
 
 ### Fixed
 
