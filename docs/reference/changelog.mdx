@@ -9,13 +9,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [7.6.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.6.0)
+## [8.0.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.0.0)
 
-Note: There are reasonable arguments for why this release could have been
-considered a semver-patch (because this is probably the behavior it should have
-had all along) or, alternatively a semver-major change (because of the /56
-default value). But, we chose semver-patch because a) it _is_ a new feature and
-b) we want to be able to backport it to earlier major versions.
+### Breaking
+- IPv6 addresses are now grouped with a /56 subnet by default and rate-limited
+  together. For example, the following two IP addresses will now be considered to
+  be the same user in the default configuration (both would be normalized to 
+  `123:4567:89ab:cd00::/56`):
+    * `0123:4567:89ab:cd11:1111:1111:1111:1111`
+    * `0123:4567:89ab:cd22:2222:2222:2222:2222`
 
 ### Fixed
 
