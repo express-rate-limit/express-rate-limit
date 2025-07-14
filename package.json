@@ -80,7 +80,7 @@
 		"express": ">= 4.11"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.0.5",
+		"@biomejs/biome": "2.1.1",
 		"@express-rate-limit/prettier": "1.1.1",
 		"@express-rate-limit/tsconfig": "1.0.2",
 		"@jest/globals": "30.0.2",
