@@ -216,7 +216,7 @@ const validations = {
 		if (limit === 0) {
 			throw new ChangeWarning(
 				'WRN_ERL_MAX_ZERO',
-				`Setting limit or max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7`,
+				'Setting limit or max to 0 disables rate limiting in express-rate-limit v6 and older, but will cause all requests to be blocked in v7',
 			)
 		}
 	},
@@ -250,7 +250,7 @@ const validations = {
 		if (onLimitReached) {
 			throw new ChangeWarning(
 				'WRN_ERL_DEPRECATED_ON_LIMIT_REACHED',
-				`The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.`,
+				'The onLimitReached configuration option is deprecated and has been removed in express-rate-limit v7.',
 			)
 		}
 	},
@@ -346,7 +346,7 @@ const validations = {
 			// Otherwise, make sure they know not to do this.
 			throw new ValidationError(
 				'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
-				`express-rate-limit instance should be created at app initialization, not when responding to a request.`,
+				'express-rate-limit instance should be created at app initialization, not when responding to a request.',
 			)
 		}
 	},
@@ -386,7 +386,7 @@ const validations = {
 		) {
 			throw new ValidationError(
 				'ERR_ERL_KEY_GEN_IPV6',
-				`Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits.`,
+				'Custom keyGenerator appears to use request IP without calling the ipKeyGenerator helper function for IPv6 addresses. This could allow IPv6 users to bypass limits.',
 			)
 		}
 	},
