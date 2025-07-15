@@ -231,7 +231,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			const ip: string = request.ip!
-			let subnet: number | false = 56
+			let subnet: number | false = 64
 
 			if (isIPv6(ip)) {
 				// Apply subnet to ignore the bits that he end-user controls and rate-limit on only the bits their ISP controls
@@ -247,7 +247,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 
 			return ipKeyGenerator(ip, subnet)
 		},
-		ipv6Subnet: 56,
+		ipv6Subnet: 64,
 		async handler(
 			request: Request,
 			response: Response,

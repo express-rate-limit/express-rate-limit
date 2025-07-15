@@ -16,7 +16,7 @@ import iptools from 'ip'
  *
  * @public
  */
-export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
+export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 64) {
 	if (ipv6Subnet && isIPv6(ip)) {
 		// For IPv6, return the network address of the subnet in CIDR format
 		return `${iptools.mask(

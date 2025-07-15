@@ -317,7 +317,7 @@ export type Options = {
 	/**
 	 * IPv6 subnet mask applied to IPv6 addresses in the default keyGenerator.
 	 *
-	 * Default is 56. The valid range is technically 1-128 but the value should
+	 * Default is 64 in this version, 56 in 8.0.0 and newer. The valid range is technically 1-128 but the value should
 	 * generally be in the 32-64 range.
 	 *
 	 * Smaller numbers are more aggressive, larger numbers are more lenient. Try
