@@ -207,7 +207,8 @@ export type Store = {
 	/**
 	 * Optional value that the store prepends to keys
 	 *
-	 * Used by the double-count check to avoid false-positives when a key is counted twice, but with different prefixes
+	 * Used by the double-count check to avoid false-positives when a key is counted
+	 * twice, but with different prefixes.
 	 */
 	prefix?: string
 }
@@ -314,6 +315,32 @@ export type Options = {
 	keyGenerator: ValueDeterminingMiddleware<string>
 
 	/**
+	 * IPv6 subnet mask applied to IPv6 addresses in the default keyGenerator.
+	 *
+	 * Default is 64 in this version, 56 in 8.0.0 and newer. The valid range is technically 1-128 but the value should
+	 * generally be in the 32-64 range.
+	 *
+	 * Smaller numbers are more aggressive, larger numbers are more lenient. Try
+	 * bumping to 60 or 64 if you see evidence of users being blocked incorrectly.
+	 *
+	 * May also be set to a function that returns a number based on the request.
+	 *
+	 * See the documentation for more info:
+	 * https://express-rate-limit.mintlify.app/reference/configuration#ipv6subnet.
+	 */
+	ipv6Subnet:
+		| 64 // A few common values, followed by number as a catch-all
+		| 60 // Apparently comcast allows customers to request up to a /60, which is effectively 16 /64s
+		| 56
+		| 52
+		| 50
+		| 48
+		| 32
+		| number // TODO: figure out how to do a "range type" to replace `number` with "1-128". (The validator limits to 32-64, but typescript should probably allow the whole range.)
+		| ValueDeterminingMiddleware<number>
+		| false
+
+	/**
 	 * Express request handler that sends back a response when a client is
 	 * rate-limited.
 	 *
@@ -330,7 +357,7 @@ export type Options = {
 	skip: ValueDeterminingMiddleware<boolean>
 
 	/**
-	 * Method to determine whether or not the request counts as 'succesful'. Used
+	 * Method to determine whether or not the request counts as 'successful'. Used
 	 * when either `skipSuccessfulRequests` or `skipFailedRequests` is set to true.
 	 *
 	 * By default, requests with a response status code less than 400 are considered
@@ -393,6 +420,7 @@ export type RateLimitInfo = {
 	used: number
 	remaining: number
 	resetTime: Date | undefined
+	key: string // IP address, etc.
 
 	/**
 	 * NOTE: The `current` field is deprecated and renamed to `used`. The library

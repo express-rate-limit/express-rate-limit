@@ -9,6 +9,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.0.0)
+
+### Breaking
+
+- IPv6 addresses are now masked with a /56 subnet by default. For example, the
+  following two IP addresses will now be considered to be the same user and
+  grouped together for rate-limiting:
+
+  - `0123:4567:89ab:cd11:1111:1111:1111:1111`
+  - `0123:4567:89ab:cd22:2222:2222:2222:2222`
+
+  (both would be normalized to `123:4567:89ab:cd00::/56`)
+
+### Fixed
+
+- Fixed a vulnerability where IPv6 users could bypass rate limiting by iterating
+  through multiple IP addresses in their ISP-assigned subnet.
+
+### Added
+
+- `ipv6Subnet` configuration option used by the default `keyGenerator`, defaults
+  to `56`
+- `ipKeyGenerator(ip, ipv6Subnet)` helper method to apply the desired subnet to
+  IPv6 addresses (returns IPv4 unchanged)
+- `ipv6Subnet` validation check on above configuration option's value (allowed
+  range is 32-64)
+- `ipv6SubnetOrKeyGenerator` validation check to warn of an incompatible
+  combination of `ipv6Subnet` and `keyGenerator` settings.
+- `keyGeneratorIpFallback` validation check on custom `keyGenerator`s to ensure
+  they're using `ipKeyGenerator` if they reference `req.ip` or `request.ip`
+
 ## [7.5.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v7.5.1)
 
 ### Changed
@@ -24,7 +55,7 @@ and this project adheres to
 
 - Implemented the combined `RateLimit` header according to the eighth draft of
   the
-  [IETF RateLimit header specificiation](https://github.com/ietf-wg-httpapi/ratelimit-headers).
+  [IETF RateLimit header specification](https://github.com/ietf-wg-httpapi/ratelimit-headers).
   Enable by setting `standardHeaders: 'draft-8'`.
 - Added a new `identifier` option, used as the name for the quota policy in the
   `draft-8` headers.
