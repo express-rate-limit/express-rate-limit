@@ -73,9 +73,6 @@
 		"pre-commit": "lint-staged",
 		"prepare": "run-s compile && husky"
 	},
-	"dependencies": {
-		"ip": "2.0.1"
-	},
 	"peerDependencies": {
 		"express": ">= 4.11"
 	},
