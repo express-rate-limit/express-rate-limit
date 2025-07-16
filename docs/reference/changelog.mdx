@@ -17,6 +17,14 @@ and this project adheres to
 - express's `Request` and `Response` types are once again correctly referenced
   in .d.ts files
 
+### Changed
+
+- Replaced `ip` library with `ip-address` due to a vulnerability in `ip`.
+
+  Note that express-rate-limit did not use the vulnerable code path, but we
+  swapped the library to prevent users from getting vulnerability warnings and
+  reports.
+
 ## [8.0.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.0.0)
 
 ### Breaking
