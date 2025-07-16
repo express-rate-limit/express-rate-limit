@@ -7,7 +7,7 @@ import iptools from 'ip'
  * If you write a custom keyGenerator that allows a fallback to IP address for
  * unauthenticated users, return ipKeyGenerator(req.ip) rather than just req.ip.
  *
- * For more infomration, {@see Options.ipv6Subnet}.
+ * For more information, {@see Options.ipv6Subnet}.
  *
  * @param ip {string} - The IP address to process, usually request.ip.
  * @param ipv6Subnet {number | false} - The subnet mask for IPv6 addresses.
