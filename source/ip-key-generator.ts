@@ -1,5 +1,5 @@
 import { isIPv6 } from 'node:net'
-import iptools from 'ip'
+import { Address6 } from 'ip-address'
 
 /**
  * Returns the IP address itself for IPv4, or a CIDR-notation subnet for IPv6.
@@ -19,10 +19,7 @@ import iptools from 'ip'
 export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 	if (ipv6Subnet && isIPv6(ip)) {
 		// For IPv6, return the network address of the subnet in CIDR format
-		return `${iptools.mask(
-			ip,
-			iptools.fromPrefixLen(ipv6Subnet),
-		)}/${ipv6Subnet}`
+		return `${new Address6(`${ip}/${ipv6Subnet}`).startAddress().correctForm()}/${ipv6Subnet}`
 	}
 
 	// For IPv4, just return the IP address itself
