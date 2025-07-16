@@ -18,15 +18,7 @@ import { isIPv6 } from 'node:net'
 export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 	if (ipv6Subnet && isIPv6(ip)) {
 		// For IPv6, return the network address of the subnet in CIDR format
-		try {
-			return getIpv6NetworkAddress(ip, ipv6Subnet)
-		} catch (error) {
-			// log an error, but don't crash the app
-			console.error(
-				`Error applying subnet ${ipv6Subnet} to IPv6 address ${ip}: ${error}`,
-			)
-			return ip
-		}
+		return getIpv6NetworkAddress(ip, ipv6Subnet)
 	}
 
 	// For IPv4, just return the IP address itself
