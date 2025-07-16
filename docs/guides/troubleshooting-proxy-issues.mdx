@@ -29,7 +29,9 @@ To solve this issue, please follow the steps given below.
     	create a test endpoint that returns the client IP:
 
     	```ts
-    	app.get('/ip', (request, response) => response.send(request.ip))
+        app.get('/ip', (request, response) => {
+          response.send(request.ip);
+        });
     	```
 
     	Make a `get` request to `/ip` and check the IP address returned in the
