@@ -227,6 +227,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			validations.ip(request.ip)
 			validations.trustProxy(request)
 			validations.xForwardedForHeader(request)
+			validations.forwardedHeader(request)
 
 			// Note: eslint thinks the ! is unnecessary but dts-bundle-generator disagrees
 			// biome-ignore lint/style/noNonNullAssertion: validations.ip is called above

@@ -98,6 +98,20 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('forwardedHeader', () => {
+		it('should log an error when the Forwarded set to any value, but not when it is unset', () => {
+			validations.forwardedHeader({
+				headers: {},
+			} as any)
+			expect(console.error).not.toHaveBeenCalled()
+
+			validations.forwardedHeader({
+				headers: { forwarded: '1.2.3.4' },
+			} as any)
+			expect(console.error).toHaveBeenCalled()
+		})
+	})
+
 	describe('positiveHits', () => {
 		it('should log an error if hits is non-numeric', () => {
 			validations.positiveHits(true)
