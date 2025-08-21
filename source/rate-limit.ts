@@ -275,7 +275,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		standardHeaders,
 		// Note that this field is declared after the user's options are spread in,
 		// so that this field doesn't get overridden with an un-promisified store!
-		store: promisifyStore(notUndefinedOptions.store ?? new MemoryStore()),
+		store: promisifyStore(
+			notUndefinedOptions.store ?? new MemoryStore(validations),
+		),
 		// Print an error to the console if a few known misconfigurations are detected.
 		validations,
 	}

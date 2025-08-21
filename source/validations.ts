@@ -390,6 +390,21 @@ const validations = {
 			)
 		}
 	},
+
+	windowMs(windowMs: number) {
+		const SET_TIMEOUT_MAX = 2 ** 31 - 1
+		if (
+			typeof windowMs !== 'number' ||
+			Number.isNaN(windowMs) ||
+			windowMs < 1 ||
+			windowMs > SET_TIMEOUT_MAX
+		) {
+			throw new ValidationError(
+				'ERR_ERL_WINDOW_MS',
+				`Invalid windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be a number between 1 and ${SET_TIMEOUT_MAX} when using the default MemoryStore`,
+			)
+		}
+	},
 }
 
 export type Validations = typeof validations

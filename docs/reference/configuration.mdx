@@ -25,11 +25,18 @@ create multiple rate limiters.
 <Note>
 
 For stores that do not implement the `init` function (including all legacy
-stores - see the [data stores page](/reference/stores)), you may need to
-configure this value twice, once here and once on the store. In some cases the
-units also differ (e.g. seconds vs milliseconds).
+stores - see the [data stores page][stores]), you may need to configure this
+value twice, once here and once on the store. In some cases the units also
+differ (e.g. seconds vs milliseconds).
 
 </Note>
+
+Maximum value with the default MemoryStore is `2147483647` (2^31-1, ~28.4 days)
+due to
+[limitations of the `setInterval()` call in node.js](https://nodejs.org/api/timers.html#setintervalcallback-delay-args).
+(Also, all rate limits in the default MemoryStore are reset when the node.js
+process is restarted.) Most other [stores] support larger values and retain
+their state when node.js is reset.
 
 Defaults to `60000` ms (= 1 minute).
 
@@ -514,5 +521,8 @@ Supported validations are:
 - [ipv6Subnet](/reference/error-codes#err-erl-ipv6-subnet)
 - [ipv6SubnetOrKeyGenerator](/reference/error-codes#err-erl-ipv6subnet-or-keygenerator)
 - [keyGeneratorIpFallback](/reference/error-codes#err-erl-key-gen-ipv6)
+- [windowMs](/reference/error-codes#err-erl-window-ms)
 
 Defaults to `true`.
+
+[stores]: /reference/stores
