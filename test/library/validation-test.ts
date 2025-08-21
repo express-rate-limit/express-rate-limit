@@ -108,7 +108,9 @@ describe('validations tests', () => {
 			validations.forwardedHeader({
 				headers: { forwarded: '1.2.3.4' },
 			} as any)
-			expect(console.error).toHaveBeenCalled()
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_FORWARDED_HEADER' }),
+			)
 		})
 	})
 
