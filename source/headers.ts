@@ -98,7 +98,7 @@ export const setDraft6Headers = (
 	response.setHeader('RateLimit-Remaining', info.remaining.toString())
 
 	// Set this header only if the store returns a `resetTime`.
-	if (resetSeconds)
+	if (typeof resetSeconds === 'number')
 		response.setHeader('RateLimit-Reset', resetSeconds.toString())
 }
 
