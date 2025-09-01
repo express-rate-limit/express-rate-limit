@@ -336,4 +336,48 @@ describe('headers test', () => {
 			})
 		})
 	})
+
+	it('should send RateLimit-Reset header with value 0 when window has just expired for draft-6', async () => {
+		class MockStore implements Store {
+			hits: Map<string, number> = new Map()
+
+			async get(key: string): Promise<ClientRateLimitInfo> {
+				return {
+					totalHits: this.hits.get(key) ?? 0,
+					resetTime: new Date(Date.now()), // Current time - this results in resetSeconds = 0
+				}
+			}
+
+			async increment(key: string): Promise<ClientRateLimitInfo> {
+				const count = (this.hits.get(key) ?? 0) + 1
+				this.hits.set(key, count)
+
+				return {
+					totalHits: count,
+					resetTime: new Date(Date.now()), // Current time - this results in resetSeconds = 0
+				}
+			}
+
+			async decrement(_key: string): Promise<void> {}
+
+			async resetKey(_key: string): Promise<void> {}
+		}
+
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 5,
+				store: new MockStore(),
+				standardHeaders: 'draft-6',
+			}),
+		)
+
+		await request(app)
+			.get('/')
+			.expect('ratelimit-policy', '5;w=60')
+			.expect('ratelimit-limit', '5')
+			.expect('ratelimit-remaining', '4')
+			.expect('ratelimit-reset', '0')
+			.expect(200, 'Hi there!')
+	})
 })
