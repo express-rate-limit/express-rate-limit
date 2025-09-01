@@ -391,6 +391,12 @@ const validations = {
 		}
 	},
 
+	/**
+	 * Checks to see if the window duration is greater than 2^32 - 1. This is only
+	 * called by the default MemoryStore, since it uses Node's setInterval method.
+	 *
+	 * See https://nodejs.org/api/timers.html#setintervalcallback-delay-args.
+	 */
 	windowMs(windowMs: number) {
 		const SET_TIMEOUT_MAX = 2 ** 31 - 1
 		if (
