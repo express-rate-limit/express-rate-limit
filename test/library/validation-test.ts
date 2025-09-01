@@ -558,4 +558,17 @@ describe('validations tests', () => {
 			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
+
+	describe('windowMs', () => {
+		it('should warn on large values, but not in-range values', () => {
+			validations.windowMs(5 * 60 * 1000)
+			expect(console.warn).not.toHaveBeenCalled()
+			expect(console.error).not.toHaveBeenCalled()
+
+			validations.windowMs(30 * 24 * 60 * 60 * 1000)
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_WINDOW_MS' }),
+			)
+		})
+	})
 })

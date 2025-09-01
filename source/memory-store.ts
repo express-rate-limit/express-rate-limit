@@ -2,6 +2,7 @@
 // A memory store for hit counts
 
 import type { ClientRateLimitInfo, Options, Store } from './types.js'
+import type { Validations } from './validations.js'
 
 /**
  * The record that stores information about a client - namely, how many times
@@ -49,6 +50,8 @@ export class MemoryStore implements Store {
 	 */
 	localKeys = true
 
+	constructor(private validations?: Validations) {}
+
 	/**
 	 * Method that initializes the store.
 	 *
@@ -57,6 +60,9 @@ export class MemoryStore implements Store {
 	init(options: Options): void {
 		// Get the duration of a window from the options.
 		this.windowMs = options.windowMs
+
+		// check for a valid value
+		this.validations?.windowMs(this.windowMs)
 
 		// Indicates that init was called more than once.
 		// Could happen if a store was shared between multiple instances.
