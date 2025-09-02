@@ -123,20 +123,20 @@ import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
 
 // ...
 
+const NUMBER_OF_PROXIES_TO_TRUST = 1
+
 app.use(
 	rateLimit({
 		keyGenerator: (req, res) => {
 			let ip = req.ip
-			if (req.headers.forwarded) {
-				try {
-					ip = parseForwarded(req.headers.forwarded).pop().for
-				} catch (ex) {
-					console.error(
-						'Error parsing Forwarded header:',
-						req.headers.forwarded,
-						ex,
-					)
-				}
+			try {
+				const forwards = parseForwarded(req.headers.forwarded)
+				ip = forwards[forwards.length - NUMBER_OF_PROXIES_TO_TRUST].for
+			} catch (ex) {
+				console.error(
+					`Error parsing Forwarded header ${req.headers.forwarded} from ${req.ip}:`,
+					ex,
+				)
 			}
 			return ipKeyGenerator(ip)
 		},
@@ -147,6 +147,12 @@ app.use(
 
 (`ipKeyGenerator` is needed for proper limiting of IPv6 users, see
 [ERR_ERL_KEY_GEN_IPV6](#err-erl-ipv6subnet-or-keygenerator) for more info.)
+
+If there are multiple proxies between your server and the internet and each adds
+a `Forwarded` header, increment `NUMBER_OF_PROXIES_TO_TRUST` to match.
+
+See [Troubleshooting Proxy Issues](/guides/troubleshooting-proxy-issues) for
+additional information.
 
 Set `validate: {forwardedHeader: false}` in the options to disable the check.
 
