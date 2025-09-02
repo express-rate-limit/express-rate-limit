@@ -447,12 +447,12 @@ check.
 
 Node.js (as of version 24.6.0)
 [limits `setInterval()` delays to the max 32-bit signed integer value of `2147483647` milliseconds](https://nodejs.org/api/timers.html#setintervalcallback-delay-args),
-which is about 28.4 days. Accordingly, express-rate-limit checks the value
+which is about 28.4 days. Accordingly, express-rate-limit checks the `windowMs` value
 before using it in the default MemoryStore and warns when it's out of range.
 
 Longer values can be used with most external [stores](/reference/stores).
 
-Set `validate: {limit: false}` in the options to disable the check.
+Set `validate: {windowMs: false}` in the options to disable the check.
 
 ## Warnings
 
