@@ -154,6 +154,10 @@ a `Forwarded` header, increment `NUMBER_OF_PROXIES_TO_TRUST` to match.
 See [Troubleshooting Proxy Issues](/guides/troubleshooting-proxy-issues) for
 additional information.
 
+`req.ip` could also be set before express-rate-limit processes the request. If
+it is set to anything other than the default value (`req.socket.remoteAddress`),
+this error will be automatically suppressed.
+
 Set `validate: {forwardedHeader: false}` in the options to disable the check.
 
 ### `ERR_ERL_INVALID_HITS`

@@ -102,15 +102,35 @@ describe('validations tests', () => {
 		it('should log an error when the Forwarded set to any value, but not when it is unset', () => {
 			validations.forwardedHeader({
 				headers: {},
+				ip: '1.2.3.4',
+				socket: { remoteAddress: '1.2.3.4' },
 			} as any)
 			expect(console.error).not.toHaveBeenCalled()
 
 			validations.forwardedHeader({
-				headers: { forwarded: '1.2.3.4' },
+				headers: { forwarded: '5.6.7.8' },
+				ip: '1.2.3.4',
+				socket: { remoteAddress: '1.2.3.4' },
 			} as any)
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_FORWARDED_HEADER' }),
 			)
+		})
+
+		it('should not log an error when request.ip has been set to a non-default value', () => {
+			validations.forwardedHeader({
+				headers: {},
+				ip: '1.2.3.100',
+				socket: { remoteAddress: '1.2.3.4' },
+			} as any)
+			expect(console.error).not.toHaveBeenCalled()
+
+			validations.forwardedHeader({
+				headers: { forwarded: '5.6.7.8' },
+				ip: '1.2.3.100',
+				socket: { remoteAddress: '1.2.3.4' },
+			} as any)
+			expect(console.error).not.toHaveBeenCalled()
 		})
 	})
 
