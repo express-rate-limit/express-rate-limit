@@ -139,6 +139,26 @@ const validations = {
 	},
 
 	/**
+	 * Alert the user if the Forwarded header is set (standardized version of X-Forwarded-For - not supported by express as of version 5.1.0)
+	 *
+	 * @param request {Request} - The Express request object.
+	 *
+	 * @returns {void}
+	 */
+	forwardedHeader(request: Request) {
+		if (
+			request.headers.forwarded &&
+			request.ip === request.socket?.remoteAddress
+		) {
+			// if req.ip is set to something else, assume it's correct and don't warn here
+			throw new ValidationError(
+				'ERR_ERL_FORWARDED_HEADER',
+				`The 'Forwarded' header (standardized X-Forwarded-For) is set but currently being ignored. Add a custom keyGenerator to use a value from this header.`,
+			)
+		}
+	},
+
+	/**
 	 * Ensures totalHits value from store is a positive integer.
 	 *
 	 * @param hits {any} - The `totalHits` returned by the store.

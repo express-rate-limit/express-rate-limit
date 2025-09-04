@@ -96,6 +96,70 @@ This check will be prevented if a custom `keyGenerator` is supplied.
 Set `validate: {xForwardedForHeader: false}` in the options to disable the
 check.
 
+### `ERR_ERL_FORWARDED_HEADER`
+
+> Added in `8.1.0`.
+
+This error is logged when the `Forwarded` header
+([RFC 7239](https://tools.ietf.org/html/rfc7239)) is set (indicating use of a
+proxy) and the default [`keyGenerator`] is used.
+
+As of express@5.1.0, express's `trust proxy` setting does not support the
+`Forwarded` header, only `X-Forwarded-For`, and express-rate-limit relies on
+express to determine the requester's IP address, so this header is ignored in
+the default configuration.
+
+(There is an
+[open ticket requesting support be added to the proxy-addr library](https://github.com/jshttp/proxy-addr/issues/20)
+that express uses to determine IP address.)
+
+To use this header, add a custom [keyGenerator] that parses it and returns the
+correct IP. For example, using the
+[forwarded-parse](https://www.npmjs.com/package/forwarded-parse) library:
+
+```js
+import parseForwarded from 'forwarded-parse'
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
+
+// ...
+
+const NUMBER_OF_PROXIES_TO_TRUST = 1
+
+app.use(
+	rateLimit({
+		keyGenerator: (req, res) => {
+			let ip = req.ip
+			try {
+				const forwards = parseForwarded(req.headers.forwarded)
+				ip = forwards[forwards.length - NUMBER_OF_PROXIES_TO_TRUST].for
+			} catch (ex) {
+				console.error(
+					`Error parsing Forwarded header ${req.headers.forwarded} from ${req.ip}:`,
+					ex,
+				)
+			}
+			return ipKeyGenerator(ip)
+		},
+		// ...
+	}),
+)
+```
+
+(`ipKeyGenerator` is needed for proper limiting of IPv6 users, see
+[ERR_ERL_KEY_GEN_IPV6](#err-erl-ipv6subnet-or-keygenerator) for more info.)
+
+If there are multiple proxies between your server and the internet and each adds
+a `Forwarded` header, increment `NUMBER_OF_PROXIES_TO_TRUST` to match.
+
+See [Troubleshooting Proxy Issues](/guides/troubleshooting-proxy-issues) for
+additional information.
+
+`req.ip` could also be set before express-rate-limit processes the request. If
+it is set to anything other than the default value (`req.socket.remoteAddress`),
+this error will be automatically suppressed.
+
+Set `validate: {forwardedHeader: false}` in the options to disable the check.
+
 ### `ERR_ERL_INVALID_HITS`
 
 > Added in `6.10.0`.
@@ -383,12 +447,13 @@ check.
 
 Node.js (as of version 24.6.0)
 [limits `setInterval()` delays to the max 32-bit signed integer value of `2147483647` milliseconds](https://nodejs.org/api/timers.html#setintervalcallback-delay-args),
-which is about 28.4 days. Accordingly, express-rate-limit checks the value
-before using it in the default MemoryStore and warns when it's out of range.
+which is about 28.4 days. Accordingly, express-rate-limit checks the `windowMs`
+value before using it in the default MemoryStore and warns when it's out of
+range.
 
 Longer values can be used with most external [stores](/reference/stores).
 
-Set `validate: {limit: false}` in the options to disable the check.
+Set `validate: {windowMs: false}` in the options to disable the check.
 
 ## Warnings
 
@@ -443,3 +508,6 @@ option to replicate its behaviour, or use the recommended
 `standardHeaders: 'draft-7'` option instead.
 
 Set `validate: {draftPolliHeaders: false}` in the options to disable the check.
+
+[`keyGenerator`]: /reference/configuration#keygenerator
+[keyGenerator]: /reference/configuration#keygenerator

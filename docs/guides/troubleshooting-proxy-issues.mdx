@@ -12,7 +12,8 @@ request might be the IP of the load balancer/reverse proxy (making the rate
 limiter effectively a global one and blocking all requests once the limit is
 reached) or `undefined`.
 
-To solve this issue, please follow the steps given below.
+To solve this issue, assuming the proxy (or proxies) set the `X-Forwarded-For`
+header, please follow the steps given below.
 
 <Steps>
 
@@ -46,6 +47,14 @@ To solve this issue, please follow the steps given below.
 
 For more information about the `trust proxy` setting, take a look at the
 [official Express documentation](https://expressjs.com/en/guide/behind-proxies.html).
+
+#### Forwarded header
+
+If the server instead sets the `Forwarded` header, the steps are similar except
+that you'll need a
+[custom keyGenerator](/reference/error-codes#err-erl-forwarded-header) because
+express does not have built-in support for the `Forwarded` header (as of version
+5.1.0),
 
 ### Port Numbers in IP Addresses
 
