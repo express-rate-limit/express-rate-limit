@@ -53,13 +53,13 @@ importers:
         version: 9.1.7
       jest:
         specifier: 30.1.3
-        version: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+        version: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       lint-staged:
         specifier: 16.1.6
         version: 16.1.6
       mintlify:
         specifier: 4.2.114
-        version: 4.2.114(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+        version: 4.2.114(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
       npm-run-all:
         specifier: 4.1.5
         version: 4.1.5
@@ -74,13 +74,13 @@ importers:
         version: 7.1.4
       ts-jest:
         specifier: 29.4.2
-        version: 29.4.2(@babel/core@7.28.4)(@jest/transform@30.1.2)(@jest/types@30.0.5)(babel-jest@30.1.2(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.0.5)(jest@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)))(typescript@5.9.2)
+        version: 29.4.2(@babel/core@7.28.4)(@jest/transform@30.1.2)(@jest/types@30.0.5)(babel-jest@30.1.2(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.0.5)(jest@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)))(typescript@5.9.3)
       ts-node:
         specifier: 10.9.2
-        version: 10.9.2(@types/node@24.5.0)(typescript@5.9.2)
+        version: 10.9.2(@types/node@24.5.0)(typescript@5.9.3)
       typescript:
-        specifier: 5.9.2
-        version: 5.9.2
+        specifier: 5.9.3
+        version: 5.9.3
 
 packages:
 
@@ -3954,7 +3954,7 @@ packages:
   puppeteer@22.15.0:
     resolution: {integrity: sha512-XjCY1SiSEi1T7iSYuxS82ft85kwDJUS7wj1Z0eGVXKdtr5g4xnVcbjwxhq5xBnpK/E7x1VZZoJDxpjAOasHT4Q==}
     engines: {node: '>=18'}
-    deprecated: < 24.10.2 is no longer supported
+    deprecated: < 24.15.0 is no longer supported
     hasBin: true
 
   pure-rand@7.0.1:
@@ -4653,8 +4653,8 @@ packages:
     resolution: {integrity: sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==}
     engines: {node: '>= 0.4'}
 
-  typescript@5.9.2:
-    resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -5543,7 +5543,7 @@ snapshots:
       jest-util: 30.0.5
       slash: 3.0.0
 
-  '@jest/core@30.1.3(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))':
+  '@jest/core@30.1.3(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))':
     dependencies:
       '@jest/console': 30.1.2
       '@jest/pattern': 30.0.1
@@ -5558,7 +5558,7 @@ snapshots:
       exit-x: 0.2.2
       graceful-fs: 4.2.11
       jest-changed-files: 30.0.5
-      jest-config: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      jest-config: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       jest-haste-map: 30.1.0
       jest-message-util: 30.1.0
       jest-regex-util: 30.0.1
@@ -5809,13 +5809,13 @@ snapshots:
       '@types/react': 19.1.8
       react: 19.1.1
 
-  '@mintlify/cli@4.0.718(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)':
+  '@mintlify/cli@4.0.718(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
-      '@mintlify/link-rot': 3.0.665(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
+      '@mintlify/link-rot': 3.0.665(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
       '@mintlify/models': 0.0.228
-      '@mintlify/prebuild': 1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
-      '@mintlify/previewing': 4.0.701(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+      '@mintlify/prebuild': 1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@mintlify/previewing': 4.0.701(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
       '@mintlify/validation': 0.1.467
       chalk: 5.6.2
       detect-port: 1.6.1
@@ -5842,7 +5842,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@mintlify/common@1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))':
+  '@mintlify/common@1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))':
     dependencies:
       '@asyncapi/parser': 3.4.0
       '@mintlify/mdx': 2.0.5(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)
@@ -5876,7 +5876,7 @@ snapshots:
       remark-math: 6.0.0
       remark-mdx: 3.1.1
       remark-stringify: 11.0.0
-      tailwindcss: 3.4.17(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      tailwindcss: 3.4.17(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       unified: 11.0.5
       unist-builder: 4.0.0
       unist-util-map: 4.0.0
@@ -5894,11 +5894,11 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@mintlify/link-rot@3.0.665(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)':
+  '@mintlify/link-rot@3.0.665(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
-      '@mintlify/prebuild': 1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
-      '@mintlify/previewing': 4.0.701(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
+      '@mintlify/prebuild': 1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@mintlify/previewing': 4.0.701(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
       '@mintlify/validation': 0.1.467
       fs-extra: 11.3.2
       unist-util-visit: 4.1.2
@@ -5952,11 +5952,11 @@ snapshots:
       leven: 4.1.0
       yaml: 2.8.1
 
-  '@mintlify/prebuild@1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)':
+  '@mintlify/prebuild@1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       '@mintlify/openapi-parser': 0.0.7
-      '@mintlify/scraping': 4.0.387(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+      '@mintlify/scraping': 4.0.387(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
       '@mintlify/validation': 0.1.467
       chalk: 5.6.2
       favicons: 7.2.0
@@ -5980,10 +5980,10 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@mintlify/previewing@4.0.701(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)':
+  '@mintlify/previewing@4.0.701(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
-      '@mintlify/prebuild': 1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
+      '@mintlify/prebuild': 1.0.652(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
       '@mintlify/validation': 0.1.467
       better-opn: 3.0.2
       chalk: 5.6.2
@@ -6017,16 +6017,16 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@mintlify/scraping@4.0.387(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)':
+  '@mintlify/scraping@4.0.387(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      '@mintlify/common': 1.0.528(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(react@19.1.1)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       '@mintlify/openapi-parser': 0.0.7
       fs-extra: 11.3.2
       hast-util-to-mdast: 10.1.2
       js-yaml: 4.1.0
       mdast-util-mdx-jsx: 3.2.0
       neotraverse: 0.6.18
-      puppeteer: 22.15.0(typescript@5.9.2)
+      puppeteer: 22.15.0(typescript@5.9.3)
       rehype-parse: 9.0.1
       remark-gfm: 4.0.1
       remark-mdx: 3.1.1
@@ -7094,14 +7094,14 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  cosmiconfig@9.0.0(typescript@5.9.2):
+  cosmiconfig@9.0.0(typescript@5.9.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.0
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
 
   create-require@1.1.1: {}
 
@@ -7255,7 +7255,7 @@ snapshots:
 
   dts-bundle-generator@8.1.2:
     dependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
       yargs: 17.7.2
 
   dunder-proto@1.0.1:
@@ -8475,15 +8475,15 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  jest-cli@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)):
+  jest-cli@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)):
     dependencies:
-      '@jest/core': 30.1.3(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      '@jest/core': 30.1.3(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       '@jest/test-result': 30.1.3
       '@jest/types': 30.0.5
       chalk: 4.1.2
       exit-x: 0.2.2
       import-local: 3.2.0
-      jest-config: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      jest-config: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       jest-util: 30.0.5
       jest-validate: 30.1.0
       yargs: 17.7.2
@@ -8494,7 +8494,7 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-config@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)):
+  jest-config@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)):
     dependencies:
       '@babel/core': 7.28.4
       '@jest/get-type': 30.1.0
@@ -8522,7 +8522,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 24.5.0
-      ts-node: 10.9.2(@types/node@24.5.0)(typescript@5.9.2)
+      ts-node: 10.9.2(@types/node@24.5.0)(typescript@5.9.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -8783,12 +8783,12 @@ snapshots:
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
-  jest@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)):
+  jest@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)):
     dependencies:
-      '@jest/core': 30.1.3(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      '@jest/core': 30.1.3(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       '@jest/types': 30.0.5
       import-local: 3.2.0
-      jest-cli: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      jest-cli: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -9481,9 +9481,9 @@ snapshots:
       minipass: 3.3.6
       yallist: 4.0.0
 
-  mintlify@4.2.114(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2):
+  mintlify@4.2.114(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3):
     dependencies:
-      '@mintlify/cli': 4.0.718(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))(typescript@5.9.2)
+      '@mintlify/cli': 4.0.718(@types/node@24.5.0)(@types/react@19.1.8)(react-dom@18.3.1(react@19.1.1))(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - '@types/node'
       - '@types/react'
@@ -9815,13 +9815,13 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.5.6
 
-  postcss-load-config@4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)):
+  postcss-load-config@4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)):
     dependencies:
       lilconfig: 3.1.3
       yaml: 2.8.1
     optionalDependencies:
       postcss: 8.5.6
-      ts-node: 10.9.2(@types/node@24.5.0)(typescript@5.9.2)
+      ts-node: 10.9.2(@types/node@24.5.0)(typescript@5.9.3)
 
   postcss-nested@6.2.0(postcss@8.5.6):
     dependencies:
@@ -9904,10 +9904,10 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  puppeteer@22.15.0(typescript@5.9.2):
+  puppeteer@22.15.0(typescript@5.9.3):
     dependencies:
       '@puppeteer/browsers': 2.3.0
-      cosmiconfig: 9.0.0(typescript@5.9.2)
+      cosmiconfig: 9.0.0(typescript@5.9.3)
       devtools-protocol: 0.0.1312386
       puppeteer-core: 22.15.0
     transitivePeerDependencies:
@@ -10703,7 +10703,7 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.2.9
 
-  tailwindcss@3.4.17(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)):
+  tailwindcss@3.4.17(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -10722,7 +10722,7 @@ snapshots:
       postcss: 8.5.6
       postcss-import: 15.1.0(postcss@8.5.6)
       postcss-js: 4.1.0(postcss@8.5.6)
-      postcss-load-config: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      postcss-load-config: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       postcss-nested: 6.2.0(postcss@8.5.6)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.10
@@ -10798,18 +10798,18 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.4.2(@babel/core@7.28.4)(@jest/transform@30.1.2)(@jest/types@30.0.5)(babel-jest@30.1.2(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.0.5)(jest@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2)))(typescript@5.9.2):
+  ts-jest@29.4.2(@babel/core@7.28.4)(@jest/transform@30.1.2)(@jest/types@30.0.5)(babel-jest@30.1.2(@babel/core@7.28.4))(esbuild@0.25.9)(jest-util@30.0.5)(jest@30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3)))(typescript@5.9.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       handlebars: 4.7.8
-      jest: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2))
+      jest: 30.1.3(@types/node@24.5.0)(ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3))
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
       semver: 7.7.2
       type-fest: 4.41.0
-      typescript: 5.9.2
+      typescript: 5.9.3
       yargs-parser: 21.1.1
     optionalDependencies:
       '@babel/core': 7.28.4
@@ -10819,7 +10819,7 @@ snapshots:
       esbuild: 0.25.9
       jest-util: 30.0.5
 
-  ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.2):
+  ts-node@10.9.2(@types/node@24.5.0)(typescript@5.9.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -10833,7 +10833,7 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.9.2
+      typescript: 5.9.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
@@ -10891,7 +10891,7 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
 
-  typescript@5.9.2: {}
+  typescript@5.9.3: {}
 
   uglify-js@3.19.3:
     optional: true
