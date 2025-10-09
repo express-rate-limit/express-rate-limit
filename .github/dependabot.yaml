@@ -8,7 +8,7 @@ updates:
     schedule:
       interval: 'weekly'
     # group all updates together into a single PR (group name is "all")
-    groups:
-      all:
-        patterns:
-          - "*"
+    # groups:
+    #   all:
+    #     patterns:
+    #       - "*"
