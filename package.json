@@ -85,7 +85,7 @@
 		"@types/jest": "30.0.0",
 		"@types/node": "24.7.2",
 		"@types/supertest": "6.0.3",
-		"del-cli": "6.0.0",
+		"del-cli": "7.0.0",
 		"dts-bundle-generator": "8.1.2",
 		"esbuild": "0.25.11",
 		"express": "5.1.0",

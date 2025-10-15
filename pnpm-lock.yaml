@@ -37,8 +37,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       del-cli:
-        specifier: 6.0.0
-        version: 6.0.0
+        specifier: 7.0.0
+        version: 7.0.0
       dts-bundle-generator:
         specifier: 8.1.2
         version: 8.1.2
@@ -2012,13 +2012,13 @@ packages:
     resolution: {integrity: sha512-TllpMR/t0M5sqCXfj85i4XaAzxmS5tVA16dqvdkMwGmzI+dXLXnw3J+3Vdv7VKw+ThlTMboK6i9rnZ6Nntj5CQ==}
     engines: {node: '>= 14'}
 
-  del-cli@6.0.0:
-    resolution: {integrity: sha512-9nitGV2W6KLFyya4qYt4+9AKQFL+c0Ehj5K7V7IwlxTc6RMCfQUGY9E9pLG6e8TQjtwXpuiWIGGZb3mfVxyZkw==}
+  del-cli@7.0.0:
+    resolution: {integrity: sha512-fRl4pWJYu9WFQH8jXdQUYvcD0IMtij9WEc7qmB7xOyJEweNJNuE7iKmqNeoOT1DbBUjtRjxlw8Y63qKBI/NQ1g==}
     engines: {node: '>=18'}
     hasBin: true
 
-  del@8.0.0:
-    resolution: {integrity: sha512-R6ep6JJ+eOBZsBr9esiNN1gxFbZE4Q2cULkUSFumGYecAiS6qodDvcPx/sFuWHMNul7DWmrtoEOpYSm7o6tbSA==}
+  del@8.0.1:
+    resolution: {integrity: sha512-gPqh0mKTPvaUZGAuHbrBUYKZWBNAeHG7TU3QH5EhVwPMyKvmfJaNXhcD2jTcXsJRRcffuho4vaYweu80dRrMGA==}
     engines: {node: '>=18'}
 
   delayed-stream@1.0.0:
@@ -3318,9 +3318,9 @@ packages:
     resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
     engines: {node: '>= 0.10.0'}
 
-  meow@13.2.0:
-    resolution: {integrity: sha512-pxQJQzB6djGPXh08dacEloMFopsOqGVRKFPYvPOt9XDZ1HasbgDZA74CJGreSU4G3Ak7EFJGoiH2auq+yXISgA==}
-    engines: {node: '>=18'}
+  meow@14.0.0:
+    resolution: {integrity: sha512-JhC3R1f6dbspVtmF3vKjAWz1EVIvwFrGGPLSdU6rK79xBwHWTuHoLnRX/t1/zHS1Ch1Y2UtIrih7DAHuH9JFJA==}
+    engines: {node: '>=20'}
 
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
@@ -3900,6 +3900,10 @@ packages:
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
+
+  presentable-error@0.0.1:
+    resolution: {integrity: sha512-E6rsNU1QNJgB3sjj7OANinGncFKuK+164sLXw1/CqBjj/EkXSoSdHCtWQGBNlREIGLnL7IEUEGa08YFVUbrhVg==}
+    engines: {node: '>=16'}
 
   prettier@3.6.2:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
@@ -7174,18 +7178,20 @@ snapshots:
       escodegen: 2.1.0
       esprima: 4.0.1
 
-  del-cli@6.0.0:
+  del-cli@7.0.0:
     dependencies:
-      del: 8.0.0
-      meow: 13.2.0
+      del: 8.0.1
+      meow: 14.0.0
+      presentable-error: 0.0.1
 
-  del@8.0.0:
+  del@8.0.1:
     dependencies:
       globby: 14.1.0
       is-glob: 4.0.3
       is-path-cwd: 3.0.0
       is-path-inside: 4.0.0
       p-map: 7.0.3
+      presentable-error: 0.0.1
       slash: 5.1.0
 
   delayed-stream@1.0.0: {}
@@ -9112,7 +9118,7 @@ snapshots:
 
   memorystream@0.3.1: {}
 
-  meow@13.2.0: {}
+  meow@14.0.0: {}
 
   merge-descriptors@1.0.3: {}
 
@@ -9816,6 +9822,8 @@ snapshots:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  presentable-error@0.0.1: {}
 
   prettier@3.6.2: {}
 
