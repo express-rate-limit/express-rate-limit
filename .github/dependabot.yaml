@@ -7,8 +7,9 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
-    # group all updates together into a single PR (group name is "all")
-    # groups:
-    #   all:
-    #     patterns:
-    #       - "*"
+    # group all non-major dev dep updates together into a single PR
+    groups:
+      development-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+    # production dependencies and major updates to dev deps get their own PRs
