@@ -313,6 +313,46 @@ const validations = {
 		}
 	},
 
+	knownOptions(passedOptions?: Partial<Options>) {
+		if (!passedOptions) return // no options is a valid config
+
+		type KeysEnum<T> = { [P in keyof Required<T>]: true }
+		// we have to manually update this when adding new options, because we want it to work even for JS users. But KeysEnum makes TypeScript ensures it's correct at build time!
+		const optionsMap: KeysEnum<Options> = {
+			windowMs: true,
+			limit: true,
+			message: true,
+			statusCode: true,
+			legacyHeaders: true,
+			standardHeaders: true,
+			identifier: true,
+			requestPropertyName: true,
+			skipFailedRequests: true,
+			skipSuccessfulRequests: true,
+			keyGenerator: true,
+			ipv6Subnet: true,
+			handler: true,
+			skip: true,
+			requestWasSuccessful: true,
+			store: true,
+			validate: true,
+			headers: true,
+			max: true,
+			passOnStoreError: true,
+		}
+		const validOptions = Object.keys(optionsMap).concat(
+			'draft_polli_ratelimit_headers', // not a valid option anymore, but we have a more specific check for this one, so don't warn for it here
+		)
+		for (const key of Object.keys(passedOptions)) {
+			if (!validOptions.includes(key)) {
+				throw new ValidationError(
+					'ERR_ERL_UNKNOWN_OPTION',
+					`Unexpected configuration option: ${key}`, // todo: suggest a valid option with a short levenstein distance?
+				)
+			}
+		}
+	},
+
 	/**
 	 * Checks the options.validate setting to ensure that only recognized
 	 * validations are enabled or disabled.

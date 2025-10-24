@@ -253,6 +253,21 @@ To resolve this, either change to a different headers version, such as
 
 Set `validate: {headersResetTime: false}` in the options to disable the check.
 
+### `ERR_ERL_UNKNOWN_OPTION`
+
+> Added in `8.2.0`
+
+Indicates that one or more of the configuration options passed to
+express-rate-limit is unrecognized.
+
+This could be due to a typo or deprecated option, or if extra values were
+intentionally added to the configuration object.
+
+See [Configuration](/reference/configuration) for the complete list of valid
+configuration options.
+
+Set `validate: {knownOptions: false}` in the options to disable the check.
+
 ### `ERR_ERL_UNKNOWN_VALIDATION`
 
 > Added in `7.0.0`.

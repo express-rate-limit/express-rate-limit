@@ -158,6 +158,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	const validations = getValidations(notUndefinedOptions?.validate ?? true)
 	validations.validationsConfig()
 
+	// Warn on unknown options
+	validations.knownOptions(passedOptions)
+
 	// Warn for the deprecated options. Note that these options have been removed
 	// from the type definitions in v7.
 	validations.draftPolliHeaders(

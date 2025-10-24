@@ -349,6 +349,15 @@ describe('validations tests', () => {
 		})
 	})
 
+	describe('knownOptions', () => {
+		it('should log an error if an unknown option is passed in', () => {
+			validations.knownOptions({ windowMS: 100 } as any)
+			expect(console.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_UNKNOWN_OPTION' }),
+			)
+		})
+	})
+
 	describe('validationsConfig', () => {
 		it('should log an error if an unknown validation is disabled', () => {
 			validations = getValidations({ invalid: false } as any)
