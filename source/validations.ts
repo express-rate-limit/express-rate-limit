@@ -358,7 +358,7 @@ const validations = {
 	 * validations are enabled or disabled.
 	 *
 	 * If any unrecognized values are found, an error is logged that
-	 * includes the list of supported vaidations.
+	 * includes the list of supported validations.
 	 */
 	validationsConfig() {
 		const supportedValidations = Object.keys(this).filter(
