@@ -342,6 +342,10 @@ const validations = {
 		}
 		const validOptions = Object.keys(optionsMap).concat(
 			'draft_polli_ratelimit_headers', // not a valid option anymore, but we have a more specific check for this one, so don't warn for it here
+			// from express-slow-down - https://github.com/express-rate-limit/express-slow-down/blob/main/source/types.ts#L65
+			'delayAfter',
+			'delayMs',
+			'maxDelayMs',
 		)
 		for (const key of Object.keys(passedOptions)) {
 			if (!validOptions.includes(key)) {
