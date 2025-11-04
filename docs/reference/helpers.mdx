@@ -9,7 +9,7 @@ icon: 'puzzle-piece'
 
 - `ip` (string) An IPv4 or IPv6 IP address
 - `ipv6Subnet` (number|false) Subnet mask to apply to IPv6 addresses. Valid
-  range is 1-120, recommend range is 48-64.
+  range is 1-128, recommend range is 48-64.
 
 **Returns:** (string) IPv4 address unchanged, or IPv6 network address in CIDR
 notation. (Unless second parameter is `false`, then IPv6 is also returned
@@ -25,7 +25,7 @@ user's IP for rate-limiting (even as a fallback), return the result of this
 method rather than the IP address itself.
 
 ```ts
-import { rateLimit, ipKeyGenerator } from 'express-rate-limit
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
 const limiter = rateLimit({
 	// ...
 	keyGenerator: (req, res) => {
