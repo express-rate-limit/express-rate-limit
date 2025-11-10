@@ -107,6 +107,6 @@
 		"*.{md,yaml}": "prettier --write"
 	},
 	"dependencies": {
-		"ip-address": "10.0.1"
+		"ip-address": "10.1.0"
 	}
 }
