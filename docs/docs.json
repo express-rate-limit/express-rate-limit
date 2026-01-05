@@ -1,54 +1,59 @@
 {
-	"$schema": "https://mintlify.com/schema.json",
+	"$schema": "https://mintlify.com/docs.json",
+	"theme": "mint",
 	"name": "express-rate-limit",
-	"favicon": "assets/icon.png",
 	"colors": {
 		"primary": "#9563FF",
 		"light": "#AE87FF",
-		"dark": "#0D001D",
-		"background": {
+		"dark": "#0D001D"
+	},
+	"favicon": "assets/icon.png",
+	"navigation": {
+		"groups": [
+			{
+				"group": " ",
+				"pages": ["overview"]
+			},
+			{
+				"group": "Quickstart",
+				"pages": ["quickstart/installation", "quickstart/usage"]
+			},
+			{
+				"group": "Reference",
+				"pages": [
+					"reference/configuration",
+					"reference/stores",
+					"reference/instance-api",
+					"reference/request-api",
+					"reference/error-codes",
+					"reference/changelog"
+				]
+			},
+			{
+				"group": "Guides",
+				"pages": [
+					"guides/troubleshooting-proxy-issues",
+					"guides/creating-a-store",
+					"guides/contributing"
+				]
+			}
+		]
+	},
+	"background": {
+		"color": {
 			"dark": "#090014"
-		},
-		"anchors": {
-			"from": "#FF7F57",
-			"to": "#9563FF"
 		}
 	},
-	"topbarCtaButton": {
-		"type": "github",
-		"url": "https://github.com/express-rate-limit/express-rate-limit"
-	},
-	"navigation": [
-		{
-			"group": "",
-			"pages": ["overview"]
-		},
-		{
-			"group": "Quickstart",
-			"pages": ["quickstart/installation", "quickstart/usage"]
-		},
-		{
-			"group": "Reference",
-			"pages": [
-				"reference/configuration",
-				"reference/stores",
-				"reference/instance-api",
-				"reference/request-api",
-				"reference/error-codes",
-				"reference/changelog"
-			]
-		},
-		{
-			"group": "Guides",
-			"pages": [
-				"guides/troubleshooting-proxy-issues",
-				"guides/creating-a-store",
-				"guides/contributing"
-			]
+	"navbar": {
+		"primary": {
+			"type": "github",
+			"href": "https://github.com/express-rate-limit/express-rate-limit"
 		}
-	],
-	"footerSocials": {
-		"github": "https://github.com/express-rate-limit/express-rate-limit"
+	},
+	"footer": {
+		"socials": {
+			"github": "https://github.com/express-rate-limit/express-rate-limit"
+		}
 	},
 	"redirects": [
 		{
