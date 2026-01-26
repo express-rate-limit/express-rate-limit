@@ -407,11 +407,11 @@ import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
 const limiter = rateLimit({
 	// ...
 	keyGenerator: (req, res) => {
- 		if (req.query.apiKey) return req.query.apiKey
+		if (req.query.apiKey) return req.query.apiKey
 
- 		const ipv6Subnet = 64 // calculate or set a fixed value here
+		const ipv6Subnet = 64 // calculate or set a fixed value here
 		return ipKeyGenerator(req.ip, ipv6Subnet)
-	}
+	},
 })
 ```
 
