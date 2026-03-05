@@ -4,8 +4,8 @@
 name: CI
 
 on:
- - push
- - pull_request
+  - push
+  - pull_request
 
 permissions:
   id-token: write
@@ -34,7 +34,7 @@ jobs:
     name: Test (Library)
     strategy:
       matrix:
-        node-version: [lts/hydrogen, lts/*, latest]
+        node-version: [lts/iron, lts/jod, lts/*, latest]
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
