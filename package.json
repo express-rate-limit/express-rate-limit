@@ -73,6 +73,9 @@
 		"pre-commit": "lint-staged",
 		"prepare": "run-s compile && husky"
 	},
+	"dependencies": {
+		"ip-address": "10.1.0"
+	},
 	"peerDependencies": {
 		"express": ">= 4.11"
 	},
@@ -105,8 +108,5 @@
 	"lint-staged": {
 		"*.{js,ts,json}": "biome check --write",
 		"*.{md,yaml}": "prettier --write"
-	},
-	"dependencies": {
-		"ip-address": "10.0.1"
 	}
 }
