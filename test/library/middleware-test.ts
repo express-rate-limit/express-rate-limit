@@ -448,204 +448,176 @@ describe('middleware test', () => {
 		expect(typeof response?.totalHits).toBe('number')
 	})
 
-	it.each([['legacy', new MockLegacyStore()]])(
-		'should throw an error if `get` does not exist on the store (%s store)',
-		async (name, store) => {
-			const limiter = rateLimit({
+	it.each([
+		['legacy', new MockLegacyStore()],
+	])('should throw an error if `get` does not exist on the store (%s store)', async (name, store) => {
+		const limiter = rateLimit({
+			store,
+		})
+
+		expect(limiter.getKey).toThrow()
+	})
+
+	it.each([
+		['modern', new MockStore()],
+		['legacy', new MockLegacyStore()],
+		['compat', new MockBackwardCompatibleStore()],
+	])('should decrement hits when requests succeed and `skipSuccessfulRequests` is set to true (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipSuccessfulRequests: true,
 				store,
-			})
+			}),
+		)
 
-			expect(limiter.getKey).toThrow()
-		},
-	)
+		await request(app).get('/').expect(200)
 
-	it.each([
-		['modern', new MockStore()],
-		['legacy', new MockLegacyStore()],
-		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when requests succeed and `skipSuccessfulRequests` is set to true (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipSuccessfulRequests: true,
-					store,
-				}),
-			)
-
-			await request(app).get('/').expect(200)
-
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should not decrement hits when requests fail and `skipSuccessfulRequests` is set to true (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipSuccessfulRequests: true,
-					store,
-				}),
-			)
+	])('should not decrement hits when requests fail and `skipSuccessfulRequests` is set to true (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipSuccessfulRequests: true,
+				store,
+			}),
+		)
 
-			await request(app).get('/error').expect(400)
+		await request(app).get('/error').expect(400)
 
-			expect(store.decrementWasCalled).toEqual(false)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(false)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when requests succeed, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipSuccessfulRequests: true,
-					requestWasSuccessful: (_request, response) =>
-						response.statusCode === 200,
-					store,
-				}),
-			)
+	])('should decrement hits when requests succeed, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipSuccessfulRequests: true,
+				requestWasSuccessful: (_request, response) =>
+					response.statusCode === 200,
+				store,
+			}),
+		)
 
-			await request(app).get('/').expect(200)
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		await request(app).get('/').expect(200)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should not decrement hits when requests fail, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipSuccessfulRequests: true,
-					requestWasSuccessful(request, response) {
-						return response.statusCode === 200
-					},
-					store,
-				}),
-			)
+	])('should not decrement hits when requests fail, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipSuccessfulRequests: true,
+				requestWasSuccessful(request, response) {
+					return response.statusCode === 200
+				},
+				store,
+			}),
+		)
 
-			await request(app).get('/error').expect(400)
+		await request(app).get('/error').expect(400)
 
-			expect(store.decrementWasCalled).toEqual(false)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(false)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when requests succeed, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipSuccessfulRequests: true,
-					requestWasSuccessful: (request, _response) =>
-						request.query.success === '1',
-					store,
-				}),
-			)
+	])('should decrement hits when requests succeed, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipSuccessfulRequests: true,
+				requestWasSuccessful: (request, _response) =>
+					request.query.success === '1',
+				store,
+			}),
+		)
 
-			await request(app).get('/?success=1')
+		await request(app).get('/?success=1')
 
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should not decrement hits when requests fail, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipSuccessfulRequests: true,
-					requestWasSuccessful: (request, _response) =>
-						request.query.success === '1',
-					store,
-				}),
-			)
+	])('should not decrement hits when requests fail, `skipSuccessfulRequests` is set to true and a custom `requestWasSuccessful` method used (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipSuccessfulRequests: true,
+				requestWasSuccessful: (request, _response) =>
+					request.query.success === '1',
+				store,
+			}),
+		)
 
-			await request(app).get('/?success=0')
+		await request(app).get('/?success=0')
 
-			expect(store.decrementWasCalled).toEqual(false)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(false)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when requests fail and `skipFailedRequests` is set to true (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipFailedRequests: true,
-					store,
-				}),
-			)
+	])('should decrement hits when requests fail and `skipFailedRequests` is set to true (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipFailedRequests: true,
+				store,
+			}),
+		)
 
-			await request(app).get('/error').expect(400)
+		await request(app).get('/error').expect(400)
 
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should not decrement hits when requests succeed and `skipFailedRequests` is set to true (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipFailedRequests: true,
-					store,
-				}),
-			)
+	])('should not decrement hits when requests succeed and `skipFailedRequests` is set to true (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipFailedRequests: true,
+				store,
+			}),
+		)
 
-			await request(app).get('/').expect(200)
+		await request(app).get('/').expect(200)
 
-			expect(store.decrementWasCalled).toEqual(false)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(false)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when requests fail, `skipFailedRequests` is set to true and a custom `requestWasSuccessful` method used that returns a promise (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipFailedRequests: true,
-					requestWasSuccessful: async () => false,
-					store,
-				}),
-			)
+	])('should decrement hits when requests fail, `skipFailedRequests` is set to true and a custom `requestWasSuccessful` method used that returns a promise (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipFailedRequests: true,
+				requestWasSuccessful: async () => false,
+				store,
+			}),
+		)
 
-			await request(app).get('/').expect(200)
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		await request(app).get('/').expect(200)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	// FIXME: This test is flaky and times out  _sometimes_ on MacOS and Windows,
 	// so it is disabled for now.
@@ -691,121 +663,109 @@ describe('middleware test', () => {
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when response emits an error and `skipFailedRequests` is set to true (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					skipFailedRequests: true,
-					store,
-				}),
-			)
+	])('should decrement hits when response emits an error and `skipFailedRequests` is set to true (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				skipFailedRequests: true,
+				store,
+			}),
+		)
 
-			await request(app).get('/crash')
+		await request(app).get('/crash')
 
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when rate limit is reached and `skipFailedRequests` is set to true (%s store)',
-		async (name, store) => {
-			const app = createServer(
-				rateLimit({
-					limit: 2,
-					store,
-					skipFailedRequests: true,
-				}),
-			)
+	])('should decrement hits when rate limit is reached and `skipFailedRequests` is set to true (%s store)', async (name, store) => {
+		const app = createServer(
+			rateLimit({
+				limit: 2,
+				store,
+				skipFailedRequests: true,
+			}),
+		)
 
-			await request(app).get('/').expect(200)
-			await request(app).get('/').expect(200)
-			await request(app).get('/').expect(429)
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429)
 
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should forward errors in the handler using `next()` (%s store)',
-		async (name, store) => {
-			let errorCaught = false
+	])('should forward errors in the handler using `next()` (%s store)', async (name, store) => {
+		let errorCaught = false
 
-			const app = createServer(
-				rateLimit({
-					limit: 1,
-					store,
-					handler() {
-						const exception = new Error('420: Enhance your calm')
-						throw exception
-					},
-				}),
-			)
-
-			app.use(
-				(
-					error: Error,
-					_request: Request,
-					response: Response,
-					_next: NextFunction,
-				) => {
-					errorCaught = true
-					response.status(500).send(error.message)
+		const app = createServer(
+			rateLimit({
+				limit: 1,
+				store,
+				handler() {
+					const exception = new Error('420: Enhance your calm')
+					throw exception
 				},
-			)
+			}),
+		)
 
-			await request(app).get('/').expect(200)
-			await request(app).get('/').expect(500)
+		app.use(
+			(
+				error: Error,
+				_request: Request,
+				response: Response,
+				_next: NextFunction,
+			) => {
+				errorCaught = true
+				response.status(500).send(error.message)
+			},
+		)
 
-			expect(errorCaught).toEqual(true)
-		},
-	)
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(500)
+
+		expect(errorCaught).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should forward errors in `skip()` using `next()` (%s store)',
-		async (name, store) => {
-			let errorCaught = false
+	])('should forward errors in `skip()` using `next()` (%s store)', async (name, store) => {
+		let errorCaught = false
 
-			const app = createServer(
-				rateLimit({
-					limit: 1,
-					store,
-					skip() {
-						const exception = new Error('420: Enhance your calm')
-						throw exception
-					},
-				}),
-			)
-
-			app.use(
-				(
-					error: Error,
-					_request: Request,
-					response: Response,
-					_next: NextFunction,
-				) => {
-					errorCaught = true
-					response.status(500).send(error.message)
+		const app = createServer(
+			rateLimit({
+				limit: 1,
+				store,
+				skip() {
+					const exception = new Error('420: Enhance your calm')
+					throw exception
 				},
-			)
+			}),
+		)
 
-			await request(app).get('/').expect(500)
+		app.use(
+			(
+				error: Error,
+				_request: Request,
+				response: Response,
+				_next: NextFunction,
+			) => {
+				errorCaught = true
+				response.status(500).send(error.message)
+			},
+		)
 
-			expect(errorCaught).toEqual(true)
-		},
-	)
+		await request(app).get('/').expect(500)
+
+		expect(errorCaught).toEqual(true)
+	})
 
 	it('should pass the number of hits and the limit to the next request handler in the `request.rateLimit` property', async () => {
 		let savedRequestObject: any
