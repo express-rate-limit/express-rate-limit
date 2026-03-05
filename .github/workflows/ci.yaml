@@ -3,9 +3,13 @@
 
 name: CI
 
-on: 
+on:
  - push
  - pull_request
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   lint:
@@ -95,9 +99,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Publish package to NPM
-        run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish
       - name: Build package to upload to GitHub releases
         run: |
           pnpm pack
