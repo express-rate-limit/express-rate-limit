@@ -89,7 +89,7 @@
 		"@types/node": "25.3.3",
 		"@types/supertest": "7.2.0",
 		"del-cli": "7.0.0",
-		"dts-bundle-generator": "9.5.1",
+		"dts-bundle-generator": "8.1.2",
 		"esbuild": "0.27.3",
 		"express": "5.2.1",
 		"husky": "9.1.7",

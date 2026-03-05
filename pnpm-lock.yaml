@@ -39,8 +39,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       dts-bundle-generator:
-        specifier: 9.5.1
-        version: 9.5.1
+        specifier: 8.1.2
+        version: 8.1.2
       esbuild:
         specifier: 0.27.3
         version: 0.27.3
@@ -3898,10 +3898,10 @@ packages:
       }
     engines: { node: '>=6' }
 
-  dts-bundle-generator@9.5.1:
+  dts-bundle-generator@8.1.2:
     resolution:
       {
-        integrity: sha512-DxpJOb2FNnEyOzMkG11sxO2dmxPjthoVWxfKqWYJ/bI/rT1rvTMktF5EKjAYrRZu6Z6t3NhOUZ0sZ5ZXevOfbA==,
+        integrity: sha512-/yvy9Xw0cfFodA8n6jEq8/COZ/WXgJtPabnLBAzIfP/TfxWbD/0a0dvfqNHneNqswQrH0kUcaAfGJC9UNvH97w==,
       }
     engines: { node: '>=14.0.0' }
     hasBin: true
@@ -11933,7 +11933,7 @@ snapshots:
     dependencies:
       dns-packet: 5.6.1
 
-  dts-bundle-generator@9.5.1:
+  dts-bundle-generator@8.1.2:
     dependencies:
       typescript: 5.9.3
       yargs: 17.7.2
