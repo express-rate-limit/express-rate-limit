@@ -108,7 +108,7 @@ If you need help with something, feel free to
 [start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
 
 If you wish to contribute to the library, thanks! First, please read
-[the contributing guide](https://express-rate-limit.mintlify.app/docs/guides/contributing.mdx).
+[the contributing guide](https://express-rate-limit.mintlify.app/guides/contributing).
 Then you can pick up any issue and fix/implement it!
 
 ## License
