@@ -6,10 +6,21 @@ describe('ipKeyGenerator', () => {
 		expect(ipKeyGenerator('1.2.3.4', 16)).toBe('1.2.3.4')
 	})
 
+	it('should return an IPv4 address mapped to IPv6 as an IPv4 address', () => {
+		expect(ipKeyGenerator('::ffff:1.2.3.4')).toBe('1.2.3.4')
+		expect(ipKeyGenerator('::1.2.3.4')).toBe('1.2.3.4')
+	})
+
 	it('should return an IPv6 address unchanged with ipv6Subnet set to false', () => {
 		expect(
 			ipKeyGenerator('0123:4567:89ab:cdef:0123:4567:89ab:cdef', false),
 		).toBe('0123:4567:89ab:cdef:0123:4567:89ab:cdef')
+	})
+
+	it('should apply ipv6Subnet only a true IPv6 address', () => {
+		expect(ipKeyGenerator('::1.2.3.4', 16)).toBe('1.2.3.4')
+		expect(ipKeyGenerator('::ffff:1.2.3.4', 16)).toBe('1.2.3.4')
+		expect(ipKeyGenerator('::1.2.3.4', false)).toBe('1.2.3.4')
 	})
 
 	it('should apply a default /56 netmask to an IPv6 address', () => {
