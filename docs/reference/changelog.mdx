@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.1]
+
+### Fixed
+
+- Fixed npm provenance on automated releases
+- Fixed a broken link in the readme
+
 ## [8.3.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.3.0)
 
 > Backported to previous minor versions as
@@ -21,6 +28,12 @@ and this project adheres to
 
 - Fixed
   [ghsa-46wh-pxpv-q5gq](https://github.com/express-rate-limit/express-rate-limit/security/advisories/GHSA-46wh-pxpv-q5gq).
+
+### Provenance note
+
+Due to an issue with automated publishing to npm, we opted to manually publish
+v8.3.0 in order to get the fix out quicker. Accitionally, our CI is not
+configured to handle backports, so we also manually released those.
 
 ## [8.2.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.2.1)
 
