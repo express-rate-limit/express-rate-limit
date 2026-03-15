@@ -31,9 +31,7 @@ describe('headers test', () => {
 			}),
 		)
 
-		const expectedResetTimestamp = Math.ceil(
-			(Date.now() + 60 * 1000) / 1000,
-		)
+		const expectedResetTimestamp = Math.ceil((Date.now() + 60 * 1000) / 1000)
 
 		const response = await request(app)
 			.get('/')
@@ -45,9 +43,7 @@ describe('headers test', () => {
 		expect(actualResetTimestamp).toBeGreaterThanOrEqual(
 			expectedResetTimestamp - 1,
 		)
-		expect(actualResetTimestamp).toBeLessThanOrEqual(
-			expectedResetTimestamp + 1,
-		)
+		expect(actualResetTimestamp).toBeLessThanOrEqual(expectedResetTimestamp + 1)
 	})
 
 	it('should send correct `ratelimit-*` headers for the standard headers draft 6', async () => {
