@@ -31,21 +31,23 @@ describe('headers test', () => {
 			}),
 		)
 
-		const oneMinLater = Date.now() + 60 * 1000
-		const expectedResetTimestamp = Math.ceil(oneMinLater / 1000).toString()
-		const resetRegexp = new RegExp(
-			`^${expectedResetTimestamp.slice(
-				0,
-				Math.max(0, expectedResetTimestamp.length - 2),
-			)}\\d\\d$`, // Expect the same seconds, not same milliseconds.
+		const expectedResetTimestamp = Math.ceil(
+			(Date.now() + 60 * 1000) / 1000,
 		)
 
-		await request(app)
+		const response = await request(app)
 			.get('/')
 			.expect('x-ratelimit-limit', '5')
 			.expect('x-ratelimit-remaining', '4')
-			.expect('x-ratelimit-reset', resetRegexp)
 			.expect(200, 'Hi there!')
+
+		const actualResetTimestamp = Number(response.get('x-ratelimit-reset'))
+		expect(actualResetTimestamp).toBeGreaterThanOrEqual(
+			expectedResetTimestamp - 1,
+		)
+		expect(actualResetTimestamp).toBeLessThanOrEqual(
+			expectedResetTimestamp + 1,
+		)
 	})
 
 	it('should send correct `ratelimit-*` headers for the standard headers draft 6', async () => {
