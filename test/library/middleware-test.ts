@@ -1,7 +1,6 @@
 // /test/middleware-test.ts
 // Tests the rate limiting middleware
 
-// import { platform } from 'node:process'
 import { EventEmitter } from 'node:events'
 
 import { describe, expect, it, jest } from '@jest/globals'
@@ -650,13 +649,13 @@ describe('middleware test', () => {
 
 		const next = jest.fn()
 
-		await middleware(mockedRequest, mockedResponse, next)
+		middleware(mockedRequest, mockedResponse, next)
 
 		// Simulate the connection closing before the response finishes
 		mockedResponse.emit('close')
 
 		// Give async handler time to execute without relying on fake timers
-		await Promise.resolve()
+		await new Promise((resolve) => setImmediate(resolve))
 
 		expect(store.decrementWasCalled).toEqual(true)
 	})
