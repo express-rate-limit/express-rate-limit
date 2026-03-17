@@ -649,13 +649,14 @@ describe('middleware test', () => {
 
 		const next = jest.fn()
 
+		// Await so the middleware has attached its response listeners
 		middleware(mockedRequest, mockedResponse, next)
 
 		// Simulate the connection closing before the response finishes
 		mockedResponse.emit('close')
 
 		// Give async handler time to execute without relying on fake timers
-		await new Promise((resolve) => setImmediate(resolve))
+		await Promise.resolve() 
 
 		expect(store.decrementWasCalled).toEqual(true)
 	})
