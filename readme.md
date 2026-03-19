@@ -69,21 +69,6 @@ default values.
 
 ## Thank You
 
-Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API
-Gateway for developers. Add
-[dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting),
-authentication and more to any API in minutes. Learn more at
-[zuplo.com](https://zuplo.link/express-rate-limit)
-
-<p align="center">
-<a href="https://zuplo.link/express-rate-limit">
-<picture width="322">
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/express-rate-limit/express-rate-limit/assets/114976/cd2f6fa7-eae1-4fbb-be7d-b17df4c6f383">
-  <img alt="zuplo-logo" src="https://github.com/express-rate-limit/express-rate-limit/assets/114976/66fd75fa-b39e-4a8c-8d7a-52369bf244dc" width="322">
-</picture>
-</a>
-</p>
-
 ---
 
 Thanks to Mintlify for hosting the documentation at
@@ -97,7 +82,7 @@ Thanks to Mintlify for hosting the documentation at
 
 ---
 
-Finally, thank you to everyone who's contributed to this project in any way! 🫶
+And thank you to everyone who's contributed to this project in any way! 🫶
 
 ## Issues and Contributing
 
