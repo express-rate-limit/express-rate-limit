@@ -1,7 +1,7 @@
 // /test/middleware-test.ts
 // Tests the rate limiting middleware
 
-// import { platform } from 'node:process'
+import { EventEmitter } from 'node:events'
 
 import { describe, expect, it, jest } from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
@@ -619,45 +619,47 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	// FIXME: This test is flaky and times out  _sometimes_ on MacOS and Windows,
-	// so it is disabled for now.
-
-	/*
-	;(platform === 'darwin' ? it.skip : it).each([
+	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store)',
-		async (name, store) => {
-			jest.useRealTimers()
-			jest.setTimeout(60_000)
+	])('should decrement hits when response closes and `skipFailedRequests` is set to true (%s store)', async (name, store) => {
+		const middleware = rateLimit({
+			skipFailedRequests: true,
+			store,
+		})
 
-			const app = createServer(
-				rateLimit({
-					skipFailedRequests: true,
-					store,
-				}),
-			)
+		// Minimal request/response mocks so we can emit `close` without spinning up a server
+		const mockedRequest = {
+			ip: '127.0.0.1',
+			method: 'GET',
+			path: '/',
+			url: '/',
+			headers: {},
+			app: { get: () => false },
+		} as unknown as Request
 
-			let _resolve: () => void
-			const connectionClosed = new Promise<void>((resolve) => {
-				_resolve = resolve
-			})
+		const mockedResponse = Object.assign(new EventEmitter(), {
+			statusCode: 200,
+			writableEnded: false,
+			setHeader: jest.fn(),
+			getHeader: jest.fn(),
+			end: jest.fn(),
+		}) as unknown as Response
 
-			app.get('/hang-server', (_request, response) => {
-				response.on('close', _resolve)
-			})
+		const next = jest.fn()
 
-			const hangRequest = request(app).get('/hang-server').timeout(10)
+		// Await so the middleware has attached its response listeners
+		middleware(mockedRequest, mockedResponse, next)
 
-			await expect(hangRequest).rejects.toThrow()
-			await connectionClosed
+		// Simulate the connection closing before the response finishes
+		mockedResponse.emit('close')
 
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
-	*/
+		// Give async handler time to execute without relying on fake timers
+		await Promise.resolve() 
+
+		expect(store.decrementWasCalled).toEqual(true)
+	})
 
 	it.each([
 		['modern', new MockStore()],
