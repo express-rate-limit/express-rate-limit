@@ -92,6 +92,9 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	return new PromisifiedStore()
 }
 
+const isPromise = <T>(value: unknown): value is Promise<T> =>
+	!!value && typeof (value as { then?: unknown }).then === 'function'
+
 /**
  * The internal configuration interface.
  *
@@ -351,9 +354,16 @@ const rateLimit = (
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
 		async (request: Request, response: Response, next: NextFunction) => {
-			// First check if we should skip the request
-			const skip = await config.skip(request, response)
-			if (skip) {
+			// First check if we should skip the request (avoid an unnecessary `await`
+			// when the callback is synchronous to keep listeners attached immediately).
+			const skipResult = config.skip(request, response)
+			if (skipResult instanceof Promise) {
+				const skip = await skipResult
+				if (skip) {
+					next()
+					return
+				}
+			} else if (skipResult) {
 				next()
 				return
 			}
@@ -361,14 +371,74 @@ const rateLimit = (
 			// Create an augmented request
 			const augmentedRequest = request as AugmentedRequest
 
-			// Get a unique key for the client
-			const key = await config.keyGenerator(request, response)
+			// Resolve the key promise immediately so listeners can use it even if the
+			// connection closes before we finish awaiting downstream work.
+			const keyResult = config.keyGenerator(request, response)
+			const keyPromise: Promise<string> = Promise.resolve(keyResult)
+			const keyValue: string | undefined = isPromise<string>(keyResult)
+				? undefined
+				: keyResult
 
 			// Increment the client's hit counter by one.
 			let totalHits = 0
 			let resetTime
+			const incrementPromise = (async () => {
+				const key = await keyPromise
+				return config.store.increment(key)
+			})()
+
+			// Set up decrement handling as early as possible so `close` events that fire
+			// immediately still trigger the decrement.
+			let decrementKey: (() => Promise<void>) | null = null
+			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
+				let decremented = false
+				const makeDecrementer =
+					(resolvedKeyPromise: Promise<string>) => async () => {
+						if (!decremented) {
+							// Let the increment settle in the background to avoid unhandled
+							// rejections, but don't block the decrement on it.
+							void incrementPromise.catch(() => {})
+							const resolvedKey = keyValue ?? (await resolvedKeyPromise)
+							await config.store.decrement(resolvedKey)
+							decremented = true
+						}
+					}
+
+				decrementKey = makeDecrementer(keyPromise)
+
+				const onClose = async () => {
+					if (response.writableEnded) return
+					await decrementKey?.()
+				}
+
+				if (config.skipFailedRequests) {
+					response.on('close', onClose)
+					response.on('finish', async () => {
+						if (!(await config.requestWasSuccessful(request, response)))
+							await decrementKey?.()
+					})
+
+					// NOTE: this may not be useful. None of the tests can trigger this
+					// callback (see `/crash` endpoint in test/library/helpers/create-server).
+					// Perhaps it is similar to the case described in this issue comment:
+					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
+					response.on('error', async () => {
+						await decrementKey?.()
+					})
+				}
+
+				if (config.skipSuccessfulRequests) {
+					response.on('finish', async () => {
+						if (await config.requestWasSuccessful(request, response))
+							await decrementKey?.()
+					})
+				}
+			}
+
+			let key: string
 			try {
-				const incrementResult = await config.store.increment(key)
+				const incrementResult = await incrementPromise
+				key = await keyPromise
 				totalHits = incrementResult.totalHits
 				resetTime = incrementResult.resetTime
 			} catch (error) {
@@ -454,48 +524,6 @@ const rateLimit = (
 						config.validations.headersDraftVersion(config.standardHeaders)
 						break
 					}
-				}
-			}
-
-			// If we are to skip failed/successfull requests, decrement the
-			// counter accordingly once we know the status code of the request
-			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
-				let decremented = false
-				const decrementKey = async () => {
-					// This could have been tested properly if the response.on('error') test
-					// worked as well, leaving it as a todo.
-					if (!decremented) {
-						await config.store.decrement(key)
-						decremented = true
-					}
-				}
-
-				if (config.skipFailedRequests) {
-					response.on('finish', async () => {
-						if (!(await config.requestWasSuccessful(request, response)))
-							await decrementKey()
-					})
-
-					// NOTE: A test in library/middleware-test.ts tests this, but it was
-					// disabled for being too flaky.
-					response.on('close', async () => {
-						if (!response.writableEnded) await decrementKey()
-					})
-
-					// NOTE: this may not be useful. None of the tests can trigger this
-					// callback (see `/crash` endpoint in test/library/helpers/create-server).
-					// Perhaps it is similar to the case described in this issue comment:
-					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
-					response.on('error', async () => {
-						await decrementKey()
-					})
-				}
-
-				if (config.skipSuccessfulRequests) {
-					response.on('finish', async () => {
-						if (await config.requestWasSuccessful(request, response))
-							await decrementKey()
-					})
 				}
 			}
 

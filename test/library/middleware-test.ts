@@ -656,7 +656,7 @@ describe('middleware test', () => {
 		mockedResponse.emit('close')
 
 		// Give async handler time to execute without relying on fake timers
-		await Promise.resolve() 
+		await Promise.resolve()
 
 		expect(store.decrementWasCalled).toEqual(true)
 	})
