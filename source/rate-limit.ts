@@ -92,9 +92,6 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
 	return new PromisifiedStore()
 }
 
-const isPromise = <T>(value: unknown): value is Promise<T> =>
-	!!value && typeof (value as { then?: unknown }).then === 'function'
-
 /**
  * The internal configuration interface.
  *
@@ -354,16 +351,24 @@ const rateLimit = (
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
 		async (request: Request, response: Response, next: NextFunction) => {
-			// First check if we should skip the request (avoid an unnecessary `await`
-			// when the callback is synchronous to keep listeners attached immediately).
+			// Attach event listeners immediately — before ANY async work — so events
+			// that fire during skip/key/increment awaits are never missed.
+			const closePromise =
+				config.skipFailedRequests &&
+				new Promise<void>((resolve) => response.once('close', resolve))
+
+			const finishPromise =
+				(config.skipFailedRequests || config.skipSuccessfulRequests) &&
+				new Promise<void>((resolve) => response.once('finish', resolve))
+
+			const errorPromise =
+				config.skipFailedRequests &&
+				new Promise<void>((resolve) => response.once('error', resolve))
+
+			// Check if we should skip the request.
 			const skipResult = config.skip(request, response)
-			if (skipResult instanceof Promise) {
-				const skip = await skipResult
-				if (skip) {
-					next()
-					return
-				}
-			} else if (skipResult) {
+			const skip = skipResult instanceof Promise ? await skipResult : skipResult
+			if (skip) {
 				next()
 				return
 			}
@@ -371,74 +376,60 @@ const rateLimit = (
 			// Create an augmented request
 			const augmentedRequest = request as AugmentedRequest
 
-			// Resolve the key promise immediately so listeners can use it even if the
-			// connection closes before we finish awaiting downstream work.
-			const keyResult = config.keyGenerator(request, response)
-			const keyPromise: Promise<string> = Promise.resolve(keyResult)
-			const keyValue: string | undefined = isPromise<string>(keyResult)
-				? undefined
-				: keyResult
+			// Resolve the key for this client.
+			const key = await Promise.resolve(config.keyGenerator(request, response))
+
+			// Set up decrement handling using the pre-created promises. This ensures
+			// early close/finish/error events aren't missed, even during async work.
+			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
+				let decremented = false
+				const decrement = () => {
+					if (!decremented) {
+						decremented = true
+						void config.store.decrement(key)
+					}
+				}
+
+				if (config.skipFailedRequests) {
+					if (closePromise) {
+						void (async () => {
+							await closePromise
+							if (!response.writableEnded) decrement()
+						})()
+					}
+
+					if (finishPromise) {
+						void (async () => {
+							await finishPromise
+							if (!(await config.requestWasSuccessful(request, response)))
+								decrement()
+						})()
+					}
+
+					if (errorPromise) {
+						void (async () => {
+							await errorPromise
+							decrement()
+						})()
+					}
+				}
+
+				if (config.skipSuccessfulRequests) {
+					if (finishPromise) {
+						void (async () => {
+							await finishPromise
+							if (await config.requestWasSuccessful(request, response))
+								decrement()
+						})()
+					}
+				}
+			}
 
 			// Increment the client's hit counter by one.
 			let totalHits = 0
 			let resetTime
-			const incrementPromise = (async () => {
-				const key = await keyPromise
-				return config.store.increment(key)
-			})()
-
-			// Set up decrement handling as early as possible so `close` events that fire
-			// immediately still trigger the decrement.
-			let decrementKey: (() => Promise<void>) | null = null
-			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
-				let decremented = false
-				const makeDecrementer =
-					(resolvedKeyPromise: Promise<string>) => async () => {
-						if (!decremented) {
-							// Let the increment settle in the background to avoid unhandled
-							// rejections, but don't block the decrement on it.
-							void incrementPromise.catch(() => {})
-							const resolvedKey = keyValue ?? (await resolvedKeyPromise)
-							await config.store.decrement(resolvedKey)
-							decremented = true
-						}
-					}
-
-				decrementKey = makeDecrementer(keyPromise)
-
-				const onClose = async () => {
-					if (response.writableEnded) return
-					await decrementKey?.()
-				}
-
-				if (config.skipFailedRequests) {
-					response.on('close', onClose)
-					response.on('finish', async () => {
-						if (!(await config.requestWasSuccessful(request, response)))
-							await decrementKey?.()
-					})
-
-					// NOTE: this may not be useful. None of the tests can trigger this
-					// callback (see `/crash` endpoint in test/library/helpers/create-server).
-					// Perhaps it is similar to the case described in this issue comment:
-					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
-					response.on('error', async () => {
-						await decrementKey?.()
-					})
-				}
-
-				if (config.skipSuccessfulRequests) {
-					response.on('finish', async () => {
-						if (await config.requestWasSuccessful(request, response))
-							await decrementKey?.()
-					})
-				}
-			}
-
-			let key: string
 			try {
-				const incrementResult = await incrementPromise
-				key = await keyPromise
+				const incrementResult = await config.store.increment(key)
 				totalHits = incrementResult.totalHits
 				resetTime = incrementResult.resetTime
 			} catch (error) {
