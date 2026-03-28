@@ -365,9 +365,8 @@ const rateLimit = (
 				config.skipFailedRequests &&
 				new Promise<void>((resolve) => response.once('error', resolve))
 
-			// Check if we should skip the request.
-			const skipResult = config.skip(request, response)
-			const skip = skipResult instanceof Promise ? await skipResult : skipResult
+			// First check if we should skip the request
+			const skip = await config.skip(request, response)
 			if (skip) {
 				next()
 				return
@@ -376,54 +375,8 @@ const rateLimit = (
 			// Create an augmented request
 			const augmentedRequest = request as AugmentedRequest
 
-			// Resolve the key for this client.
-			const key = await Promise.resolve(config.keyGenerator(request, response))
-
-			// Set up decrement handling using the pre-created promises. This ensures
-			// early close/finish/error events aren't missed, even during async work.
-			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
-				let decremented = false
-				const decrement = () => {
-					if (!decremented) {
-						decremented = true
-						void config.store.decrement(key)
-					}
-				}
-
-				if (config.skipFailedRequests) {
-					if (closePromise) {
-						void (async () => {
-							await closePromise
-							if (!response.writableEnded) decrement()
-						})()
-					}
-
-					if (finishPromise) {
-						void (async () => {
-							await finishPromise
-							if (!(await config.requestWasSuccessful(request, response)))
-								decrement()
-						})()
-					}
-
-					if (errorPromise) {
-						void (async () => {
-							await errorPromise
-							decrement()
-						})()
-					}
-				}
-
-				if (config.skipSuccessfulRequests) {
-					if (finishPromise) {
-						void (async () => {
-							await finishPromise
-							if (await config.requestWasSuccessful(request, response))
-								decrement()
-						})()
-					}
-				}
-			}
+			// Get a unique key for the client
+			const key = await config.keyGenerator(request, response)
 
 			// Increment the client's hit counter by one.
 			let totalHits = 0
@@ -514,6 +467,56 @@ const rateLimit = (
 					default: {
 						config.validations.headersDraftVersion(config.standardHeaders)
 						break
+					}
+				}
+			}
+
+			// If we are to skip failed/successfull requests, decrement the
+			// counter accordingly once we know the status code of the request
+			if (config.skipFailedRequests || config.skipSuccessfulRequests) {
+				let decremented = false
+				const decrementKey = async () => {
+					// This could have been tested properly if the response.on('error') test
+					// worked as well, leaving it as a todo.
+					if (!decremented) {
+						await config.store.decrement(key)
+						decremented = true
+					}
+				}
+
+				if (config.skipFailedRequests) {
+					if (finishPromise) {
+						void finishPromise.then(async () => {
+							if (!(await config.requestWasSuccessful(request, response)))
+								await decrementKey()
+						})
+					}
+
+					// NOTE: A test in library/middleware-test.ts tests this, but it was
+					// disabled for being too flaky.
+					if (closePromise) {
+						void closePromise.then(async () => {
+							if (!response.writableEnded) await decrementKey()
+						})
+					}
+
+					// NOTE: this may not be useful. None of the tests can trigger this
+					// callback (see `/crash` endpoint in test/library/helpers/create-server).
+					// Perhaps it is similar to the case described in this issue comment:
+					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
+					if (errorPromise) {
+						void errorPromise.then(async () => {
+							await decrementKey()
+						})
+					}
+				}
+
+				if (config.skipSuccessfulRequests) {
+					if (finishPromise) {
+						void finishPromise.then(async () => {
+							if (await config.requestWasSuccessful(request, response))
+								await decrementKey()
+						})
 					}
 				}
 			}
