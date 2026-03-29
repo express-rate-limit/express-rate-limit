@@ -621,7 +621,7 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	;(platform === 'darwin' ? it.skip : it).each([
+	it.each([
 		['modern', new MockStore()],
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
