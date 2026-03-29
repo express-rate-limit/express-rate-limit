@@ -15,6 +15,8 @@ import rateLimit, {
 } from '../../source/index.js'
 import { createServer } from './helpers/create-server.js'
 
+const { platform } = process
+
 describe('middleware test', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
@@ -618,6 +620,41 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 		expect(store.decrementWasCalled).toEqual(true)
 	})
+
+	;(platform === 'darwin' ? it.skip : it).each([
+		['modern', new MockStore()],
+		['legacy', new MockLegacyStore()],
+		['compat', new MockBackwardCompatibleStore()],
+	])(
+		'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)',
+		async (name, store) => {
+			jest.useRealTimers()
+			jest.setTimeout(60_000)
+
+			const app = createServer(
+				rateLimit({
+					skipFailedRequests: true,
+					store,
+				}),
+			)
+
+			let _resolve: () => void
+			const connectionClosed = new Promise<void>((resolve) => {
+				_resolve = resolve
+			})
+
+			app.get('/hang-server', (_request, response) => {
+				response.on('close', _resolve)
+			})
+
+			const hangRequest = request(app).get('/hang-server').timeout(10)
+
+			await expect(hangRequest).rejects.toThrow()
+			await connectionClosed
+
+			expect(store.decrementWasCalled).toEqual(true)
+		},
+	)
 
 	it.each([
 		['modern', new MockStore()],

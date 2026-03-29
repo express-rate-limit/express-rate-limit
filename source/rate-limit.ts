@@ -492,8 +492,6 @@ const rateLimit = (
 						})
 					}
 
-					// NOTE: A test in library/middleware-test.ts tests this, but it was
-					// disabled for being too flaky.
 					if (closePromise) {
 						void closePromise.then(async () => {
 							if (!response.writableEnded) await decrementKey()
