@@ -351,6 +351,20 @@ const rateLimit = (
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
 		async (request: Request, response: Response, next: NextFunction) => {
+			// Attach event listeners immediately — before ANY async work — so events
+			// that fire during skip/key/increment awaits are never missed.
+			const closePromise =
+				config.skipFailedRequests &&
+				new Promise<void>((resolve) => response.once('close', resolve))
+
+			const finishPromise =
+				(config.skipFailedRequests || config.skipSuccessfulRequests) &&
+				new Promise<void>((resolve) => response.once('finish', resolve))
+
+			const errorPromise =
+				config.skipFailedRequests &&
+				new Promise<void>((resolve) => response.once('error', resolve))
+
 			// First check if we should skip the request
 			const skip = await config.skip(request, response)
 			if (skip) {
@@ -471,31 +485,37 @@ const rateLimit = (
 				}
 
 				if (config.skipFailedRequests) {
-					response.on('finish', async () => {
-						if (!(await config.requestWasSuccessful(request, response)))
-							await decrementKey()
-					})
+					if (finishPromise) {
+						void finishPromise.then(async () => {
+							if (!(await config.requestWasSuccessful(request, response)))
+								await decrementKey()
+						})
+					}
 
-					// NOTE: A test in library/middleware-test.ts tests this, but it was
-					// disabled for being too flaky.
-					response.on('close', async () => {
-						if (!response.writableEnded) await decrementKey()
-					})
+					if (closePromise) {
+						void closePromise.then(async () => {
+							if (!response.writableEnded) await decrementKey()
+						})
+					}
 
 					// NOTE: this may not be useful. None of the tests can trigger this
 					// callback (see `/crash` endpoint in test/library/helpers/create-server).
 					// Perhaps it is similar to the case described in this issue comment:
 					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
-					response.on('error', async () => {
-						await decrementKey()
-					})
+					if (errorPromise) {
+						void errorPromise.then(async () => {
+							await decrementKey()
+						})
+					}
 				}
 
 				if (config.skipSuccessfulRequests) {
-					response.on('finish', async () => {
-						if (await config.requestWasSuccessful(request, response))
-							await decrementKey()
-					})
+					if (finishPromise) {
+						void finishPromise.then(async () => {
+							if (await config.requestWasSuccessful(request, response))
+								await decrementKey()
+						})
+					}
 				}
 			}
 
