@@ -15,8 +15,6 @@ import rateLimit, {
 } from '../../source/index.js'
 import { createServer } from './helpers/create-server.js'
 
-const { platform } = process
-
 describe('middleware test', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
