@@ -3,8 +3,29 @@
 
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
-import type { Logger } from './logger.js'
 import type { Validations } from './validations.js'
+
+/**
+ * Basic logging function
+ *
+ * @param error {unknown} - The error to log
+ * @param message {string | undefined} - Additional details about the error
+ */
+export type LoggerFn = (error: unknown, message?: string) => void
+
+/**
+ * Minimal interface for logging warnings and errors
+ */
+export type Logger = {
+	/**
+	 * Function to log an error
+	 */
+	error: LoggerFn
+	/**
+	 * Function to log a warning
+	 */
+	warn: LoggerFn
+}
 
 /**
  * Callback that fires when a client's hit counter is incremented.

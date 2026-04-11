@@ -10,10 +10,10 @@ import rateLimit, {
 	type ClientRateLimitInfo,
 	type IncrementCallback,
 	type LegacyStore,
+	type Logger,
 	type Options,
 	type Store,
 } from '../../source/index.js'
-import type { Logger } from '../../source/logger'
 import { createServer } from './helpers/create-server.js'
 
 describe('middleware test', () => {

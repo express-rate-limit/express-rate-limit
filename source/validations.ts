@@ -3,10 +3,11 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
+import { ConsoleLogger } from './console-logger'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
-import { ConsoleLogger, type Logger } from './logger'
 import type {
 	EnabledValidations,
+	Logger,
 	Options,
 	Store,
 	ValueDeterminingMiddleware,
@@ -487,7 +488,8 @@ export type Validations = typeof validations
  * provided value, allowing different instances of express-rate-limit
  * to have different validations settings.
  *
- * @param enabled {boolean} - The list of enabled validations.
+ * @param _enabled {boolean} - The list of enabled validations.
+ * @param logger {Logger} - The logger instance to use to log errors and warnings
  *
  * @returns {Validations} - The validation functions.
  */

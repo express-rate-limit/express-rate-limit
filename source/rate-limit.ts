@@ -3,6 +3,7 @@
 
 import { isIPv6 } from 'node:net'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
+import { ConsoleLogger } from './console-logger'
 import {
 	setDraft6Headers,
 	setDraft7Headers,
@@ -11,7 +12,6 @@ import {
 	setRetryAfterHeader,
 } from './headers.js'
 import { ipKeyGenerator } from './ip-key-generator.js'
-import { ConsoleLogger, type Logger } from './logger'
 import { MemoryStore } from './memory-store.js'
 import type {
 	AugmentedRequest,
@@ -19,6 +19,7 @@ import type {
 	DraftHeadersVersion,
 	EnabledValidations,
 	LegacyStore,
+	Logger,
 	Options,
 	RateLimitExceededEventHandler,
 	RateLimitInfo,
@@ -144,6 +145,28 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 }
 
 /**
+ * Ensures provided logger is valid, and if absent returns the ConsoleLogger instance
+ *
+ * @param logger {Logger | undefined}
+ *
+ * @throws {TypeError} if the provided logger incorrectly implements the {@see Logger} interface
+ * @returns {Logger} -- Thr provided Logger if valid, or the ConsoleLogger if absent.
+ */
+const validateLogger = (logger?: Logger): Logger => {
+	if (logger === undefined) {
+		return ConsoleLogger
+	}
+	if (
+		typeof logger === 'object' &&
+		typeof logger.error === 'function' &&
+		typeof logger.warn === 'function'
+	) {
+		return logger
+	}
+	throw new TypeError('Provided logger does not implement the Logger interface')
+}
+
+/**
  * Type-checks and adds the defaults for options the user has not specified.
  *
  * @param options {Options} - The options the user specifies.
@@ -155,6 +178,9 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// omit all fields where their value is undefined.
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedProperties<Partial<Options>>(passedOptions)
+
+	// Make sure we have a valid Logger
+	const logger = validateLogger(passedOptions.logger)
 
 	// Create the validator before even parsing the rest of the options.
 	const validations = getValidations(
@@ -289,7 +315,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		),
 		// Print an error to the console if a few known misconfigurations are detected.
 		validations,
-		logger: passedOptions.logger ?? ConsoleLogger,
+		logger,
 	}
 
 	// Ensure that the store passed implements the `Store` interface
@@ -303,17 +329,6 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
-		)
-	}
-
-	// Ensure that the logger passed implements the `Logger` interface
-	if (
-		typeof config.logger !== 'object' ||
-		typeof config.logger.error !== 'function' ||
-		typeof config.logger.warn !== 'function'
-	) {
-		throw new TypeError(
-			'Provided logger does not implement the Logger interface',
 		)
 	}
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect } from '@jest/globals'
-import { ConsoleLogger } from '../../source/logger'
+import { ConsoleLogger } from '../../source/console-logger'
 
 describe('ConsoleLogger', () => {
 	beforeEach(() => {

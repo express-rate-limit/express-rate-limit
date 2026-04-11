@@ -1,9 +1,4 @@
-export type LoggerFn = (context: unknown, message?: string) => void
-
-export type Logger = {
-	error: LoggerFn
-	warn: LoggerFn
-}
+import type { Logger } from './types'
 
 export const ConsoleLogger: Logger = {
 	warn(...args): void {
