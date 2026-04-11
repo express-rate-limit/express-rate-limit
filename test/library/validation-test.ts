@@ -12,19 +12,22 @@ import {
 import express from 'express'
 import supertest from 'supertest'
 import { ipKeyGenerator, MemoryStore } from '../../source/index.js'
+import type { Logger } from '../../source/logger'
 import type { Store } from '../../source/types'
-import { getValidations } from '../../source/validations.js'
+import { getValidations, type Validations } from '../../source/validations.js'
 
 describe('validations tests', () => {
-	let validations = getValidations(true)
+	let validations: Validations
 
 	beforeEach(() => {
+		validations = getValidations(true)
+
 		jest.spyOn(console, 'error').mockImplementation(() => {})
 		jest.spyOn(console, 'warn').mockImplementation(() => {})
 	})
+
 	afterEach(() => {
 		jest.restoreAllMocks()
-		validations = getValidations(true)
 	})
 
 	describe('ip', () => {
@@ -443,7 +446,9 @@ describe('validations tests', () => {
 
 			await supertest(app).get('/').expect('hello')
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER' }),
+				expect.objectContaining({
+					code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
+				}),
 			)
 			expect(console.warn).not.toHaveBeenCalled()
 		})
@@ -459,7 +464,9 @@ describe('validations tests', () => {
 
 			await supertest(app).get('/').expect('hello')
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER' }),
+				expect.objectContaining({
+					code: 'ERR_ERL_CREATED_IN_REQUEST_HANDLER',
+				}),
 			)
 			expect(console.warn).not.toHaveBeenCalled()
 		})
@@ -540,7 +547,9 @@ describe('validations tests', () => {
 			})
 			expect(console.warn).not.toHaveBeenCalled()
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR' }),
+				expect.objectContaining({
+					code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR',
+				}),
 			)
 		})
 
@@ -551,7 +560,9 @@ describe('validations tests', () => {
 			})
 			expect(console.warn).not.toHaveBeenCalled()
 			expect(console.error).toHaveBeenCalledWith(
-				expect.objectContaining({ code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR' }),
+				expect.objectContaining({
+					code: 'ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR',
+				}),
 			)
 		})
 	})
@@ -614,6 +625,31 @@ describe('validations tests', () => {
 			expect(console.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_WINDOW_MS' }),
 			)
+		})
+	})
+
+	describe('with custom logger implementation', () => {
+		let logger: Logger
+
+		beforeEach(() => {
+			logger = {
+				warn: jest.fn(),
+				error: jest.fn(),
+			}
+
+			validations = getValidations(true, logger)
+		})
+
+		it('calls logger.error on error', () => {
+			validations.ip('badip')
+			expect(logger.error).toHaveBeenCalledWith(expect.any(Error))
+			expect(console.error).not.toHaveBeenCalled()
+		})
+
+		it('calls logger.warn on warning', () => {
+			validations.limit(0)
+			expect(logger.warn).toHaveBeenCalledWith(expect.any(Error))
+			expect(console.warn).not.toHaveBeenCalled()
 		})
 	})
 })

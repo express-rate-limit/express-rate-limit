@@ -11,6 +11,7 @@ import {
 	setRetryAfterHeader,
 } from './headers.js'
 import { ipKeyGenerator } from './ip-key-generator.js'
+import { ConsoleLogger, type Logger } from './logger'
 import { MemoryStore } from './memory-store.js'
 import type {
 	AugmentedRequest,
@@ -122,6 +123,7 @@ type Configuration = {
 	store: Store
 	validations: Validations
 	passOnStoreError: boolean
+	logger: Logger
 }
 
 /**
@@ -155,7 +157,10 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		omitUndefinedProperties<Partial<Options>>(passedOptions)
 
 	// Create the validator before even parsing the rest of the options.
-	const validations = getValidations(notUndefinedOptions?.validate ?? true)
+	const validations = getValidations(
+		notUndefinedOptions?.validate ?? true,
+		passedOptions.logger,
+	)
 	validations.validationsConfig()
 
 	// Warn on unknown options
@@ -284,6 +289,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		),
 		// Print an error to the console if a few known misconfigurations are detected.
 		validations,
+		logger: passedOptions.logger ?? ConsoleLogger,
 	}
 
 	// Ensure that the store passed implements the `Store` interface
@@ -297,6 +303,17 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	) {
 		throw new TypeError(
 			'An invalid store was passed. Please ensure that the store is a class that implements the `Store` interface.',
+		)
+	}
+
+	// Ensure that the logger passed implements the `Logger` interface
+	if (
+		typeof config.logger !== 'object' ||
+		typeof config.logger.error !== 'function' ||
+		typeof config.logger.warn !== 'function'
+	) {
+		throw new TypeError(
+			'Provided logger does not implement the Logger interface',
 		)
 	}
 
@@ -387,9 +404,9 @@ const rateLimit = (
 				resetTime = incrementResult.resetTime
 			} catch (error) {
 				if (config.passOnStoreError) {
-					console.error(
-						'express-rate-limit: error from store, allowing request without rate-limiting.',
+					config.logger.error(
 						error,
+						'express-rate-limit: error from store, allowing request without rate-limiting.',
 					)
 					next()
 					return

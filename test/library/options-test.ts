@@ -118,4 +118,13 @@ describe('options test', () => {
 			standardHeaders: 'not-a-valid-draft',
 		})
 	})
+
+	it('should not allow an invalid logger implemenation to be provided', async () => {
+		expect(() => {
+			rateLimit({
+				// @ts-expect-error Check if the library can detect invalid stores without TSC's help
+				logger: { error: 'invalid logger' },
+			})
+		}).toThrow(TypeError)
+	})
 })

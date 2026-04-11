@@ -3,6 +3,7 @@
 
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
+import type { Logger } from './logger.js'
 import type { Validations } from './validations.js'
 
 /**
@@ -401,6 +402,11 @@ export type Options = {
 	 * If the Store generates an error, allow the request to pass.
 	 */
 	passOnStoreError: boolean
+
+	/**
+	 * The logger to use to log errors. If absent, logs to the console.
+	 */
+	logger?: Logger
 }
 
 /**

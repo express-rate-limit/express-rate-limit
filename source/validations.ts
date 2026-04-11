@@ -4,6 +4,7 @@
 import { isIP } from 'node:net'
 import type { Request } from 'express'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
+import { ConsoleLogger, type Logger } from './logger'
 import type {
 	EnabledValidations,
 	Options,
@@ -339,6 +340,7 @@ const validations = {
 			headers: true,
 			max: true,
 			passOnStoreError: true,
+			logger: true,
 		}
 		const validOptions = Object.keys(optionsMap).concat(
 			'draft_polli_ratelimit_headers', // not a valid option anymore, but we have a more specific check for this one, so don't warn for it here
@@ -491,6 +493,7 @@ export type Validations = typeof validations
  */
 export const getValidations = (
 	_enabled: boolean | EnabledValidations,
+	logger: Logger = ConsoleLogger,
 ): Validations => {
 	let enabled: { [key: string]: boolean }
 	if (typeof _enabled === 'boolean') {
@@ -521,8 +524,8 @@ export const getValidations = (
 						args,
 					)
 				} catch (error: any) {
-					if (error instanceof ChangeWarning) console.warn(error)
-					else console.error(error)
+					if (error instanceof ChangeWarning) logger.warn(error)
+					else logger.error(error)
 				}
 			}
 	}

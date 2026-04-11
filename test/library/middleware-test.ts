@@ -3,7 +3,7 @@
 
 import { EventEmitter } from 'node:events'
 
-import { describe, expect, it, jest } from '@jest/globals'
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
 import rateLimit, {
@@ -13,6 +13,7 @@ import rateLimit, {
 	type Options,
 	type Store,
 } from '../../source/index.js'
+import type { Logger } from '../../source/logger'
 import { createServer } from './helpers/create-server.js'
 
 describe('middleware test', () => {
@@ -1002,5 +1003,50 @@ describe('middleware test', () => {
 			expect.stringContaining('allowing'),
 			expect.any(Error),
 		)
+	})
+
+	describe('with the logger set', () => {
+		let logger: Logger
+
+		beforeEach(() => {
+			logger = {
+				error: jest.fn(),
+				warn: jest.fn(),
+			}
+
+			jest.spyOn(console, 'error').mockImplementation(() => {})
+		})
+
+		it('should use the logger instead of the console on validation errors', async () => {
+			rateLimit({
+				logger,
+				ipv6Subnet: 48.5,
+			})
+
+			expect(console.error).not.toHaveBeenCalled()
+			expect(logger.error).toHaveBeenCalledWith(
+				expect.objectContaining({ code: 'ERR_ERL_IPV6_SUBNET' }),
+			)
+		})
+
+		it('should use the logger instead of the console when the store throws an error and passOnStoreError is true', async () => {
+			const limiter = rateLimit({
+				limit: 1,
+				store: new StoreThrowingErrors(),
+				passOnStoreError: true,
+				validate: false,
+				logger,
+			})
+			const request = {}
+			const response = {}
+			await limiter(request as Request, response as Response, jest.fn())
+
+			expect(console.error).not.toHaveBeenCalled()
+			expect(logger.error).toHaveBeenCalledTimes(1)
+			expect(logger.error).toHaveBeenCalledWith(
+				expect.any(Error),
+				expect.stringContaining('allowing'),
+			)
+		})
 	})
 })
