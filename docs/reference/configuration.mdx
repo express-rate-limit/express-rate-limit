@@ -528,3 +528,25 @@ Supported validations are:
 Defaults to `true`.
 
 [stores]: /reference/stores
+
+
+##  `logger`
+
+> `Logger`
+
+The Logger instance to use to log validation errors or warnings. Default behavior
+is to use the console. The first argument is the error that was raised,
+the second is an optional message explaining the error. For example:
+
+```js
+  const limiter = rateLimit({
+    logger: {
+      warn: (error, message) => {
+        // TODO: do something with error and message
+      },
+      error: (error, message) => {
+        // TODO: do something with error and message
+      }
+    }
+  })
+```
