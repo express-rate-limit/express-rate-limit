@@ -1,8 +1,7 @@
 // /test/middleware-test.ts
 // Tests the rate limiting middleware
 
-// import { platform } from 'node:process'
-
+import { platform } from 'node:process'
 import { describe, expect, it, jest } from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
@@ -619,45 +618,45 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	// FIXME: This test is flaky and times out  _sometimes_ on MacOS and Windows,
-	// so it is disabled for now.
-
-	/*
-	;(platform === 'darwin' ? it.skip : it).each([
-		['modern', new MockStore()],
-		['legacy', new MockLegacyStore()],
-		['compat', new MockBackwardCompatibleStore()],
-	])(
-		'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store)',
-		async (name, store) => {
-			jest.useRealTimers()
+	describe('server-based tests', () => {
+		beforeEach(() => {
 			jest.setTimeout(60_000)
+		})
 
-			const app = createServer(
-				rateLimit({
-					skipFailedRequests: true,
-					store,
-				}),
-			)
+		;(platform === 'darwin' ? it.skip : it).each([
+			['modern', new MockStore()],
+			['legacy', new MockLegacyStore()],
+			['compat', new MockBackwardCompatibleStore()],
+		])(
+			'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)',
+			async (name, store) => {
+				jest.useRealTimers()
 
-			let _resolve: () => void
-			const connectionClosed = new Promise<void>((resolve) => {
-				_resolve = resolve
-			})
+				const app = createServer(
+					rateLimit({
+						skipFailedRequests: true,
+						store,
+					}),
+				)
 
-			app.get('/hang-server', (_request, response) => {
-				response.on('close', _resolve)
-			})
+				let _resolve: () => void
+				const connectionClosed = new Promise<void>((resolve) => {
+					_resolve = resolve
+				})
 
-			const hangRequest = request(app).get('/hang-server').timeout(10)
+				app.get('/hang-server', (_request, response) => {
+					response.on('close', _resolve)
+				})
 
-			await expect(hangRequest).rejects.toThrow()
-			await connectionClosed
+				const hangRequest = request(app).get('/hang-server').timeout(10)
 
-			expect(store.decrementWasCalled).toEqual(true)
-		},
-	)
-	*/
+				await expect(hangRequest).rejects.toThrow()
+				await connectionClosed
+
+				expect(store.decrementWasCalled).toEqual(true)
+			},
+		)
+	})
 
 	it.each([
 		['modern', new MockStore()],
