@@ -1,7 +1,9 @@
 // /test/middleware-test.ts
 // Tests the rate limiting middleware
 
+import { EventEmitter } from 'node:events'
 import { platform } from 'node:process'
+
 import { describe, expect, it, jest } from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
@@ -656,6 +658,48 @@ describe('middleware test', () => {
 				expect(store.decrementWasCalled).toEqual(true)
 			},
 		)
+	})
+
+	it.each([
+		['modern', new MockStore()],
+		['legacy', new MockLegacyStore()],
+		['compat', new MockBackwardCompatibleStore()],
+	])('should decrement hits when response closes and `skipFailedRequests` is set to true (%s store)', async (name, store) => {
+		const middleware = rateLimit({
+			skipFailedRequests: true,
+			store,
+		})
+
+		// Minimal request/response mocks so we can emit `close` without spinning up a server
+		const mockedRequest = {
+			ip: '127.0.0.1',
+			method: 'GET',
+			path: '/',
+			url: '/',
+			headers: {},
+			app: { get: () => false },
+		} as unknown as Request
+
+		const mockedResponse = Object.assign(new EventEmitter(), {
+			statusCode: 200,
+			writableEnded: false,
+			setHeader: jest.fn(),
+			getHeader: jest.fn(),
+			end: jest.fn(),
+		}) as unknown as Response
+
+		const next = jest.fn()
+
+		// Start the middleware so we can await its completion
+		const middlewarePromise = middleware(mockedRequest, mockedResponse, next)
+
+		// Simulate the connection closing before the response finishes
+		mockedResponse.emit('close')
+
+		// Wait for the middleware to finish processing
+		await middlewarePromise
+
+		expect(store.decrementWasCalled).toEqual(true)
 	})
 
 	it.each([
