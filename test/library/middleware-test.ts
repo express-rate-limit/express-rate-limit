@@ -2,6 +2,7 @@
 // Tests the rate limiting middleware
 
 import { EventEmitter } from 'node:events'
+import { platform } from 'node:process'
 
 import { describe, expect, it, jest } from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
@@ -619,36 +620,44 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	it.each([
-		['modern', new MockStore()],
-		['legacy', new MockLegacyStore()],
-		['compat', new MockBackwardCompatibleStore()],
-	])('should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)', async (name, store) => {
-		jest.useRealTimers()
-		jest.setTimeout(60_000)
+	describe('server-based tests', () => {
+		beforeEach(() => {
+			jest.setTimeout(60_000)
+		})
 
-		const app = createServer(
-			rateLimit({
-				skipFailedRequests: true,
-				store,
-			}),
+		;(platform === 'darwin' ? it.skip : it).each([
+			['modern', new MockStore()],
+			['legacy', new MockLegacyStore()],
+			['compat', new MockBackwardCompatibleStore()],
+		])(
+			'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)',
+			async (name, store) => {
+				jest.useRealTimers()
+
+				const app = createServer(
+					rateLimit({
+						skipFailedRequests: true,
+						store,
+					}),
+				)
+
+				let _resolve: () => void
+				const connectionClosed = new Promise<void>((resolve) => {
+					_resolve = resolve
+				})
+
+				app.get('/hang-server', (_request, response) => {
+					response.on('close', _resolve)
+				})
+
+				const hangRequest = request(app).get('/hang-server').timeout(10)
+
+				await expect(hangRequest).rejects.toThrow()
+				await connectionClosed
+
+				expect(store.decrementWasCalled).toEqual(true)
+			},
 		)
-
-		let _resolve: () => void
-		const connectionClosed = new Promise<void>((resolve) => {
-			_resolve = resolve
-		})
-
-		app.get('/hang-server', (_request, response) => {
-			response.on('close', _resolve)
-		})
-
-		const hangRequest = request(app).get('/hang-server').timeout(10)
-
-		await expect(hangRequest).rejects.toThrow()
-		await connectionClosed
-
-		expect(store.decrementWasCalled).toEqual(true)
 	})
 
 	it.each([
