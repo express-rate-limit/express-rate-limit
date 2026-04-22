@@ -427,7 +427,7 @@ export type Options = {
 	/**
 	 * The logger to use to log errors. If absent, logs to the console.
 	 */
-	logger?: Logger
+	logger: Logger
 }
 
 /**

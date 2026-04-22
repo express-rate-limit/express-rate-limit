@@ -145,28 +145,6 @@ const getOptionsFromConfig = (config: Configuration): Options => {
 }
 
 /**
- * Ensures provided logger is valid, and if absent returns the ConsoleLogger instance
- *
- * @param logger {Logger | undefined}
- *
- * @throws {TypeError} if the provided logger incorrectly implements the {@see Logger} interface
- * @returns {Logger} -- Thr provided Logger if valid, or the ConsoleLogger if absent.
- */
-const validateLogger = (logger?: Logger): Logger => {
-	if (logger === undefined) {
-		return ConsoleLogger
-	}
-	if (
-		typeof logger === 'object' &&
-		typeof logger.error === 'function' &&
-		typeof logger.warn === 'function'
-	) {
-		return logger
-	}
-	throw new TypeError('Provided logger does not implement the Logger interface')
-}
-
-/**
  * Type-checks and adds the defaults for options the user has not specified.
  *
  * @param options {Options} - The options the user specifies.
@@ -179,13 +157,12 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedProperties<Partial<Options>>(passedOptions)
 
-	// Make sure we have a valid Logger
-	const logger = validateLogger(passedOptions.logger)
+	const logger = passedOptions.logger ?? ConsoleLogger
 
 	// Create the validator before even parsing the rest of the options.
 	const validations = getValidations(
 		notUndefinedOptions?.validate ?? true,
-		passedOptions.logger,
+		logger,
 	)
 	validations.validationsConfig()
 

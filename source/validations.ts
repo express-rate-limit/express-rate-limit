@@ -3,7 +3,6 @@
 
 import { isIP } from 'node:net'
 import type { Request } from 'express'
-import { ConsoleLogger } from './console-logger'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 import type {
 	EnabledValidations,
@@ -480,6 +479,25 @@ const validations = {
 	},
 }
 
+/**
+ * Ensures provided logger is valid
+ *
+ * @param logger {Logger}
+ *
+ * @throws {TypeError} if the provided logger incorrectly implements the {@see Logger} interface
+ */
+function validateLogger(logger: Logger): void {
+	if (
+		typeof logger !== 'object' ||
+		typeof logger.error !== 'function' ||
+		typeof logger.warn !== 'function'
+	) {
+		throw new TypeError(
+			'Provided logger does not implement the Logger interface',
+		)
+	}
+}
+
 export type Validations = typeof validations
 
 /**
@@ -495,8 +513,10 @@ export type Validations = typeof validations
  */
 export const getValidations = (
 	_enabled: boolean | EnabledValidations,
-	logger: Logger = ConsoleLogger,
+	logger: Logger,
 ): Validations => {
+	validateLogger(logger)
+
 	let enabled: { [key: string]: boolean }
 	if (typeof _enabled === 'boolean') {
 		enabled = {
