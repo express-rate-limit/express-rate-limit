@@ -6,6 +6,28 @@ import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 import type { Validations } from './validations.js'
 
 /**
+ * Basic logging function
+ *
+ * @param error {unknown} - The error to log
+ * @param message {string | undefined} - Additional details about the error
+ */
+export type LoggerFn = (error: unknown, message?: string) => void
+
+/**
+ * Minimal interface for logging warnings and errors
+ */
+export type Logger = {
+	/**
+	 * Function to log an error
+	 */
+	error: LoggerFn
+	/**
+	 * Function to log a warning
+	 */
+	warn: LoggerFn
+}
+
+/**
  * Callback that fires when a client's hit counter is incremented.
  *
  * @param error {Error | undefined} - The error that occurred, if any.
@@ -401,6 +423,11 @@ export type Options = {
 	 * If the Store generates an error, allow the request to pass.
 	 */
 	passOnStoreError: boolean
+
+	/**
+	 * The logger to use to log errors. If absent, logs to the console.
+	 */
+	logger: Logger
 }
 
 /**

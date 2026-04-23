@@ -6,6 +6,7 @@ import type { Request } from 'express'
 import { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 import type {
 	EnabledValidations,
+	Logger,
 	Options,
 	Store,
 	ValueDeterminingMiddleware,
@@ -339,6 +340,7 @@ const validations = {
 			headers: true,
 			max: true,
 			passOnStoreError: true,
+			logger: true,
 		}
 		const validOptions = Object.keys(optionsMap).concat(
 			'draft_polli_ratelimit_headers', // not a valid option anymore, but we have a more specific check for this one, so don't warn for it here
@@ -477,6 +479,25 @@ const validations = {
 	},
 }
 
+/**
+ * Ensures provided logger is valid
+ *
+ * @param logger {Logger}
+ *
+ * @throws {TypeError} if the provided logger incorrectly implements the {@see Logger} interface
+ */
+function validateLogger(logger: Logger): void {
+	if (
+		typeof logger !== 'object' ||
+		typeof logger.error !== 'function' ||
+		typeof logger.warn !== 'function'
+	) {
+		throw new TypeError(
+			'Provided logger does not implement the Logger interface',
+		)
+	}
+}
+
 export type Validations = typeof validations
 
 /**
@@ -485,13 +506,17 @@ export type Validations = typeof validations
  * provided value, allowing different instances of express-rate-limit
  * to have different validations settings.
  *
- * @param enabled {boolean} - The list of enabled validations.
+ * @param _enabled {boolean} - The list of enabled validations.
+ * @param logger {Logger} - The logger instance to use to log errors and warnings
  *
  * @returns {Validations} - The validation functions.
  */
 export const getValidations = (
 	_enabled: boolean | EnabledValidations,
+	logger: Logger,
 ): Validations => {
+	validateLogger(logger)
+
 	let enabled: { [key: string]: boolean }
 	if (typeof _enabled === 'boolean') {
 		enabled = {
@@ -521,8 +546,8 @@ export const getValidations = (
 						args,
 					)
 				} catch (error: any) {
-					if (error instanceof ChangeWarning) console.warn(error)
-					else console.error(error)
+					if (error instanceof ChangeWarning) logger.warn(error)
+					else logger.error(error)
 				}
 			}
 	}

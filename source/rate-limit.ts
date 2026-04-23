@@ -3,6 +3,7 @@
 
 import { isIPv6 } from 'node:net'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
+import { ConsoleLogger } from './console-logger'
 import {
 	setDraft6Headers,
 	setDraft7Headers,
@@ -18,6 +19,7 @@ import type {
 	DraftHeadersVersion,
 	EnabledValidations,
 	LegacyStore,
+	Logger,
 	Options,
 	RateLimitExceededEventHandler,
 	RateLimitInfo,
@@ -122,6 +124,7 @@ type Configuration = {
 	store: Store
 	validations: Validations
 	passOnStoreError: boolean
+	logger: Logger
 }
 
 /**
@@ -154,8 +157,13 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedProperties<Partial<Options>>(passedOptions)
 
+	const logger = passedOptions.logger ?? ConsoleLogger
+
 	// Create the validator before even parsing the rest of the options.
-	const validations = getValidations(notUndefinedOptions?.validate ?? true)
+	const validations = getValidations(
+		notUndefinedOptions?.validate ?? true,
+		logger,
+	)
 	validations.validationsConfig()
 
 	// Warn on unknown options
@@ -284,6 +292,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		),
 		// Print an error to the console if a few known misconfigurations are detected.
 		validations,
+		logger,
 	}
 
 	// Ensure that the store passed implements the `Store` interface
@@ -387,9 +396,9 @@ const rateLimit = (
 				resetTime = incrementResult.resetTime
 			} catch (error) {
 				if (config.passOnStoreError) {
-					console.error(
-						'express-rate-limit: error from store, allowing request without rate-limiting.',
+					config.logger.error(
 						error,
+						'express-rate-limit: error from store, allowing request without rate-limiting.',
 					)
 					next()
 					return

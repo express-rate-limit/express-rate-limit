@@ -33,7 +33,7 @@ function print_info {
 
 # -- Utility Functions --
 
-# Recreates the docker containers needed for the external store tests. 
+# Recreates the docker containers needed for the external store tests.
 function start_docker {
 	print_info "stopping docker containers\n"
 	# Stop and delete any existing containers
@@ -68,7 +68,7 @@ function run_import_tests {
 	# For each type of import (named and default), run the tests
 	for type in "named" "default"; do
 		cd "$type-import"
-		
+
 		for dir in `ls -d */`; do
 			print_info "running $dir variation for $type imports (express 5)\n"
 			# cd into the example project
@@ -96,7 +96,7 @@ function run_import_tests {
 			# Go back into the next variation
 			cd ../
 		done
-		
+
 		# Go back
 		cd ../
 	done
@@ -151,6 +151,40 @@ function run_store_tests {
 	print_success "successfully ran all store tests"
 }
 
+
+# Tests for different logger integration
+function run_logger_tests {
+	print_info "running logger tests"
+
+	# cd into the example project
+	cd loggers/
+
+	# Get a fresh install of all the node modules
+	echo
+	pnpm install
+	echo
+
+	print_info "running logger tests (express 5)"
+	# Run the tests with Express v5
+	pnpm test
+	echo
+
+	print_info "running store tests (express 4)\n"
+	# Install Express v4
+	pnpm install express@4
+	# Run the tests with this version
+	pnpm test
+	echo
+	# Restore the version
+	git restore package.json pnpm-lock.yaml
+
+	# Go back
+	cd ../
+
+	echo
+	print_success "successfully ran all logger tests"
+}
+
 # Upgrades all dependencies
 function upgrade_dependencies {
 	print_info "upgrading project dependencies"
@@ -160,7 +194,7 @@ function upgrade_dependencies {
 	# For each type of import (named and default), run the tests
 	for type in "named" "default"; do
 		cd "$type-import"
-		
+
 		for dir in `ls -d */`; do
 			print_info "upgrading dependencies of $type-import/$dir"
 			# cd into the example project
@@ -175,7 +209,7 @@ function upgrade_dependencies {
 			# Go back into the next variation
 			cd ../
 		done
-		
+
 		# Go back
 		cd ../
 	done
@@ -189,6 +223,7 @@ function upgrade_dependencies {
 # Run the tests!
 run_import_tests
 run_store_tests
+run_logger_tests
 
 # Upgrade dependencies!
 # upgrade_dependencies
