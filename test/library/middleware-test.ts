@@ -621,45 +621,40 @@ describe('middleware test', () => {
 		expect(store.decrementWasCalled).toEqual(true)
 	})
 
-	describe('server-based tests', () => {
-		beforeEach(() => {
-			jest.setTimeout(60_000)
-		})
+	;(platform === 'darwin' ? it.skip : it).each([
+		['modern', new MockStore()],
+		['legacy', new MockLegacyStore()],
+		['compat', new MockBackwardCompatibleStore()],
+	])(
+		'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)',
+		async (name, store) => {
+			jest.useRealTimers()
 
-		;(platform === 'darwin' ? it.skip : it).each([
-			['modern', new MockStore()],
-			['legacy', new MockLegacyStore()],
-			['compat', new MockBackwardCompatibleStore()],
-		])(
-			'should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)',
-			async (name, store) => {
-				jest.useRealTimers()
+			const app = createServer(
+				rateLimit({
+					skipFailedRequests: true,
+					store,
+				}),
+			)
 
-				const app = createServer(
-					rateLimit({
-						skipFailedRequests: true,
-						store,
-					}),
-				)
+			let _resolve: () => void
+			const connectionClosed = new Promise<void>((resolve) => {
+				_resolve = resolve
+			})
 
-				let _resolve: () => void
-				const connectionClosed = new Promise<void>((resolve) => {
-					_resolve = resolve
-				})
+			app.get('/hang-server', (_request, response) => {
+				response.on('close', _resolve)
+			})
 
-				app.get('/hang-server', (_request, response) => {
-					response.on('close', _resolve)
-				})
+			// note: if the timeout is too short (e.g. 10ms), the test will sometimes fail on widows, presumably because it's timing out too quickly
+			const hangRequest = request(app).get('/hang-server').timeout(50)
 
-				const hangRequest = request(app).get('/hang-server').timeout(10)
+			await expect(hangRequest).rejects.toThrow()
+			await connectionClosed
 
-				await expect(hangRequest).rejects.toThrow()
-				await connectionClosed
-
-				expect(store.decrementWasCalled).toEqual(true)
-			},
-		)
-	})
+			expect(store.decrementWasCalled).toEqual(true)
+		},
+	)
 
 	it.each([
 		['modern', new MockStore()],

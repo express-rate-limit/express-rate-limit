@@ -66,6 +66,7 @@ default values.
 | [`skipFailedRequests`]     | `boolean`                                 | Uncount 4xx/5xx responses.                                                                      |
 | [`requestWasSuccessful`]   | `function`                                | Used by `skipSuccessfulRequests` and `skipFailedRequests`.                                      |
 | [`validate`]               | `boolean` \| `object`                     | Enable or disable built-in validation checks.                                                   |
+| [`logger`]                 | `Logger`                                  | Custom logger                                                                                   |
 
 ## Thank You
 
@@ -134,3 +135,5 @@ MIT © [Nathan Friedly](http://nfriedly.com/),
 	https://express-rate-limit.mintlify.app/reference/configuration#requestwassuccessful
 [`validate`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#validate
+[`logger`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#logger
