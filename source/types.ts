@@ -101,7 +101,13 @@ export type IncrementResponse = ClientRateLimitInfo
 /**
  * A modified Express request handler with the rate limit functions.
  */
-export type RateLimitRequestHandler = RequestHandler & {
+export type RateLimitRequestHandler<
+	P = any,
+	ResBody = any,
+	ReqBody = any,
+	ReqQuery = any,
+	Locals extends Record<string, any> = any,
+> = RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals> & {
 	/**
 	 * Method to reset a client's hit counter.
 	 *
