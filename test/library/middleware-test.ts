@@ -4,7 +4,14 @@
 import { EventEmitter } from 'node:events'
 import { platform } from 'node:process'
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	jest,
+} from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
 import rateLimit, {
@@ -172,6 +179,67 @@ describe('middleware test', () => {
 		})
 
 		expect(store.initWasCalled).toEqual(true)
+	})
+
+	describe('async store init', () => {
+		let logger: Logger
+
+		beforeEach(() => {
+			logger = {
+				error: jest.fn(),
+				warn: jest.fn(),
+			}
+			jest.useRealTimers()
+		})
+
+		class MockStoreAsyncInitResolving extends MockStore {
+			initWasCalled = false
+
+			init(_options: Options): Promise<void> {
+				this.initWasCalled = true
+				return Promise.resolve()
+			}
+		}
+
+		class MockStoreAsyncInitRejecting extends MockStore {
+			initWasCalled = false
+
+			init(_options: Options): Promise<void> {
+				this.initWasCalled = true
+				return Promise.reject(new Error('Async init error'))
+			}
+		}
+
+		it('should handle resolving async init', async () => {
+			const store = new MockStoreAsyncInitResolving()
+			const limiter = rateLimit({
+				store,
+				logger,
+			})
+
+			await new Promise((resolve) => process.nextTick(resolve))
+
+			expect(limiter).not.toBeInstanceOf(Promise)
+			expect(store.initWasCalled).toEqual(true)
+			expect(logger.error).not.toHaveBeenCalled()
+		})
+
+		it('should handle rejecting async init and log error', async () => {
+			const store = new MockStoreAsyncInitRejecting()
+			const limiter = rateLimit({
+				store,
+				logger,
+			})
+
+			await new Promise((resolve) => process.nextTick(resolve))
+
+			expect(limiter).not.toBeInstanceOf(Promise)
+			expect(store.initWasCalled).toEqual(true)
+			expect(logger.error).toHaveBeenCalledWith(
+				expect.any(Error),
+				'express-rate-limit: error during store initialization.',
+			)
+		})
 	})
 
 	it('should let the first request through', async () => {

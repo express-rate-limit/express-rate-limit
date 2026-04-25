@@ -166,9 +166,16 @@ export type Store = {
 	 * Method that initializes the store, and has access to the options passed to
 	 * the middleware too.
 	 *
+	 * Called once during initialization.
+	 *
+	 * Async errors / promise rejections will be caught and logged.
+	 * (Synchronously thrown errors are not caught, and will prevent the express-rate-limit instance from being created.)
+	 *
+	 * Note that the result is not awaited - other store methods (such as increment) may be called before init returns and/or after it rejects.
+	 *
 	 * @param options {Options} - The options used to setup the middleware.
 	 */
-	init?: (options: Options) => void
+	init?: (options: Options) => void | Promise<void>
 
 	/**
 	 * Method to fetch a client's hit count and reset time.
