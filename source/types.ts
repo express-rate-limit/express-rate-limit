@@ -25,6 +25,10 @@ export type Logger = {
 	 * Function to log a warning
 	 */
 	warn: LoggerFn
+	/**
+	 * Function to log a debug message
+	 */
+	debug: LoggerFn
 }
 
 /**

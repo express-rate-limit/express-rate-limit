@@ -377,6 +377,7 @@ const rateLimit = (
 			// First check if we should skip the request
 			const skip = await config.skip(request, response)
 			if (skip) {
+				config.logger.debug(undefined, `express-rate-limit: skipping request for ${request.method} ${request.url}`)
 				next()
 				return
 			}
@@ -386,6 +387,7 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
+			config.logger.debug(undefined, `express-rate-limit: generated key "${key}" for ${request.method} ${request.url}`)
 
 			// Increment the client's hit counter by one.
 			let totalHits = 0
@@ -394,6 +396,7 @@ const rateLimit = (
 				const incrementResult = await config.store.increment(key)
 				totalHits = incrementResult.totalHits
 				resetTime = incrementResult.resetTime
+				config.logger.debug(undefined, `express-rate-limit: incremented hits for key "${key}" to ${totalHits}`)
 			} catch (error) {
 				if (config.passOnStoreError) {
 					config.logger.error(
@@ -420,6 +423,7 @@ const rateLimit = (
 					: config.limit
 			const limit = await retrieveLimit
 			config.validations.limit(limit)
+			config.logger.debug(undefined, `express-rate-limit: limit for key "${key}" is ${limit}`)
 
 			// Define the rate limit info for the client.
 			const info: RateLimitInfo = {

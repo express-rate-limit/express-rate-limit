@@ -7,4 +7,7 @@ export const ConsoleLogger: Logger = {
 	error(...args) {
 		console.error(...args.reverse())
 	},
+	debug(...args) {
+		console.debug(...args.reverse())
+	},
 }
