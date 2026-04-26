@@ -313,6 +313,8 @@ rate limiter. This could be combined with a second instance of
 
 ## `ipv6Subnet`
 
+> Added in `8.0.0` (/56 default), `7.6.0` (/64 default).
+
 > `number` (32-64) | `function` | `false`
 
 IPv6 subnet mask applied to IPv6 addresses in the default
@@ -328,7 +330,8 @@ once.
 It's generally not possible to know what subnet an ISP has assigned to a user,
 so we have to make an educuated guess.
 
-The default value is 56, corresponding to a /56 subnet.
+The default value is 56 on 8.x and newer, corresponding to a /56 subnet. (The
+feature was backported with a more relaxed default of 64 on earlier versions.)
 
 The valid range is 1-128, but typically ISPs assign subnets in the range of
 32-64, with 64 being the most common. The validation check (which can be
