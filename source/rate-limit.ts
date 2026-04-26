@@ -377,7 +377,10 @@ const rateLimit = (
 			// First check if we should skip the request
 			const skip = await config.skip(request, response)
 			if (skip) {
-				config.logger.debug(undefined, `express-rate-limit: skipping request for ${request.method} ${request.url}`)
+				config.logger.debug?.(
+					undefined,
+					`express-rate-limit: skipping request for ${request.method} ${request.url}`,
+				)
 				next()
 				return
 			}
@@ -387,7 +390,6 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
-			config.logger.debug(undefined, `express-rate-limit: generated key "${key}" for ${request.method} ${request.url}`)
 
 			// Increment the client's hit counter by one.
 			let totalHits = 0
@@ -396,7 +398,6 @@ const rateLimit = (
 				const incrementResult = await config.store.increment(key)
 				totalHits = incrementResult.totalHits
 				resetTime = incrementResult.resetTime
-				config.logger.debug(undefined, `express-rate-limit: incremented hits for key "${key}" to ${totalHits}`)
 			} catch (error) {
 				if (config.passOnStoreError) {
 					config.logger.error(
@@ -423,7 +424,6 @@ const rateLimit = (
 					: config.limit
 			const limit = await retrieveLimit
 			config.validations.limit(limit)
-			config.logger.debug(undefined, `express-rate-limit: limit for key "${key}" is ${limit}`)
 
 			// Define the rate limit info for the client.
 			const info: RateLimitInfo = {
@@ -444,9 +444,17 @@ const rateLimit = (
 
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[config.requestPropertyName] = info
+			config.logger.debug?.(
+				undefined,
+				`express-rate-limit: key="${key}", hits=${totalHits}, limit=${limit}, remaining=${info.remaining}, resetTime=${resetTime?.toISOString()}`,
+			)
 
 			// Set the `X-RateLimit` headers on the response object if enabled.
 			if (config.legacyHeaders && !response.headersSent) {
+				config.logger.debug?.(
+					undefined,
+					`express-rate-limit: setting legacy headers for key "${key}"`,
+				)
 				setLegacyHeaders(response, info)
 			}
 
@@ -455,17 +463,29 @@ const rateLimit = (
 			if (config.standardHeaders && !response.headersSent) {
 				switch (config.standardHeaders) {
 					case 'draft-6': {
+						config.logger.debug?.(
+							undefined,
+							`express-rate-limit: setting draft-6 headers for key "${key}"`,
+						)
 						setDraft6Headers(response, info, config.windowMs)
 						break
 					}
 
 					case 'draft-7': {
+						config.logger.debug?.(
+							undefined,
+							`express-rate-limit: setting draft-7 headers for key "${key}"`,
+						)
 						config.validations.headersResetTime(info.resetTime)
 						setDraft7Headers(response, info, config.windowMs)
 						break
 					}
 
 					case 'draft-8': {
+						config.logger.debug?.(
+							undefined,
+							`express-rate-limit: setting draft-8 headers for key "${key}"`,
+						)
 						const retrieveName =
 							typeof config.identifier === 'function'
 								? config.identifier(request, response)
@@ -492,6 +512,10 @@ const rateLimit = (
 					// This could have been tested properly if the response.on('error') test
 					// worked as well, leaving it as a todo.
 					if (!decremented) {
+						config.logger.debug?.(
+							undefined,
+							`express-rate-limit: decrementing hits for key "${key}"`,
+						)
 						await config.store.decrement(key)
 						decremented = true
 					}

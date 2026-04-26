@@ -28,7 +28,7 @@ export type Logger = {
 	/**
 	 * Function to log a debug message
 	 */
-	debug: LoggerFn
+	debug?: LoggerFn
 }
 
 /**
