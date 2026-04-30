@@ -356,15 +356,22 @@ const rateLimit = (
 
 	// Call the `init` method on the store, if it exists
 	if (typeof config.store.init === 'function') {
-		// If it returns a promise, we'll log any potential rejection error here
+		// If store.init() throws or rejects, we'll catch and log it
 		// Use .catch() rather than await, because we need to return synchronously
-		const storeInit = config.store.init(options)
-		if (storeInit instanceof Promise) {
-			storeInit.catch((error) =>
-				config.logger.error(
-					error,
-					'express-rate-limit: error during store initialization.',
-				),
+		try {
+			const storeInit = config.store.init(options)
+			if (storeInit instanceof Promise) {
+				storeInit.catch((error) =>
+					config.logger.error(
+						error,
+						'express-rate-limit: async error during store initialization.',
+					),
+				)
+			}
+		} catch (error) {
+			config.logger.error(
+				error,
+				'express-rate-limit: error during store initialization.',
 			)
 		}
 	}

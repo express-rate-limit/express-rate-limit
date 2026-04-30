@@ -237,6 +237,23 @@ describe('middleware test', () => {
 			expect(store.initWasCalled).toEqual(true)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.any(Error),
+				'express-rate-limit: async error during store initialization.',
+			)
+		})
+
+		it('should catch synchronous errors thrown from store.init()', () => {
+			const store = new MockStore()
+			jest.spyOn(store, 'init').mockImplementation(() => {
+				throw new Error('test error')
+			})
+			const limiter = rateLimit({
+				store,
+				logger,
+			})
+
+			expect(limiter).not.toBeInstanceOf(Promise)
+			expect(logger.error).toHaveBeenCalledWith(
+				expect.any(Error),
 				'express-rate-limit: error during store initialization.',
 			)
 		})
