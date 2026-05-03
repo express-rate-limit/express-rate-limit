@@ -14,6 +14,14 @@ import type { Validations } from './validations.js'
 export type LoggerFn = (error: unknown, message?: string) => void
 
 /**
+ * Debug logging function - message-first, no error argument
+ *
+ * @param message {string} - The debug message
+ * @param context {unknown} - Optional context object (e.g. request info, rate limit info)
+ */
+export type DebugFn = (message: string, context?: unknown) => void
+
+/**
  * Minimal interface for logging warnings and errors
  */
 export type Logger = {
@@ -28,7 +36,7 @@ export type Logger = {
 	/**
 	 * Function to log a debug message
 	 */
-	debug?: LoggerFn
+	debug?: DebugFn
 }
 
 /**
@@ -105,13 +113,7 @@ export type IncrementResponse = ClientRateLimitInfo
 /**
  * A modified Express request handler with the rate limit functions.
  */
-export type RateLimitRequestHandler<
-	P = any,
-	ResBody = any,
-	ReqBody = any,
-	ReqQuery = any,
-	Locals extends Record<string, any> = any,
-> = RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals> & {
+export type RateLimitRequestHandler = RequestHandler & {
 	/**
 	 * Method to reset a client's hit counter.
 	 *
