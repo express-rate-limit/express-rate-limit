@@ -169,7 +169,6 @@ export type Store = {
 	 * Called once during initialization.
 	 *
 	 * Async errors / promise rejections will be caught and logged.
-	 * (Synchronously thrown errors are not caught, and will prevent the express-rate-limit instance from being created.)
 	 *
 	 * Note that the result is not awaited - other store methods (such as increment) may be called before init returns and/or after it rejects.
 	 *
