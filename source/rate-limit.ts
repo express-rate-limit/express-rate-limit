@@ -377,6 +377,10 @@ const rateLimit = (
 			// First check if we should skip the request
 			const skip = await config.skip(request, response)
 			if (skip) {
+				config.logger.debug?.('express-rate-limit: skipping request', {
+					method: request.method,
+					url: request.url,
+				})
 				next()
 				return
 			}
@@ -440,9 +444,13 @@ const rateLimit = (
 
 			// Set the rate limit information on the augmented request object
 			augmentedRequest[config.requestPropertyName] = info
+			config.logger.debug?.('express-rate-limit: rate limit info', info)
 
 			// Set the `X-RateLimit` headers on the response object if enabled.
 			if (config.legacyHeaders && !response.headersSent) {
+				config.logger.debug?.('express-rate-limit: setting legacy headers', {
+					key,
+				})
 				setLegacyHeaders(response, info)
 			}
 
@@ -451,17 +459,29 @@ const rateLimit = (
 			if (config.standardHeaders && !response.headersSent) {
 				switch (config.standardHeaders) {
 					case 'draft-6': {
+						config.logger.debug?.(
+							'express-rate-limit: setting draft-6 headers',
+							{ key },
+						)
 						setDraft6Headers(response, info, config.windowMs)
 						break
 					}
 
 					case 'draft-7': {
+						config.logger.debug?.(
+							'express-rate-limit: setting draft-7 headers',
+							{ key },
+						)
 						config.validations.headersResetTime(info.resetTime)
 						setDraft7Headers(response, info, config.windowMs)
 						break
 					}
 
 					case 'draft-8': {
+						config.logger.debug?.(
+							'express-rate-limit: setting draft-8 headers',
+							{ key },
+						)
 						const retrieveName =
 							typeof config.identifier === 'function'
 								? config.identifier(request, response)
@@ -488,6 +508,9 @@ const rateLimit = (
 					// This could have been tested properly if the response.on('error') test
 					// worked as well, leaving it as a todo.
 					if (!decremented) {
+						config.logger.debug?.('express-rate-limit: decrementing hits', {
+							key,
+						})
 						await config.store.decrement(key)
 						decremented = true
 					}
