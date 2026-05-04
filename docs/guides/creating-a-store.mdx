@@ -28,6 +28,13 @@ the `skipSuccessfulRequests` or `skipFailedRequests` options are enabled.
 The `init` method allows the store to set itself up using the options passed to
 the middleware. The store can get the `windowMs` option from this method.
 
+Starting with version 8.5.0, the `init` method may be async, and is a good place
+for things like opening a connection to a database or ensuring the schema is
+up-to-date. Errors & promise rejections from `init` will be caught and logged by
+express-rate-limit, but will not prevent other methods such as `increment()`
+from being called. Additionally, other methods such as `increment()` may be
+called before `init()` completes.
+
 The `get` method takes a `string` argument (the key that identifies a client)
 and returns an object consisting of the internal hit count (`totalHits`) and the
 time that the count will reach 0 (`resetTime`) for the given client. It may

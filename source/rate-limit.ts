@@ -355,7 +355,26 @@ const rateLimit = (
 	config.validations.unsharedStore(config.store)
 
 	// Call the `init` method on the store, if it exists
-	if (typeof config.store.init === 'function') config.store.init(options)
+	if (typeof config.store.init === 'function') {
+		// If store.init() throws or rejects, we'll catch and log it
+		// Use .catch() rather than await, because we need to return synchronously
+		try {
+			const storeInit = config.store.init(options)
+			if (storeInit instanceof Promise) {
+				storeInit.catch((error) =>
+					config.logger.error(
+						error,
+						'express-rate-limit: async error during store initialization.',
+					),
+				)
+			}
+		} catch (error) {
+			config.logger.error(
+				error,
+				'express-rate-limit: error during store initialization.',
+			)
+		}
+	}
 
 	// Then return the actual middleware
 	const middleware = handleAsyncErrors(
