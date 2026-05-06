@@ -75,7 +75,7 @@
 		"prepare": "run-s compile && husky"
 	},
 	"dependencies": {
-		"ip-address": "10.1.0"
+		"ip-address": "^10.2.0"
 	},
 	"peerDependencies": {
 		"express": ">= 4.11"
