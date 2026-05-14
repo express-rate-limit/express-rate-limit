@@ -30,7 +30,7 @@ export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 		// For IPv6, return the network address of the subnet in CIDR format
 		if (ipv6Subnet) {
 			const subnet = new Address6(`${ip}/${ipv6Subnet}`)
-			return `${subnet.startAddress().correctForm()}/${ipv6Subnet}`
+			return subnet.networkForm()
 		}
 	}
 
