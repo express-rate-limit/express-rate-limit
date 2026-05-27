@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@express-rate-limit/tsconfig': link:../tsconfig
+
 importers:
   .:
     dependencies:
@@ -18,8 +21,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       '@express-rate-limit/tsconfig':
-        specifier: 1.0.4
-        version: 1.0.4
+        specifier: 1.0.5
+        version: 1.0.5
       '@jest/globals':
         specifier: 30.4.1
         version: 30.4.1
@@ -755,10 +758,10 @@ packages:
         integrity: sha512-aEVBHXXdVH3e+FWyC9aucgYZauBAOsP53cCtqMcG+0Fx6EqwIXVhQc+brPJuIP2AE1B8tuQSVTWpSTUXQUhd5A==,
       }
 
-  '@express-rate-limit/tsconfig@1.0.4':
+  '@express-rate-limit/tsconfig@1.0.5':
     resolution:
       {
-        integrity: sha512-KDttbuqdlgRJfxxwfL7W2HMhhpFrV70l4FST+pjjyhfhX1HiQZnJlYSYK7rvnQpb+2ix6h+tHrAq45gwtZVPlQ==,
+        integrity: sha512-KOOmByklAUcBbkfrz/al56m13YfBRoTVQNfU9R2IwQMjCgP2axt2R7hQTR+nAM40dblF5BWa/PP3q+6ZyQC0iA==,
       }
 
   '@floating-ui/core@1.7.5':
@@ -9825,7 +9828,7 @@ snapshots:
 
   '@express-rate-limit/prettier@1.1.1': {}
 
-  '@express-rate-limit/tsconfig@1.0.4': {}
+  '@express-rate-limit/tsconfig@1.0.5': {}
 
   '@floating-ui/core@1.7.5':
     dependencies:
