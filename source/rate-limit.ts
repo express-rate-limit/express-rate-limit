@@ -3,7 +3,7 @@
 
 import { isIPv6 } from 'node:net'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
-import { ConsoleLogger } from './console-logger'
+import { ConsoleLogger } from './console-logger.js'
 import {
 	setDraft6Headers,
 	setDraft7Headers,
