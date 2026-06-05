@@ -2,6 +2,8 @@
 // Tests the rate limiting middleware
 
 import { EventEmitter } from 'node:events'
+import HTTP from 'node:http'
+import type { AddressInfo } from 'node:net'
 import { platform } from 'node:process'
 
 import {
@@ -722,22 +724,59 @@ describe('middleware test', () => {
 				}),
 			)
 
-			let _resolve: () => void
+			let received: () => void
+			const connectionOpened = new Promise<void>((resolve) => {
+				received = resolve
+			})
+			let closed: () => void
 			const connectionClosed = new Promise<void>((resolve) => {
-				_resolve = resolve
+				closed = resolve
+			})
+			app.get('/hang-server', (request, _response) => {
+				received()
+				request.on('close', closed)
 			})
 
-			app.get('/hang-server', (_request, response) => {
-				response.on('close', _resolve)
+			// starting with node.js v26.3.0, the supertest .timeout() method no longer works for this test, so we're skipping supertest and spinning up an actual http server and then making a request to it instead.
+			// see https://github.com/forwardemail/supertest/issues/891
+
+			let setListening: () => void
+			const listening = new Promise<void>((resolve) => {
+				setListening = resolve
 			})
+			const listener = app.listen((err) => {
+				if (err) {
+					console.error('Error starting server:', err)
+					throw err
+				}
+				setListening()
+			})
+			listener.unref() // don't keep the process from exiting if the test fails
+			await listening
 
-			// note: if the timeout is too short (e.g. 10ms), the test will sometimes fail on widows, presumably because it's timing out too quickly
-			const hangRequest = request(app).get('/hang-server').timeout(50)
+			const { address, port } = listener.address() as AddressInfo
+			expect(address).toBeDefined()
+			expect(port).toBeDefined()
 
-			await expect(hangRequest).rejects.toThrow()
+			const responseHandler = jest.fn()
+			// wrap address in [] because it's often an IPv6 address (which uses :'s instead of .'s to separate sections)
+			const hangRequest = HTTP.get(
+				`http://[${address}]:${port}/hang-server`,
+				responseHandler,
+			)
+
+			await connectionOpened
+
+			hangRequest.on('error', (_error) => {
+				/* expected, but if we don't add a listener, the test fails */
+			})
+			hangRequest.destroy()
+
 			await connectionClosed
+			listener.close() // shutdown the server
 
 			expect(store.decrementWasCalled).toEqual(true)
+			expect(responseHandler).not.toHaveBeenCalled() // this indicates we got a server response, which means something went wrong with this test
 		},
 	)
 
