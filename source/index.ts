@@ -1,6 +1,8 @@
 // /source/index.ts
 // Export away!
 
+// Export the console loggers
+export { ConsoleLogger, DebugConsoleLogger } from './console-logger.js'
 // Export the IP address based key generator in case someone wants to use it.
 export { ipKeyGenerator } from './ip-key-generator.js'
 // Export the memory store in case someone wants to use or extend it
