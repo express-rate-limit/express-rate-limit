@@ -4,7 +4,6 @@
 import { EventEmitter } from 'node:events'
 import HTTP from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { platform } from 'node:process'
 
 import {
 	afterEach,
