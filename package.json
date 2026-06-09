@@ -75,6 +75,7 @@
 		"prepare": "run-s compile && husky"
 	},
 	"dependencies": {
+		"debug": "^4.4.3",
 		"ip-address": "^10.2.0"
 	},
 	"peerDependencies": {
@@ -85,6 +86,7 @@
 		"@express-rate-limit/prettier": "1.1.1",
 		"@express-rate-limit/tsconfig": "1.0.5",
 		"@jest/globals": "30.4.1",
+		"@types/debug": "4.1.13",
 		"@types/express": "5.0.6",
 		"@types/jest": "30.0.0",
 		"@types/node": "25.9.2",
