@@ -509,7 +509,7 @@ const rateLimit = (
 								: config.identifier
 						const name = await retrieveName
 
-						debug('set ietf draft 7 headers')
+						debug('set ietf draft 8 headers')
 						debug('set name to %o', name)
 						config.validations.headersResetTime(info.resetTime)
 						setDraft8Headers(response, info, config.windowMs, name, key)
