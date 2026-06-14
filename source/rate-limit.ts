@@ -99,7 +99,8 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  * The internal configuration interface.
  *
  * This is copied from Options, with fields made non-readonly and deprecated
- * fields removed.
+ * fields removed. Whenever this is updated, please update the debug logs in
+ * the main middleware function as well.
  *
  * For documentation on what each field does, {@see Options}.
  *
@@ -352,9 +353,22 @@ const rateLimit = (
 
 	// Create a debug logger for this handler
 	const debug = createDebugLogger('express-rate-limit')
-	debug('creating new rate limiter')
-	debug('set window to %o', config.windowMs)
-	debug('set limit to %o', config.limit)
+	debug('creating new rate limiter with %o', config.store.constructor.name)
+
+	// Log the options that are unique to this isntance of the middleware.
+	const optionsToLog = [
+		'windowMs',
+		'statusCode',
+		'legacyHeaders',
+		'standardHeaders',
+		'requestPropertyName',
+		'skipFailedRequests',
+		'skipSuccessfulRequests',
+		'validations',
+		'passOnStoreError',
+		'logger',
+	]
+	for (const name of optionsToLog) debug('set %s to %o', name, config[name])
 
 	// The limiter shouldn't be created in response to a request (usually)
 	config.validations.creationStack(config.store)
@@ -363,7 +377,7 @@ const rateLimit = (
 
 	// Call the `init` method on the store, if it exists
 	if (typeof config.store.init === 'function') {
-		debug('init for store %o', config.store.constructor.name)
+		debug('executing init for store')
 
 		// If store.init() throws or rejects, we'll catch and log it
 		// Use .catch() rather than await, because we need to return synchronously
@@ -402,7 +416,7 @@ const rateLimit = (
 				config.skipFailedRequests &&
 				new Promise<void>((resolve) => response.once('error', resolve))
 
-			debug('request from url %o', request.originalUrl)
+			debug('requested %o', request.originalUrl)
 			debug('request from ip %o', request.ip)
 
 			// First check if we should skip the request
@@ -464,9 +478,8 @@ const rateLimit = (
 				key,
 			}
 
-			debug('set used to %o', info.used)
-			debug('set remaining to %o', info.remaining)
-			debug('set resetTime to %o', info.resetTime)
+			for (const [key, val] of Object.entries(info))
+				debug('computed %s to be %o', key, val)
 
 			// Set the `current` property on the object, but hide it from iteration
 			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
@@ -546,8 +559,12 @@ const rateLimit = (
 				if (config.skipFailedRequests) {
 					if (finishPromise) {
 						void finishPromise.then(async () => {
-							if (!(await config.requestWasSuccessful(request, response)))
-								await decrementKey()
+							const success = await config.requestWasSuccessful(
+								request,
+								response,
+							)
+							debug('computed requestWasSuccessful as %o', success)
+							if (!success) await decrementKey()
 						})
 					}
 
@@ -571,8 +588,12 @@ const rateLimit = (
 				if (config.skipSuccessfulRequests) {
 					if (finishPromise) {
 						void finishPromise.then(async () => {
-							if (await config.requestWasSuccessful(request, response))
-								await decrementKey()
+							const success = await config.requestWasSuccessful(
+								request,
+								response,
+							)
+							debug('computed requestWasSuccessful as %o', success)
+							if (success) await decrementKey()
 						})
 					}
 				}
