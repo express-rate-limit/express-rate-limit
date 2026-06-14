@@ -367,7 +367,7 @@ const rateLimit = (
 		'validations',
 		'passOnStoreError',
 		'logger',
-	]
+	] as Array<keyof Configuration>
 	for (const name of optionsToLog) debug('set %s to %o', name, config[name])
 
 	// The limiter shouldn't be created in response to a request (usually)
