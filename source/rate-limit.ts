@@ -355,7 +355,7 @@ const rateLimit = (
 	const debug = createDebugLogger('express-rate-limit')
 	debug('creating new rate limiter with %o', config.store.constructor.name)
 
-	// Log the options that are unique to this isntance of the middleware.
+	// Log the options that are unique to this instance of the middleware.
 	const optionsToLog = [
 		'windowMs',
 		'statusCode',
@@ -364,11 +364,12 @@ const rateLimit = (
 		'requestPropertyName',
 		'skipFailedRequests',
 		'skipSuccessfulRequests',
-		'validations',
 		'passOnStoreError',
-		'logger',
 	] as Array<keyof Configuration>
 	for (const name of optionsToLog) debug('set %s to %o', name, config[name])
+
+	// Log all the enabled validations.
+	debug('set validations to %o', config.validations.enabled)
 
 	// The limiter shouldn't be created in response to a request (usually)
 	config.validations.creationStack(config.store)
