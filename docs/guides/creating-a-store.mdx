@@ -28,12 +28,16 @@ the `skipSuccessfulRequests` or `skipFailedRequests` options are enabled.
 The `init` method allows the store to set itself up using the options passed to
 the middleware. The store can get the `windowMs` option from this method.
 
-Starting with version 8.5.0, the `init` method may be async, and is a good place
-for things like opening a connection to a database or ensuring the schema is
-up-to-date. Errors & promise rejections from `init` will be caught and logged by
-express-rate-limit, but will not prevent other methods such as `increment()`
-from being called. Additionally, other methods such as `increment()` may be
-called before `init()` completes.
+<Note>
+
+    Starting with version 8.5.0, the `init` method may be async, and is a good place
+    for things like opening a connection to a database or ensuring the schema is
+    up-to-date. Errors & promise rejections from `init` will be caught and logged by
+    express-rate-limit, but will not prevent other methods such as `increment()`
+    from being called. Additionally, other methods such as `increment()` may be
+    called before `init()` completes.
+
+</Note>
 
 The `get` method takes a `string` argument (the key that identifies a client)
 and returns an object consisting of the internal hit count (`totalHits`) and the
@@ -150,7 +154,7 @@ class SomeStore implements Store {
 	}
 
 	/**
-	 * Method that actually initializes the store. Must be synchronous.
+	 * Method that actually initializes the store.
 	 *
 	 * This method is optional, it will be called only if it exists.
 	 *
@@ -158,7 +162,7 @@ class SomeStore implements Store {
 	 *
 	 * @public
 	 */
-	init(options: Options): void {
+	async init(options: Options): Promise<void> {
 		this.windowMs = options.windowMs
 		// ...
 	}
@@ -270,7 +274,7 @@ class SomeStore {
 	}
 
 	/**
-	 * Method that actually initializes the store. Must be synchronous.
+	 * Method that actually initializes the store.
 	 *
 	 * This method is optional, it will be called only if it exists.
 	 *
@@ -278,7 +282,7 @@ class SomeStore {
 	 *
 	 * @public
 	 */
-	init(options) {
+	async init(options) {
 		this.windowMs = options.windowMs
 	}
 
@@ -376,8 +380,8 @@ export default SomeStore
 ### Using a Custom Store
 
 ```ts
-// Use `const ... = require('...')` instead if you are using CommonJS
-import rateLimit from 'express-rate-limit'
+// Use `const { rateLimit } = require('...')` instead if you are using CommonJS
+import { rateLimit } from 'express-rate-limit'
 import SomeStore from './some-store.js'
 
 const limiter = rateLimit({
