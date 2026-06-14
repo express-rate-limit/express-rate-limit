@@ -2,6 +2,7 @@
 // The option parser and rate limiting middleware
 
 import { isIPv6 } from 'node:net'
+import createDebugLogger from 'debug'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import { ConsoleLogger } from './console-logger.js'
 import {
@@ -98,7 +99,8 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  * The internal configuration interface.
  *
  * This is copied from Options, with fields made non-readonly and deprecated
- * fields removed.
+ * fields removed. Whenever this is updated, please update the debug logs in
+ * the main middleware function as well.
  *
  * For documentation on what each field does, {@see Options}.
  *
@@ -349,6 +351,26 @@ const rateLimit = (
 	const config = parseOptions(passedOptions ?? {})
 	const options = getOptionsFromConfig(config)
 
+	// Create a debug logger for this handler
+	const debug = createDebugLogger('express-rate-limit')
+	debug('creating new rate limiter with %o', config.store.constructor.name)
+
+	// Log the options that are unique to this instance of the middleware.
+	const optionsToLog = [
+		'windowMs',
+		'statusCode',
+		'legacyHeaders',
+		'standardHeaders',
+		'requestPropertyName',
+		'skipFailedRequests',
+		'skipSuccessfulRequests',
+		'passOnStoreError',
+	] as Array<keyof Configuration>
+	for (const name of optionsToLog) debug('set %s to %o', name, config[name])
+
+	// Log all the enabled validations.
+	debug('set validations to %o', config.validations.enabled)
+
 	// The limiter shouldn't be created in response to a request (usually)
 	config.validations.creationStack(config.store)
 	// The store instance shouldn't be shared across multiple limiters
@@ -356,6 +378,8 @@ const rateLimit = (
 
 	// Call the `init` method on the store, if it exists
 	if (typeof config.store.init === 'function') {
+		debug('executing init for store')
+
 		// If store.init() throws or rejects, we'll catch and log it
 		// Use .catch() rather than await, because we need to return synchronously
 		try {
@@ -393,9 +417,13 @@ const rateLimit = (
 				config.skipFailedRequests &&
 				new Promise<void>((resolve) => response.once('error', resolve))
 
+			debug('requested %o', request.originalUrl)
+			debug('request from ip %o', request.ip)
+
 			// First check if we should skip the request
 			const skip = await config.skip(request, response)
 			if (skip) {
+				debug('skipping request')
 				next()
 				return
 			}
@@ -405,8 +433,10 @@ const rateLimit = (
 
 			// Get a unique key for the client
 			const key = await config.keyGenerator(request, response)
+			debug('computed key %o', key)
 
 			// Increment the client's hit counter by one.
+			debug('incrementing count')
 			let totalHits = 0
 			let resetTime
 			try {
@@ -449,6 +479,9 @@ const rateLimit = (
 				key,
 			}
 
+			for (const [key, val] of Object.entries(info))
+				debug('computed %s to be %o', key, val)
+
 			// Set the `current` property on the object, but hide it from iteration
 			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
 			Object.defineProperty(info, 'current', {
@@ -462,6 +495,7 @@ const rateLimit = (
 
 			// Set the `X-RateLimit` headers on the response object if enabled.
 			if (config.legacyHeaders && !response.headersSent) {
+				debug('set legacy headers')
 				setLegacyHeaders(response, info)
 			}
 
@@ -470,11 +504,13 @@ const rateLimit = (
 			if (config.standardHeaders && !response.headersSent) {
 				switch (config.standardHeaders) {
 					case 'draft-6': {
+						debug('set ietf draft 6 headers')
 						setDraft6Headers(response, info, config.windowMs)
 						break
 					}
 
 					case 'draft-7': {
+						debug('set ietf draft 7 headers')
 						config.validations.headersResetTime(info.resetTime)
 						setDraft7Headers(response, info, config.windowMs)
 						break
@@ -487,6 +523,8 @@ const rateLimit = (
 								: config.identifier
 						const name = await retrieveName
 
+						debug('set ietf draft 8 headers')
+						debug('set name to %o', name)
 						config.validations.headersResetTime(info.resetTime)
 						setDraft8Headers(response, info, config.windowMs, name, key)
 						break
@@ -507,6 +545,7 @@ const rateLimit = (
 					// This could have been tested properly if the response.on('error') test
 					// worked as well, leaving it as a todo.
 					if (!decremented) {
+						debug('decrementing count')
 						await config.store.decrement(key)
 						decremented = true
 					}
@@ -515,8 +554,12 @@ const rateLimit = (
 				if (config.skipFailedRequests) {
 					if (finishPromise) {
 						void finishPromise.then(async () => {
-							if (!(await config.requestWasSuccessful(request, response)))
-								await decrementKey()
+							const success = await config.requestWasSuccessful(
+								request,
+								response,
+							)
+							debug('computed requestWasSuccessful as %o', success)
+							if (!success) await decrementKey()
 						})
 					}
 
@@ -540,8 +583,12 @@ const rateLimit = (
 				if (config.skipSuccessfulRequests) {
 					if (finishPromise) {
 						void finishPromise.then(async () => {
-							if (await config.requestWasSuccessful(request, response))
-								await decrementKey()
+							const success = await config.requestWasSuccessful(
+								request,
+								response,
+							)
+							debug('computed requestWasSuccessful as %o', success)
+							if (success) await decrementKey()
 						})
 					}
 				}
@@ -553,7 +600,9 @@ const rateLimit = (
 			// If the client has exceeded their rate limit, set the Retry-After header
 			// and call the `handler` function.
 			if (totalHits > limit) {
+				debug('limit exceeded')
 				if (config.legacyHeaders || config.standardHeaders) {
+					debug('set retry-after header')
 					setRetryAfterHeader(response, info, config.windowMs)
 				}
 
