@@ -87,7 +87,7 @@
 		"@jest/globals": "30.4.1",
 		"@types/express": "5.0.6",
 		"@types/jest": "30.0.0",
-		"@types/node": "25.9.3",
+		"@types/node": "26.0.0",
 		"@types/supertest": "7.2.0",
 		"del-cli": "7.0.0",
 		"dts-bundle-generator": "8.1.2",
