@@ -43,11 +43,11 @@ describe('middleware test', () => {
 		resetAllWasCalled = false
 
 		counter = 0
+		windowMs = 0
 
-		constructor(private readonly resetInMS?: number) {}
-
-		init(_options: Options): void {
+		init(options: Options): void {
 			this.initWasCalled = true
+			this.windowMs = options.windowMs
 		}
 
 		async get(_key: string): Promise<ClientRateLimitInfo> {
@@ -62,10 +62,7 @@ describe('middleware test', () => {
 
 			return {
 				totalHits: this.counter,
-				resetTime:
-					typeof this.resetInMS === 'number'
-						? new Date(Date.now() + this.resetInMS)
-						: undefined,
+				resetTime: new Date(Date.now() + this.windowMs),
 			}
 		}
 
@@ -574,9 +571,9 @@ describe('middleware test', () => {
 	it('should decrement hits when request finishes before `resetTime` with `skipSuccessfulRequests`', async () => {
 		jest.useRealTimers()
 
-		const windowMs = 50
+		const windowMs = 500
 		const requestDurationMs = 25
-		const store = new MockStore(windowMs)
+		const store = new MockStore()
 
 		const app = createServer([
 			rateLimit({
@@ -599,7 +596,7 @@ describe('middleware test', () => {
 
 		const windowMs = 50
 		const requestDurationMs = 75
-		const store = new MockStore(windowMs)
+		const store = new MockStore()
 
 		const app = createServer([
 			rateLimit({
