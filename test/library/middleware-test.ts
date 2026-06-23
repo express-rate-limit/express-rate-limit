@@ -569,8 +569,6 @@ describe('middleware test', () => {
 	})
 
 	it('should decrement hits when request finishes before `resetTime` with `skipSuccessfulRequests`', async () => {
-		jest.useRealTimers()
-
 		const windowMs = 500
 		const requestDurationMs = 25
 		const store = new MockStore()
@@ -583,6 +581,7 @@ describe('middleware test', () => {
 			}),
 			(_request, _response, next) => {
 				setTimeout(next, requestDurationMs)
+				jest.runAllTimers()
 			},
 		])
 
@@ -592,8 +591,6 @@ describe('middleware test', () => {
 	})
 
 	it('should not decrement hits when request finishes after `resetTime` with `skipSuccessfulRequests`', async () => {
-		jest.useRealTimers()
-
 		const windowMs = 50
 		const requestDurationMs = 75
 		const store = new MockStore()
@@ -606,6 +603,7 @@ describe('middleware test', () => {
 			}),
 			(_request, _response, next) => {
 				setTimeout(next, requestDurationMs)
+				jest.runAllTimers()
 			},
 		])
 
