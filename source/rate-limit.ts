@@ -507,6 +507,11 @@ const rateLimit = (
 					// This could have been tested properly if the response.on('error') test
 					// worked as well, leaving it as a todo.
 					if (!decremented) {
+						// Don't decrement if the reset time has already passed,
+						// as the store will have already reset the count for this key.
+						if (resetTime && Date.now() >= resetTime.getTime()) {
+							return
+						}
 						await config.store.decrement(key)
 						decremented = true
 					}
