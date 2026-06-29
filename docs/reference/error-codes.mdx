@@ -310,9 +310,7 @@ import { rateLimit } from 'express-rate-limit'
 
 app.use((req, res, next) => {
 	// This won't work!
-	rateLimit({
-		/*...*/
-	})
+	rateLimit({/*...*/})
 	next()
 })
 ```
