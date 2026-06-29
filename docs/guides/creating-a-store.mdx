@@ -66,9 +66,7 @@ The `get` and `resetKey` methods can be called from the middleware, like so:
 
 ```ts
 // Create a rate limiter.
-const limiter = rateLimit({
-	/* ... */
-})
+const limiter = rateLimit({/* ... */})
 
 // Fetch or reset the hit count for a key.
 limiter.get('1.2.3.4')
@@ -86,7 +84,7 @@ the package:
 		"express-rate-limit": ">= 6"
 	},
 	"devDependencies": {
-		"express-rate-limit": "7"
+		"express-rate-limit": "*"
 	}
 }
 ```
