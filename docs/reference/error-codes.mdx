@@ -9,10 +9,8 @@ issues. If a validation check fails, an error is logged to the console.
 Note that validation checks may be disabled globally by passing
 `validate: false` in the options, or disabled individually with the settings
 documented below. Additionally, specific checks will be disabled in some
-circumstances, also discussed below. Finally, all validation checks are
-automatically disabled after the first request. It is to be noted that if
-multiple 'first' requests come in simultaneously, the validation checks may run
-more than once.
+circumstances, also discussed below. Otherwise, each check will run once then
+disable itself.
 
 <Note>
 

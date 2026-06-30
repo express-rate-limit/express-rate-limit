@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import express from 'express'
 import supertest from 'supertest'
 import { ipKeyGenerator, MemoryStore } from '../../source/index.js'
-import type { Logger, Store } from '../../source/types'
+import type { Logger, Options, Store } from '../../source/types'
 import { getValidations, type Validations } from '../../source/validations.js'
 
 describe('validations tests', () => {
@@ -59,31 +59,31 @@ describe('validations tests', () => {
 			expect(logger.error).toHaveBeenCalled()
 		})
 
-		it('should not log an error on "trust proxy" != true', () => {
-			validations.trustProxy({ app: { get: () => false } } as any)
-			validations.trustProxy({ app: { get: () => '1.2.3.4' } } as any)
-			validations.trustProxy({ app: { get: () => /1.2.3.4/ } } as any)
-			validations.trustProxy({ app: { get: () => ['1.2.3.4'] } } as any)
+		it.each([
+			false,
+			'1.2.3.4',
+			/1.2.3.4/,
+			['1.2.3.4'],
+		])('should not log an error on "trust proxy" = %s', (val) => {
+			validations.trustProxy({ app: { get: () => val } } as any)
 			expect(logger.error).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('xForwardedFor', () => {
-		it('should log an error only with X-Forwarded-For header and "trust proxy" = false', () => {
+		it.each([
+			[{ 'x-forwarded-for': '1.2.3.4' }, true],
+			[{}, true],
+			[{}, false],
+		])('should not log an error only with headers %j and "trust proxy" = %s', (headers, trustProxy) => {
 			validations.xForwardedForHeader({
-				app: { get: () => true },
-				headers: { 'x-forwarded-for': '1.2.3.4' },
-			} as any)
-			validations.xForwardedForHeader({
-				app: { get: () => true },
-				headers: {},
-			} as any)
-			validations.xForwardedForHeader({
-				app: { get: () => false },
-				headers: {},
+				app: { get: () => trustProxy },
+				headers,
 			} as any)
 			expect(logger.error).not.toHaveBeenCalled()
+		})
 
+		it('should log an error with x-forwarded-for header and "trust proxy" = false', () => {
 			validations.xForwardedForHeader({
 				app: { get: () => false },
 				headers: { 'x-forwarded-for': '1.2.3.4' },
@@ -93,14 +93,16 @@ describe('validations tests', () => {
 	})
 
 	describe('forwardedHeader', () => {
-		it('should log an error when the Forwarded set to any value, but not when it is unset', () => {
+		it('should not log an error when the Forwarded header set is unset', () => {
 			validations.forwardedHeader({
 				headers: {},
 				ip: '1.2.3.4',
 				socket: { remoteAddress: '1.2.3.4' },
 			} as any)
 			expect(logger.error).not.toHaveBeenCalled()
+		})
 
+		it('should log an error when the Forwarded header is set', () => {
 			validations.forwardedHeader({
 				headers: { forwarded: '5.6.7.8' },
 				ip: '1.2.3.4',
@@ -112,13 +114,6 @@ describe('validations tests', () => {
 		})
 
 		it('should not log an error when request.ip has been set to a non-default value', () => {
-			validations.forwardedHeader({
-				headers: {},
-				ip: '1.2.3.100',
-				socket: { remoteAddress: '1.2.3.4' },
-			} as any)
-			expect(logger.error).not.toHaveBeenCalled()
-
 			validations.forwardedHeader({
 				headers: { forwarded: '5.6.7.8' },
 				ip: '1.2.3.100',
@@ -151,12 +146,20 @@ describe('validations tests', () => {
 	})
 
 	describe('unsharedStore', () => {
+		let validations2: Validations
+		beforeEach(() => {
+			// create a second instance
+			// note: the validations instance disables each check after it's first call,
+			// but the unsharedStore check has global state that is shared across all instances in the same process
+			validations2 = getValidations(true, logger)
+		})
+
 		it('should log an error if a store instance is used in two limiters', () => {
 			const store = { localKeys: true }
 
 			validations.unsharedStore(store as Store)
 			expect(logger.error).not.toHaveBeenCalled()
-			validations.unsharedStore(store as Store)
+			validations2.unsharedStore(store as Store)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_STORE_REUSE',
@@ -169,7 +172,7 @@ describe('validations tests', () => {
 
 			validations.unsharedStore(store as Store)
 			expect(logger.error).not.toHaveBeenCalled()
-			validations.unsharedStore(store as Store)
+			validations2.unsharedStore(store as Store)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_STORE_REUSE',
@@ -183,7 +186,7 @@ describe('validations tests', () => {
 			const store2 = { localKeys: true }
 
 			validations.unsharedStore(store1 as Store)
-			validations.unsharedStore(store2 as Store)
+			validations2.unsharedStore(store2 as Store)
 			expect(logger.error).not.toHaveBeenCalled()
 		})
 	})
@@ -193,6 +196,14 @@ describe('validations tests', () => {
 			prefix?: string
 		}
 
+		let validations2: Validations
+		beforeEach(() => {
+			// create a second instance
+			// note: the validations instance disables each check after it's first call,
+			// but the singleCount check has global state that is shared across all instances in the same process
+			validations2 = getValidations(true, logger)
+		})
+
 		it('should log an error if a request is double-counted with a MemoryStore', () => {
 			const request = {}
 			const store = { localKeys: true }
@@ -200,7 +211,7 @@ describe('validations tests', () => {
 
 			validations.singleCount(request as any, store as Store, key)
 			expect(logger.error).not.toHaveBeenCalled()
-			validations.singleCount(request as any, store as Store, key)
+			validations2.singleCount(request as any, store as Store, key)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_DOUBLE_COUNT',
@@ -215,7 +226,7 @@ describe('validations tests', () => {
 
 			validations.singleCount(request as any, store as Store, key)
 			expect(logger.error).not.toHaveBeenCalled()
-			validations.singleCount(request as any, store as Store, key)
+			validations2.singleCount(request as any, store as Store, key)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_DOUBLE_COUNT',
@@ -230,7 +241,7 @@ describe('validations tests', () => {
 			const key = '1.2.3.4'
 
 			validations.singleCount(request as any, store1 as Store, key)
-			validations.singleCount(request as any, store2 as Store, key)
+			validations2.singleCount(request as any, store2 as Store, key)
 			expect(logger.error).not.toHaveBeenCalled()
 		})
 
@@ -241,7 +252,7 @@ describe('validations tests', () => {
 			const key = '1.2.3.4'
 
 			validations.singleCount(request as any, store1 as Store, key)
-			validations.singleCount(request as any, store2 as Store, key)
+			validations2.singleCount(request as any, store2 as Store, key)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.objectContaining({
 					code: 'ERR_ERL_DOUBLE_COUNT',
@@ -257,7 +268,7 @@ describe('validations tests', () => {
 
 			validations.singleCount(request1 as any, store as Store, key)
 			expect(logger.error).not.toHaveBeenCalled()
-			validations.singleCount(request2 as any, store as Store, key)
+			validations2.singleCount(request2 as any, store as Store, key)
 			expect(logger.error).not.toHaveBeenCalled()
 		})
 
@@ -270,7 +281,7 @@ describe('validations tests', () => {
 			const key = '1.2.3.4'
 
 			validations.singleCount(request as any, store1 as Store, key)
-			validations.singleCount(request as any, store2 as Store, key)
+			validations2.singleCount(request as any, store2 as Store, key)
 			expect(logger.error).not.toHaveBeenCalled()
 		})
 	})
@@ -308,12 +319,11 @@ describe('validations tests', () => {
 			expect(logger.error).not.toHaveBeenCalled()
 		})
 
-		it('should not log a warning if draft_polli_ratelimit_headers is unset or false', () => {
-			validations.draftPolliHeaders(false)
-			expect(logger.warn).not.toHaveBeenCalled()
-			expect(logger.error).not.toHaveBeenCalled()
-
-			validations.draftPolliHeaders(undefined)
+		it.each([
+			undefined,
+			false,
+		])('should not log a warning if draft_polli_ratelimit_headers is %s', (val) => {
+			validations.draftPolliHeaders(val)
 			expect(logger.warn).not.toHaveBeenCalled()
 			expect(logger.error).not.toHaveBeenCalled()
 		})
@@ -484,11 +494,14 @@ describe('validations tests', () => {
 	})
 
 	describe('ipv6Subnet', () => {
-		it('should allow numbers in the 32-64 range', () => {
-			for (let i = 32; i <= 64; i++) {
-				validations.ipv6Subnet(i)
-			}
-
+		const validValues = []
+		for (let i = 32; i <= 64; i++) {
+			validValues.push(i)
+		}
+		it.each(
+			validValues,
+		)('should allow numbers in the 32-64 range: %d', (subnet) => {
+			validations.ipv6Subnet(subnet)
 			expect(logger.warn).not.toHaveBeenCalled()
 			expect(logger.error).not.toHaveBeenCalled()
 		})
@@ -533,12 +546,12 @@ describe('validations tests', () => {
 	})
 
 	describe('ipv6SubnetOrKeyGenerator', () => {
-		it('should allow one or the other (or none)', () => {
-			validations.ipv6SubnetOrKeyGenerator({})
-			validations.ipv6SubnetOrKeyGenerator({ ipv6Subnet: 64 })
-			validations.ipv6SubnetOrKeyGenerator({
-				keyGenerator: (request, response) => 'global',
-			})
+		it.each([
+			{},
+			{ ipv6Subnet: 64 },
+			{ keyGenerator: (request, response) => 'global' } as Options,
+		])('should allow one or the other (or none): %j', (options) => {
+			validations.ipv6SubnetOrKeyGenerator(options)
 			expect(logger.warn).not.toHaveBeenCalled()
 			expect(logger.error).not.toHaveBeenCalled()
 		})
@@ -619,11 +632,13 @@ describe('validations tests', () => {
 	})
 
 	describe('windowMs', () => {
-		it('should warn on large values, but not in-range values', () => {
+		it('should not warn on in-range values', () => {
 			validations.windowMs(5 * 60 * 1000)
 			expect(logger.warn).not.toHaveBeenCalled()
 			expect(logger.error).not.toHaveBeenCalled()
+		})
 
+		it('should warn on large values', () => {
 			validations.windowMs(30 * 24 * 60 * 60 * 1000)
 			expect(logger.error).toHaveBeenCalledWith(
 				expect.objectContaining({ code: 'ERR_ERL_WINDOW_MS' }),

@@ -540,6 +540,8 @@ export const getValidations = (
 					return
 				}
 
+				enabled[name] = false // disable on the first run
+
 				try {
 					;(validation as (...args: any[]) => void).apply(
 						wrappedValidations,
