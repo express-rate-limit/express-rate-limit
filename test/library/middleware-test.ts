@@ -43,9 +43,11 @@ describe('middleware test', () => {
 		resetAllWasCalled = false
 
 		counter = 0
+		windowMs = 0
 
-		init(_options: Options): void {
+		init(options: Options): void {
 			this.initWasCalled = true
+			this.windowMs = options.windowMs
 		}
 
 		async get(_key: string): Promise<ClientRateLimitInfo> {
@@ -58,7 +60,10 @@ describe('middleware test', () => {
 			this.counter += 1
 			this.incrementWasCalled = true
 
-			return { totalHits: this.counter, resetTime: undefined }
+			return {
+				totalHits: this.counter,
+				resetTime: new Date(Date.now() + this.windowMs),
+			}
 		}
 
 		async decrement(_key: string): Promise<void> {
@@ -561,6 +566,50 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 
 		expect(store.decrementWasCalled).toEqual(true)
+	})
+
+	it('should decrement hits when request finishes before `resetTime` with `skipSuccessfulRequests`', async () => {
+		const windowMs = 500
+		const requestDurationMs = 25
+		const store = new MockStore()
+
+		const app = createServer([
+			rateLimit({
+				skipSuccessfulRequests: true,
+				windowMs,
+				store,
+			}),
+			(_request, _response, next) => {
+				setTimeout(next, requestDurationMs)
+				jest.runAllTimers()
+			},
+		])
+
+		await request(app).get('/').expect(200)
+
+		expect(store.decrementWasCalled).toEqual(true)
+	})
+
+	it('should not decrement hits when request finishes after `resetTime` with `skipSuccessfulRequests`', async () => {
+		const windowMs = 50
+		const requestDurationMs = 75
+		const store = new MockStore()
+
+		const app = createServer([
+			rateLimit({
+				skipSuccessfulRequests: true,
+				windowMs,
+				store,
+			}),
+			(_request, _response, next) => {
+				setTimeout(next, requestDurationMs)
+				jest.runAllTimers()
+			},
+		])
+
+		await request(app).get('/').expect(200)
+
+		expect(store.decrementWasCalled).toEqual(false)
 	})
 
 	it.each([
