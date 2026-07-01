@@ -93,7 +93,7 @@ describe('validations tests', () => {
 	})
 
 	describe('forwardedHeader', () => {
-		it('should not log an error when the Forwarded header set is unset', () => {
+		it('should not log an error when the Forwarded header is unset', () => {
 			validations.forwardedHeader({
 				headers: {},
 				ip: '1.2.3.4',
