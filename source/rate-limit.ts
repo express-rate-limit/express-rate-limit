@@ -99,8 +99,7 @@ const promisifyStore = (passedStore: LegacyStore | Store): Store => {
  * The internal configuration interface.
  *
  * This is copied from Options, with fields made non-readonly and deprecated
- * fields removed. Whenever this is updated, please update the debug logs in
- * the main middleware function as well.
+ * fields removed.
  *
  * For documentation on what each field does, {@see Options}.
  *
