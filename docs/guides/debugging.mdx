@@ -1,0 +1,73 @@
+---
+title: Debugging Express Rate Limit
+description:
+  Learn how to enable and use debugging logs by setting the DEBUG environment
+  variable for enhanced troubleshooting.
+---
+
+Express Rate Limit supports debug logging similar to
+[Express](https://expressjs.com/en/5x/guide/debugging/), starting in v8.6.0
+
+To see all the internal logs used in Express Rate Limit, set the `DEBUG`
+environment variable to `express-rate-limit` when launching your app.
+
+```bash
+$ DEBUG=express-rate-limit node index.js
+```
+
+On Windows, use the corresponding command.
+
+```bash
+> $env:DEBUG = "express-rate-limit"; node index.js
+```
+
+Running this command on a basic configuration prints output similar to the
+following at instance creation:
+
+```bash
+$ DEBUG=express-rate-limit node server.js
+  express-rate-limit creating new rate limiter with 'MemoryStore' +0ms
+  express-rate-limit set windowMs to 900000 +2ms
+  express-rate-limit set limit to 100 +0ms
+  express-rate-limit set message to 'Too many requests, please try again later.' +0ms
+  express-rate-limit set statusCode to 429 +0ms
+  express-rate-limit set legacyHeaders to true +0ms
+  express-rate-limit set identifier to [Function: identifier] +0ms
+  express-rate-limit set requestPropertyName to 'rateLimit' +0ms
+  express-rate-limit set skipFailedRequests to false +0ms
+  express-rate-limit set skipSuccessfulRequests to false +0ms
+  express-rate-limit set requestWasSuccessful to [Function: requestWasSuccessful] +1ms
+  express-rate-limit set skip to [Function: skip] +0ms
+  express-rate-limit set keyGenerator to [AsyncFunction: keyGenerator] +0ms
+  express-rate-limit set ipv6Subnet to 56 +0ms
+  express-rate-limit set handler to [AsyncFunction: handler] +0ms
+  express-rate-limit set passOnStoreError to false +0ms
+  express-rate-limit set max to 100 +0ms
+  express-rate-limit set standardHeaders to false +0ms
+  express-rate-limit set store to MemoryStore { validations: { enabled: { default: true, validationsConfig: false, knownOptions: false, draftPolliHeaders: false, onLimitReached: false, keyGeneratorIpFallback: false, ipv6SubnetOrKeyGenerator: false }, disable: [Function (anonymous)], ip: [Function (anonymous)], trustProxy: [Function (anonymous)], xForwardedForHeader: [Function (anonymous)], forwardedHeader: [Function (anonymous)], positiveHits: [Function (anonymous)], unsharedStore: [Function (anonymous)], singleCount: [Function (anonymous)], limit: [Function (anonymous)], draftPolliHeaders: [Function (anonymous)], onLimitReached: [Function (anonymous)], headersDraftVersion: [Function (anonymous)], headersResetTime: [Function (anonymous)], knownOptions: [Function (anonymous)], validationsConfig: [Function (anonymous)], creationStack: [Function (anonymous)], ipv6Subnet: [Function (anonymous)], ipv6SubnetOrKeyGenerator: [Function (anonymous)], keyGeneratorIpFallback: [Function (anonymous)], windowMs: [Function (anonymous)] }, previous: Map(0) {}, current: Map(0) {}, localKeys: true } +0ms
+  express-rate-limit set validations to { enabled: { default: true, validationsConfig: false, knownOptions: false, draftPolliHeaders: false, onLimitReached: false, keyGeneratorIpFallback: false, ipv6SubnetOrKeyGenerator: false }, disable: [Function (anonymous)], ip: [Function (anonymous)], trustProxy: [Function (anonymous)], xForwardedForHeader: [Function (anonymous)], forwardedHeader: [Function (anonymous)], positiveHits: [Function (anonymous)], unsharedStore: [Function (anonymous)], singleCount: [Function (anonymous)], limit: [Function (anonymous)], draftPolliHeaders: [Function (anonymous)], onLimitReached: [Function (anonymous)], headersDraftVersion: [Function (anonymous)], headersResetTime: [Function (anonymous)], knownOptions: [Function (anonymous)], validationsConfig: [Function (anonymous)], creationStack: [Function (anonymous)], ipv6Subnet: [Function (anonymous)], ipv6SubnetOrKeyGenerator: [Function (anonymous)], keyGeneratorIpFallback: [Function (anonymous)], windowMs: [Function (anonymous)] } +0ms
+  express-rate-limit set logger to { warn: [Function: warn], error: [Function: error] } +0ms
+  express-rate-limit executing init for store +1ms
+```
+
+When a request is then made to the app, you will see the logs similar to these:
+
+```bash
+  express-rate-limit requested '/' +50s
+  express-rate-limit request from ip '::ffff:127.0.0.1' +0ms
+  express-rate-limit computed key '127.0.0.1' +7ms
+  express-rate-limit incrementing count +0ms
+  express-rate-limit computed limit to be 100 +0ms
+  express-rate-limit computed used to be 1 +0ms
+  express-rate-limit computed remaining to be 99 +0ms
+  express-rate-limit computed resetTime to be 2026-07-08T21:49:50.255Z +0ms
+  express-rate-limit computed key to be '127.0.0.1' +1ms
+  express-rate-limit set legacy headers +0ms
+```
+
+## Other logs and advanced usage
+
+Set the value to `*` to see all debug logs from Express and anything else that
+uses the same debug convention.
+
+See https://www.npmjs.com/package/debug for more advanced usage.
