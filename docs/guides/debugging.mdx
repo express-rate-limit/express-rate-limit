@@ -1,21 +1,22 @@
 ---
-title: Debugging Express Rate Limit
-description:
-  Learn how to enable and use debugging logs by setting the DEBUG environment
-  variable for enhanced troubleshooting.
+title: Debugging
+icon: ban-bug
 ---
 
 Express Rate Limit supports debug logging similar to
-[Express](https://expressjs.com/en/5x/guide/debugging/), starting in v8.6.0
+[Express](https://expressjs.com/en/5x/guide/debugging/) via the
+[debug](https://www.npmjs.com/package/debug) library.
 
-To see all the internal logs used in Express Rate Limit, set the `DEBUG`
-environment variable to `express-rate-limit` when launching your app.
+## Basic debugging
+
+To see all the internal logs from Express Rate Limit, set the `DEBUG`
+environment variable to `express-rate-limit` when launching your app:
 
 ```bash
 $ DEBUG=express-rate-limit node index.js
 ```
 
-On Windows, use the corresponding command.
+On Windows, use the corresponding command:
 
 ```bash
 > $env:DEBUG = "express-rate-limit"; node index.js
