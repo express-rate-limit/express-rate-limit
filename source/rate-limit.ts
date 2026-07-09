@@ -467,7 +467,7 @@ const rateLimit = (
 			}
 
 			for (const [key, val] of Object.entries(info))
-				debug('computed %s to be %o', key, val)
+				debug('set %s to be %o', key, val)
 
 			// Set the `current` property on the object, but hide it from iteration
 			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
