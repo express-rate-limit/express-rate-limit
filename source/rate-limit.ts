@@ -356,7 +356,7 @@ const rateLimit = (
 
 	// Log the parsed options for this middleware instance.
 	for (const [key, val] of Object.entries(config))
-		debug('set %s to %o', key, val)
+		debug('set %s to %O', key, val)
 
 	// The limiter shouldn't be created in response to a request (usually)
 	config.validations.creationStack(config.store)

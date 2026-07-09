@@ -554,5 +554,11 @@ export const getValidations = (
 			}
 	}
 
+	// When someone calls `util.inspect` on this object, print only the list of
+	// enabled validations without the list of function signatures.
+	const inspect = Symbol.for('nodejs.util.inspect.custom')
+	if (inspect)
+		(wrappedValidations as any)[inspect] = () => wrappedValidations.enabled
+
 	return wrappedValidations
 }
