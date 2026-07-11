@@ -66,9 +66,7 @@ export class MemoryStore implements Store {
 
 		// Indicates that init was called more than once.
 		// Could happen if a store was shared between multiple instances.
-		if (this.interval) clearInterval(this.interval)
-
-		// Reset all clients left in previous every `windowMs`.
+		if (this.interval) clearInterval(this.interval) // Reset all clients left in previous every `windowMs`.
 		this.interval = setInterval(() => {
 			this.clearExpired()
 		}, this.windowMs)
