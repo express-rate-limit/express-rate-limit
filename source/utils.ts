@@ -29,8 +29,3 @@ export const omitUndefinedProperties = <T extends { [key: string]: any }>(
 
 	return omittedOptions
 }
-
-export const convertstring = (windowMs: string) => {
-	switch (windowMs) {
-	}
-}

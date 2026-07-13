@@ -24,7 +24,7 @@ available on-line.
 import { rateLimit, MINUTE } from 'express-rate-limit'
 
 const limiter = rateLimit({
-	windowMs: 15 * MINUTE, // 15 minutes
+	windowMs: 15 * MINUTE, // SECOND, MINUTE, HOUR, and DAY constants are available, or a use bare number for milliseconds
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.

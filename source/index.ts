@@ -9,12 +9,9 @@ export { MemoryStore } from './memory-store.js'
 // Export the rateLimit function as a default export and as a named export, if
 // the default export does not work (see https://github.com/nfriedly/express-rate-limit/issues/280)
 export {
-	DAY,
 	default,
 	default as rateLimit,
-	HOUR,
-	MINUTE,
 } from './rate-limit.js'
-
+export * from './time-constants.js'
 // Export all the types as named exports
 export * from './types.js'
