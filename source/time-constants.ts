@@ -4,13 +4,13 @@
  * Use these with rate limit window calculations:
  * @example
  * // 5 minute window
- * windowMs:5 * MINUTE
+ * windowMs: 5 * MINUTE
  *
  * // 2 hour window
- * windowMs:2 * HOUR
+ * windowMs: 2 * HOUR
  *
  * // 1 day window
- * windowMs:1 * DAY
+ * windowMs: 1 * DAY
  */
 export const SECOND: number = 1000
 export const MINUTE: number = 60 * SECOND
