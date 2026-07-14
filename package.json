@@ -82,6 +82,7 @@
 		"express": ">= 4.11"
 	},
 	"devDependencies": {
+		"@asyncapi/specs": "6.8.1",
 		"@biomejs/biome": "2.4.6",
 		"@express-rate-limit/prettier": "1.1.1",
 		"@express-rate-limit/tsconfig": "1.0.5",
