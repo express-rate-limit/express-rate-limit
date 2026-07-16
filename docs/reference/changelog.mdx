@@ -9,6 +9,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.6.0](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.6.0)
+
+### Fixed
+
+- Resolved an issue where the `used` count could go negative if the
+  `skipSuccessfulRequests` or `skipFailedRequests` options were used and the
+  window reset while the request was being handled.
+
+### Added
+
+- Added `DAY`, `HOUR`, `MINUTE`, and `SECOND` constants for use with the
+  `windowMs` setting.
+- Added support for debug logging - see
+  https://express-rate-limit.mintlify.app/guides/debugging
+- Validations are now run once each instead of only during the first request.
+  - This enables the IPv6 checks to run even if the first request happens to be
+    IPv4.
+  - It also prevents duplicate messages if the server receives multiple requests
+    in parallel.
+
 ## [8.5.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.5.2)
 
 ### Fixed

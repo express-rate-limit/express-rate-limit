@@ -40,6 +40,33 @@ their state when node.js is reset.
 
 Defaults to `60000` ms (= 1 minute).
 
+### Time constants
+
+Constants for `DAY`, `HOUR`, `MINUTE`, and `SECOND` are provided to make the
+`windowMs` configuration a little easier to work with.
+
+For example, to set a 3 hour window:
+
+```ts
+import { rateLimit, HOUR } from 'express-rate-limit'
+
+const limiter = rateLimit({
+	windowMs: 3 * HOUR,
+	// ...
+})
+```
+
+Or, for a 1 minute and 30 second window:
+
+```ts
+import { rateLimit, MINUTE, SECOND } from 'express-rate-limit'
+
+const limiter = rateLimit({
+	windowMs: 1 * MINUTE + 30 * SECOND,
+	// ...
+})
+```
+
 ## `limit`
 
 > `number | function`
@@ -547,3 +574,9 @@ const limiter = rateLimit({
 	},
 })
 ```
+
+## Debug logging
+
+Debug logging is controlled via the `DEBUG` environment property rather than a
+configuration option. See [Debugging Express Rate Limit](/guides/debugging) for
+additional details.

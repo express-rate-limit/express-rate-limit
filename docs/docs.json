@@ -33,6 +33,7 @@
 				"group": "Guides",
 				"pages": [
 					"guides/troubleshooting-proxy-issues",
+					"guides/debugging",
 					"guides/creating-a-store",
 					"guides/contributing"
 				]
