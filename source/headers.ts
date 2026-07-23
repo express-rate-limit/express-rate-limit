@@ -163,14 +163,16 @@ export const setDraft8Headers = (
  * @param response {Response} - The express response object to set headers on.
  * @param info {RateLimitInfo} - The rate limit info, used to set the headers.
  * @param windowMs {number} - The window length.
+ * @param retryAfter {number} - Custom override for the header value, in seconds. Falls back to the window's reset time if not given.
  */
 export const setRetryAfterHeader = (
 	response: Response,
 	info: RateLimitInfo,
 	windowMs: number,
+	retryAfter?: number,
 ): void => {
 	if (response.headersSent) return
 
-	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
+	const resetSeconds = retryAfter ?? getResetSeconds(windowMs, info.resetTime)
 	response.setHeader('Retry-After', resetSeconds.toString())
 }

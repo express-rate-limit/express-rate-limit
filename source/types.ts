@@ -313,6 +313,18 @@ export type Options = {
 	identifier: string | ValueDeterminingMiddleware<string>
 
 	/**
+	 * Method to generate a custom `Retry-After` header value (in seconds) when
+	 * a client is rate limited.
+	 *
+	 * This is advisory only, it customizes what the header says, it does not
+	 * change how long the limiter actually keeps blocking the client for.
+	 * That is still controlled by `windowMs`.
+	 *
+	 * By default, the number of seconds remaining until the window resets.
+	 */
+	retryAfter?: number | ValueDeterminingMiddleware<number>
+
+	/**
 	 * The name of the property on the request object to store the rate limit info.
 	 *
 	 * Defaults to `rateLimit`.
