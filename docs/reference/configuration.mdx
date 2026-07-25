@@ -281,15 +281,21 @@ the Express `req` and `res` objects and then returns a string.
 Defaults to a function that returns a string of the format
 `{limit}-in-{window}`, e.g., `7-in-1.5sec`.
 
-## `retryAfter`
+## `retryAfterMs`
 
 > `number | function`
 
-Custom value (in seconds) for the `Retry-After` header sent when a client is
-rate limited.
+Custom value, in milliseconds, used to compute the `Retry-After` header sent
+when a client is rate limited. Uses the same unit as [`windowMs`](#windowms) and
+the `DAY`/`HOUR`/`MINUTE`/`SECOND` constants.
 
 Can be the value itself as a number or a (sync/async) function that accepts the
 Express `req` and `res` objects and then returns a number.
+
+When set, the value is added to the current time and sent as an
+[HTTP-date](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Retry-After#syntax)
+rather than a plain delay in seconds, since HTTP dates don't carry millisecond
+precision, the header may be off by up to a second from the exact value given.
 
 <Note>
 
@@ -299,15 +305,18 @@ still controlled by [`windowMs`](#windowms).
 
 </Note>
 
-By default, the number of seconds remaining until the window resets.
+By default, this is unset, and the header instead reports the number of seconds
+remaining until the window resets.
 
 ```ts
+import { rateLimit, MINUTE } from 'express-rate-limit'
+
 const limiter = rateLimit({
 	// ...
-	retryAfter: async (req, res) => {
+	retryAfterMs: async (req, res) => {
 		// e.g. always tell clients to back off for a fixed 10 minutes,
 		// regardless of how the window is configured.
-		return 10 * 60
+		return 10 * MINUTE
 	},
 })
 ```

@@ -160,19 +160,33 @@ export const setDraft8Headers = (
 /**
  * Sets the `Retry-After` header.
  *
+ * If a custom `retryAfterMs` is given, it is added to the current time and
+ * sent as an HTTP-date, since `retryAfterMs` is in milliseconds while the
+ * default delay-in-seconds form would require converting units. Otherwise,
+ * falls back to the existing delay-in-seconds behavior based on the window's
+ * reset time.
+ *
  * @param response {Response} - The express response object to set headers on.
  * @param info {RateLimitInfo} - The rate limit info, used to set the headers.
  * @param windowMs {number} - The window length.
- * @param retryAfter {number} - Custom override for the header value, in seconds. Falls back to the window's reset time if not given.
+ * @param retryAfterMs {number} - Custom override for the header value, in milliseconds from now.
  */
 export const setRetryAfterHeader = (
 	response: Response,
 	info: RateLimitInfo,
 	windowMs: number,
-	retryAfter?: number,
+	retryAfterMs?: number,
 ): void => {
 	if (response.headersSent) return
 
-	const resetSeconds = retryAfter ?? getResetSeconds(windowMs, info.resetTime)
-	response.setHeader('Retry-After', resetSeconds.toString())
+	if (retryAfterMs === undefined) {
+		const resetSeconds = getResetSeconds(windowMs, info.resetTime)
+		response.setHeader('Retry-After', resetSeconds.toString())
+		return
+	}
+
+	response.setHeader(
+		'Retry-After',
+		new Date(Date.now() + retryAfterMs).toUTCString(),
+	)
 }

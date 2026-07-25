@@ -175,30 +175,44 @@ describe('headers test', () => {
 		await request(app).get('/').expect(429).expect('retry-after', '60')
 	})
 
-	it('should use the `retryAfter` option as the `retry-after` header value when set to a number', async () => {
+	it('should use the `retryAfterMs` option to send the `retry-after` header as an http-date when set to a number', async () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 60 * 1000,
 				limit: 1,
-				retryAfter: 600,
+				retryAfterMs: 10 * 60 * 1000, // 10 minutes
 			}),
 		)
 
 		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(429).expect('retry-after', '600')
+		const before = Date.now()
+		const response = await request(app).get('/').expect(429)
+
+		const retryAfterMs = new Date(
+			response.get('retry-after') as string,
+		).getTime()
+		expect(retryAfterMs).toBeGreaterThanOrEqual(before + 10 * 60 * 1000 - 2000)
+		expect(retryAfterMs).toBeLessThanOrEqual(before + 10 * 60 * 1000 + 2000)
 	})
 
-	it('should use the `retryAfter` option as the `retry-after` header value when set to a function', async () => {
+	it('should use the `retryAfterMs` option to send the `retry-after` header as an http-date when set to a function', async () => {
 		const app = createServer(
 			rateLimit({
 				windowMs: 60 * 1000,
 				limit: 1,
-				retryAfter: async (_request, _response) => 600,
+				retryAfterMs: async (_request, _response) => 10 * 60 * 1000,
 			}),
 		)
 
 		await request(app).get('/').expect(200)
-		await request(app).get('/').expect(429).expect('retry-after', '600')
+		const before = Date.now()
+		const response = await request(app).get('/').expect(429)
+
+		const retryAfterMs = new Date(
+			response.get('retry-after') as string,
+		).getTime()
+		expect(retryAfterMs).toBeGreaterThanOrEqual(before + 10 * 60 * 1000 - 2000)
+		expect(retryAfterMs).toBeLessThanOrEqual(before + 10 * 60 * 1000 + 2000)
 	})
 
 	it('should not set the `retry-after` header if all headers have been disabled', async () => {

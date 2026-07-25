@@ -114,7 +114,7 @@ type Configuration = {
 	legacyHeaders: boolean
 	standardHeaders: false | DraftHeadersVersion
 	identifier: string | ValueDeterminingMiddleware<string>
-	retryAfter?: number | ValueDeterminingMiddleware<number>
+	retryAfterMs?: number | ValueDeterminingMiddleware<number>
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
@@ -599,12 +599,12 @@ const rateLimit = (
 				debug('limit exceeded')
 				if (config.legacyHeaders || config.standardHeaders) {
 					debug('set retry-after header')
-					const retrieveRetryAfter =
-						typeof config.retryAfter === 'function'
-							? config.retryAfter(request, response)
-							: config.retryAfter
-					const retryAfter = await retrieveRetryAfter
-					setRetryAfterHeader(response, info, config.windowMs, retryAfter)
+					const retrieveRetryAfterMs =
+						typeof config.retryAfterMs === 'function'
+							? config.retryAfterMs(request, response)
+							: config.retryAfterMs
+					const retryAfterMs = await retrieveRetryAfterMs
+					setRetryAfterHeader(response, info, config.windowMs, retryAfterMs)
 				}
 
 				config.handler(request, response, next, options)
