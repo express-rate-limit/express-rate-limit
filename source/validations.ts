@@ -327,7 +327,7 @@ const validations = {
 			legacyHeaders: true,
 			standardHeaders: true,
 			identifier: true,
-			retryAfterMs: true,
+			retryAfter: true,
 			requestPropertyName: true,
 			skipFailedRequests: true,
 			skipSuccessfulRequests: true,
