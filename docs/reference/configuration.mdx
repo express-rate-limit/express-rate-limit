@@ -307,7 +307,7 @@ const limiter = rateLimit({
 	retryAfter: async (req, res) => {
 		// e.g. always tell clients to back off for a fixed 10 minutes,
 		// regardless of how the window is configured.
-		return 10 * 60
+		return 10 * 60 // seconds, unlike windowMs
 	},
 })
 ```
