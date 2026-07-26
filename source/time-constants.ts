@@ -11,6 +11,8 @@
  *
  * // 1 day window
  * windowMs: 1 * DAY
+ *
+ * @deprecated these are being replaced in the next major version
  */
 export const SECOND: number = 1000
 export const MINUTE: number = 60 * SECOND
