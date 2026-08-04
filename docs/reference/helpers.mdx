@@ -15,6 +15,10 @@ icon: 'puzzle-piece'
 notation. (Unless second parameter is `false`, then IPv6 is also returned
 unchanged).
 
+IPv4-mapped IPv6 addresses (the `::ffff:0:0/96` range, commonly seen on
+dual-stack servers) are returned as the IPv4 address they contain, whichever
+notation they arrive in.
+
 This method is used by the default
 [`keyGenerator`](./configuration#keygenerator) to apply the configured
 [`ipv6Subnet`](./configuration#ipv6subnet), in order to properly rate-limit IPv6
