@@ -4,17 +4,9 @@
 import { EventEmitter } from 'node:events'
 import HTTP from 'node:http'
 import type { AddressInfo } from 'node:net'
-
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	jest,
-} from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import rateLimit, {
 	type ClientRateLimitInfo,
 	type IncrementCallback,
@@ -27,11 +19,11 @@ import { createServer } from './helpers/create-server.js'
 
 describe('middleware test', () => {
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 	})
 	afterEach(() => {
-		jest.useRealTimers()
-		jest.restoreAllMocks()
+		vi.useRealTimers()
+		vi.restoreAllMocks()
 	})
 
 	class MockStore implements Store {
@@ -192,10 +184,10 @@ describe('middleware test', () => {
 
 		beforeEach(() => {
 			logger = {
-				error: jest.fn(),
-				warn: jest.fn(),
+				error: vi.fn(),
+				warn: vi.fn(),
 			}
-			jest.useRealTimers()
+			vi.useRealTimers()
 		})
 
 		class MockStoreAsyncInitResolving extends MockStore {
@@ -249,7 +241,7 @@ describe('middleware test', () => {
 
 		it('should catch synchronous errors thrown from store.init()', () => {
 			const store = new MockStore()
-			jest.spyOn(store, 'init').mockImplementation(() => {
+			vi.spyOn(store, 'init').mockImplementation(() => {
 				throw new Error('test error')
 			})
 			const limiter = rateLimit({
@@ -294,7 +286,7 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429)
-		jest.advanceTimersByTime(60)
+		vi.advanceTimersByTime(60)
 		await request(app).get('/').expect(200)
 	})
 
@@ -309,11 +301,11 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429)
-		jest.advanceTimersByTime(60)
+		vi.advanceTimersByTime(60)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429)
-		jest.advanceTimersByTime(60)
+		vi.advanceTimersByTime(60)
 		await request(app).get('/').expect(200)
 	})
 
@@ -581,7 +573,7 @@ describe('middleware test', () => {
 			}),
 			(_request, _response, next) => {
 				setTimeout(next, requestDurationMs)
-				jest.runAllTimers()
+				vi.runAllTimers()
 			},
 		])
 
@@ -603,7 +595,7 @@ describe('middleware test', () => {
 			}),
 			(_request, _response, next) => {
 				setTimeout(next, requestDurationMs)
-				jest.runAllTimers()
+				vi.runAllTimers()
 			},
 		])
 
@@ -761,7 +753,7 @@ describe('middleware test', () => {
 		['legacy', new MockLegacyStore()],
 		['compat', new MockBackwardCompatibleStore()],
 	])('should decrement hits when response closes and `skipFailedRequests` is set to true (%s store) (server)', async (name, store) => {
-		jest.useRealTimers()
+		vi.useRealTimers()
 
 		const app = createServer(
 			rateLimit({
@@ -804,7 +796,7 @@ describe('middleware test', () => {
 		expect(address).toBeDefined()
 		expect(port).toBeDefined()
 
-		const responseHandler = jest.fn()
+		const responseHandler = vi.fn()
 		// wrap address in [] because it's often an IPv6 address (which uses :'s instead of .'s to separate sections)
 		const hangRequest = HTTP.get(
 			`http://[${address}]:${port}/hang-server`,
@@ -848,12 +840,12 @@ describe('middleware test', () => {
 		const mockedResponse = Object.assign(new EventEmitter(), {
 			statusCode: 200,
 			writableEnded: false,
-			setHeader: jest.fn(),
-			getHeader: jest.fn(),
-			end: jest.fn(),
+			setHeader: vi.fn(),
+			getHeader: vi.fn(),
+			end: vi.fn(),
 		}) as unknown as Response
 
-		const next = jest.fn()
+		const next = vi.fn()
 
 		// Start the middleware so we can await its completion
 		const middlewarePromise = middleware(mockedRequest, mockedResponse, next)
@@ -1142,7 +1134,7 @@ describe('middleware test', () => {
 	})
 
 	it('should pass if the store throws an error and passOnStoreError is true', async () => {
-		jest.spyOn(console, 'error').mockImplementation(() => {})
+		vi.spyOn(console, 'error').mockImplementation(() => {})
 		const app = createServer(
 			rateLimit({
 				limit: 1,
@@ -1159,7 +1151,7 @@ describe('middleware test', () => {
 	})
 
 	it('should only call next once when passOnStoreError causes it to skip limiting', async () => {
-		jest.spyOn(console, 'error').mockImplementation(() => {})
+		vi.spyOn(console, 'error').mockImplementation(() => {})
 		const limiter = rateLimit({
 			limit: 1,
 			store: new StoreThrowingErrors(),
@@ -1168,7 +1160,7 @@ describe('middleware test', () => {
 		})
 		const request = {}
 		const response = {}
-		const next: NextFunction = jest.fn() as NextFunction
+		const next: NextFunction = vi.fn() as NextFunction
 		await limiter(request as Request, response as Response, next)
 		expect(next).toHaveBeenCalledTimes(1)
 		expect(console.error).toHaveBeenCalledTimes(1)
@@ -1183,11 +1175,11 @@ describe('middleware test', () => {
 
 		beforeEach(() => {
 			logger = {
-				error: jest.fn(),
-				warn: jest.fn(),
+				error: vi.fn(),
+				warn: vi.fn(),
 			}
 
-			jest.spyOn(console, 'error').mockImplementation(() => {})
+			vi.spyOn(console, 'error').mockImplementation(() => {})
 		})
 
 		it('should use the logger instead of the console on validation errors', async () => {
@@ -1212,7 +1204,7 @@ describe('middleware test', () => {
 			})
 			const request = {}
 			const response = {}
-			await limiter(request as Request, response as Response, jest.fn())
+			await limiter(request as Request, response as Response, vi.fn())
 
 			expect(console.error).not.toHaveBeenCalled()
 			expect(logger.error).toHaveBeenCalledTimes(1)

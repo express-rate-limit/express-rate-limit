@@ -1,14 +1,14 @@
-import { afterEach, beforeEach, expect } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConsoleLogger } from '../../source/console-logger'
 
 describe('ConsoleLogger', () => {
 	beforeEach(() => {
-		jest.spyOn(console, 'warn').mockImplementation(() => {})
-		jest.spyOn(console, 'error').mockImplementation(() => {})
+		vi.spyOn(console, 'warn').mockImplementation(() => {})
+		vi.spyOn(console, 'error').mockImplementation(() => {})
 	})
 
 	afterEach(() => {
-		jest.restoreAllMocks()
+		vi.restoreAllMocks()
 	})
 
 	describe('error', () => {

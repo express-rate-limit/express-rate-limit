@@ -1,14 +1,7 @@
 // /test/memory-store-test.ts
 // Tests the built in memory store
 
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	jest,
-} from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import type { Options } from '../../source/index.js'
 import { MemoryStore } from '../../source/memory-store.js'
 
@@ -16,12 +9,12 @@ const minute = 60 * 1000
 
 describe('memory store test', () => {
 	beforeEach(() => {
-		jest.useFakeTimers()
-		jest.spyOn(global, 'clearInterval')
+		vi.useFakeTimers()
+		vi.spyOn(global, 'clearInterval')
 	})
 	afterEach(() => {
-		jest.useRealTimers()
-		jest.restoreAllMocks()
+		vi.useRealTimers()
+		vi.restoreAllMocks()
 	})
 
 	it('returns the current hit count and reset time for a key', async () => {
@@ -149,7 +142,7 @@ describe('memory store test', () => {
 		await store.increment(keyOne)
 		await store.increment(keyTwo)
 
-		jest.advanceTimersByTime(60)
+		vi.advanceTimersByTime(60)
 		const { totalHits: totalHitsOne } = await store.increment(keyOne)
 		const { totalHits: totalHitsTwo } = await store.increment(keyTwo)
 		expect(totalHitsOne).toEqual(1)
@@ -161,7 +154,7 @@ describe('memory store test', () => {
 		let timeoutId = 1
 		let realTimeoutId: NodeJS.Timer
 		// @ts-expect-error We want to not return a `Timer` instance for testing
-		jest.spyOn(global, 'setTimeout').mockImplementation((callback, timeout) => {
+		vi.spyOn(global, 'setTimeout').mockImplementation((callback, timeout) => {
 			realTimeoutId = originalSetInterval(callback, timeout)
 			return timeoutId++
 		})
@@ -197,7 +190,7 @@ describe('memory store test', () => {
 		expect(store.current.has('key1')).toBe(true)
 		expect(store.previous.has('key1')).toBe(false)
 
-		jest.advanceTimersByTime(100)
+		vi.advanceTimersByTime(100)
 		// `key1` is now in previous, current is empty
 		expect(store.current.has('key1')).toBe(false)
 		expect(store.previous.has('key1')).toBe(true)
@@ -214,11 +207,11 @@ describe('memory store test', () => {
 		store.init({ windowMs: 100 } as Options)
 		await store.increment('key1') // `key1` is now in current
 
-		jest.advanceTimersByTime(100) // `key1` is now in previous. Target pool size is 1, but it's empty.
+		vi.advanceTimersByTime(100) // `key1` is now in previous. Target pool size is 1, but it's empty.
 		await store.increment('key1') // `key1` is now in current again. If it's also in previous, that's a bug!
 		await store.increment('key2') // Need 1 new client to keep the pool size target at 1
 
-		jest.advanceTimersByTime(100) // `key1` and `key2` are now in previous. Target pool size is 1, but it should be empty.
+		vi.advanceTimersByTime(100) // `key1` and `key2` are now in previous. Target pool size is 1, but it should be empty.
 		await store.increment('key1') // Move it from previous to current
 		await store.increment('key1')
 		let returnValue1 = await store.increment('key1')

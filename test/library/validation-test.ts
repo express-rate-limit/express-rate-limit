@@ -1,9 +1,9 @@
 // /test/library/validation-test.ts
 // Tests the validation functions
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import express from 'express'
 import supertest from 'supertest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ipKeyGenerator, MemoryStore } from '../../source/index.js'
 import type { Logger, Options, Store } from '../../source/types'
 import { getValidations, type Validations } from '../../source/validations.js'
@@ -14,8 +14,8 @@ describe('validations tests', () => {
 
 	beforeEach(() => {
 		logger = {
-			warn: jest.fn(),
-			error: jest.fn(),
+			warn: vi.fn(),
+			error: vi.fn(),
 		}
 
 		validations = getValidations(true, logger)

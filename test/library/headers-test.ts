@@ -1,10 +1,10 @@
 // /test/headers-test.ts
 // Tests whether the headers sent back by the middleware
 
-import { describe, expect, it, jest } from '@jest/globals'
 import type { Response } from 'express'
 import { parseRateLimit } from 'ratelimit-header-parser'
 import { agent as request } from 'supertest'
+import { describe, expect, it, vi } from 'vitest'
 import {
 	setDraft6Headers,
 	setDraft7Headers,
@@ -194,7 +194,7 @@ describe('headers test', () => {
 	it('should not attempt to set headers if request.headersSent is true', () => {
 		const response: Response = {
 			headersSent: true,
-			setHeader: jest.fn(),
+			setHeader: vi.fn(),
 		} as any
 		const info: RateLimitInfo = {
 			limit: 5,

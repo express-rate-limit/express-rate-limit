@@ -1,7 +1,7 @@
 // /test/options-test.ts
 // Tests parsing/handling of options passed in by the user
 
-import { describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 import rateLimit, {
 	type ClientRateLimitInfo,
 	type Options,

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { ipKeyGenerator } from '../../source/index.js'
 
 describe('ipKeyGenerator', () => {
