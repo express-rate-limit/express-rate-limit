@@ -1,0 +1,4 @@
+# /.prettierignore
+# The license wrapping is deliberate: re-wrapping it breaks GitHub's license
+# detection (see #675). Keep Prettier away from it.
+license.md
