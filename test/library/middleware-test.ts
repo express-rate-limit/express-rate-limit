@@ -15,7 +15,7 @@ import rateLimit, {
 	type Options,
 	type Store,
 } from '../../source/index.js'
-import { createServer } from './helpers/create-server.js'
+import { createServer } from '../helpers/server.js'
 
 describe('middleware test', () => {
 	beforeEach(() => {

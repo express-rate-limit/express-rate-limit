@@ -12,7 +12,7 @@ import { agent as request } from 'supertest'
 import { GenericContainer, type StartedTestContainer } from 'testcontainers'
 import { afterAll, beforeAll, describe, it } from 'vitest'
 import rateLimit, { type Options } from '../../source/index.js'
-import { createServer } from '../library/helpers/create-server.js'
+import { createServer } from '../helpers/server.js'
 
 // The number of requests to allow before the store should start returning
 // rate limited responses.

@@ -19,7 +19,7 @@ import type {
 	RateLimitInfo,
 	Store,
 } from '../../source/types.js'
-import { createServer } from './helpers/create-server.js'
+import { createServer } from '../helpers/server.js'
 
 describe('headers test', () => {
 	it('should send correct `x-ratelimit-limit`, `x-ratelimit-remaining`, and `x-ratelimit-reset` headers', async () => {

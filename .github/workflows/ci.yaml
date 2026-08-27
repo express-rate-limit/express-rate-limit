@@ -50,7 +50,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run library tests
-        run: pnpm run test:lib
+        run: pnpm run test:library
   test-external:
     name: Test (External)
     strategy:
@@ -74,7 +74,7 @@ jobs:
       - name: Run external store tests
         run: pnpm run test:stores
       - name: Run packaging checks
-        run: pnpm run test:pkg
+        run: pnpm run test:package
   publish:
     name: Publish
     needs: [lint, test-library, test-external]

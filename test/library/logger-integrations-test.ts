@@ -1,4 +1,4 @@
-// /test/integrations/loggers-test.ts
+// /test/library/logger-integrations-test.ts
 // Tests that the `logger` option is compatible with popular loggers: pino
 // (used directly), and nestjs' logger (used via a small adapter, since it
 // takes its arguments in the opposite order).
@@ -8,7 +8,7 @@ import pino from 'pino-http'
 import { agent as request } from 'supertest'
 import { describe, expect, it, vi } from 'vitest'
 import rateLimit, { MemoryStore } from '../../source/index.js'
-import { createServer } from '../library/helpers/create-server.js'
+import { createServer } from '../helpers/server.js'
 
 // The error logged when the store fails and `passOnStoreError` is set.
 const storeErrorMessage =

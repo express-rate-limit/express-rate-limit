@@ -1,9 +1,18 @@
 // /vitest.config.ts
-// Configuration for the vitest test runner. The suite is run twice, once
-// against express 4 and once against express 5 - see `test/helpers/express.ts`
-// for how the version under test is selected.
+// Configuration for the vitest test runner.
 
 import { defineConfig } from 'vitest/config'
+
+const project = (group: string, config: object) =>
+	['5', '4'].map((version) => ({
+		extends: true,
+		test: {
+			name: `${group}:express-${version}`,
+			include: [`test/${group}/**/*-test.ts`],
+			env: { EXPRESS_VERSION: version },
+			...config,
+		},
+	}))
 
 export default defineConfig({
 	test: {
@@ -15,28 +24,17 @@ export default defineConfig({
 			exclude: ['source/index.ts', 'source/types.ts'],
 		},
 		projects: [
-			{
-				extends: true,
-				test: {
-					name: 'express-5',
-					include: [
-						'test/library/**/*-test.ts',
-						'test/integrations/**/*-test.ts',
-					],
-					env: { EXPRESS_VERSION: '5' },
+			...project('library', {}),
+			...project('stores', {
+				hookTimeout: 180_000,
+				server: {
+					deps: {
+						// This package's entrypoint is typescript, so it must be
+						// transformed by vitest instead of being loaded by node.
+						inline: ['precise-memory-rate-limit'],
+					},
 				},
-			},
-			{
-				extends: true,
-				test: {
-					name: 'express-4',
-					include: [
-						'test/library/**/*-test.ts',
-						'test/integrations/**/*-test.ts',
-					],
-					env: { EXPRESS_VERSION: '4' },
-				},
-			},
+			}),
 		],
 	},
 })

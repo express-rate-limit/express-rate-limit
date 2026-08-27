@@ -10,7 +10,7 @@ import { pathToFileURL } from 'node:url'
 import { agent as request } from 'supertest'
 import { describe, expect, it } from 'vitest'
 import type defaultExport from '../../source/index.js'
-import { createServer } from './helpers/create-server.js'
+import { createServer } from '../helpers/server.js'
 
 type RateLimit = typeof defaultExport
 type DistModule = {
