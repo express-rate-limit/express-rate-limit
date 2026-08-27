@@ -101,12 +101,6 @@ importers:
       redis:
         specifier: 6.2.1
         version: 6.2.1
-      reflect-metadata:
-        specifier: 0.2.2
-        version: 0.2.2
-      rxjs:
-        specifier: 7.8.2
-        version: 7.8.2
       supertest:
         specifier: 7.2.2
         version: 7.2.2

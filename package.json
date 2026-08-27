@@ -112,8 +112,6 @@
 		"rate-limit-redis": "6.0.1",
 		"ratelimit-header-parser": "0.1.0",
 		"redis": "6.2.1",
-		"reflect-metadata": "0.2.2",
-		"rxjs": "7.8.2",
 		"supertest": "7.2.2",
 		"testcontainers": "12.1.0",
 		"ts-node": "10.9.2",
