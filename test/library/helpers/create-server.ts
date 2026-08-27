@@ -1,12 +1,8 @@
 // /test/helpers/create-server.ts
 // Create an Express server for testing
 
-import createApp, {
-	type Application,
-	type Request,
-	type RequestHandler,
-	type Response,
-} from 'express'
+import type { Application, Request, RequestHandler, Response } from 'express'
+import { express as createApp } from '../../helpers/express.js'
 
 /**
  * Create an Express server with the given middleware

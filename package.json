@@ -96,6 +96,7 @@
 		"dts-bundle-generator": "8.1.2",
 		"esbuild": "0.28.2",
 		"express": "5.2.1",
+		"express4": "npm:express@4.22.0",
 		"husky": "9.1.7",
 		"lint-staged": "17.3.0",
 		"mintlify": "4.2.817",

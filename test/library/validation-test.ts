@@ -1,12 +1,12 @@
 // /test/library/validation-test.ts
 // Tests the validation functions
 
-import express from 'express'
 import supertest from 'supertest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ipKeyGenerator, MemoryStore } from '../../source/index.js'
 import type { Logger, Options, Store } from '../../source/types'
 import { getValidations, type Validations } from '../../source/validations.js'
+import { express } from '../helpers/express.js'
 
 describe('validations tests', () => {
 	let validations: Validations

@@ -18,5 +18,15 @@ export default defineConfig({
 				inline: ['precise-memory-rate-limit'],
 			},
 		},
+		projects: [
+			{
+				extends: true,
+				test: { name: 'express-5', env: { EXPRESS_VERSION: '5' } },
+			},
+			{
+				extends: true,
+				test: { name: 'express-4', env: { EXPRESS_VERSION: '4' } },
+			},
+		],
 	},
 })
