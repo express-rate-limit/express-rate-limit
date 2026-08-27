@@ -1,9 +1,0 @@
-{
-	"extends": "../../../../../tsconfig.json",
-	"include": ["source/"],
-	"exclude": ["node_modules/"],
-	"compilerOptions": {
-		"target": "es2019",
-		"module": "esnext"
-	}
-}

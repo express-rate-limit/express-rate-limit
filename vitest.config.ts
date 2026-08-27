@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
 	test: {
-		include: ['test/library/**/*-test.ts'],
+		include: ['test/library/**/*-test.ts', 'test/integrations/**/*-test.ts'],
 		testTimeout: 30_000,
 		coverage: {
 			enabled: true,

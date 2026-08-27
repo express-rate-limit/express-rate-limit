@@ -71,12 +71,8 @@ jobs:
           version: 10
       - name: Install dependencies
         run: pnpm install
-      - name: Package the library
-        run: pnpm pack
       - name: Run external store tests
         run: pnpm run test:stores
-      - name: Run import and logger tests
-        run: pnpm test:ext
   publish:
     name: Publish
     needs: [lint, test-library, test-external]
