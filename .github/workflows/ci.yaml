@@ -73,6 +73,8 @@ jobs:
         run: pnpm install
       - name: Run external store tests
         run: pnpm run test:stores
+      - name: Run packaging checks
+        run: pnpm run test:pkg
   publish:
     name: Publish
     needs: [lint, test-library, test-external]

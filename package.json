@@ -32,6 +32,7 @@
 		"attack"
 	],
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"import": {
@@ -69,6 +70,7 @@
 		"format": "run-s format:*",
 		"test:lib": "vitest run",
 		"test:stores": "vitest run --config vitest.stores.config.ts",
+		"test:pkg": "attw --pack . && publint",
 		"test": "run-s lint test:lib",
 		"format-test": "run-s format test:lib",
 		"pre-commit": "lint-staged",
@@ -82,6 +84,7 @@
 		"express": ">= 4.11"
 	},
 	"devDependencies": {
+		"@arethetypeswrong/cli": "0.18.5",
 		"@asyncapi/specs": "6.11.1",
 		"@biomejs/biome": "2.4.6",
 		"@express-rate-limit/prettier": "1.1.1",
@@ -104,6 +107,7 @@
 		"pino-http": "11.0.0",
 		"precise-memory-rate-limit": "2.0.1",
 		"prettier": "3.9.6",
+		"publint": "0.3.24",
 		"rate-limit-memcached": "1.0.1",
 		"rate-limit-mongo": "2.3.2",
 		"rate-limit-redis": "6.0.1",
