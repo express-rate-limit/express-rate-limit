@@ -5,6 +5,7 @@
 [![tests](https://img.shields.io/github/actions/workflow/status/express-rate-limit/express-rate-limit/ci.yaml)](https://github.com/express-rate-limit/express-rate-limit/actions/workflows/ci.yaml)
 [![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
 [![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
+[![inspect.software](https://raw.githubusercontent.com/inspect-software/badges/main/v1/e/express-rate-limit/express-rate-limit.svg)](https://inspect.software/software/express-rate-limit/express-rate-limit)
 [![license](https://img.shields.io/npm/l/express-rate-limit)](license.md)
 
 </div>
