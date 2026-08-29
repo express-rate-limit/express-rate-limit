@@ -175,6 +175,32 @@ describe('headers test', () => {
 		await request(app).get('/').expect(429).expect('retry-after', '60')
 	})
 
+	it('should use the `retryAfter` option as the `retry-after` header value when set to a number', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: 600,
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '600')
+	})
+
+	it('should use the `retryAfter` option as the `retry-after` header value when set to a function', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: async (_request, _response) => 600,
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '600')
+	})
+
 	it('should not set the `retry-after` header if all headers have been disabled', async () => {
 		const app = createServer(
 			rateLimit({
