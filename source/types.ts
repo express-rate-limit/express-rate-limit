@@ -2,6 +2,7 @@
 // All the types used by this package
 
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
+import type { Temporal } from 'temporal-polyfill'
 import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 import type { Validations } from './validations.js'
 
@@ -260,7 +261,15 @@ export type Options = {
 	/**
 	 * How long we should remember the requests.
 	 *
-	 * Defaults to `60000` ms (= 1 minute).
+	 * Accepts anything `Temporal.Duration.from()` accepts - either a
+	 * `Temporal.Duration`, a plain object of duration fields such as
+	 * `{ hours: 3 }`, or an ISO 8601 duration string such as `'PT3H'`.
+	 */
+	timeWindow?: Temporal.DurationLike
+
+	/**
+	 * Alternate to timeWindow, pass in a number of milliseconds instead of a
+	 * duration. If both are set, they must describe the same length of time.
 	 */
 	windowMs: number
 
@@ -320,9 +329,17 @@ export type Options = {
 	 * change how long the limiter actually keeps blocking the client for.
 	 * That is still controlled by `windowMs`.
 	 *
+	 * A number is used as-is; anything `Temporal.Duration.from()` accepts (a
+	 * `Temporal.Duration`, a plain object such as `{ seconds: 30 }`, or an ISO
+	 * 8601 duration string) is converted to seconds.
+	 *
 	 * By default, the number of seconds remaining until the window resets.
 	 */
-	retryAfter?: number | ValueDeterminingMiddleware<number>
+	retryAfter?:
+		| number
+		| Temporal.DurationLike
+		| ValueDeterminingMiddleware<number>
+		| ValueDeterminingMiddleware<Temporal.DurationLike>
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.

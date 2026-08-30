@@ -9,9 +9,47 @@ Any option that may be set to a function may also be set to an async function,
 or to a function that returns a promise. Async functions and promises will be
 awaited for the value.
 
+## `timeWindow`
+
+> `Temporal.DurationLike`
+>
+> Added in v8.8.0.
+
+Time frame for which requests are remembered. See [`windowMs`](#windowms) for
+the full description of how the time window behaves.
+
+Accepts anything
+[`Temporal.Duration.from()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration/from)
+accepts:
+
+- a plain object of duration fields, e.g. `{ hours: 3 }` or
+  `{ minutes: 1, seconds: 30 }`
+- an ISO 8601 duration string, e.g. `'PT3H'` or `'PT1M30S'`
+- a `Temporal.Duration`, e.g. `Temporal.Duration.from({ hours: 3 })`
+
+```ts
+import { rateLimit } from 'express-rate-limit'
+import { Temporal } from 'temporal-polyfill'
+
+const limiter = rateLimit({
+	timeWindow: { hours: 1, minutes: 30 },
+	// ...
+})
+```
+
+This value **cannot** be set to a function. If multiple time windows are needed,
+create multiple rate limiters.
+
 ## `windowMs`
 
 > `number`
+
+<Note>
+
+`windowMs` is an earlier alternative to `timeWindow`. Both are supported but we
+recommend using `timeWindow` going forward.
+
+</Note>
 
 Time frame for which requests are checked/remembered. The time window for each
 user starts at their first request. After it elapses, the user's hit count is
@@ -283,13 +321,20 @@ Defaults to a function that returns a string of the format
 
 ## `retryAfter`
 
-> `number | function`
+> `number | Temporal.DurationLike | function`
+>
+> Added in v8.8.0: can now be set to a duration as well as a number.
 
 Custom value (in seconds) for the `Retry-After` header sent when a client is
 rate limited.
 
-Can be the value itself as a number or a (sync/async) function that accepts the
+Can be the value itself as a number, or a (sync/async) function that accepts the
 Express `req` and `res` objects and then returns a number.
+
+It can also be set to a [Temporal duration][temporal-duration] - either a
+`Temporal.Duration`, a plain object of duration fields, or an ISO 8601 duration
+string. Durations are converted to seconds for the header. The same applies to
+values returned from a function.
 
 <Note>
 
@@ -309,6 +354,15 @@ const limiter = rateLimit({
 		// regardless of how the window is configured.
 		return 10 * 60 // seconds, unlike windowMs
 	},
+})
+```
+
+Or, using a duration:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	retryAfter: { minutes: 10 },
 })
 ```
 
@@ -584,6 +638,7 @@ Supported validations are:
 Defaults to `true`.
 
 [stores]: /reference/stores
+[temporal-duration]: https://tc39.es/proposal-temporal/#duration-objects
 
 ## `logger`
 
