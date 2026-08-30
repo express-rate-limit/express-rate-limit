@@ -4,6 +4,7 @@
 import { isIPv6 } from 'node:net'
 import createDebugLogger from 'debug'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
+import { Temporal } from 'temporal-spec'
 import { ConsoleLogger } from './console-logger.js'
 import {
 	setDraft6Headers,
@@ -114,7 +115,11 @@ type Configuration = {
 	legacyHeaders: boolean
 	standardHeaders: false | DraftHeadersVersion
 	identifier: string | ValueDeterminingMiddleware<string>
-	retryAfter?: number | ValueDeterminingMiddleware<number>
+	retryAfter?:
+		| number
+		| Temporal.Duration
+		| ValueDeterminingMiddleware<number>
+		| ValueDeterminingMiddleware<Temporal.Duration>
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
@@ -201,10 +206,28 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (standardHeaders === true) standardHeaders = 'draft-6'
 
+	let windowMs = null
+	if (
+		typeof notUndefinedOptions.window === 'object' &&
+		typeof notUndefinedOptions.window.total === 'function'
+	) {
+		windowMs = notUndefinedOptions.window.total('milliseconds')
+		if (
+			typeof notUndefinedOptions.windowMs === 'number' &&
+			notUndefinedOptions.windowMs !== windowMs
+		) {
+			throw new Error(
+				`Mismatch between windowMs and window.total("milliseconds"): ${notUndefinedOptions.windowMs} != ${windowMs} - if both are set, they must be the exact same length`,
+			)
+		}
+	} else {
+		windowMs = notUndefinedOptions.windowMs ?? 60 * 1000
+	}
+
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const config: Configuration = {
-		windowMs: 60 * 1000,
+		windowMs,
 		limit: passedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
@@ -603,7 +626,16 @@ const rateLimit = (
 						typeof config.retryAfter === 'function'
 							? config.retryAfter(request, response)
 							: config.retryAfter
-					const retryAfter = await retrieveRetryAfter
+					const maybeDuration = await retrieveRetryAfter
+					let retryAfter: number | undefined
+					if (
+						typeof Temporal !== 'undefined' &&
+						maybeDuration instanceof Temporal.Duration
+					) {
+						retryAfter = maybeDuration.total('seconds')
+					} else {
+						retryAfter = maybeDuration as number
+					}
 					setRetryAfterHeader(response, info, config.windowMs, retryAfter)
 				}
 

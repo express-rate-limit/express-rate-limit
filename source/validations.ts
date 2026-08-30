@@ -320,6 +320,7 @@ const validations = {
 		type KeysEnum<T> = { [P in keyof Required<T>]: true }
 		// we have to manually update this when adding new options, because we want it to work even for JS users. But KeysEnum makes TypeScript ensures it's correct at build time!
 		const optionsMap: KeysEnum<Options> = {
+			window: true,
 			windowMs: true,
 			limit: true,
 			message: true,

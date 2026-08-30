@@ -76,7 +76,8 @@
 	},
 	"dependencies": {
 		"debug": "^4.4.3",
-		"ip-address": "^10.2.0"
+		"ip-address": "^10.2.0",
+		"temporal-spec": "1.0.1"
 	},
 	"peerDependencies": {
 		"express": ">= 4.11"
