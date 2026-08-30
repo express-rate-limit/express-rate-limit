@@ -2,6 +2,7 @@
 // All the types used by this package
 
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
+import type { Temporal } from 'temporal-spec'
 import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 import type { Validations } from './validations.js'
 
@@ -260,7 +261,12 @@ export type Options = {
 	/**
 	 * How long we should remember the requests.
 	 *
-	 * Defaults to `60000` ms (= 1 minute).
+	 * Pass in a value like `Temporal.Duration.from({ hours: 3 })`
+	 */
+	window?: Temporal.Duration
+
+	/**
+	 * Alternate to window, pass in a number of milliseconds instead of a duration object.
 	 */
 	windowMs: number
 
@@ -322,7 +328,11 @@ export type Options = {
 	 *
 	 * By default, the number of seconds remaining until the window resets.
 	 */
-	retryAfter?: number | ValueDeterminingMiddleware<number>
+	retryAfter?:
+		| number
+		| Temporal.Duration
+		| ValueDeterminingMiddleware<number>
+		| ValueDeterminingMiddleware<Temporal.Duration>
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.
