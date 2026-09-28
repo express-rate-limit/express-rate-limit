@@ -467,13 +467,17 @@ const rateLimit = (
 				key,
 			}
 
-			for (const [key, val] of Object.entries(info))
-				debug(
-					'set request.%s.%s to be %o',
-					config.requestPropertyName,
-					key,
-					val,
-				)
+			// debug() skips printing when disabled,
+			// but Object.entries() still allocates.
+			if (debug.enabled) {
+				for (const [key, val] of Object.entries(info))
+					debug(
+						'set request.%s.%s to be %o',
+						config.requestPropertyName,
+						key,
+						val,
+					)
+			}
 
 			// Set the `current` property on the object, but hide it from iteration
 			// and `JSON.stringify`. See the `./types#RateLimitInfo` for details.
