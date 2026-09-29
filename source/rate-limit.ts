@@ -2,9 +2,9 @@
 // The option parser and rate limiting middleware
 
 import { isIPv6 } from 'node:net'
+import { Temporal } from '@js-temporal/polyfill'
 import createDebugLogger from 'debug'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
-import { Temporal } from 'temporal-polyfill'
 import { ConsoleLogger } from './console-logger.js'
 import {
 	setDraft6Headers,
@@ -19,6 +19,7 @@ import type {
 	AugmentedRequest,
 	ClientRateLimitInfo,
 	DraftHeadersVersion,
+	DurationLike,
 	EnabledValidations,
 	LegacyStore,
 	Logger,
@@ -117,9 +118,9 @@ type Configuration = {
 	identifier: string | ValueDeterminingMiddleware<string>
 	retryAfter?:
 		| number
-		| Temporal.DurationLike
+		| DurationLike
 		| ValueDeterminingMiddleware<number>
-		| ValueDeterminingMiddleware<Temporal.DurationLike>
+		| ValueDeterminingMiddleware<DurationLike>
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
