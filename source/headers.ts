@@ -67,7 +67,7 @@ export const setLegacyHeaders = (
 	// If we have a resetTime, also provide the current date to help avoid
 	// issues with incorrect clocks.
 	if (info.resetTime instanceof Date) {
-		response.setHeader('Date', new Date().toUTCString())
+		if (!response.sendDate) response.setHeader('Date', new Date().toUTCString())
 		response.setHeader(
 			'X-RateLimit-Reset',
 			Math.ceil(info.resetTime.getTime() / 1000).toString(),
