@@ -75,9 +75,9 @@
 		"prepare": "run-s compile && husky"
 	},
 	"dependencies": {
+		"@js-temporal/polyfill": "0.5.1",
 		"debug": "^4.4.3",
-		"ip-address": "^10.2.0",
-		"temporal-polyfill": "1.0.5"
+		"ip-address": "^10.2.0"
 	},
 	"peerDependencies": {
 		"express": ">= 4.11"

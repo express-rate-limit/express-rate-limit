@@ -2,10 +2,10 @@
 // Tests whether the headers sent back by the middleware
 
 import { describe, expect, it, jest } from '@jest/globals'
+import { Temporal } from '@js-temporal/polyfill'
 import type { Response } from 'express'
 import { parseRateLimit } from 'ratelimit-header-parser'
 import { agent as request } from 'supertest'
-import { Temporal } from 'temporal-polyfill'
 import {
 	setDraft6Headers,
 	setDraft7Headers,
