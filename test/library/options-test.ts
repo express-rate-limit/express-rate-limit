@@ -2,7 +2,7 @@
 // Tests parsing/handling of options passed in by the user
 
 import { describe, expect, it } from '@jest/globals'
-import { Temporal } from 'temporal-polyfill'
+import { Temporal } from '@js-temporal/polyfill'
 import rateLimit, {
 	type ClientRateLimitInfo,
 	type Options,

@@ -1,8 +1,8 @@
 // /source/types.ts
 // All the types used by this package
 
+import type { Temporal } from '@js-temporal/polyfill'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
-import type { Temporal } from 'temporal-polyfill'
 import type { SUPPORTED_DRAFT_VERSIONS } from './headers.js'
 import type { Validations } from './validations.js'
 
@@ -255,6 +255,14 @@ export type EnabledValidations = {
 }
 
 /**
+ * A duration, in any of the forms `Temporal.Duration.from()` accepts.
+ *
+ * Note that `Temporal.DurationLike` on its own does not cover the ISO 8601
+ * string form, even though `Temporal.Duration.from()` accepts one.
+ */
+export type DurationLike = Temporal.Duration | Temporal.DurationLike | string
+
+/**
  * The configuration options for the rate limiter.
  */
 export type Options = {
@@ -265,7 +273,7 @@ export type Options = {
 	 * `Temporal.Duration`, a plain object of duration fields such as
 	 * `{ hours: 3 }`, or an ISO 8601 duration string such as `'PT3H'`.
 	 */
-	timeWindow?: Temporal.DurationLike
+	timeWindow?: DurationLike
 
 	/**
 	 * Alternate to timeWindow, pass in a number of milliseconds instead of a
@@ -337,9 +345,9 @@ export type Options = {
 	 */
 	retryAfter?:
 		| number
-		| Temporal.DurationLike
+		| DurationLike
 		| ValueDeterminingMiddleware<number>
-		| ValueDeterminingMiddleware<Temporal.DurationLike>
+		| ValueDeterminingMiddleware<DurationLike>
 
 	/**
 	 * The name of the property on the request object to store the rate limit info.
