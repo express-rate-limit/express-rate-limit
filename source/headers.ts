@@ -67,7 +67,7 @@ export const setLegacyHeaders = (
 	// If we have a resetTime, also provide the current date to help avoid
 	// issues with incorrect clocks.
 	if (info.resetTime instanceof Date) {
-		if (!response.sendDate) response.setHeader('Date', new Date().toUTCString())
+		// node.js automatically sets a Date header - see https://nodejs.org/api/http.html#responsesenddate
 		response.setHeader(
 			'X-RateLimit-Reset',
 			Math.ceil(info.resetTime.getTime() / 1000).toString(),
