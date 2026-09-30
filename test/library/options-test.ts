@@ -161,6 +161,13 @@ describe('options test', () => {
 			expect(store.options.windowMs).toEqual(90 * 60 * 1000)
 		})
 
+		it('should accept calendar units by resolving them relative to the current date', () => {
+			const store = new MockStore()
+			rateLimit({ store, timeWindow: 'P1W' })
+
+			expect(store.options.windowMs).toEqual(7 * 24 * 60 * 60 * 1000)
+		})
+
 		it('should throw if the value cannot be parsed as a duration', () => {
 			expect(() => {
 				rateLimit({
