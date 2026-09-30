@@ -25,7 +25,7 @@ available on-line.
 import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
+	timeWindow: { minutes: 15 },
 	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
 	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
@@ -49,8 +49,10 @@ default values.
 
 | Option                     | Type                                      | Remarks                                                                                         |
 | -------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`timeWindow`]             | `duration` \| `string`                    | How long to remember requests for, as a [Temporal duration].                                    |
 | [`windowMs`]               | `number`                                  | How long to remember requests for, in milliseconds.                                             |
 | [`limit`]                  | `number` \| `function`                    | How many requests to allow.                                                                     |
+| [`retryAfter`]             | `number` \| `duration` \| `function`      | Custom value for the `Retry-After` header, in seconds.                                          |
 | [`message`]                | `string` \| `json` \| `function`          | Response to return after limit is reached.                                                      |
 | [`statusCode`]             | `number`                                  | HTTP status code after limit is reached (default is 429).                                       |
 | [`handler`]                | `function`                                | Function to run after limit is reached (overrides `message` and `statusCode` settings, if set). |
@@ -103,9 +105,13 @@ Then you can pick up any issue and fix/implement it!
 MIT © [Nathan Friedly](http://nfriedly.com/),
 [Vedant K](https://github.com/gamemaker1)
 
+[`timeWindow`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#timewindow
 [`windowMs`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#windowms
 [`limit`]: https://express-rate-limit.mintlify.app/reference/configuration#limit
+[`retryAfter`]:
+	https://express-rate-limit.mintlify.app/reference/configuration#retryafter
 [`message`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#message
 [`statusCode`]:
@@ -138,3 +144,4 @@ MIT © [Nathan Friedly](http://nfriedly.com/),
 	https://express-rate-limit.mintlify.app/reference/configuration#validate
 [`logger`]:
 	https://express-rate-limit.mintlify.app/reference/configuration#logger
+[Temporal duration]: https://tc39.es/proposal-temporal/#duration-objects

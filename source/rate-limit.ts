@@ -215,7 +215,10 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 		try {
 			timeWindowMs = Temporal.Duration.from(
 				notUndefinedOptions.timeWindow,
-			).total('milliseconds')
+			).total({
+				unit: 'milliseconds',
+				relativeTo: Temporal.Now.plainDateISO(),
+			})
 		} catch (error) {
 			throw new TypeError(
 				`Invalid value provided for timeWindow: ${error instanceof Error ? error.message : String(error)}`,
