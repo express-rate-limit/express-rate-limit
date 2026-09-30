@@ -475,7 +475,7 @@ const validations = {
 		) {
 			throw new ValidationError(
 				'ERR_ERL_WINDOW_MS',
-				`Invalid windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be a number between 1 and ${SET_TIMEOUT_MAX} when using the default MemoryStore`,
+				`Invalid windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be a number between 1 and ${SET_TIMEOUT_MAX} when using the default MemoryStore. This also applies to a timeWindow that resolves to a value outside that range`,
 			)
 		}
 	},

@@ -11,7 +11,7 @@ awaited for the value.
 
 ## `timeWindow`
 
-> `Temporal.DurationLike`
+> `DurationLike`
 >
 > Added in v8.8.0.
 
@@ -27,9 +27,11 @@ accepts:
 - an ISO 8601 duration string, e.g. `'PT3H'` or `'PT1M30S'`
 - a `Temporal.Duration`, e.g. `Temporal.Duration.from({ hours: 3 })`
 
+Calendar units are resolved relative to the current date, so a `{ months: 1 }`
+window can be anywhere from 28 to 31 days. Fractional values are not supported.
+
 ```ts
 import { rateLimit } from 'express-rate-limit'
-import { Temporal } from 'temporal-polyfill'
 
 const limiter = rateLimit({
 	timeWindow: { hours: 1, minutes: 30 },
@@ -40,14 +42,22 @@ const limiter = rateLimit({
 This value **cannot** be set to a function. If multiple time windows are needed,
 create multiple rate limiters.
 
+<Note>
+
+`timeWindow` and [`windowMs`](#windowms) both set the time window. If you set
+both, they must describe exactly the same length of time or the library throws.
+
+</Note>
+
 ## `windowMs`
 
 > `number`
 
 <Note>
 
-`windowMs` is an earlier alternative to `timeWindow`. Both are supported but we
-recommend using `timeWindow` going forward.
+[`timeWindow`](#timewindow) (added in v8.8.0) is a duration-typed alternative to
+this option. Both are supported, and we recommend `timeWindow` going forward. If
+you set both, they must describe exactly the same length of time.
 
 </Note>
 
@@ -321,7 +331,7 @@ Defaults to a function that returns a string of the format
 
 ## `retryAfter`
 
-> `number | Temporal.DurationLike | function`
+> `number | DurationLike | function`
 >
 > Added in v8.8.0: can now be set to a duration as well as a number.
 
