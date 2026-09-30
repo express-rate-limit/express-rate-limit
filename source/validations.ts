@@ -321,6 +321,7 @@ const validations = {
 		// we have to manually update this when adding new options, because we want it to work even for JS users. But KeysEnum makes TypeScript ensures it's correct at build time!
 		const optionsMap: KeysEnum<Options> = {
 			windowMs: true,
+			timeWindow: true,
 			limit: true,
 			message: true,
 			statusCode: true,
@@ -474,7 +475,7 @@ const validations = {
 		) {
 			throw new ValidationError(
 				'ERR_ERL_WINDOW_MS',
-				`Invalid windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be a number between 1 and ${SET_TIMEOUT_MAX} when using the default MemoryStore`,
+				`Invalid windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be a number between 1 and ${SET_TIMEOUT_MAX} when using the default MemoryStore. This also applies to a timeWindow that resolves to a value outside that range`,
 			)
 		}
 	},

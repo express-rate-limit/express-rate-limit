@@ -2,6 +2,7 @@
 // Tests parsing/handling of options passed in by the user
 
 import { describe, expect, it } from '@jest/globals'
+import { Temporal } from '@js-temporal/polyfill'
 import rateLimit, {
 	type ClientRateLimitInfo,
 	type Options,
@@ -126,5 +127,72 @@ describe('options test', () => {
 				logger: { error: 'invalid logger' },
 			})
 		}).toThrow(TypeError)
+	})
+
+	describe('timeWindow', () => {
+		it('should accept a `Temporal.Duration`', () => {
+			const store = new MockStore()
+			rateLimit({ store, timeWindow: Temporal.Duration.from({ hours: 3 }) })
+
+			expect(store.options.windowMs).toEqual(3 * 60 * 60 * 1000)
+		})
+
+		it('should accept a plain object of duration fields', () => {
+			const store = new MockStore()
+			rateLimit({ store, timeWindow: { minutes: 5 } })
+
+			expect(store.options.windowMs).toEqual(5 * 60 * 1000)
+		})
+
+		it('should accept a plain object with several duration fields', () => {
+			const store = new MockStore()
+			rateLimit({
+				store,
+				timeWindow: { hours: 1, minutes: 30, seconds: 15 },
+			})
+
+			expect(store.options.windowMs).toEqual((90 * 60 + 15) * 1000)
+		})
+
+		it('should accept an ISO 8601 duration string', () => {
+			const store = new MockStore()
+			rateLimit({ store, timeWindow: 'PT1H30M' })
+
+			expect(store.options.windowMs).toEqual(90 * 60 * 1000)
+		})
+
+		it('should accept calendar units by resolving them relative to the current date', () => {
+			const store = new MockStore()
+			rateLimit({ store, timeWindow: 'P1W' })
+
+			expect(store.options.windowMs).toEqual(7 * 24 * 60 * 60 * 1000)
+		})
+
+		it('should throw if the value cannot be parsed as a duration', () => {
+			expect(() => {
+				rateLimit({
+					store: new MockStore(),
+					// @ts-expect-error Check if TSC can detect an invalid value for this option
+					timeWindow: { parsecs: 3 },
+				})
+			}).toThrow(/timeWindow/)
+		})
+
+		it('should allow `windowMs` to be set alongside a matching `timeWindow`', () => {
+			const store = new MockStore()
+			rateLimit({ store, timeWindow: { minutes: 5 }, windowMs: 5 * 60 * 1000 })
+
+			expect(store.options.windowMs).toEqual(5 * 60 * 1000)
+		})
+
+		it('should throw if `windowMs` and `timeWindow` disagree', () => {
+			expect(() => {
+				rateLimit({
+					store: new MockStore(),
+					timeWindow: { minutes: 5 },
+					windowMs: 60 * 1000,
+				})
+			}).toThrow(/Mismatch between windowMs and timeWindow/)
+		})
 	})
 })
