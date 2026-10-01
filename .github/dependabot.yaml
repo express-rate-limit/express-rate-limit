@@ -13,3 +13,8 @@ updates:
         dependency-type: development
         update-types: [minor, patch]
     # production dependencies and major updates to dev deps get their own PRs
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
