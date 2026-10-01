@@ -75,6 +75,27 @@ jobs:
         run: pnpm pack
       - name: Run import and external store usage tests
         run: pnpm test:ext
+  action-pinning:
+    name: Verify action pinning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Fail if any workflow uses a mutable action ref
+        run: |
+          set -euo pipefail
+          # Every remote `uses:` reference must be pinned to a full-length
+          # (40-char) commit SHA, so a moved or re-pointed tag cannot inject
+          # code into the workflow. Local (./) and docker:// refs are exempt.
+          bad=$(grep -rEn '^\s*uses:' .github/workflows \
+                | grep -Ev 'uses:\s*(\./|docker://)' \
+                | grep -Ev '@[0-9a-f]{40}([[:space:]]|$)' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Unpinned GitHub Action reference(s) found:"
+            echo "$bad"
+            exit 1
+          fi
+          echo "All workflow action references are pinned to a commit SHA."
   publish:
     name: Publish
     needs: [lint, test-library, test-external]
