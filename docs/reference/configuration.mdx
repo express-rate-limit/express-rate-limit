@@ -13,7 +13,7 @@ awaited for the value.
 
 > `DurationLike`
 >
-> Added in v8.8.0.
+> Added in v9.0.0.
 
 Time frame for which requests are remembered. See [`windowMs`](#windowms) for
 the full description of how the time window behaves.
@@ -28,7 +28,9 @@ accepts:
 - a `Temporal.Duration`, e.g. `Temporal.Duration.from({ hours: 3 })`
 
 Calendar units are resolved relative to the current date, so a `{ months: 1 }`
-window can be anywhere from 28 to 31 days. Fractional values are not supported.
+window can be anywhere from 28 to 31 days. (Note that the default store can't handle time windows longer than ~24 days. Most other stores can handle longure durations, though.) 
+
+Fractional values are not supported.
 
 ```ts
 import { rateLimit } from 'express-rate-limit'
@@ -55,9 +57,8 @@ both, they must describe exactly the same length of time or the library throws.
 
 <Note>
 
-[`timeWindow`](#timewindow) (added in v8.8.0) is a duration-typed alternative to
-this option. Both are supported, and we recommend `timeWindow` going forward. If
-you set both, they must describe exactly the same length of time.
+[`timeWindow`](#timewindow) (added in v9) is a duration-typed alternative to
+this option. Both are supported, but we recommend `timeWindow` because of it's easier legibility.
 
 </Note>
 
