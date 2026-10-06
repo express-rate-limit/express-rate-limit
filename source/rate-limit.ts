@@ -2,6 +2,7 @@
 // The option parser and rate limiting middleware
 
 import { isIPv6 } from 'node:net'
+import { Temporal } from '@js-temporal/polyfill'
 import createDebugLogger from 'debug'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
 import { ConsoleLogger } from './console-logger.js'
@@ -18,6 +19,7 @@ import type {
 	AugmentedRequest,
 	ClientRateLimitInfo,
 	DraftHeadersVersion,
+	DurationLike,
 	EnabledValidations,
 	LegacyStore,
 	Logger,
@@ -114,7 +116,11 @@ type Configuration = {
 	legacyHeaders: boolean
 	standardHeaders: false | DraftHeadersVersion
 	identifier: string | ValueDeterminingMiddleware<string>
-	retryAfter?: number | ValueDeterminingMiddleware<number>
+	retryAfter?:
+		| number
+		| DurationLike
+		| ValueDeterminingMiddleware<number>
+		| ValueDeterminingMiddleware<DurationLike>
 	requestPropertyName: string
 	skipFailedRequests: boolean
 	skipSuccessfulRequests: boolean
@@ -201,10 +207,42 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (standardHeaders === true) standardHeaders = 'draft-6'
 
+	let windowMs = null
+	if (notUndefinedOptions.timeWindow !== undefined) {
+		// Accepts a `Temporal.Duration`, a plain object of duration fields, or an
+		// ISO 8601 duration string - see the `timeWindow` option's docs.
+		let timeWindowMs: number
+		try {
+			timeWindowMs = Temporal.Duration.from(
+				notUndefinedOptions.timeWindow,
+			).total({
+				unit: 'milliseconds',
+				relativeTo: Temporal.Now.plainDateISO(),
+			})
+		} catch (error) {
+			throw new TypeError(
+				`Invalid value provided for timeWindow: ${error instanceof Error ? error.message : String(error)}`,
+			)
+		}
+
+		if (
+			typeof notUndefinedOptions.windowMs === 'number' &&
+			notUndefinedOptions.windowMs !== timeWindowMs
+		) {
+			throw new Error(
+				`Mismatch between windowMs and timeWindow.total("milliseconds"): ${notUndefinedOptions.windowMs} != ${timeWindowMs} - if both are set, they must be the exact same length`,
+			)
+		}
+
+		windowMs = timeWindowMs
+	} else {
+		windowMs = notUndefinedOptions.windowMs ?? 60 * 1000
+	}
+
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const config: Configuration = {
-		windowMs: 60 * 1000,
+		windowMs,
 		limit: passedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
@@ -607,7 +645,15 @@ const rateLimit = (
 						typeof config.retryAfter === 'function'
 							? config.retryAfter(request, response)
 							: config.retryAfter
-					const retryAfter = await retrieveRetryAfter
+					const maybeDuration = await retrieveRetryAfter
+					let retryAfter: number | undefined
+					if (typeof maybeDuration === 'number') {
+						retryAfter = maybeDuration
+					} else if (maybeDuration !== undefined) {
+						// Accepts a `Temporal.Duration`, a plain object of duration
+						// fields, or an ISO 8601 duration string.
+						retryAfter = Temporal.Duration.from(maybeDuration).total('seconds')
+					}
 					setRetryAfterHeader(response, info, config.windowMs, retryAfter)
 				}
 
