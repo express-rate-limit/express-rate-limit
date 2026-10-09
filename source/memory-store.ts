@@ -50,7 +50,14 @@ export class MemoryStore implements Store {
 	 */
 	localKeys = true
 
-	constructor(private validations?: Validations) {}
+	/**
+	 * The validation checks to run against the options passed to the store.
+	 */
+	private validations?: Validations
+
+	constructor(validations?: Validations) {
+		this.validations = validations
+	}
 
 	/**
 	 * Method that initializes the store.

@@ -2,7 +2,7 @@
 // Test app test app
 
 import createServer from 'express'
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 
 import RedisStore from 'rate-limit-redis'
 import { createClient } from 'redis'

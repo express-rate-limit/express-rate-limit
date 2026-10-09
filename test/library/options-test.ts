@@ -2,9 +2,10 @@
 // Tests parsing/handling of options passed in by the user
 
 import { describe, expect, it } from '@jest/globals'
-import rateLimit, {
+import {
 	type ClientRateLimitInfo,
 	type Options,
+	rateLimit,
 	type Store,
 } from '../../source/index.js'
 

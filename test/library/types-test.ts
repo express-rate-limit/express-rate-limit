@@ -4,8 +4,7 @@ import process from 'node:process'
 import { describe, expect, it } from '@jest/globals'
 
 describe('types tests', () => {
-	// apparently jest compiles this to cjs and dosn't fixup import.meta.dirname, so just use __dirname global here
-	const TYPES_PATH = path.join(__dirname, '../../dist/index.d.ts')
+	const TYPES_PATH = path.join(import.meta.dirname, '../../dist/index.d.ts')
 	const TYPES_EXIST = fs.existsSync(TYPES_PATH)
 	const IS_CI = !!process.env.CI
 

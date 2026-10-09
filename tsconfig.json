@@ -1,8 +1,11 @@
 {
-	"include": ["source/"],
+	"include": ["source/", "test/library/"],
 	"exclude": ["node_modules/"],
 	"extends": "@express-rate-limit/tsconfig",
 	"compilerOptions": {
-		"target": "ES2020"
+		"target": "ES2020",
+		"types": ["node", "jest"],
+		"erasableSyntaxOnly": true,
+		"noEmit": true
 	}
 }

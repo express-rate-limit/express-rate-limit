@@ -1,10 +1,13 @@
 {
-	"preset": "ts-jest/presets/default-esm",
 	"collectCoverage": true,
 	"collectCoverageFrom": ["source/**/*.ts", "!source/index.ts"],
 	"testTimeout": 30000,
 	"testMatch": ["**/test/library/**/*-test.[jt]s?(x)"],
 	"moduleFileExtensions": ["js", "jsx", "json", "ts", "tsx"],
+	"extensionsToTreatAsEsm": [".ts"],
+	"transform": {
+		"\\.ts$": "<rootDir>/test/library/helpers/strip-types.js"
+	},
 	"moduleNameMapper": {
 		"^(\\.{1,2}/.*)\\.js$": "$1"
 	}
