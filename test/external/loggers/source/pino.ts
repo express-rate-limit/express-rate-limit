@@ -2,7 +2,7 @@
 // Test app test app
 
 import createServer from 'express'
-import rateLimit, { MemoryStore } from 'express-rate-limit'
+import { MemoryStore, rateLimit } from 'express-rate-limit'
 
 import pino from 'pino-http'
 

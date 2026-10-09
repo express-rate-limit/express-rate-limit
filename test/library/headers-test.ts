@@ -12,7 +12,7 @@ import {
 	setLegacyHeaders,
 	setRetryAfterHeader,
 } from '../../source/headers.js'
-import rateLimit from '../../source/index.js'
+import { rateLimit } from '../../source/index.js'
 import type {
 	ClientRateLimitInfo,
 	Options,

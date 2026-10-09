@@ -636,4 +636,4 @@ const rateLimit = (
 }
 
 // Export it to the world!
-export default rateLimit
+export { rateLimit }
