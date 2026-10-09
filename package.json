@@ -34,18 +34,11 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"import": {
-				"types": "./dist/index.d.mts",
-				"default": "./dist/index.mjs"
-			},
-			"require": {
-				"types": "./dist/index.d.cts",
-				"default": "./dist/index.cjs"
-			}
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
 		}
 	},
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.mjs",
+	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"files": [
 		"dist/",
@@ -56,18 +49,17 @@
 	},
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ *.log *.tmp *.bak *.tgz",
-		"build:cjs": "esbuild --packages=external --platform=node --bundle --target=es2020 --format=cjs --outfile=dist/index.cjs --footer:js=\"module.exports = Object.assign(rateLimit, module.exports);\" source/index.ts",
-		"build:esm": "esbuild --packages=external --platform=node --bundle --target=es2020 --format=esm --outfile=dist/index.mjs source/index.ts",
-		"build:types": "dts-bundle-generator --out-file=dist/index.d.ts source/index.ts && cp dist/index.d.ts dist/index.d.cts && cp dist/index.d.ts dist/index.d.mts",
-		"compile": "run-s clean build:*",
+		"build": "tsc --project tsconfig.build.json",
+		"compile": "run-s clean build",
 		"docs": "cd docs && mintlify dev",
 		"lint:code": "biome check",
+		"lint:types": "tsc",
 		"lint:docs": "prettier --check docs/ *.md",
 		"lint": "run-s lint:*",
 		"format:code": "biome check --write",
 		"format:docs": "prettier --write docs/ *.md",
 		"format": "run-s format:*",
-		"test:lib": "jest",
+		"test:lib": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
 		"test:ext": "cd test/external/ && bash run-all-tests",
 		"test": "run-s lint test:lib",
 		"format-test": "run-s format test:lib",
@@ -93,8 +85,6 @@
 		"@types/node": "26.6.4",
 		"@types/supertest": "7.2.1",
 		"del-cli": "7.0.0",
-		"dts-bundle-generator": "8.1.2",
-		"esbuild": "0.28.2",
 		"express": "5.2.1",
 		"husky": "9.1.7",
 		"jest": "30.5.2",
@@ -104,9 +94,7 @@
 		"prettier": "3.9.9",
 		"ratelimit-header-parser": "0.2.1",
 		"supertest": "7.3.1",
-		"ts-jest": "29.4.14",
-		"ts-node": "10.9.2",
-		"typescript": "5.9.3"
+		"typescript": "7.0.2"
 	},
 	"prettier": "@express-rate-limit/prettier",
 	"lint-staged": {
