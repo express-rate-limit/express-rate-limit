@@ -59,7 +59,7 @@ function start_docker {
 
 # -- Main --
 
-# Tests all the variations (JS/TS and CJS/ESM) with the package.
+# Tests all the variations (JS/TS) with the package.
 function run_import_tests {
 	print_info "running import tests"
 
