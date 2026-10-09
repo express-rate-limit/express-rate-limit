@@ -6,30 +6,22 @@ icon: 'book'
 ### Importing the Library
 
 <Note>
-	This library requires [node](https://nodejs.org) version 16 or above.
+	This library requires [node](https://nodejs.org) version 22 or above.
 </Note>
 
-This library is provided in [esm](https://nodejs.org/api/esm.html) as well as
-[cjs](https://nodejs.org/api/modules.html) forms, and works with both Javascript
-and Typescript projects.
+This library is provided as an [es module](https://nodejs.org/api/esm.html), and
+works with both Javascript and Typescript projects.
 
-<CodeGroup>
-
-```ts esm
-// Your code most likely uses the es module format if the `type` field in your
-// `package.json` is set to `module`.
-
+```ts
 import { rateLimit } from 'express-rate-limit'
 ```
 
-```ts commonjs
-// Your code most likely uses the commonjs module format if the `type` field in
-// your `package.json` is absent, or set to `commonjs`.
+[commonjs](https://nodejs.org/api/modules.html) projects running on node version
+22.12 or above can load the es module with `require`:
 
+```ts
 const { rateLimit } = require('express-rate-limit')
 ```
-
-</CodeGroup>
 
 ### Using the Library in Express
 

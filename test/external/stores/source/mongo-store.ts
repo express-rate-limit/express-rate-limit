@@ -2,7 +2,7 @@
 // Test app test app
 
 import createServer from 'express'
-import rateLimit from 'express-rate-limit'
+import { rateLimit } from 'express-rate-limit'
 
 // @ts-expect-error - no type definitions
 import MongoStore from 'rate-limit-mongo'
