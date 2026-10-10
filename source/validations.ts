@@ -309,7 +309,7 @@ const validations = {
 		if (!resetTime) {
 			throw new ValidationError(
 				'ERR_ERL_HEADERS_NO_RESET',
-				`standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`,
+				`standardHeaders:  'draft-7' requires a 'resetTime', but the store did not provide one. The 'timeWindow' or 'windowMs' value will be used instead, which may cause clients to wait longer than necessary.`,
 			)
 		}
 	},
@@ -475,7 +475,7 @@ const validations = {
 		) {
 			throw new ValidationError(
 				'ERR_ERL_WINDOW_MS',
-				`Invalid windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be a number between 1 and ${SET_TIMEOUT_MAX} when using the default MemoryStore. This also applies to a timeWindow that resolves to a value outside that range`,
+				`Invalid timeWindow or windowMs value: ${windowMs}${typeof windowMs !== 'number' ? ` (${typeof windowMs})` : ''}, must be between 1 and ${SET_TIMEOUT_MAX} milliseconds when using the default MemoryStore.`,
 			)
 		}
 	},

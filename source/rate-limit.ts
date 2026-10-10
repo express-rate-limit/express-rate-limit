@@ -2,6 +2,7 @@
 // The option parser and rate limiting middleware
 
 import { isIPv6 } from 'node:net'
+import { inspect } from 'node:util'
 import { Temporal } from '@js-temporal/polyfill'
 import createDebugLogger from 'debug'
 import type { NextFunction, Request, RequestHandler, Response } from 'express'
@@ -207,42 +208,37 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	let standardHeaders = notUndefinedOptions.standardHeaders ?? false
 	if (standardHeaders === true) standardHeaders = 'draft-6'
 
-	let windowMs = null
-	if (notUndefinedOptions.timeWindow !== undefined) {
-		// Accepts a `Temporal.Duration`, a plain object of duration fields, or an
-		// ISO 8601 duration string - see the `timeWindow` option's docs.
-		let timeWindowMs: number
+	if (
+		notUndefinedOptions.timeWindow !== undefined &&
+		notUndefinedOptions.windowMs !== undefined
+	) {
+		throw new Error(
+			`Express-rate-limit: Set either timeWindow or windowMs, but not both. (timeWindow=${inspect(notUndefinedOptions.timeWindow)}, windowMs=${inspect(notUndefinedOptions.windowMs)})`,
+		)
+	}
+
+	let windowMs: number
+	if (notUndefinedOptions.windowMs !== undefined) {
+		windowMs = notUndefinedOptions.windowMs
+	} else {
 		try {
-			timeWindowMs = Temporal.Duration.from(
-				notUndefinedOptions.timeWindow,
+			windowMs = Temporal.Duration.from(
+				notUndefinedOptions.timeWindow ?? { minutes: 1 },
 			).total({
 				unit: 'milliseconds',
-				relativeTo: Temporal.Now.plainDateISO(),
+				relativeTo: Temporal.Now.plainDateISO(), // make calendar units relative to right now, it can throw without this
 			})
 		} catch (error) {
 			throw new TypeError(
 				`Invalid value provided for timeWindow: ${error instanceof Error ? error.message : String(error)}`,
 			)
 		}
-
-		if (
-			typeof notUndefinedOptions.windowMs === 'number' &&
-			notUndefinedOptions.windowMs !== timeWindowMs
-		) {
-			throw new Error(
-				`Mismatch between windowMs and timeWindow.total("milliseconds"): ${notUndefinedOptions.windowMs} != ${timeWindowMs} - if both are set, they must be the exact same length`,
-			)
-		}
-
-		windowMs = timeWindowMs
-	} else {
-		windowMs = notUndefinedOptions.windowMs ?? 60 * 1000
 	}
 
 	// See ./types.ts#Options for a detailed description of the options and their
 	// defaults.
 	const config: Configuration = {
-		windowMs,
+		windowMs, // using windowMs instead of timeWindow internally, because most stores depend on it
 		limit: passedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,

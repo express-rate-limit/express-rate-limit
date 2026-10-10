@@ -120,7 +120,7 @@ describe('options test', () => {
 		})
 	})
 
-	it('should not allow an invalid logger implemenation to be provided', async () => {
+	it('should not allow an invalid logger implementation to be provided', async () => {
 		expect(() => {
 			rateLimit({
 				// @ts-expect-error Check if the library can detect invalid stores without TSC's help
@@ -178,21 +178,24 @@ describe('options test', () => {
 			}).toThrow(/timeWindow/)
 		})
 
-		it('should allow `windowMs` to be set alongside a matching `timeWindow`', () => {
-			const store = new MockStore()
-			rateLimit({ store, timeWindow: { minutes: 5 }, windowMs: 5 * 60 * 1000 })
-
-			expect(store.options.windowMs).toEqual(5 * 60 * 1000)
-		})
-
-		it('should throw if `windowMs` and `timeWindow` disagree', () => {
+		it('should throw if both `windowMs` and `timeWindow` are set', () => {
 			expect(() => {
 				rateLimit({
 					store: new MockStore(),
 					timeWindow: { minutes: 5 },
 					windowMs: 60 * 1000,
 				})
-			}).toThrow(/Mismatch between windowMs and timeWindow/)
+			}).toThrow(/Set either timeWindow or windowMs, but not both/)
+		})
+
+		it('should throw if both `windowMs` and `timeWindow` are set, even if they match', () => {
+			expect(() => {
+				rateLimit({
+					store: new MockStore(),
+					timeWindow: { minutes: 5 },
+					windowMs: 5 * 60 * 1000,
+				})
+			}).toThrow(/Set either timeWindow or windowMs, but not both/)
 		})
 	})
 })
