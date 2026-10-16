@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import express from 'express'
 import supertest from 'supertest'
 import { ipKeyGenerator, MemoryStore } from '../../source/index.js'
-import type { Logger, Options, Store } from '../../source/types'
+import type { Logger, Options, Store } from '../../source/types.js'
 import { getValidations, type Validations } from '../../source/validations.js'
 
 describe('validations tests', () => {

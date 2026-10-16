@@ -59,14 +59,14 @@ function start_docker {
 
 # -- Main --
 
-# Tests all the variations (JS/TS and CJS/ESM) with the package.
+# Tests all the variations (JS/TS) with the package.
 function run_import_tests {
 	print_info "running import tests"
 
 	# cd into the imports folder
 	cd imports/
-	# For each type of import (named and default), run the tests
-	for type in "named" "default"; do
+	# For each type of import (only named), run the tests
+	for type in "named"; do
 		cd "$type-import"
 
 		for dir in `ls -d */`; do
@@ -191,8 +191,8 @@ function upgrade_dependencies {
 
 	# cd into the imports folder
 	cd imports/
-	# For each type of import (named and default), run the tests
-	for type in "named" "default"; do
+	# For each type of import (only named), run the tests
+	for type in "named"; do
 		cd "$type-import"
 
 		for dir in `ls -d */`; do

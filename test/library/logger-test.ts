@@ -1,5 +1,12 @@
-import { afterEach, beforeEach, expect } from '@jest/globals'
-import { ConsoleLogger } from '../../source/console-logger'
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	jest,
+} from '@jest/globals'
+import { ConsoleLogger } from '../../source/console-logger.js'
 
 describe('ConsoleLogger', () => {
 	beforeEach(() => {
