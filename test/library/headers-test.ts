@@ -2,6 +2,7 @@
 // Tests whether the headers sent back by the middleware
 
 import { describe, expect, it, jest } from '@jest/globals'
+import { Temporal } from '@js-temporal/polyfill'
 import type { Response } from 'express'
 import { parseRateLimit } from 'ratelimit-header-parser'
 import { agent as request } from 'supertest'
@@ -199,6 +200,58 @@ describe('headers test', () => {
 
 		await request(app).get('/').expect(200)
 		await request(app).get('/').expect(429).expect('retry-after', '600')
+	})
+
+	it('should use the `retryAfter` option as the `retry-after` header value when set to a `Temporal.Duration`', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: Temporal.Duration.from({ minutes: 10 }),
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '600')
+	})
+
+	it('should use the `retryAfter` option as the `retry-after` header value when set to a plain object', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: { minutes: 10 },
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '600')
+	})
+
+	it('should use the `retryAfter` option as the `retry-after` header value when set to an ISO 8601 duration string', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: 'PT10M',
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '600')
+	})
+
+	it('should use a plain object returned by a `retryAfter` function', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: async (_request, _response) => ({ seconds: 90 }),
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '90')
 	})
 
 	it('should not set the `retry-after` header if all headers have been disabled', async () => {
