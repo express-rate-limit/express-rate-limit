@@ -9,6 +9,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Breaking
+
+- Dropped the CommonJS build. The package now ships only ES modules. CommonJS
+  projects running on Node 22.12 or above can still load it with
+  `const { rateLimit } = require('express-rate-limit')`.
+- Removed the default export. Use the named export instead:
+  `import { rateLimit } from 'express-rate-limit'`. Both
+  `import rateLimit from 'express-rate-limit'` and
+  `const rateLimit = require('express-rate-limit')` no longer return the
+  middleware function.
+- Dropped support for Node 20 and below. The package now requires Node 22 or
+  above.
+
+### Changed
+
+- Bumped TypeScript from v5 to v7.
+- The package is now built with `tsc` instead of `esbuild` and
+  `dts-bundle-generator`. The `dist/` folder contains one `.js` and one `.d.ts`
+  file per source file instead of a single bundle.
+
 ## [8.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.7.1)
 
 ### Fixed

@@ -15,12 +15,13 @@ import {
 } from '@jest/globals'
 import type { NextFunction, Request, Response } from 'express'
 import { agent as request } from 'supertest'
-import rateLimit, {
+import {
 	type ClientRateLimitInfo,
 	type IncrementCallback,
 	type LegacyStore,
 	type Logger,
 	type Options,
+	rateLimit,
 	type Store,
 } from '../../source/index.js'
 import { createServer } from './helpers/create-server.js'

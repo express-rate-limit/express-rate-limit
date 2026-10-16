@@ -67,8 +67,8 @@ Once you have created a branch, you can start coding!
 </Step>
 <Step title="Writing code">
 
-The library is written in `typescript` and supports `node` versions 16, 18
-and 20. The code is arranged as follows:
+The library is written in `typescript` and supports `node` versions 22 and
+above. The code is arranged as follows:
 
 <Accordion title="Code Structure">
 
@@ -95,14 +95,16 @@ express-rate-limit/
 │  │  └── run-all-tests # runs all the external and store tests
 │  └── library
 │     ├── helpers
-│     │  └── create-server.ts # creates a test express server
+│     │  ├── create-server.ts # creates a test express server
+│     │  └── strip-types.js # removes type annotations so jest can run the tests
 │     └── *-test.ts # tests for each file in the `source/` folder
 ├── license.md # license info
 ├── pnpm-lock.yml # pnpm lock file, do not modify manually
 ├── package.json # node package info
 ├── readme.md # project info
 ├── jest.config.json # test runner config
-└── tsconfig.json # typescript config
+├── tsconfig.json # typescript config, used to type check the code
+├── tsconfig.build.json # typescript config, used to build the library
 └── ... # misclaneous other configuration files
 ```
 
