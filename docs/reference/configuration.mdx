@@ -481,8 +481,8 @@ const limiter = rateLimit({
 > `boolean`
 
 If `true`, the library will (by default) skip all requests that are considered
-'failed' by the `requestWasSuccessful` function. By default, this means requests
-succeed when the response status code less than `400`.
+'successful' by the `requestWasSuccessful` function. By default, this means
+requests succeed when the response status code is less than `400`.
 
 <Note>
 
