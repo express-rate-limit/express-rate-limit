@@ -1,0 +1,6 @@
+/* Legacy hyphenated anchor targets on the Error Codes page. */
+span[id^='err-erl-'],
+span[id^='wrn-erl-'] {
+	display: block;
+	scroll-margin-top: 5rem; /* approximate height of the sticky header + a little extra */
+}

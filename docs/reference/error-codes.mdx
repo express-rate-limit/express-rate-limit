@@ -20,6 +20,8 @@ The ability to disable individual checks was added in version `7.0.0`.
 
 ## Errors
 
+<span id="err-erl-undefined-ip-address" />
+
 ### `ERR_ERL_UNDEFINED_IP_ADDRESS`
 
 > Added in `6.8.0`.
@@ -35,6 +37,8 @@ is being used, which is not a supported use-case.
 This check will be prevented if a custom `keyGenerator` is supplied.
 
 Set `validate: {ip: false}` in the options to disable the check.
+
+<span id="err-erl-invalid-ip-address" />
 
 ### `ERR_ERL_INVALID_IP_ADDRESS`
 
@@ -56,6 +60,8 @@ This check will be prevented if a custom `keyGenerator` is supplied.
 
 Set `validate: {ip: false}` in the options to disable the check.
 
+<span id="err-erl-permissive-trust-proxy" />
+
 ### `ERR_ERL_PERMISSIVE_TRUST_PROXY`
 
 > Added in `6.8.0`.
@@ -73,6 +79,8 @@ guide to set the `trust proxy` value correctly.
 This check will be prevented if a custom `keyGenerator` is supplied.
 
 Set `validate: {trustProxy: false}` in the options to disable the check.
+
+<span id="err-erl-unexpected-x-forwarded-for" />
 
 ### `ERR_ERL_UNEXPECTED_X_FORWARDED_FOR`
 
@@ -93,6 +101,8 @@ This check will be prevented if a custom `keyGenerator` is supplied.
 
 Set `validate: {xForwardedForHeader: false}` in the options to disable the
 check.
+
+<span id="err-erl-forwarded-header" />
 
 ### `ERR_ERL_FORWARDED_HEADER`
 
@@ -158,6 +168,8 @@ this error will be automatically suppressed.
 
 Set `validate: {forwardedHeader: false}` in the options to disable the check.
 
+<span id="err-erl-invalid-hits" />
+
 ### `ERR_ERL_INVALID_HITS`
 
 > Added in `6.10.0`.
@@ -171,6 +183,8 @@ error.
 
 Set `validate: {positiveHits: false}` in the options to disable the check.
 
+<span id="err-erl-store-reuse" />
+
 ### `ERR_ERL_STORE_REUSE`
 
 > Added in `7.3.0`.
@@ -183,6 +197,8 @@ Instead, create a new store instance for each rate limiter. (Generally with a
 unique `prefix` value for each one.)
 
 Set `validate: {unsharedStore: false}` in the options to disable the check.
+
+<span id="err-erl-double-count" />
 
 ### `ERR_ERL_DOUBLE_COUNT`
 
@@ -220,6 +236,8 @@ prefixes.
 
 Set `validate: {singleCount: false}` in the options to disable the check.
 
+<span id="err-erl-headers-unsupported-draft-version" />
+
 ### `ERR_ERL_HEADERS_UNSUPPORTED_DRAFT_VERSION`
 
 > Added in `7.5.0`
@@ -232,6 +250,8 @@ and
 drafts of the IETF RateLimit headers specification. If draft version other than
 `draft-6`, `draft-7`, or `draft-8` is passed to the `standardHeaders` option,
 this error is raised.
+
+<span id="err-erl-headers-no-reset" />
 
 ### `ERR_ERL_HEADERS_NO_RESET`
 
@@ -251,6 +271,8 @@ To resolve this, either change to a different headers version, such as
 
 Set `validate: {headersResetTime: false}` in the options to disable the check.
 
+<span id="err-erl-unknown-option" />
+
 ### `ERR_ERL_UNKNOWN_OPTION`
 
 > Added in `8.2.0`
@@ -265,6 +287,8 @@ See [Configuration](/reference/configuration) for the complete list of valid
 configuration options.
 
 Set `validate: {knownOptions: false}` in the options to disable the check.
+
+<span id="err-erl-unknown-validation" />
 
 ### `ERR_ERL_UNKNOWN_VALIDATION`
 
@@ -295,6 +319,8 @@ const limiter = rateLimit({
 ```
 
 Set `validate: {validationsConfig: false}` in the options to disable the check.
+
+<span id="err-erl-created-in-request-handler" />
 
 ### `ERR_ERL_CREATED_IN_REQUEST_HANDLER`
 
@@ -367,6 +393,8 @@ work the store may require.
 
 Set `validate: {creationStack: false}` in the options to disable the check.
 
+<span id="err-erl-ipv6-subnet" />
+
 ### `ERR_ERL_IPV6_SUBNET`
 
 > Added in `8.0.0`.
@@ -383,6 +411,8 @@ it. Disable this check if you are confident that larger or smaller subnets are
 correct for your use-case.
 
 Set `validate: {ipv6Subnet: false}` in the options to disable the check.
+
+<span id="err-erl-ipv6subnet-or-keygenerator" />
 
 ### `ERR_ERL_IPV6SUBNET_OR_KEYGENERATOR`
 
@@ -413,6 +443,8 @@ const limiter = rateLimit({
 
 Set `validate: {ipv6SubnetOrKeyGenerator: false}` in the options to disable the
 check.
+
+<span id="err-erl-key-gen-ipv6" />
 
 ### `ERR_ERL_KEY_GEN_IPV6`
 
@@ -452,6 +484,8 @@ account.
 Set `validate: {keyGeneratorIpFallback: false}` in the options to disable the
 check.
 
+<span id="err-erl-window-ms" />
+
 ### `ERR_ERL_WINDOW_MS`
 
 > Added in `8.1.0`
@@ -467,6 +501,8 @@ Longer values can be used with most external [stores](/reference/stores).
 Set `validate: {windowMs: false}` in the options to disable the check.
 
 ## Warnings
+
+<span id="wrn-erl-max-zero" />
 
 ### `WRN_ERL_MAX_ZERO`
 
@@ -484,6 +520,8 @@ the [skip](https://github.com/express-rate-limit/express-rate-limit#skip)
 function instead.
 
 Set `validate: {limit: false}` in the options to disable the check.
+
+<span id="wrn-erl-deprecated-on-limit-reached" />
 
 ### `WRN_ERL_DEPRECATED_ON_LIMIT_REACHED`
 
@@ -508,6 +546,8 @@ const limiter = rateLimit({
 ([Alternatives for `express-slow-down` users](https://github.com/express-rate-limit/express-slow-down/issues/45#issuecomment-1813098848))
 
 Set `validate: {onLimitReached: false}` in the options to disable the check.
+
+<span id="wrn-erl-deprecated-draft-polli-headers" />
 
 ### `WRN_ERL_DEPRECATED_DRAFT_POLLI_HEADERS`
 
