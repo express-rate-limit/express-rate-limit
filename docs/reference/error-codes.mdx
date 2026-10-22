@@ -108,7 +108,9 @@ check.
 
 > Added in `8.1.0`.
 
-This error is logged when the `Forwarded` header ([RFC 7239](https://tools.ietf.org/html/rfc7239)) is set (indicating use of a proxy) and the default [`keyGenerator`][`keyGenerator`] is used.
+This error is logged when the `Forwarded` header
+([RFC 7239](https://tools.ietf.org/html/rfc7239)) is set (indicating use of a
+proxy) and the default [`keyGenerator`] is used.
 
 As of express@5.1.0, express's `trust proxy` setting does not support the
 `Forwarded` header, only `X-Forwarded-For`, and express-rate-limit relies on
@@ -119,7 +121,9 @@ the default configuration.
 [open ticket requesting support be added to the proxy-addr library](https://github.com/jshttp/proxy-addr/issues/20)
 that express uses to determine IP address.)
 
-To use this header, add a custom [keyGenerator][keyGenerator] that parses it and returns the correct IP. For example, using the [forwarded-parse](https://www.npmjs.com/package/forwarded-parse) library:
+To use this header, add a custom [keyGenerator] that parses it and returns the
+correct IP. For example, using the
+[forwarded-parse](https://www.npmjs.com/package/forwarded-parse) library:
 
 ```js
 import parseForwarded from 'forwarded-parse'
