@@ -241,6 +241,19 @@ describe('headers test', () => {
 		await request(app).get('/').expect(429).expect('retry-after', '600')
 	})
 
+	it('should resolve weeks in a `retryAfter` ISO 8601 duration string', async () => {
+		const app = createServer(
+			rateLimit({
+				windowMs: 60 * 1000,
+				limit: 1,
+				retryAfter: 'P1W',
+			}),
+		)
+
+		await request(app).get('/').expect(200)
+		await request(app).get('/').expect(429).expect('retry-after', '604800')
+	})
+
 	it('should use a plain object returned by a `retryAfter` function', async () => {
 		const app = createServer(
 			rateLimit({

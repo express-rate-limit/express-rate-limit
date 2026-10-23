@@ -647,7 +647,10 @@ const rateLimit = (
 					} else if (maybeDuration !== undefined) {
 						// Accepts a `Temporal.Duration`, a plain object of duration
 						// fields, or an ISO 8601 duration string.
-						retryAfter = Temporal.Duration.from(maybeDuration).total('seconds')
+						retryAfter = Temporal.Duration.from(maybeDuration).total({
+							unit: 'seconds',
+							relativeTo: Temporal.Now.plainDateISO(), // calendar units need this
+						})
 					}
 					setRetryAfterHeader(response, info, config.windowMs, retryAfter)
 				}

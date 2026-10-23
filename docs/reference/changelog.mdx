@@ -31,6 +31,13 @@ and this project adheres to
   `dts-bundle-generator`. The `dist/` folder contains one `.js` and one `.d.ts`
   file per source file instead of a single bundle.
 
+### Added
+
+- `timeWindow` option, which accepts anything `Temporal.Duration.from()` accepts
+  (a `Temporal.Duration`, a duration-like object, or an ISO 8601 string), as an
+  alternative to `windowMs`.
+- `retryAfter` now also accepts Temporal durations.
+
 ## [8.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.7.1)
 
 ### Fixed

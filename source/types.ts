@@ -264,12 +264,14 @@ export type Options = {
 	 * Accepts anything `Temporal.Duration.from()` accepts - either a
 	 * `Temporal.Duration`, a plain object of duration fields such as
 	 * `{ hours: 3 }`, or an ISO 8601 duration string such as `'PT3H'`.
+	 *
+	 * Defaults to `{ minutes: 1 }`.
 	 */
 	timeWindow?: Temporal.DurationLike
 
 	/**
 	 * Alternate to timeWindow, pass in a number of milliseconds instead of a
-	 * duration. If both are set, they must describe the same length of time.
+	 * duration. Set `timeWindow` or `windowMs`, but not both.
 	 */
 	windowMs: number
 
