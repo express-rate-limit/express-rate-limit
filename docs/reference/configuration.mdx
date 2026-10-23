@@ -9,15 +9,62 @@ Any option that may be set to a function may also be set to an async function,
 or to a function that returns a promise. Async functions and promises will be
 awaited for the value.
 
-## `windowMs`
+## `timeWindow`
 
-> `number`
+> `DurationLike`
+>
+> Added in v9.0.0.
 
 Time frame for which requests are checked/remembered. The time window for each
 user starts at their first request. After it elapses, the user's hit count is
 reset to zero. A new time window is then started on their next request.
 
-Also used in the `Retry-After` header when the limit is reached.
+<Info>
+
+`timeWindow` and [`windowMs`](#windowms) both map to the same internal setting.
+Set one or the other, but not both. We recommend `timeWindow` due to its easier
+legibility.
+
+</Info>
+
+Also used for the default value of the `Retry-After` header when the limit is
+exceeded.
+
+Accepts anything
+[`Temporal.Duration.from()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration/from)
+accepts:
+
+- a plain object of duration fields, e.g. `{ hours: 3 }` or
+  `{ minutes: 1, seconds: 30 }`
+- an ISO 8601 duration string, e.g. `'PT3H'` or `'PT1M30S'`
+- a `Temporal.Duration`, e.g. `Temporal.Duration.from({ hours: 3 })`
+
+```ts
+import { rateLimit } from 'express-rate-limit'
+
+const limiter = rateLimit({
+	timeWindow: { hours: 1, minutes: 30 },
+	// ...
+})
+```
+
+Calendar units are resolved relative to the current date, so a `{ months: 1 }`
+window can be anywhere from 28 to 31 days, depending on when the
+express-rate-limit instance was created.
+
+<Warning>
+
+Maximum value with the default MemoryStore is approximately `{ days: 24 }` due
+to
+[limitations of the `setInterval()` call in node.js](https://nodejs.org/api/timers.html#setintervalcallback-delay-args).
+(Also, all rate limits in the default MemoryStore are reset when the node.js
+process is restarted.) Most other [stores] support larger values and retain
+their state when node.js is reset.
+
+</Warning>
+
+Fractional values in duration objects (e.g. `{ seconds: 0.5 }`) are not
+supported, though ISO 8601 strings may include fractional seconds.
 
 This value **cannot** be set to a function. If multiple time windows are needed,
 create multiple rate limiters.
@@ -26,19 +73,30 @@ create multiple rate limiters.
 
 For stores that do not implement the `init` function (including all legacy
 stores - see the [data stores page][stores]), you may need to configure this
-value twice, once here and once on the store. In some cases the units also
-differ (e.g. seconds vs milliseconds).
+value twice, once here and once on the store. Note that the units also differ.
 
 </Note>
 
-Maximum value with the default MemoryStore is `2147483647` (2^31-1, ~28.4 days)
+Defaults to `{ minutes: 1 }`.
+
+## `windowMs`
+
+> `number`
+
+This is an alternative to [`timeWindow`](#timewindow) that is a number of
+milliseconds instead of a Duration object. See [`timeWindow`](#timewindow) for
+usage details.
+
+This setting is maintained for backwards compatibility, but we recommend setting
+`timeWindow` instead of `windowMs` because of its easier legibility.
+
+<Warning>
+
+Maximum value with the default MemoryStore is `2147483647` (2^31-1, ~24.8 days)
 due to
 [limitations of the `setInterval()` call in node.js](https://nodejs.org/api/timers.html#setintervalcallback-delay-args).
-(Also, all rate limits in the default MemoryStore are reset when the node.js
-process is restarted.) Most other [stores] support larger values and retain
-their state when node.js is reset.
 
-Defaults to `60000` ms (= 1 minute).
+</Warning>
 
 ### Time constants
 
@@ -225,15 +283,15 @@ If set to `draft-7`, a combined `RateLimit` header is set containing limit,
 remaining, and reset values, and a `RateLimit-Policy` header is set, in
 accordance with the
 [seventh draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-07)
-of the IETF rate limit header specification. `windowMs` is used for the reset
+of the IETF rate limit header specification. `timeWindow` is used for the reset
 value if the store does not provide a reset time.
 
 If set to `draft-8`, a combined `RateLimit` header is set containing the
 remaining and reset values, along with a `RateLimit-Policy` header, is set for
 each rate limiter defined, in accordance with the
 [eighth draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-08)
-of the IETF rate limit header specification. The value of `windowMs` is used for
-the reset parameter if the store does not provide a reset time.
+of the IETF rate limit header specification. The value of `timeWindow` is used
+for the reset parameter if the store does not provide a reset time.
 
 Note that the
 [ninth draft](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers-09)
@@ -283,19 +341,26 @@ Defaults to a function that returns a string of the format
 
 ## `retryAfter`
 
-> `number | function`
+> `number | DurationLike | function`
+>
+> Added in v8.7.0; DurationLike support added in v9.0.0
 
 Custom value (in seconds) for the `Retry-After` header sent when a client is
 rate limited.
 
-Can be the value itself as a number or a (sync/async) function that accepts the
+Can be the value itself as a number, or a (sync/async) function that accepts the
 Express `req` and `res` objects and then returns a number.
+
+It can also be set to a [Temporal duration][temporal-duration] - either a
+`Temporal.Duration`, a plain object of duration fields, or an ISO 8601 duration
+string. Durations are converted to seconds for the header. The same applies to
+values returned from a function.
 
 <Note>
 
 This is advisory only. It changes what the `Retry-After` header says, it does
 not change how long the limiter actually keeps blocking the client for. That is
-still controlled by [`windowMs`](#windowms).
+still controlled by [`timeWindow`](#timewindow).
 
 </Note>
 
@@ -309,6 +374,15 @@ const limiter = rateLimit({
 		// regardless of how the window is configured.
 		return 10 * 60 // seconds, unlike windowMs
 	},
+})
+```
+
+Or, using a duration:
+
+```ts
+const limiter = rateLimit({
+	// ...
+	retryAfter: { minutes: 10 },
 })
 ```
 
@@ -584,6 +658,7 @@ Supported validations are:
 Defaults to `true`.
 
 [stores]: /reference/stores
+[temporal-duration]: https://tc39.es/proposal-temporal/#duration-objects
 
 ## `logger`
 
