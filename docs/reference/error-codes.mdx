@@ -243,8 +243,8 @@ of the IETF RateLimit headers specification makes `reset` a required field.
 However, the legacy `Store` API did not have a way for stores to provide this
 information.
 
-The library attempts to account for this by using the `windowMs` time, which has
-a default value of 60 seconds if not explicitly set.
+The library attempts to account for this by using the `timeWindow` time, which
+has a default value of 60 seconds if not explicitly set.
 
 To resolve this, either change to a different headers version, such as
 `draft-6`, or a different [store](/reference/stores).
@@ -458,9 +458,9 @@ check.
 
 Node.js (as of version 24.6.0)
 [limits `setInterval()` delays to the max 32-bit signed integer value of `2147483647` milliseconds](https://nodejs.org/api/timers.html#setintervalcallback-delay-args),
-which is about 28.4 days. Accordingly, express-rate-limit checks the `windowMs`
-value before using it in the default MemoryStore and warns when it's out of
-range.
+which is about 24.8 days. Accordingly, express-rate-limit checks the
+`timeWindow` or `windowMs` value before using it in the default MemoryStore and
+warns when it's out of range.
 
 Longer values can be used with most external [stores](/reference/stores).
 
