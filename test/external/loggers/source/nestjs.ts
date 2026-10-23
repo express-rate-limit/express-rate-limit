@@ -1,6 +1,6 @@
 import { ConsoleLogger, Controller, Get, Logger, Module } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
-import rateLimit, { MemoryStore } from 'express-rate-limit'
+import { MemoryStore, rateLimit } from 'express-rate-limit'
 
 @Controller()
 export class AppController {
