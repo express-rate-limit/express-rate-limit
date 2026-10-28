@@ -430,7 +430,14 @@ const rateLimit = (
 			try {
 				const incrementResult = await config.store.increment(key)
 				totalHits = incrementResult.totalHits
-				resetTime = incrementResult.resetTime
+				if (
+					incrementResult.resetTime &&
+					(config.skipFailedRequests || config.skipSuccessfulRequests)
+				) {
+					resetTime = new Date(incrementResult.resetTime.getTime())
+				} else {
+					resetTime = incrementResult.resetTime
+				}
 			} catch (error) {
 				if (config.passOnStoreError) {
 					config.logger.error(

@@ -171,7 +171,7 @@ export class MemoryStore implements Store {
 	 */
 	private resetClient(client: Client, now = Date.now()): Client {
 		client.totalHits = 0
-		client.resetTime.setTime(now + this.windowMs)
+		client.resetTime = new Date(now + this.windowMs)
 
 		return client
 	}
