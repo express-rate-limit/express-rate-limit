@@ -20,6 +20,7 @@ import rateLimit, {
 	type IncrementCallback,
 	type LegacyStore,
 	type Logger,
+	MemoryStore,
 	type Options,
 	type Store,
 } from '../../source/index.js'
@@ -610,6 +611,61 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(200)
 
 		expect(store.decrementWasCalled).toEqual(false)
+	})
+
+	it('should not decrement hits when request finishes after window reset with real MemoryStore and skipFailedRequests', async () => {
+		// Real timers are required here because supertest's HTTP layer uses
+		// its own timers that are not affected by jest.useFakeTimers().
+		// With fake timers, requests hang indefinitely.
+		jest.useRealTimers()
+		// window 2 must still be active when request A finishes, so:
+		// 2*windowMs + buffer > requestDuration
+		const windowMs = 100
+		const requestDurationMs = 200
+		const store = new MemoryStore()
+		// Extra buffer beyond windowMs to ensure the window has definitely reset
+		// before request B arrives (real timers are imprecise).
+		const windowBufferMs = 50
+
+		const app = createServer(
+			rateLimit({
+				skipFailedRequests: true,
+				windowMs,
+				limit: 1,
+				store,
+			}),
+		)
+
+		app.get('/slow-fail', (_request, response) => {
+			setTimeout(() => {
+				response.status(500).end('failed')
+			}, requestDurationMs)
+		})
+		app.get('/fast', (_request, response) => {
+			response.status(200).end('ok')
+		})
+
+		// Request A starts in window 1
+		const pA = request(app)
+			.get('/slow-fail')
+			.catch(() => {})
+
+		// Move past window 1, but before A finishes
+		await new Promise((r) => setTimeout(r, windowMs + windowBufferMs))
+
+		// Request B comes in after window 1 reset - starts window 2
+		await request(app).get('/fast').expect(200)
+
+		// Wait for A to finish (it will try to decrement, but should be skipped
+		// because the copied resetTime from window 1 has already passed)
+		await pA
+
+		// Request C arrives within window 2 - should be rate limited
+		// because B already used the single slot and A's decrement was skipped.
+		await request(app).get('/fast').expect(429)
+
+		store.shutdown()
+		jest.useFakeTimers()
 	})
 
 	it.each([
