@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.7.2](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.7.2)
+
+### Security
+
+- Fixed an issue with `skipFailedRequests` or `skipSuccessfulRequests` and the
+  default `MemoryStore`, where a request from an earlier window could be
+  un-counted in the current window, allowing up to 2x max requests through a
+  single window.
+  ([#707](https://github.com/express-rate-limit/express-rate-limit/pull/707) /
+  [GHSA-j3cq-92fq-qg5f](https://github.com/express-rate-limit/express-rate-limit/security/advisories/GHSA-j3cq-92fq-qg5f))
+
 ## [8.7.1](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.7.1)
 
 ### Fixed
