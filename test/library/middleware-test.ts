@@ -20,6 +20,7 @@ import rateLimit, {
 	type IncrementCallback,
 	type LegacyStore,
 	type Logger,
+	MemoryStore,
 	type Options,
 	type Store,
 } from '../../source/index.js'
@@ -617,7 +618,6 @@ describe('middleware test', () => {
 		// its own timers that are not affected by jest.useFakeTimers().
 		// With fake timers, requests hang indefinitely.
 		jest.useRealTimers()
-		const { MemoryStore } = await import('../../source/memory-store.js')
 		// window 2 must still be active when request A finishes, so:
 		// 2*windowMs + buffer > requestDuration
 		const windowMs = 100
