@@ -407,6 +407,60 @@ describe('middleware test', () => {
 		await request(app).get('/').expect(420, 'Enhance your calm')
 	})
 
+	it.each([
+		[
+			'async handler',
+			(error: Error): Partial<Options> => ({
+				async handler() {
+					await Promise.resolve()
+					throw error
+				},
+			}),
+		],
+		[
+			'synchronous message',
+			(error: Error): Partial<Options> => ({
+				message() {
+					throw error
+				},
+			}),
+		],
+		[
+			'async message',
+			(error: Error): Partial<Options> => ({
+				async message() {
+					await Promise.resolve()
+					throw error
+				},
+			}),
+		],
+	])('should forward errors from %s using `next()`', async (_name, getOptions) => {
+		jest.useRealTimers()
+		const error = new Error('Could not build the rate limit response')
+		const app = createServer(rateLimit({ limit: 1, ...getOptions(error) }))
+		const errorHandler = jest.fn(
+			(
+				error: Error,
+				_request: Request,
+				response: Response,
+				_next: NextFunction,
+			) => {
+				response.status(500).send(error.message)
+			},
+		)
+		app.use(errorHandler)
+
+		await request(app).get('/').expect(200)
+		expect(errorHandler).not.toHaveBeenCalled()
+
+		await request(app)
+			.get('/')
+			.timeout({ response: 1000 })
+			.expect(500, error.message)
+		expect(errorHandler).toHaveBeenCalledTimes(1)
+		expect(errorHandler.mock.calls[0][0]).toBe(error)
+	})
+
 	it('should allow custom key generators', async () => {
 		const app = createServer(
 			rateLimit({

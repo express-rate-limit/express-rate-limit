@@ -173,6 +173,10 @@ RFC 6585.
 Express request handler that sends back a response when a client is
 rate-limited.
 
+The handler may be async. Thrown errors and rejected promises, including errors
+from a `message` callback in the default handler, are forwarded to Express error
+middleware.
+
 By default, sends back the `statusCode` and `message` set via the `options`,
 similar to this:
 

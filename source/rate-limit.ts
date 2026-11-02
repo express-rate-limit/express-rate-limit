@@ -618,7 +618,7 @@ const rateLimit = (
 					setRetryAfterHeader(response, info, config.windowMs, retryAfter)
 				}
 
-				config.handler(request, response, next, options)
+				await config.handler(request, response, next, options)
 				return
 			}
 
