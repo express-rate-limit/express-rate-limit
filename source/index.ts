@@ -12,8 +12,5 @@ export { MemoryStore } from './memory-store.js'
 // the default export does not work (see https://github.com/nfriedly/express-rate-limit/issues/280)
 export { default, default as rateLimit } from './rate-limit.js'
 
-// DAY, HOUR, MINUTE, & SECOND constants for more readable windowMS configurations
-export * from './time-constants.js'
-
 // Export all the types as named exports
 export * from './types.js'
