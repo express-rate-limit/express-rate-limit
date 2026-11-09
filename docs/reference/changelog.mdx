@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Catch and log store errors and callback rejections during request decrementing
+  in `skipFailedRequests` and `skipSuccessfulRequests` to prevent unhandled
+  promise rejections and process crashes.
+
 ## [8.7.3](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.7.3)
 
 ### Fixed
