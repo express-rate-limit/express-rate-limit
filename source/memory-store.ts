@@ -87,7 +87,13 @@ export class MemoryStore implements Store {
 	 * @public
 	 */
 	async get(key: string): Promise<ClientRateLimitInfo | undefined> {
-		return this.current.get(key) ?? this.previous.get(key)
+		const client = this.current.get(key) ?? this.previous.get(key)
+
+		// A client whose window has ended may still be held in memory until the
+		// next cleanup, but its hit count no longer applies.
+		if (client && client.resetTime.getTime() <= Date.now()) return undefined
+
+		return client
 	}
 
 	/**

@@ -38,6 +38,24 @@ describe('memory store test', () => {
 		})
 	})
 
+	it('does not return a hit count from a window that has already reset', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: minute } as Options)
+		const key = 'test-store'
+
+		// The client's window starts halfway through the cleanup interval, so it
+		// is still held in memory for a while after its reset time has passed.
+		jest.advanceTimersByTime(minute / 2)
+		await store.increment(key)
+		await store.increment(key)
+
+		jest.advanceTimersByTime(minute + 1)
+		expect(await store.get(key)).toBeUndefined()
+
+		const { totalHits } = await store.increment(key)
+		expect(totalHits).toEqual(1)
+	})
+
 	it('sets the value to 1 on first call to `increment`', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: minute } as Options)
