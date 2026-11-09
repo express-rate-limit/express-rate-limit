@@ -1331,5 +1331,69 @@ describe('middleware test', () => {
 				expect.stringContaining('allowing'),
 			)
 		})
+
+		it('should log an error and not crash on unhandled rejection when store.decrement throws during skipFailedRequests', async () => {
+			jest.useRealTimers()
+			const store = {
+				async increment() {
+					return { totalHits: 1, resetTime: new Date(Date.now() + 60000) }
+				},
+				async decrement() {
+					throw new Error('Store decrement failed')
+				},
+				async resetKey() {},
+			}
+
+			const app = createServer(
+				rateLimit({
+					limit: 5,
+					store,
+					logger,
+					skipFailedRequests: true,
+				}),
+			)
+
+			await request(app).get('/error').expect(400)
+			await new Promise((resolve) => setTimeout(resolve, 50))
+
+			expect(logger.error).toHaveBeenCalledTimes(1)
+			expect(logger.error).toHaveBeenCalledWith(
+				expect.any(Error),
+				'express-rate-limit: error from store during decrement.',
+			)
+		})
+
+		it('should log an error and not crash when requestWasSuccessful rejects', async () => {
+			jest.useRealTimers()
+			const store = {
+				async increment() {
+					return { totalHits: 1, resetTime: new Date(Date.now() + 60000) }
+				},
+				decrement: jest.fn(async () => {}),
+				async resetKey() {},
+			}
+
+			const app = createServer(
+				rateLimit({
+					limit: 5,
+					store,
+					logger,
+					skipFailedRequests: true,
+					requestWasSuccessful: async () => {
+						throw new Error('Async request check failed')
+					},
+				}),
+			)
+
+			await request(app).get('/').expect(200)
+			await new Promise((resolve) => setTimeout(resolve, 50))
+
+			expect(logger.error).toHaveBeenCalledTimes(1)
+			expect(logger.error).toHaveBeenCalledWith(
+				expect.any(Error),
+				'express-rate-limit: error in requestWasSuccessful callback.',
+			)
+			expect(store.decrement).not.toHaveBeenCalled()
+		})
 	})
 })
