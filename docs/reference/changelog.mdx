@@ -15,6 +15,9 @@ and this project adheres to
 
 - `getKey()` with the default `MemoryStore` no longer returns the hit count and
   reset time of a window that has already ended.
+- Catch and log store errors and callback rejections during request decrementing
+  in `skipFailedRequests` and `skipSuccessfulRequests` to prevent unhandled
+  promise rejections and process crashes.
 
 ## [8.7.3](https://github.com/express-rate-limit/express-rate-limit/releases/tag/v8.7.3)
 

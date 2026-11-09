@@ -549,34 +549,56 @@ const rateLimit = (
 					// This could have been tested properly if the response.on('error') test
 					// worked as well, leaving it as a todo.
 					if (!decremented) {
+						decremented = true
+
 						// Don't decrement if the reset time has already passed,
 						// as the store will have already reset the count for this key.
 						if (resetTime && Date.now() >= resetTime.getTime()) {
 							return
 						}
 
-						debug('decrementing count')
-						await config.store.decrement(key)
-						decremented = true
+						try {
+							debug('decrementing count')
+							await config.store.decrement(key)
+						} catch (error) {
+							config.logger.error(
+								error,
+								'express-rate-limit: error from store during decrement.',
+							)
+						}
 					}
 				}
 
 				if (config.skipFailedRequests) {
 					if (finishPromise) {
-						void finishPromise.then(async () => {
-							const success = await config.requestWasSuccessful(
-								request,
-								response,
-							)
-							debug('computed requestWasSuccessful as %o', success)
-							if (!success) await decrementKey()
-						})
+						void finishPromise
+							.then(async () => {
+								const success = await config.requestWasSuccessful(
+									request,
+									response,
+								)
+								debug('computed requestWasSuccessful as %o', success)
+								if (!success) await decrementKey()
+							})
+							.catch((error: unknown) => {
+								config.logger.error(
+									error,
+									'express-rate-limit: error in requestWasSuccessful callback.',
+								)
+							})
 					}
 
 					if (closePromise) {
-						void closePromise.then(async () => {
-							if (!response.writableEnded) await decrementKey()
-						})
+						void closePromise
+							.then(async () => {
+								if (!response.writableEnded) await decrementKey()
+							})
+							.catch((error: unknown) => {
+								config.logger.error(
+									error,
+									'express-rate-limit: error handling close event during decrement.',
+								)
+							})
 					}
 
 					// NOTE: this may not be useful. None of the tests can trigger this
@@ -584,22 +606,36 @@ const rateLimit = (
 					// Perhaps it is similar to the case described in this issue comment:
 					// https://github.com/nodejs/node/issues/44884#issuecomment-1270968365
 					if (errorPromise) {
-						void errorPromise.then(async () => {
-							await decrementKey()
-						})
+						void errorPromise
+							.then(async () => {
+								await decrementKey()
+							})
+							.catch((error: unknown) => {
+								config.logger.error(
+									error,
+									'express-rate-limit: error handling error event during decrement.',
+								)
+							})
 					}
 				}
 
 				if (config.skipSuccessfulRequests) {
 					if (finishPromise) {
-						void finishPromise.then(async () => {
-							const success = await config.requestWasSuccessful(
-								request,
-								response,
-							)
-							debug('computed requestWasSuccessful as %o', success)
-							if (success) await decrementKey()
-						})
+						void finishPromise
+							.then(async () => {
+								const success = await config.requestWasSuccessful(
+									request,
+									response,
+								)
+								debug('computed requestWasSuccessful as %o', success)
+								if (success) await decrementKey()
+							})
+							.catch((error: unknown) => {
+								config.logger.error(
+									error,
+									'express-rate-limit: error in requestWasSuccessful callback.',
+								)
+							})
 					}
 				}
 			}
