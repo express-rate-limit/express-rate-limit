@@ -159,7 +159,7 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	const notUndefinedOptions: Partial<Options> =
 		omitUndefinedProperties<Partial<Options>>(passedOptions)
 
-	const logger = passedOptions.logger ?? ConsoleLogger
+	const logger = notUndefinedOptions.logger ?? ConsoleLogger
 
 	// Create the validator before even parsing the rest of the options.
 	const validations = getValidations(
@@ -205,10 +205,10 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 	// defaults.
 	const config: Configuration = {
 		windowMs: 60 * 1000,
-		limit: passedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
+		limit: notUndefinedOptions.max ?? 5, // `max` is deprecated, but support it anyways.
 		message: 'Too many requests, please try again later.',
 		statusCode: 429,
-		legacyHeaders: passedOptions.headers ?? true,
+		legacyHeaders: notUndefinedOptions.headers ?? true,
 		identifier(request: Request, _response: Response): string {
 			let duration = ''
 			const property = config.requestPropertyName

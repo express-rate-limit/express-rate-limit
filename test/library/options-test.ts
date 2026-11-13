@@ -74,6 +74,31 @@ describe('options test', () => {
 		expect(store.options.limit).toEqual(7)
 	})
 
+	it('should ignore options inherited from Object.prototype', async () => {
+		const store = new MockStore()
+		const prototype = Object.prototype as unknown as Record<string, unknown>
+
+		Object.assign(prototype, {
+			max: 1_000_000_000,
+			headers: false,
+			standardHeaders: 'draft-8',
+			logger: { error: 'not-a-function', warn: 'not-a-function' },
+		})
+
+		try {
+			rateLimit({ store, windowMs: 60_000 })
+		} finally {
+			delete prototype.max
+			delete prototype.headers
+			delete prototype.standardHeaders
+			delete prototype.logger
+		}
+
+		expect(store.options.limit).toEqual(5)
+		expect(store.options.legacyHeaders).toEqual(true)
+		expect(store.options.standardHeaders).toEqual(false)
+	})
+
 	it('should not allow the use of an invalid store', async () => {
 		class InvalidStore {
 			invalid = true
