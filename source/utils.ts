@@ -15,9 +15,11 @@
 export const omitUndefinedProperties = <T extends { [key: string]: any }>(
 	passedOptions: T,
 ): T => {
-	// TSC forces the `as T` instead of `const omittedOptions: T = {}`.
+	// Use a null-prototype object so options inherited from Object.prototype
+	// (e.g. via prototype pollution) are never picked up as option values.
+	// TSC forces the `as T` instead of `const omittedOptions: T = Object.create(null)`.
 	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-	const omittedOptions = {} as T
+	const omittedOptions = Object.create(null) as T
 
 	for (const k of Object.keys(passedOptions)) {
 		const key = k as keyof T
