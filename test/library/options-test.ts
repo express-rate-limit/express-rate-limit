@@ -82,6 +82,7 @@ describe('options test', () => {
 			max: 1_000_000_000,
 			headers: false,
 			standardHeaders: 'draft-8',
+			retryAfter: 999_999,
 			logger: { error: 'not-a-function', warn: 'not-a-function' },
 		})
 
@@ -91,12 +92,14 @@ describe('options test', () => {
 			delete prototype.max
 			delete prototype.headers
 			delete prototype.standardHeaders
+			delete prototype.retryAfter
 			delete prototype.logger
 		}
 
 		expect(store.options.limit).toEqual(5)
 		expect(store.options.legacyHeaders).toEqual(true)
 		expect(store.options.standardHeaders).toEqual(false)
+		expect(store.options.retryAfter).toBeUndefined()
 	})
 
 	it('should not allow the use of an invalid store', async () => {

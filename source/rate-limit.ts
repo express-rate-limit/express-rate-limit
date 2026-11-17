@@ -283,6 +283,8 @@ const parseOptions = (passedOptions: Partial<Options>): Configuration => {
 			if (!response.writableEnded) response.send(message)
 		},
 		passOnStoreError: false,
+		// Options without a default would otherwise fall through to Object.prototype.
+		retryAfter: undefined,
 		// Allow the default options to be overridden by the passed options.
 		...notUndefinedOptions,
 		// `standardHeaders` is resolved into a draft version above, use that.
