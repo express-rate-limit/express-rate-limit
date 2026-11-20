@@ -80,7 +80,7 @@ function run_import_tests {
 			pnpm lint
 			pnpm test
 			echo
-			print_success "sucessfully ran $dir variation for $type imports (express 5)"
+			print_success "successfully ran $dir variation for $type imports (express 5)"
 
 			print_info "running $dir variation for $type imports (express 4)\n"
 			# Install Express v4
@@ -91,7 +91,7 @@ function run_import_tests {
 			# Restore the version
 			git restore package.json pnpm-lock.yaml
 			echo
-			print_success "sucessfully ran $dir variation for $type imports (express 4)"
+			print_success "successfully ran $dir variation for $type imports (express 4)"
 
 			# Go back into the next variation
 			cd ../
@@ -204,7 +204,7 @@ function upgrade_dependencies {
 			rm -rf node_modules
 			pnpm upgrade -L
 			echo
-			print_success "sucessfully upgraded dependencies of $type-import/$dir"
+			print_success "successfully upgraded dependencies of $type-import/$dir"
 
 			# Go back into the next variation
 			cd ../
