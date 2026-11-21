@@ -104,6 +104,10 @@
 		{
 			"source": "/errors/wrn_erl_deprecated_draft_polli_headers",
 			"destination": "/reference/error-codes#wrn-erl-deprecated-draft-polli-headers"
+		},
+		{
+			"source": "/errors/wrn_erl_deprecated_default_export",
+			"destination": "/reference/error-codes#wrn-erl-deprecated-default-export"
 		}
 	]
 }
