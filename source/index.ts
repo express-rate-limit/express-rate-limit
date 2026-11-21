@@ -21,8 +21,8 @@ export { rateLimit }
  */
 const deprecatedRateLimit = deprecate(
 	rateLimit,
-	"The default export of express-rate-limit is deprecated and will be removed in the next major version. Use the named export instead: import { rateLimit } from 'express-rate-limit'.",
-	'ERL_DEFAULT_EXPORT',
+	"The default export of express-rate-limit is deprecated and will be removed in the next major version. Use the named export instead: import { rateLimit } from 'express-rate-limit'. See https://express-rate-limit.github.io/WRN_ERL_DEPRECATED_DEFAULT_EXPORT/ for more information.",
+	'WRN_ERL_DEPRECATED_DEFAULT_EXPORT',
 )
 
 // This will be deprecated in the next major version.
