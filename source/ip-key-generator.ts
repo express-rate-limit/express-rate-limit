@@ -5,6 +5,9 @@ import { Address6 } from 'ip-address'
 // IPv4-mapped range is recognized with `isMapped4()`, which needs no comparison
 // subnet.
 const ipv4CompatibleSubnet = new Address6('::/96')
+// The IPv4-translated range from RFC 2765, which RFC 6145 made obsolete. It
+// holds only addresses with an IPv4 address in the low 32 bits.
+const ipv4TranslatedSubnet = new Address6('::ffff:0:0:0/96')
 
 /**
  * Returns the IP address itself for IPv4, or a CIDR-notation subnet for IPv6.
@@ -26,10 +29,11 @@ export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 		const address = new Address6(ip)
 
 		// First, check if the address is IPv4 mapped to IPv6 (e.g., ::ffff:x.y.z.w),
-		// as is common on servers with dual-stack networks (both IPv4 and IPv6). If
-		// this is the case, we extract and return the IPv4 address. Otherwise, the
-		// default subnet value of 56 (or any 32 to 80 subnet) ignores the unique IP
-		// address in the last two octets completely.
+		// as is common on servers with dual-stack networks (both IPv4 and IPv6), or
+		// translated to IPv6 (e.g., ::ffff:0:x.y.z.w), which is an obsoleted method
+		// used by an RFC 2765 translator. If this is the case, we extract and return
+		// the IPv4 address. Otherwise, the default subnet value of 56 (or any 32 to
+		// 80 subnet) ignores the unique IP address in the last two octets completely.
 		//
 		// Whether an address is mapped has to be decided from its bits
 		// (`isMapped4()`) rather than from its notation (`is4()`), because those are
@@ -41,6 +45,11 @@ export function ipKeyGenerator(ip: string, ipv6Subnet: number | false = 56) {
 		// unrelated IPv4 client 1.2.3.4.
 		if (
 			address.isMapped4() ||
+			// The deprecated IPv4-translated notation should also be converted. Note
+			// that we do not check `is4()` here since the translated v4 address can
+			// be converted to hex too: both ::ffff:0:102:304 and ::ffff:0:1.2.3.4 are
+			// translated addresses.
+			address.isInSubnet(ipv4TranslatedSubnet) ||
 			// The deprecated IPv4-compatible notation keeps its existing behavior.
 			// Its range is shared with addresses that embed no IPv4 address at all
 			// (`::`, `::1`), so here the notation is what tells them apart.
