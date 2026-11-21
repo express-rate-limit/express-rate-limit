@@ -460,19 +460,19 @@ Correct this error by wrapping your use of `req.ip` with the
 [`ipKeyGenerator`](./helpers#ipkeygenerator) helper function like so:
 
 ```js
- import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit'
 
- const limiter = rateLimit({
- 	// ...
- 	keyGenerator: (req, res) => {
- 		// use API key (or some other identifier) for authenticated users
- 		if (req.query.apiKey) return req.query.apiKey
+const limiter = rateLimit({
+	// ...
+	keyGenerator: (req, res) => {
+		// use API key (or some other identifier) for authenticated users
+		if (req.query.apiKey) return req.query.apiKey
 
- 		// fallback to IP for unauthenticated users
+		// fallback to IP for unauthenticated users
 		// return req.ip // vulnerable
 		return ipKeyGenerator(req.ip) // better
-	}
- })
+	},
+})
 ```
 
 (See the [example above](#err-erl-ipv6subnet-or-keygenerator) for a custom
@@ -569,7 +569,7 @@ Set `validate: {draftPolliHeaders: false}` in the options to disable the check.
 The default export is deprecated in express-rate-limit and will be removed in
 the next major version. Please use the named import instead.
 
-```
+```ts
 import rateLimit from 'express-rate-limit' // DEPRECATED!
 const rateLimit = require('express-rate-limit') // DEPRECATED!
 
