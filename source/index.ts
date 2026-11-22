@@ -28,8 +28,5 @@ const deprecatedRateLimit = deprecate(
 // This will be deprecated in the next major version.
 export default deprecatedRateLimit
 
-// DAY, HOUR, MINUTE, & SECOND constants for more readable windowMS configurations
-export * from './time-constants.js'
-
 // Export all the types as named exports
 export * from './types.js'
