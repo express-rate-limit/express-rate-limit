@@ -22,7 +22,7 @@ app.use(limiter)
 
 app.post('/reset', async (req, res) => {
     if (/* Validate that they completed the captcha or whatever */) {
-        limiter.resetKey(ipKeyGenerator(req.ip));
+        await limiter.resetKey(ipKeyGenerator(req.ip));
         res.send('Rate limit is reset!')
     } else {
         res.status(400).send("Wrong answer, try again.")
@@ -37,6 +37,13 @@ IP through [`ipKeyGenerator`](/reference/helpers#ipkeygenerator) produces the
 same key the limiter uses (pass your `ipv6Subnet` as the second argument if you
 changed it). If you use a custom `keyGenerator`, pass the key it returns
 instead.
+
+`resetKey` returns the result of the store's `resetKey` method, which is a
+promise for most stores (including the default `MemoryStore`). Await it so that
+you can handle an error from the store, for example, if its database is down.
+Express 5 passes errors from `async` handlers to your error middleware. With
+Express 4, wrap the call in `try`/`catch`, or the error becomes an unhandled
+promise rejection.
 
 ## `getKey(key)`
 
