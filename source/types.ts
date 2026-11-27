@@ -107,7 +107,7 @@ export type RateLimitRequestHandler = RequestHandler & {
 	 *
 	 * @param key {string} - The identifier for a client.
 	 */
-	resetKey: (key: string) => void
+	resetKey: (key: string) => Promise<void> | void
 
 	/**
 	 * Method to fetch a client's hit count and reset time.
