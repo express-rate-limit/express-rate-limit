@@ -43,6 +43,12 @@ describe('ipKeyGenerator', () => {
 		expect(ipKeyGenerator('::')).toBe('::/56')
 	})
 
+	it('should return an IPv4-translated address as an IPv4 address regardless of notation', () => {
+		expect(ipKeyGenerator('::ffff:0:1.2.3.4')).toBe('1.2.3.4')
+		expect(ipKeyGenerator('::ffff:0:102:304')).toBe('1.2.3.4')
+		expect(ipKeyGenerator('::ffff:0:5.6.7.8')).toBe('5.6.7.8')
+	})
+
 	it('should return an IPv6 address unchanged with ipv6Subnet set to false', () => {
 		expect(
 			ipKeyGenerator('0123:4567:89ab:cdef:0123:4567:89ab:cdef', false),
