@@ -169,7 +169,7 @@ function run_logger_tests {
 	pnpm test
 	echo
 
-	print_info "running store tests (express 4)\n"
+	print_info "running logger tests (express 4)\n"
 	# Install Express v4
 	pnpm install express@4
 	# Run the tests with this version

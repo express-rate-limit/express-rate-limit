@@ -32,7 +32,9 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
       - name: Bump version
-        run: npm version "${{ github.event.inputs.version }}"
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: npm version "$VERSION"
       - name: Upload git tags
         run: |
           git push
