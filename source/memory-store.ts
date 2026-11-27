@@ -114,7 +114,10 @@ export class MemoryStore implements Store {
 		}
 
 		client.totalHits++
-		return client
+
+		// Return a copy: the caller reads it after an `await`, by which time other
+		// requests may have incremented the same client.
+		return { ...client }
 	}
 
 	/**

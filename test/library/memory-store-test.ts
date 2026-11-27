@@ -56,6 +56,20 @@ describe('memory store test', () => {
 		expect(totalHits).toEqual(1)
 	})
 
+	it('returns a separate result for each call to `increment`', async () => {
+		const store = new MemoryStore()
+		store.init({ windowMs: minute } as Options)
+		const key = 'test-store'
+
+		// Both calls run before either caller reads its result.
+		const [first, second] = await Promise.all([
+			store.increment(key),
+			store.increment(key),
+		])
+		expect(first.totalHits).toEqual(1)
+		expect(second.totalHits).toEqual(2)
+	})
+
 	it('sets the value to 1 on first call to `increment`', async () => {
 		const store = new MemoryStore()
 		store.init({ windowMs: minute } as Options)
