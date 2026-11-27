@@ -295,6 +295,25 @@ describe('headers test', () => {
 			await request(app).get('/').expect(200)
 			await request(app).get('/').expect(429).expect('retry-after', '60')
 		})
+
+		it('should not set the `ratelimit-reset` header for draft 6 when store does not return it', async () => {
+			const app = createServer(
+				rateLimit({
+					windowMs: 60 * 1000,
+					limit: 5,
+					store: new MockStore(),
+					standardHeaders: 'draft-6',
+				}),
+			)
+
+			const response = await request(app)
+				.get('/')
+				.expect('ratelimit-policy', '5;w=60')
+				.expect('ratelimit-limit', '5')
+				.expect('ratelimit-remaining', '4')
+				.expect(200)
+			expect(response.get('ratelimit-reset')).toBeUndefined()
+		})
 	})
 
 	describe('ratelimit-header-parser compatibility', () => {

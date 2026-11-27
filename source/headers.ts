@@ -91,15 +91,14 @@ export const setDraft6Headers = (
 	if (response.headersSent) return
 
 	const windowSeconds = Math.ceil(windowMs / 1000)
-	const resetSeconds = getResetSeconds(windowMs, info.resetTime)
 
 	response.setHeader('RateLimit-Policy', `${info.limit};w=${windowSeconds}`)
 	response.setHeader('RateLimit-Limit', info.limit.toString())
 	response.setHeader('RateLimit-Remaining', info.remaining.toString())
 
 	// Set this header only if the store returns a `resetTime`.
-	if (typeof resetSeconds === 'number')
-		response.setHeader('RateLimit-Reset', resetSeconds.toString())
+	if (info.resetTime)
+		response.setHeader('RateLimit-Reset', info.resetTime.toString())
 }
 
 /**
