@@ -45,9 +45,12 @@ class ValidationError extends Error {
 class ChangeWarning extends ValidationError {}
 
 /**
- * List of store instances that have been used with any express-rate-limit instance
+ * List of store instances that have been used with any express-rate-limit instance.
+ *
+ * A WeakSet, so that it does not keep discarded stores (and their data or
+ * database clients) in memory for the life of the process.
  */
-const usedStores = new Set<Store>()
+const usedStores = new WeakSet<Store>()
 
 /**
  * Maps the key used in a store for a certain request, and ensures that the
